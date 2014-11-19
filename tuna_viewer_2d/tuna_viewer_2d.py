@@ -4,15 +4,15 @@
 Basic viewer widget for 2d images. As standalone, minimal GUI for opening FITS files.
 """
 
-import zmq
+import sys
+sys.path.append ( '/home/nix/cloud_essential2/temp/btfi/tuna2/tuna_logging' )
+
+import tuna_logging
 
 def main ( ):
-    zmq_context = zmq.Context ( )
-    zmq_socket = zmq_context.socket ( zmq.REQ )
-    zmq_socket.connect ( "tcp://127.0.0.1:5000" )
-    zmq_socket.send ( b'Hi' )
-    zmq_ack = zmq_socket.recv ( )
-    print ( zmq_ack )
+    tuna_log = tuna_logging.tuna_log_client ( )
+    log = tuna_log.log
+    #log ( b'test' )
 
 if __name__ == "__main__":
     main ( )
