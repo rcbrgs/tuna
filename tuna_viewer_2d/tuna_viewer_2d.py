@@ -10,7 +10,7 @@ import tuna_logging
 
 import PyQt4.QtGui
 import PyQt4.QtCore
-
+import astropy.io.fits
 
 class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
     def __init__ ( self, tuna_log_client ):
@@ -34,7 +34,7 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         action_open_file = PyQt4.QtGui.QAction ( '&Open file ...', self )
         action_open_file.setShortcut ( 'Ctrl+O' )
         action_open_file.setStatusTip ( 'Starts the process of selecting a file to be opened.' )
-        action_open_file.triggered.connect ( self.show_open_file_dialog )
+        action_open_file.triggered.connect ( self.open_file )
         # Menu
         bar_menu = self.menuBar ( ) 
         menu_file = bar_menu.addMenu ( '&File' )
@@ -54,15 +54,49 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         self.statusBar ( ) . showMessage ( msg )
         self.logger ( bytes ( msg, 'utf-8' ) )
 
-    def show_open_file_dialog ( self ):
+    def open_file ( self ):
         self.log ( "Opening getOpenFileName dialog." )
         file_name = PyQt4.QtGui.QFileDialog.getOpenFileName ( self, 'Open file ...', '.', 'FITS files (*.fits *.FITS);;ADHOC files (*.ad2 *.AD2)' )
         self.log ( "File selected: %s." % file_name )
-
+        try:
+            hdu_list = astropy.io.fits.open ( file_name )
+            self.log ( "File opened as a FITS file." )
+            hdu_list.info ( )
+            print ( hdu_list[0].header )
+            image_height = hdu_list[0].header['NAXIS1']
+            image_width = hdu_list[0].header['NAXIS2']
+            self.log ( "Image height = %d." % image_height )
+            self.log ( "Image width = %d." % image_width )
+            image_data = hdu_list[0].data
+            self.canvas_2d = PyQt4.QtGui.QPixmap ( image_width, image_width )
+            self.log ( "QPixmap depth = %d" % self.canvas_2d.depth ( ) )
+            #http://nathanhorne.com/?p=500
+            converted_image_data = PyQt4.QtGui.QImage ( image_width, image_height, PyQt4.QtGui.QImage.Format_RGB32 )
+            import struct
+            uchar_data = converted_image_data.bits ( )
+            uchar_data.setsize ( converted_image_data.byteCount ( ) )
+            i = 0
+            for height in range ( image_height ):
+                for width in range ( image_width ):
+                    gray = int ( image_data [height][width] )
+                    uchar_data[i:i+4] = struct.pack ('I', gray )
+                    i += 4
+            #converted_image_data = []
+            #for item in image_data:
+            #    for subitem in item:
+            #        converted_image_data.append ( int ( subitem ) )
+            #        self.canvas_2d.loadFromData ( bytearray ( converted_image_data ), image_width * image_height )
+            self.canvas_2d.convertFromImage ( converted_image_data )
+            self.canvas_2d_label = PyQt4.QtGui.QLabel ( self )
+            self.canvas_2d_label.setPixmap ( self.canvas_2d )         
+            self.setCentralWidget ( self.canvas_2d_label )
+        except IOError:
+            self.log ( "Could not open file as FITS file." )
 
 def main ( ):
     tuna_log = tuna_logging.tuna_log_client ( )
     log = tuna_log.log
+    log ( b"Tuna starting up." )
 
     app = PyQt4.QtGui.QApplication ( sys.argv )
     main_widget = tuna_viewer_2d ( tuna_log )
