@@ -19,7 +19,7 @@ def main ( ):
     logging.debug ( "Logging threshold: logging DEBUG or higher." )
     # instantiate a REP node 
     zmq_socket = zmq_context.socket ( zmq.REP )
-    zmq_socket.bind ( "tcp://*:5000" )
+    zmq_socket.bind ( "tcp://127.0.0.1:5000" )
     # log incoming messages
     while True:
         msg = zmq_socket.recv ( )
