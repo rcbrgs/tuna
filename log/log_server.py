@@ -1,7 +1,8 @@
 """
-Logging server for Tuna
+Tuna logging server.
 
-This server runs as a daemon and saves to file messages received through ZeroMQ from Tuna.
+Classes:
+log_server -- Daemon that saves to file messages received through ZeroMQ.
 """
 
 import logging
@@ -22,24 +23,28 @@ import zmq
 #            print ( u"Expected: 'ACK'" )
 
 
+class log_server ( ):
+    def __init__ ( self ):
+        # config logging module
+        logging.basicConfig ( filename = '/home/nix/tuna.log', level = logging.DEBUG )
+        logging.info ( "Tuna logging module started." )
+        logging.debug ( "Logging threshold: logging DEBUG or higher." )
+        # instantiate a REP node 
+        self.zmq_context = zmq.Context ( )
+        self.zmq_socket_rep = zmq_context.socket ( zmq.REP )
+        self.zmq_socket_rep.bind ( "tcp://127.0.0.1:5001" )
+    def run ( self ):
+        """
+        Log incoming messages.
+        """
+        while True:
+            msg = self.zmq_socket_rep.recv ( )
+            logging.debug ( "%s" % msg.decode("utf-8") )
+            self.zmq_socket_rep.send ( b'ACK' )
 
 def main ( ):
-    # config logging module
-    logging.basicConfig ( filename = '/home/nix/tuna.log', level = logging.DEBUG )
-    logging.info ( "Tuna logging module started." )
-    logging.debug ( "Logging threshold: logging DEBUG or higher." )
-    # instantiate a REP node 
-    zmq_context = zmq.Context ( )
-    zmq_socket = zmq_context.socket ( zmq.REP )
-    zmq_socket.bind ( "tcp://127.0.0.1:5001" )
-    # log incoming messages
-    while True:
-        msg = zmq_socket.recv ( )
-        logging.debug ( "%s" % msg.decode("utf-8") )
-        zmq_socket.send ( b'ACK' )
-
-
-# control
+    tuna_log_server = log_server ( )
+    tuna_log_server.run ( )
 
 if __name__ == "__main__":
     main ( )

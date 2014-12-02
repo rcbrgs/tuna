@@ -43,7 +43,6 @@ class zmq_bus ( ):
                     print ( u"Expected: 'ACK'" )
                 self.__zmq_socket_rep.send ( b'ACK' )
 
-
 def main ( ):
     zmq_proxy = zmq_bus ( )
     zmq_proxy.run ( )
