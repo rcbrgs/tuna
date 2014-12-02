@@ -1,16 +1,18 @@
-#!/usr/bin/env python3
+"""
+tuna_viewer_2d docstring
 
-"""tuna_viewer_2d docstring
 Basic viewer widget for 2d images. As standalone, minimal GUI for opening FITS files.
 """
-
-import sys
-sys.path.append ( '/home/nix/cloud_essential2/temp/btfi/tuna2/tuna_logging' )
-import tuna_logging
 
 import PyQt4.QtGui
 import PyQt4.QtCore
 import astropy.io.fits
+
+import sys
+sys.path.append ( '/home/nix/cloud_essential2/tuna' )
+#import github.zmq.zmq_client
+from github.zmq import zmq_client
+#from ..zmq import zmq_client
 
 class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
     def __init__ ( self, tuna_log_client ):
@@ -94,15 +96,10 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
             self.log ( "Could not open file as FITS file." )
 
 def main ( ):
-    tuna_log = tuna_logging.tuna_log_client ( )
-    log = tuna_log.log
-    log ( b"Tuna starting up." )
-
+    tuna_log = zmq_client.zmq_client ( )
     app = PyQt4.QtGui.QApplication ( sys.argv )
     main_widget = tuna_viewer_2d ( tuna_log )
-    log ( b"Entering PyQt4 app.exec_ loop." )
     sys.exit ( app.exec_ ( ) )
-    log ( b"Exited PyQt4 app.exec_ loop." )
 
 if __name__ == "__main__":
     main ( )

@@ -31,11 +31,12 @@ class zmq_bus ( ):
 
         while True:
             msg = self.__zmq_socket_rep.recv ( )
-            msg_partition = msg.partition ( ": " )
+            msg_partition = str ( msg, ( "utf-8" ) ).partition ( ": " )
             msg_destination = msg_partition[0]
             if msg_destination == 'log':
                 self.__zmq_socket_req.connect ( "tcp://127.0.0.1:5001" )
-                self.__zmq_socket_req.send ( "%s" % msg_partition[2].decode("utf-8") )
+                self.__zmq_socket_req.send ( msg_partition[2].encode("utf-8") )
+                #self.__zmq_socket_req.send ( msg )
                 answer = self.__zmq_socket_req.recv ( ) 
                 if answer.decode ( "utf-8" ) != 'ACK':
                     print ( u'Something is fishy!' )
