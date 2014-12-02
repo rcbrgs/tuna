@@ -15,14 +15,14 @@ class zmq_bus ( ):
     run -- enters the orchestration loop.
     """
 
-    def __init__ ( ):
+    def __init__ ( self ):
         self.__zmq_context = zmq.Context ( )
         self.__zmq_socket_req = self.__zmq_context.socket ( zmq.REQ )
         self.__zmq_socket_rep = self.__zmq_context.socket ( zmq.REP )
         self.__zmq_socket_rep.bind ( "tcp://127.0.0.1:5000" )
 
 
-    def run ( ):
+    def run ( self ):
         """
         Orchestrate incoming messages.
 
