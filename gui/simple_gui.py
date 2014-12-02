@@ -10,9 +10,7 @@ import astropy.io.fits
 
 import sys
 sys.path.append ( '/home/nix/cloud_essential2/tuna' )
-#import github.zmq.zmq_client
 from github.zmq import zmq_client
-#from ..zmq import zmq_client
 
 class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
     def __init__ ( self, tuna_log_client ):
@@ -22,12 +20,6 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
 
     def init_gui ( self ):
         self.log ( 'Creating GUI elements.' )
-        # Main window buttons
-        #button_exit = PyQt4.QtGui.QPushButton ( 'Exit', self )
-        #button_exit.clicked.connect ( PyQt4.QtCore.QCoreApplication.instance ( ).quit )
-        #button_exit.resize ( button_exit.sizeHint ( ) )
-        #button_exit.move ( 50, 50 )
-        #button_exit.setToolTip ( 'Exits the program immediately.' )
         # Actions
         action_exit = PyQt4.QtGui.QAction ('&Exit', self )
         action_exit.setShortcut ( 'Ctrl+Q' )
@@ -63,7 +55,7 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         try:
             hdu_list = astropy.io.fits.open ( file_name )
             self.log ( "File opened as a FITS file." )
-            hdu_list.info ( )
+            #hdu_list.info ( )
             print ( hdu_list[0].header )
             image_height = hdu_list[0].header['NAXIS1']
             image_width = hdu_list[0].header['NAXIS2']
@@ -83,11 +75,6 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
                     gray = int ( image_data [height][width] )
                     uchar_data[i:i+4] = struct.pack ('I', gray )
                     i += 4
-            #converted_image_data = []
-            #for item in image_data:
-            #    for subitem in item:
-            #        converted_image_data.append ( int ( subitem ) )
-            #        self.canvas_2d.loadFromData ( bytearray ( converted_image_data ), image_width * image_height )
             self.canvas_2d.convertFromImage ( converted_image_data )
             self.canvas_2d_label = PyQt4.QtGui.QLabel ( self )
             self.canvas_2d_label.setPixmap ( self.canvas_2d )         

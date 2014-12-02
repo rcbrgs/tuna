@@ -36,7 +36,6 @@ class zmq_bus ( ):
             if msg_destination == 'log':
                 self.__zmq_socket_req.connect ( "tcp://127.0.0.1:5001" )
                 self.__zmq_socket_req.send ( msg_partition[2].encode("utf-8") )
-                #self.__zmq_socket_req.send ( msg )
                 answer = self.__zmq_socket_req.recv ( ) 
                 if answer.decode ( "utf-8" ) != 'ACK':
                     print ( u'Something is fishy!' )
