@@ -19,8 +19,17 @@ class zmq_bus ( ):
         self.__zmq_context = zmq.Context ( )
         self.__zmq_socket_req = self.__zmq_context.socket ( zmq.REQ )
         self.__zmq_socket_rep = self.__zmq_context.socket ( zmq.REP )
-        self.__zmq_socket_rep.bind ( "tcp://127.0.0.1:5000" )
+        try: 
+            self.__zmq_socket_rep.bind ( "tcp://127.0.0.1:5000" )
+        except zmq.ZMQError as error_message:
+            print ( 'ZMQError: %s' % error_message )
+            import sys
+            sys.exit ( 'Could not bind to port.' )
         self.__lock = True
+
+        self.__zmq_poller = zmq.Poller ( )
+        self.__zmq_poller.register ( self.__zmq_socket_rep, zmq.POLLIN )
+
 
     def __call_log ( self, msg ):
         """
@@ -39,7 +48,7 @@ class zmq_bus ( ):
         """
         Test procedure for zmq_bus.
         """
-        print ( "zmq_bus received msg: %s." % msg )
+        print ( "zmq_bus received the message '%s'." % msg )
 
 
     def check_ACK ( self, ack_msg ):
@@ -52,7 +61,7 @@ class zmq_bus ( ):
         """
         Gracefully shutdown this process.
         """
-        
+
         self.__lock = False
         self.__zmq_socket_req.connect ( "tcp://127.0.0.1:5000" )
         self.__zmq_socket_req.send ( b'test: Shutting down tuna zmq bus.' )
@@ -73,12 +82,14 @@ class zmq_bus ( ):
             'test' : self.__call_test }
 
         while self.__lock == True:
-            msg = self.__zmq_socket_rep.recv ( )
-            msg_partition = str ( msg, ( "utf-8" ) ).partition ( ": " )
-            msg_destination = msg_partition[0]
-            msg_contents = msg_partition[2]
-            destination_call_table [ msg_destination ] ( msg_contents )
-            self.__zmq_socket_rep.send ( b'ACK' )
+            zmq_buffer = dict ( self.__zmq_poller.poll ( 5000 ) )
+            if self.__zmq_socket_rep in zmq_buffer and zmq_buffer [ self.__zmq_socket_rep ] == zmq.POLLIN:
+                msg = self.__zmq_socket_rep.recv ( )
+                msg_partition = str ( msg, ( "utf-8" ) ).partition ( ": " )
+                msg_destination = msg_partition[0]
+                msg_contents = msg_partition[2]
+                destination_call_table [ msg_destination ] ( msg_contents )
+                self.__zmq_socket_rep.send ( b'ACK' )
 
 def main ( ):
     zmq_proxy = zmq_bus ( )
