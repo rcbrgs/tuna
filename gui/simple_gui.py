@@ -12,7 +12,7 @@ import astropy.io.fits
 import sys
 sys.path.append ( '/home/nix/cloud_essential2/tuna' )
 from github.zmq import zmq_client
-from github.gui import widget_viewer_2d
+from github.gui import widget_toolbox, widget_viewer_2d
 
 class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
     def __init__ ( self, tuna_log_client, desktop_widget ):
@@ -55,6 +55,9 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         self.setWindowTitle ( 'Tuna' )
         self.statusBar ( ).showMessage ( 'Waiting for command.' )
         self.show ( )
+        # Toolboxes
+        self.instrument_calibration_toolbox = widget_toolbox.toolbox ( )
+        self.addDockWidget ( PyQt4.QtCore.Qt.LeftDockWidgetArea, self.instrument_calibration_toolbox )
 
     def log ( self, msg ):
         self.statusBar ( ) . showMessage ( msg )
