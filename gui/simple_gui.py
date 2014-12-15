@@ -14,12 +14,16 @@ from github.zmq import zmq_client
 from github.gui import widget_viewer_2d
 
 class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
-    def __init__ ( self, tuna_log_client ):
+    def __init__ ( self, tuna_log_client, desktop_widget ):
         super ( tuna_viewer_2d, self ).__init__ ( )
         self.logger = tuna_log_client.log
+        self.desktop_widget = desktop_widget
         self.init_gui ( )
 
     def init_gui ( self ):
+        """
+        Create initial GUI elements and display them.
+        """
         self.log ( 'Creating GUI elements.' )
         # Actions
         action_exit = PyQt4.QtGui.QAction ('&Exit', self )
@@ -39,7 +43,11 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         self.toolbar = self.addToolBar ( 'Exit' )
         self.toolbar.addAction ( action_exit )
         # Main window
+        self.background = PyQt4.QtGui.QLabel ( )
+        self.setCentralWidget ( self.background )
         self.log ( 'Configuring main window.')
+        desktop_rect = self.desktop_widget.availableGeometry ( )
+        print ( desktop_rect.height ( ) )
         self.setGeometry ( 300, 300, 250,150 )
         self.setWindowTitle ( 'Tuna 2D Viewer' )
         self.statusBar ( ).showMessage ( 'Waiting for command.' )
@@ -56,8 +64,6 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         try:
             hdu_list = astropy.io.fits.open ( file_name )
             self.log ( "File opened as a FITS file." )
-            #hdu_list.info ( )
-            #print ( hdu_list[0].header )
             image_height = hdu_list[0].header['NAXIS1']
             image_width = hdu_list[0].header['NAXIS2']
             self.log ( "Image height = %d." % image_height )
@@ -77,17 +83,15 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
                     uchar_data[i:i+4] = struct.pack ('I', gray )
                     i += 4
             self.canvas_2d.convertFromImage ( converted_image_data )
-            #self.canvas_2d_label = PyQt4.QtGui.QLabel ( self )
-            #self.canvas_2d_label.setPixmap ( self.canvas_2d )         
-            #self.setCentralWidget ( self.canvas_2d_label )
             self.image_viewer = widget_viewer_2d.widget_viewer_2d ( self.canvas_2d )
+            self.addDockWidget ( PyQt4.QtCore.Qt.LeftDockWidgetArea, self.image_viewer )
         except IOError:
             self.log ( "Could not open file as FITS file." )
 
 def main ( ):
     tuna_log = zmq_client.zmq_client ( )
     app = PyQt4.QtGui.QApplication ( sys.argv )
-    main_widget = tuna_viewer_2d ( tuna_log )
+    main_widget = tuna_viewer_2d ( tuna_log, app.desktop ( ) )
     sys.exit ( app.exec_ ( ) )
 
 if __name__ == "__main__":
