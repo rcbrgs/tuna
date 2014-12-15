@@ -1,7 +1,8 @@
 """
-tuna_viewer_2d docstring
+simple_gui is a standalone, minimal GUI for Tuna.
 
-Basic viewer widget for 2d images. As standalone, minimal GUI for opening FITS files.
+This module should be run a an app by end users that want a GUI frontend to Tuna tools and pipelines. 
+Also, some facilities do not make sense outside of the standalone app, such as the pipeline editor.
 """
 
 import PyQt4.QtGui
@@ -18,6 +19,7 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         super ( tuna_viewer_2d, self ).__init__ ( )
         self.logger = tuna_log_client.log
         self.desktop_widget = desktop_widget
+        self.open_images_list = [ ]
         self.init_gui ( )
 
     def init_gui ( self ):
@@ -47,9 +49,10 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         self.setCentralWidget ( self.background )
         self.log ( 'Configuring main window.')
         desktop_rect = self.desktop_widget.availableGeometry ( )
-        print ( desktop_rect.height ( ) )
+        self.log ( 'Desktop height = ' + str ( desktop_rect.height ( ) ) )
+        self.log ( 'Desktop width  = ' + str ( desktop_rect.width ( ) ) )
         self.setGeometry ( 300, 300, 250,150 )
-        self.setWindowTitle ( 'Tuna 2D Viewer' )
+        self.setWindowTitle ( 'Tuna' )
         self.statusBar ( ).showMessage ( 'Waiting for command.' )
         self.show ( )
 
