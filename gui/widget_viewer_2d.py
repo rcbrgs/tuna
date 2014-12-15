@@ -8,12 +8,19 @@ import PyQt4.QtGui
 import PyQt4.QtCore
 
 class widget_viewer_2d ( PyQt4.QtGui.QDockWidget ):
-    def __init__ ( self, image_pixmap=PyQt4.QtGui.QPixmap, *args, **kwargs ):
-        self.image_canvas = image_pixmap
+    opened = PyQt4.QtCore.pyqtSignal ( str )
+    closed = PyQt4.QtCore.pyqtSignal ( str )
+    def __init__ ( self, *args, **kwargs ):
         super ( widget_viewer_2d, self ).__init__ ( *args, **kwargs )
+        self.setFloating ( True )
+        
+    def set_QPixmap ( self, image_pixmap = PyQt4.QtGui.QPixmap ):
+        self.image_canvas = image_pixmap
         self.canvas_label = PyQt4.QtGui.QLabel ( self )
         self.canvas_label.setPixmap ( self.image_canvas )
         self.setWidget ( self.canvas_label )
-        self.setFloating ( True )
-        #self.setAllowedAreas ( PyQt4.QtCore.Qt.LeftDockWidgetArea )
-        #self.show ( )
+        self.opened.emit ( str ( self.image_canvas.cacheKey ( ) ) )
+
+    def closeEvent ( self, event ):
+        self.closed.emit ( str ( self.image_canvas.cacheKey ( ) ) )
+        super ( widget_viewer_2d, self ).closeEvent ( event )

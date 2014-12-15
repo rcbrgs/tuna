@@ -86,10 +86,23 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
                     uchar_data[i:i+4] = struct.pack ('I', gray )
                     i += 4
             self.canvas_2d.convertFromImage ( converted_image_data )
-            self.image_viewer = widget_viewer_2d.widget_viewer_2d ( self.canvas_2d )
+            self.image_viewer = widget_viewer_2d.widget_viewer_2d ( )
+            self.image_viewer.opened.connect ( self.register_image_widget )
+            self.image_viewer.closed.connect ( self.deregister_image_widget )
+            self.image_viewer.set_QPixmap ( self.canvas_2d )
             self.addDockWidget ( PyQt4.QtCore.Qt.LeftDockWidgetArea, self.image_viewer )
         except IOError:
             self.log ( "Could not open file as FITS file." )
+
+    def register_image_widget ( self, cache_key_string ):
+        self.open_images_list.append ( cache_key_string )
+        self.log ( "Image opened. Current list of QPixmap.cacheKey's:" )
+        self.log ( str ( self.open_images_list ) )
+
+    def deregister_image_widget ( self, cache_key_string ):
+        self.open_images_list.remove ( cache_key_string )
+        self.log ( "Image opened. Current list of QPixmap.cacheKey's:" )
+        self.log ( str ( self.open_images_list ) )
 
 def main ( ):
     tuna_log = zmq_client.zmq_client ( )
