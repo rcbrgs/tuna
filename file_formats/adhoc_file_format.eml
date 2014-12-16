@@ -1,0 +1,102 @@
+From: Philippe Amram <philippe.amram@lam.fr>
+Subject: Additional information : structure of the ADHOCw files
+Date: Tue, 16 Dec 2014 16:57:58 +0100
+To: Renato BORGES <renato.borges@lam.fr>
+
+
+Additional information : structure of the ADHOCw files
+
+This document describes the different formats which are managed by the program ADHOCw File Translator :
+1) New ADHOCw format
+2) Old ADHOC/Visu2/Visu3 format
+3) Elc compressed format
+4) IDL and binary formats. In this section examples to read or write data are given for Fortran or C programmers.
+5) FITS format
+
+1) New ADHOCw data format :
+The new ADHOCw data format will be the default files format for the new ADHOCw software (Windows95/WindowsNT).
+The new ADHOCw structure has been defined in order to optimize the read/write operations from/to the hard disk.
+a- Principle :
+. the format is identical for 2-D and 3-D data
+. data are stored as 4 bytes floating values (-3.4E381 to +3.4E381)
+. parameters and comment are stored at the end of the file
+. default suffixes for the new ADHOC files are *.AD2 (for 2-D) and *.AD3 (for 3-D)
+b- Differences with the old ADHOC/VISU2/VISU3 format :
+. data dynamics is no more limited to -32767 +32879
+. comments can now be 127 characters (78 previously)
+. separate parameter files are no more used
+. size of the files is twice the previous
+c- Compatibility :
+. the structure is simple, in order to read easily ADHOCw files from user's programs written in Fortran or Basic (without parameters & comments)
+. the structure is IDL compatible (without parameters & comments)
+d- C library :
+. a C++ (object oriented C) library is available for users (binary and C code)
+e- Structure :
+. data : lx*ly*lz*4 bytes (lx,ly and lz are the dimension of the cube) (lz=3D0 for 2-D)
+. parameters : 128 bytes
+. comment : 128 bytes
+so, the total length of the file is (lx*ly*lz)*4+256 bytes
+f- Coding :
+. as coding is different from PC and UNIX machines, the 4 first bytes of the parameters (which contain an integer value representing the number of dimensions of the data) will be used as test.
+g- Parameters :
+. all values are 4 bytes (integers, floats or character blocks)
+. all integers are long integers (4 bytes)
+. 10 first values are common for 2-D and 3-D files
+. other values are specific to these different files
+. values are compatible with old ADHOC files (*.DA2 and *.DA3)
+
+For all files (2D and 3D) :
+
+location	bytes	type	mnemo	description	default
+0	0-3	integer	nbdim	nb of dimensions	3
+1	4-7	character	id1	identification 1/2	" "
+2	7-11	character	id2	identification 2/2	" "
+3	12-15	integer	lx	dimension in X	256
+4	16-19	integer	ly	dimension in Y	256
+5	20-23	integer	lz	dimension in Z	24
+6	24-27	float	scale	arcsec/pixel	1.
+7	28-31	integer	ix0	top-left corner	0
+8	32-35	integer	iy0	bottom-right corner	0
+9	36-39	float	zoom	zoom	1.
+Note : nbdim can be 2, 3, or -3
+2 =3D 2-D
+3 =3D 3-D ordered in spectra (Z*X*Y) [default for ADHOC]
+-3 =3D 3-D ordered in channels (X*Y*Z)
+
+For 2-D files :
+
+location	bytes	type	mnemo	description	default
+10	40-43	integer	modevis	last visualization mode	0
+11	44-47	float	thrshld	last threshold	0.
+12	47-51	float	step	last step	1.
+13	52-55	integer	nbiso	last nb of displayed isophotes	256
+14	56-59	integer	pal	last displayed palette	1
+15	60-127	 	 	unused	=20
+Note : these values are just keeping the last displaying parameters (as =
+for *.%%% VISU2 parameter files)
+
+For 3-D files :
+
+location	bytes	type	mnemo	description	default
+10	40-43	float	xl1	lambda of the 1st channel (in =
+Angstroems)	6600.
+11	44-47	float	xil	interfringe (in Angstroems)	8.22
+12	47-51	float	vr0	mean radial velocity of the object =
+(km/s)	0.
+13	52-55	float	corrv	heliocentric RV correction (km/s)	=
+0.
+14	56-59	float	p0	PF interference order	793.
+15	60-63	float	xlp	reference lambda for p0 (in Angstroems)	=
+6563.
+16	64-67	float	xl0	observed zero-velocity lambda (in =
+Angstroems)	6563.
+17	68-71	float	vr1	radial velocity of the 1st channel (in =
+km./s)	0.
+18	72-75	float	xik	interfringe (in km/s)	386.
+19	76-127	 	 	unused	=20
+Note : these values are similar to *.%%3 ADHOC/VISU3 parameter files
+
+h- Comments :
+. 128 bytes
+. when read or written, the 128th byte is automatically
+forced to 0 (for C compatibility)

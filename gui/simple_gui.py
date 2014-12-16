@@ -43,12 +43,13 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         menu_file.addAction ( action_exit )
         menu_file.addAction ( action_open_file )
         # Toolbar
-        self.toolbar = self.addToolBar ( 'Exit' )
+        self.toolbar = self.addToolBar ( "" )
         self.toolbar.addAction ( action_exit )
+        self.toolbar.addAction ( action_open_file )
         # Main window
+        self.log ( 'Configuring main window.')
         self.background = PyQt4.QtGui.QLabel ( )
         self.setCentralWidget ( self.background )
-        self.log ( 'Configuring main window.')
         desktop_rect = self.desktop_widget.availableGeometry ( )
         self.log ( 'Desktop height = ' + str ( desktop_rect.height ( ) ) )
         self.log ( 'Desktop width  = ' + str ( desktop_rect.width ( ) ) )
@@ -69,28 +70,32 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         file_name = PyQt4.QtGui.QFileDialog.getOpenFileName ( self, 'Open file ...', '.', 'All known types (*.fits *.FITS *.ad2 *.AD2 *.ad3 *.AD3);;FITS files (*.fits *.FITS);;ADHOC files (*.ad2 *.AD2 *.ad3 *.AD3)' )
         self.log ( "File selected: %s." % file_name )
         try:
+            self.log ( "Trying to read file as FITS file." )
             hdu_list = astropy.io.fits.open ( file_name )
             self.log ( "File opened as a FITS file." )
             fits_height = hdu_list[0].header['NAXIS1']
             fits_width = hdu_list[0].header['NAXIS2']
             image_ndarray = hdu_list[0].data
+            self.log ( "Assigned data section of first HDU as the image ndarray." )
         except OSError as e:
             self.log ( "Could not open file as FITS file." )
             self.log ( "OSError: %s." % e )
             adhoc_file = adhoc.adhoc ( file_name = file_name )
             adhoc_file.read ( )
-            image_data = adhoc_file.get_data ( )
+            self.log ( "File opened as an ADHOC 2D or 3D file." )
+            image_ndarray = adhoc_file.get_data ( )
+            self.log ( "Assigned ADHOC data to image ndarray." )
 
-        self.log ( "Image ndarray shape = %s." % str ( image_data.shape ) )
-        if len ( image_data.shape ) == 3:
-            image_slices = image_data.shape[0]
-            image_height = image_data.shape[1]
-            image_width = image_data.shape[2]
+        self.log ( "Image ndarray shape = %s." % str ( image_ndarray.shape ) )
+        if len ( image_ndarray.shape ) == 3:
+            image_slices = image_ndarray.shape[0]
+            image_height = image_ndarray.shape[1]
+            image_width = image_ndarray.shape[2]
         else:
-            if len ( image_data.shape ) == 2:
+            if len ( image_ndarray.shape ) == 2:
                 image_slices = 1
-                image_height = image_data.shape[0]
-                image_width = image_data.shape[1]
+                image_height = image_ndarray.shape[0]
+                image_width = image_ndarray.shape[1]
             else:
                 self.log ( "Unparseable image shape." )
                 return
@@ -107,9 +112,9 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         for height in range ( image_height ):
             for width in range ( image_width ):
                 if image_slices == 1:
-                    gray = int ( image_data[height][width] )
+                    gray = int ( image_ndarray[height][width] )
                 else:
-                    gray = int ( image_data[0][height][width] )
+                    gray = int ( image_ndarray[0][height][width] )
                 uchar_data[i:i+4] = struct.pack ('I', gray )
                 i += 4
         self.canvas_2d.convertFromImage ( converted_image_data )
