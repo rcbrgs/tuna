@@ -66,23 +66,34 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
 
     def open_file ( self ):
         self.log ( "Opening getOpenFileName dialog." )
-        file_name = PyQt4.QtGui.QFileDialog.getOpenFileName ( self, 'Open file ...', '.', 'FITS files (*.fits *.FITS);;ADHOC files (*.ad2 *.AD2)' )
+        file_name = PyQt4.QtGui.QFileDialog.getOpenFileName ( self, 'Open file ...', '.', 'All known types (*.fits *.FITS *.ad2 *.AD2 *.ad3 *.AD3);;FITS files (*.fits *.FITS);;ADHOC files (*.ad2 *.AD2 *.ad3 *.AD3)' )
         self.log ( "File selected: %s." % file_name )
         try:
             hdu_list = astropy.io.fits.open ( file_name )
             self.log ( "File opened as a FITS file." )
-            image_height = hdu_list[0].header['NAXIS1']
-            image_width = hdu_list[0].header['NAXIS2']
-            image_data = hdu_list[0].data
-        except IOError:
+            fits_height = hdu_list[0].header['NAXIS1']
+            fits_width = hdu_list[0].header['NAXIS2']
+            image_ndarray = hdu_list[0].data
+        except OSError as e:
             self.log ( "Could not open file as FITS file." )
+            self.log ( "OSError: %s." % e )
             adhoc_file = adhoc.adhoc ( file_name = file_name )
             adhoc_file.read ( )
             image_data = adhoc_file.get_data ( )
+
+        self.log ( "Image ndarray shape = %s." % str ( image_data.shape ) )
+        if len ( image_data.shape ) == 3:
             image_slices = image_data.shape[0]
             image_height = image_data.shape[1]
             image_width = image_data.shape[2]
-
+        else:
+            if len ( image_data.shape ) == 2:
+                image_slices = 1
+                image_height = image_data.shape[0]
+                image_width = image_data.shape[1]
+            else:
+                self.log ( "Unparseable image shape." )
+                return
         self.log ( "Image height = %d." % image_height )
         self.log ( "Image width = %d." % image_width )
         self.canvas_2d = PyQt4.QtGui.QPixmap ( image_width, image_height )
@@ -95,7 +106,10 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         i = 0
         for height in range ( image_height ):
             for width in range ( image_width ):
-                gray = int ( image_data [height][width] )
+                if image_slices == 1:
+                    gray = int ( image_data[height][width] )
+                else:
+                    gray = int ( image_data[0][height][width] )
                 uchar_data[i:i+4] = struct.pack ('I', gray )
                 i += 4
         self.canvas_2d.convertFromImage ( converted_image_data )
