@@ -75,7 +75,7 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
             self.log ( "Image height = %d." % image_height )
             self.log ( "Image width = %d." % image_width )
             image_data = hdu_list[0].data
-            self.canvas_2d = PyQt4.QtGui.QPixmap ( image_width, image_width )
+            self.canvas_2d = PyQt4.QtGui.QPixmap ( image_width, image_height )
             self.log ( "QPixmap depth = %d" % self.canvas_2d.depth ( ) )
             #http://nathanhorne.com/?p=500
             converted_image_data = PyQt4.QtGui.QImage ( image_width, image_height, PyQt4.QtGui.QImage.Format_RGB32 )
