@@ -16,6 +16,8 @@ class adhoc ( object ):
     """
     Data Trailer Unit: class associated to any adhoc format, like HDU (Header Data Unit) is associated to fits format
 
+    First implemented by Benoît Epinat from LAM.
+
     """
 
     def __init__ ( self, data = None, trailer = None, file_name = None ):

@@ -13,6 +13,7 @@ import sys
 sys.path.append ( '/home/nix/cloud_essential2/tuna' )
 from github.zmq import zmq_client
 from github.gui import widget_toolbox, widget_viewer_2d
+from github.file_formats import adhoc
 
 class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
     def __init__ ( self, tuna_log_client, desktop_widget ):
@@ -72,30 +73,37 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
             self.log ( "File opened as a FITS file." )
             image_height = hdu_list[0].header['NAXIS1']
             image_width = hdu_list[0].header['NAXIS2']
-            self.log ( "Image height = %d." % image_height )
-            self.log ( "Image width = %d." % image_width )
             image_data = hdu_list[0].data
-            self.canvas_2d = PyQt4.QtGui.QPixmap ( image_width, image_height )
-            self.log ( "QPixmap depth = %d" % self.canvas_2d.depth ( ) )
-            #http://nathanhorne.com/?p=500
-            converted_image_data = PyQt4.QtGui.QImage ( image_width, image_height, PyQt4.QtGui.QImage.Format_RGB32 )
-            import struct
-            uchar_data = converted_image_data.bits ( )
-            uchar_data.setsize ( converted_image_data.byteCount ( ) )
-            i = 0
-            for height in range ( image_height ):
-                for width in range ( image_width ):
-                    gray = int ( image_data [height][width] )
-                    uchar_data[i:i+4] = struct.pack ('I', gray )
-                    i += 4
-            self.canvas_2d.convertFromImage ( converted_image_data )
-            self.image_viewer = widget_viewer_2d.widget_viewer_2d ( )
-            self.image_viewer.opened.connect ( self.register_image_widget )
-            self.image_viewer.closed.connect ( self.deregister_image_widget )
-            self.image_viewer.set_QPixmap ( self.canvas_2d )
-            self.addDockWidget ( PyQt4.QtCore.Qt.LeftDockWidgetArea, self.image_viewer )
         except IOError:
             self.log ( "Could not open file as FITS file." )
+            adhoc_file = adhoc.adhoc ( file_name = file_name )
+            adhoc_file.read ( )
+            image_data = adhoc_file.get_data ( )
+            image_slices = image_data.shape[0]
+            image_height = image_data.shape[1]
+            image_width = image_data.shape[2]
+
+        self.log ( "Image height = %d." % image_height )
+        self.log ( "Image width = %d." % image_width )
+        self.canvas_2d = PyQt4.QtGui.QPixmap ( image_width, image_height )
+        self.log ( "QPixmap depth = %d" % self.canvas_2d.depth ( ) )
+        #http://nathanhorne.com/?p=500
+        converted_image_data = PyQt4.QtGui.QImage ( image_width, image_height, PyQt4.QtGui.QImage.Format_RGB32 )
+        import struct
+        uchar_data = converted_image_data.bits ( )
+        uchar_data.setsize ( converted_image_data.byteCount ( ) )
+        i = 0
+        for height in range ( image_height ):
+            for width in range ( image_width ):
+                gray = int ( image_data [height][width] )
+                uchar_data[i:i+4] = struct.pack ('I', gray )
+                i += 4
+        self.canvas_2d.convertFromImage ( converted_image_data )
+        self.image_viewer = widget_viewer_2d.widget_viewer_2d ( )
+        self.image_viewer.opened.connect ( self.register_image_widget )
+        self.image_viewer.closed.connect ( self.deregister_image_widget )
+        self.image_viewer.set_QPixmap ( self.canvas_2d )
+        self.addDockWidget ( PyQt4.QtCore.Qt.LeftDockWidgetArea, self.image_viewer )
 
     def register_image_widget ( self, cache_key_string ):
         self.open_images_list.append ( cache_key_string )
