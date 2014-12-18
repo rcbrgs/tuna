@@ -7,6 +7,10 @@ from pyfits import Column
 from time import sleep
 import matplotlib as mpl
 from matplotlib import pyplot as plt
+from sys import path
+path.append ( "/home/nix/sync/tuna/" )
+from github.file_format import file_format
+#from PyQt.QtGui import QPixmap
 #import codecs
 
 #verifier l'organisation des cubes fits si on les ouvre en python
@@ -14,7 +18,7 @@ from matplotlib import pyplot as plt
 #gestion des NaN a inclure (input/output)!!!
 
 
-class adhoc ( object ):
+class adhoc ( file_format.file_format ):
     """
     Class for reading files in one of the ADHOC file formats (AD2 or AD3).
 
@@ -32,6 +36,7 @@ class adhoc ( object ):
         self.__file_name = file_name
         self.__image_ndarray = image_ndarray
         self.__file_object = None
+        super ( adhoc, self ).__init__ ( )
 
     def discover_adhoc_type ( self ):
         if self.__file_name:
@@ -53,7 +58,7 @@ class adhoc ( object ):
                 return
             self.__adhoc_type = adhoc_file['trailer']['number_of_dimensions'][0]            
 
-    def read ( self ):
+    def get_ndarray ( self ):
         if self.__file_name == None:
             return
         if self.__adhoc_type == None:
@@ -70,10 +75,14 @@ class adhoc ( object ):
 
         if self.__adhoc_type == 2:
             self.read_adhoc_2d ( )
-            return
 
         if self.__adhoc_type == 3 or self.__adhoc_type == -3:
             self.read_adhoc_3d ( )
+        return self.__image_ndarray
+
+    def read ( self ):
+        self.get_ndarray ( )
+        return self.convert_from_ndarray_into_QPixmap_list ( self.__image_ndarray )
 
     def read_adhoc_2d ( self ):
         """
@@ -131,28 +140,63 @@ class adhoc ( object ):
         self.__image_ndarray[numpy.where ( numpy_data == -3.1E38 )] = numpy.nan
         self.__adhoc_trailer = numpy_data['trailer']
 
-        #print ( "Successfully read file as adhoc 2d object." )
+        print ( "Successfully read file as adhoc 2d object." )
 
     def read_adhoc_3d ( self, xyz = True ):
-        """Parameters
+        """
+        Parameters
         ----------
-        filename: string
-        Name of the input file
-        xyz=True: boolean (optional)
-        False to return data in standard zxy adhoc format
-        True  to return data in xyz format (default)
+        filename: string, Name of the input file
+        xyz = True: boolean (optional)
+              False to return data in standard zxy adhoc format
+              True  to return data in xyz format (default)
         """
 
         data = self.__file_object
-        data.seek(0, 2)
-        sz = (data.tell() - 256) / 4
-        #data.close()
+        data.seek ( 0, 2 )
+        sz = ( data.tell ( ) - 256 ) / 4
             
-        dt = np.dtype([('data', np.float32, sz), ('trailer', [('nbdim', np.int32), ('id', np.int8, 8), ('lx', np.int32), ('ly', np.int32), ('lz', np.int32), ('scale', np.float32), ('ix0', np.int32), ('iy0', np.int32), ('zoom', np.float32), ('xl1', np.float32), ('xi1', np.float32), ('vr0', np.float32), ('corrv', np.float32), ('p0', np.float32), ('xlp', np.float32), ('xl0', np.float32), ('vr1', np.float32), ('xik', np.float32), ('cdelt1', np.float64), ('cdelt2', np.float64), ('crval1', np.float64), ('crval2', np.float64), ('crpix1', np.float32), ('crpix2', np.float32), ('crota2', np.float32), ('equinox', np.float32), ('x_mirror', np.int8), ('y_mirror', np.int8), ('was_compressed', np.int8), ('none2', np.int8, 1), ('comment', np.int8, 128)])])
+        dt = np.dtype ( [ ( 'data', np.float32, sz ),
+                          ( 'trailer', 
+                            [ ( 'nbdim', np.int32 ), 
+                              ( 'id', np.int8, 8 ), 
+                              ( 'lx', np.int32 ), 
+                              ( 'ly', np.int32 ), 
+                              ( 'lz', np.int32 ), 
+                              ( 'scale', np.float32 ), 
+                              ( 'ix0', np.int32 ), 
+                              ( 'iy0', np.int32 ), 
+                              ( 'zoom', np.float32 ), 
+                              ( 'xl1', np.float32 ), 
+                              ( 'xi1', np.float32 ), 
+                              ( 'vr0', np.float32), 
+                              ( 'corrv', np.float32 ), 
+                              ( 'p0', np.float32 ), 
+                              ( 'xlp', np.float32 ), 
+                              ( 'xl0', np.float32 ), 
+                              ( 'vr1', np.float32 ), 
+                              ( 'xik', np.float32 ), 
+                              ( 'cdelt1', np.float64 ), 
+                              ( 'cdelt2', np.float64 ), 
+                              ( 'crval1', np.float64 ), 
+                              ( 'crval2', np.float64 ), 
+                              ( 'crpix1', np.float32 ), 
+                              ( 'crpix2', np.float32 ), 
+                              ( 'crota2', np.float32 ), 
+                              ( 'equinox', np.float32 ), 
+                              ( 'x_mirror', np.int8 ), 
+                              ( 'y_mirror', np.int8 ), 
+                              ( 'was_compressed', np.int8 ), 
+                              ( 'none2', np.int8, 1 ), 
+                              ( 'comment', np.int8, 128 ) ] ) ] )
+
         ad3 = np.fromfile ( self.__file_name, dtype = dt )
 
-        if (ad3['trailer']['lx'][0] * ad3['trailer']['ly'][0] * ad3['trailer']['lz'][0] >= 250 * 1024 * 1024):
-            print('Error: lx or ly or lz seems to be invalid: (' + np.str(ad3['trailer']['lx'][0]) + ', ' + np.str(ad3['trailer']['ly'][0]) + ', ' + np.str(ad3['trailer']['lz'][0]) + ')')
+        if ( ad3['trailer']['lx'][0] * ad3['trailer']['ly'][0] * ad3['trailer']['lz'][0] >= 250 * 1024 * 1024 ):
+            print('Error: lx or ly or lz seems to be invalid: (' + 
+                  np.str(ad3['trailer']['lx'][0]) + ', ' + 
+                  np.str(ad3['trailer']['ly'][0]) + ', ' + 
+                  np.str(ad3['trailer']['lz'][0]) + ')')
             print('If you want to allow arrays as large as this, modify the code!')
             return
 
@@ -171,33 +215,12 @@ class adhoc ( object ):
 
         data[np.where(data == -3.1E38)] = np.nan
         #ad3 = dtu(data, ad3['trailer'][0], filename)
-        self.__data = data
+        self.__image_ndarray = data
         self.__trailer = ad3['trailer'][0]
         print ( "Successfully read adhoc 3d object." )
 
-    def get_data ( self ):
-        return self.__data
-
     def get_trailer ( self ):
         return self.__trailer
-
-    def trailer_to_header ( self, file_name = None ):
-        pass
-
-    def write_to ( self, file_name = None ):
-        pass
-
-    def write_to_fits ( self, fits_name ):
-        pass
-
-    def convert_fits ( self, fits, file_name = None):
-        pass
-
-    def to_hdu ( self ):
-        hdu = pf.PrimaryHDU ( self.data )
-        hdul = pf.HDUList ( [hdu] )
-        return hdul
-    #l'idee est de creer une classe avec des fonctions associees. Au debut, seul le filename est utile
 
     def read_ada ( self, xsize, ysize ):
         """
@@ -236,65 +259,3 @@ class adhoc ( object ):
         return im
         #it seems that the first frame is duplicated
         #it would be nice to be able to display the creation of the image photon by photon
-
-    def dtutohdu ( self, dtu ):
-        hdu = pf.PrimaryHDU()
-        hdr = hdu[0].header
-        hdu[0].data = dtu.data
-        return hdu
-
-    def hdutodtu ( self, hdu ):
-        dtu = 0
-        return dtu
-
-    def ad2trailertofitsheader ( self, ad2trailer ):
-        hdu = pf.PrimaryHDU()
-        hdr = hdu[0].header
-        #hdr.update('key','value','comment') # ajouter ou mettre a jour des keywords
-        #hdr.add_history('') # indiquer la date ou la conversion a ete faite
-        return fitsheader
-
-    def ad3trailertofitsheader ( self, ad3trailer ):
-        hdu = pf.PrimaryHDU()
-        hdr = hdu[0].header
-        #hdr.update('key','value','comment') # ajouter ou mettre a jour des keywords
-        #hdr.add_history('') # indiquer la date ou la conversion a ete faite
-        return fitsheader
-
-#def ad3tofits(filename):
-#    return fits
-
-#def readadz(filename):
-#    return adz
-
-
-#def writead1(data, trailer, filename):
-#    return ad1
-
-
-#def writead2(data, trailer, filename):
-#    return ad2
-
-
-#def writead3(data, trailer, filename):
-#    return ad3
-
-
-#def ad2tofits(filename):
-#    return fits
-
-
-#def ad3tofits(filename):
-#    return fits
-
-#def fitstoad2(filename):
-#    return ad2
-
-#def fitstoad3(filename):
-#    return ad3
-
-#def fitsheadertoad2trailer(header):
-#    return ad2trailer
-
-#def fitsheadertoad3trailer(header):
-#    return ad3trailer

@@ -6,14 +6,17 @@ Also, some facilities do not make sense outside of the standalone app, such as t
 """
 
 import PyQt4.QtGui
+from PyQt4.QtGui import QAction
 import PyQt4.QtCore
 import astropy.io.fits
 
 import sys
 sys.path.append ( '/home/nix/cloud_essential2/tuna' )
 from github.zmq import zmq_client
-from github.gui import widget_toolbox, widget_viewer_2d
-from github.file_formats import adhoc
+#from github.gui import widget_toolbox, widget_viewer_2d
+from github.gui import widget_viewer_2d
+from github.file_format import file_format, adhoc, fits
+from github.tools.phase_map_creation import high_resolution_Fabry_Perot_phase_map_creation
 
 class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
     def __init__ ( self, tuna_log_client, desktop_widget ):
@@ -37,6 +40,11 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         action_open_file.setShortcut ( 'Ctrl+O' )
         action_open_file.setStatusTip ( 'Starts the process of selecting a file to be opened.' )
         action_open_file.triggered.connect ( self.open_file )
+        action_create_phase_map = QAction ( '&Create phase map...', self )
+        action_create_phase_map.setShortcut ( 'Ctrl+C' )
+        action_create_phase_map.setStatusTip ( 'Starts the process of creating a phase map.' )
+        action_create_phase_map.triggered.connect ( self.create_phase_map )
+        
         # Menu
         bar_menu = self.menuBar ( ) 
         menu_file = bar_menu.addMenu ( '&File' )
@@ -46,6 +54,7 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         self.toolbar = self.addToolBar ( "" )
         self.toolbar.addAction ( action_exit )
         self.toolbar.addAction ( action_open_file )
+        self.toolbar.addAction ( action_create_phase_map )
         # Main window
         self.log ( 'Configuring main window.')
         self.background = PyQt4.QtGui.QLabel ( )
@@ -58,8 +67,10 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         self.statusBar ( ).showMessage ( 'Waiting for command.' )
         self.show ( )
         # Toolboxes
-        self.instrument_calibration_toolbox = widget_toolbox.toolbox ( )
-        self.addDockWidget ( PyQt4.QtCore.Qt.LeftDockWidgetArea, self.instrument_calibration_toolbox )
+        #self.instrument_calibration_toolbox = widget_toolbox.toolbox ( )
+        #self.addDockWidget ( PyQt4.QtCore.Qt.LeftDockWidgetArea, self.instrument_calibration_toolbox )
+        #self.phase_map_creation_toolbox = widget_toolbox.toolbox ( )
+        #self.addDockWidget ( PyQt4.QtCore.Qt.LeftDockWidgetArea, self.instrument_calibration_toolbox )
 
     def log ( self, msg ):
         self.statusBar ( ) . showMessage ( msg )
@@ -69,60 +80,25 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         self.log ( "Opening getOpenFileName dialog." )
         file_name = PyQt4.QtGui.QFileDialog.getOpenFileName ( self, 'Open file ...', '.', 'All known types (*.fits *.FITS *.ad2 *.AD2 *.ad3 *.AD3);;FITS files (*.fits *.FITS);;ADHOC files (*.ad2 *.AD2 *.ad3 *.AD3)' )
         self.log ( "File selected: %s." % file_name )
+
         try:
-            self.log ( "Trying to read file as FITS file." )
-            hdu_list = astropy.io.fits.open ( file_name )
-            self.log ( "File opened as a FITS file." )
-            fits_height = hdu_list[0].header['NAXIS1']
-            fits_width = hdu_list[0].header['NAXIS2']
-            image_ndarray = hdu_list[0].data
-            self.log ( "Assigned data section of first HDU as the image ndarray." )
+            fits_file = fits.fits ( file_name = file_name )
+            self.canvas_list = fits_file.read ( )
         except OSError as e:
             self.log ( "Could not open file as FITS file." )
             self.log ( "OSError: %s." % e )
             adhoc_file = adhoc.adhoc ( file_name = file_name )
-            adhoc_file.read ( )
+            self.canvas_list = adhoc_file.read ( )
             self.log ( "File opened as an ADHOC 2D or 3D file." )
-            image_ndarray = adhoc_file.get_data ( )
-            self.log ( "Assigned ADHOC data to image ndarray." )
 
-        self.log ( "Image ndarray shape = %s." % str ( image_ndarray.shape ) )
-        if len ( image_ndarray.shape ) == 3:
-            image_slices = image_ndarray.shape[0]
-            image_height = image_ndarray.shape[1]
-            image_width = image_ndarray.shape[2]
-        else:
-            if len ( image_ndarray.shape ) == 2:
-                image_slices = 1
-                image_height = image_ndarray.shape[0]
-                image_width = image_ndarray.shape[1]
-            else:
-                self.log ( "Unparseable image shape." )
-                return
-        self.log ( "Image height = %d." % image_height )
-        self.log ( "Image width = %d." % image_width )
-        self.canvas_2d = PyQt4.QtGui.QPixmap ( image_width, image_height )
-        self.log ( "QPixmap depth = %d" % self.canvas_2d.depth ( ) )
-        #http://nathanhorne.com/?p=500
-        converted_image_data = PyQt4.QtGui.QImage ( image_width, image_height, PyQt4.QtGui.QImage.Format_RGB32 )
-        import struct
-        uchar_data = converted_image_data.bits ( )
-        uchar_data.setsize ( converted_image_data.byteCount ( ) )
-        i = 0
-        for height in range ( image_height ):
-            for width in range ( image_width ):
-                if image_slices == 1:
-                    gray = int ( image_ndarray[height][width] )
-                else:
-                    gray = int ( image_ndarray[0][height][width] )
-                uchar_data[i:i+4] = struct.pack ('I', gray )
-                i += 4
-        self.canvas_2d.convertFromImage ( converted_image_data )
-        self.image_viewer = widget_viewer_2d.widget_viewer_2d ( )
-        self.image_viewer.opened.connect ( self.register_image_widget )
-        self.image_viewer.closed.connect ( self.deregister_image_widget )
-        self.image_viewer.set_QPixmap ( self.canvas_2d )
-        self.addDockWidget ( PyQt4.QtCore.Qt.LeftDockWidgetArea, self.image_viewer )
+        for canvas in self.canvas_list:
+            self.image_viewer = widget_viewer_2d.widget_viewer_2d ( )
+            self.image_viewer.opened.connect ( self.register_image_widget )
+            self.image_viewer.closed.connect ( self.deregister_image_widget )
+            self.image_viewer.set_QPixmap ( canvas )
+            self.image_viewer.set_title ( file_name )
+            self.image_viewer.display ( )
+            self.addDockWidget ( PyQt4.QtCore.Qt.LeftDockWidgetArea, self.image_viewer )
 
     def register_image_widget ( self, cache_key_string ):
         self.open_images_list.append ( cache_key_string )
@@ -133,6 +109,20 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         self.open_images_list.remove ( cache_key_string )
         self.log ( "Image opened. Current list of QPixmap.cacheKey's:" )
         self.log ( str ( self.open_images_list ) )
+
+    def create_phase_map ( self ):
+        self.log ( "Opening getOpenFileName dialog." )
+        file_name = PyQt4.QtGui.QFileDialog.getOpenFileName ( self, 'Open file ...', '.', 'All known types (*.fits *.FITS *.ad2 *.AD2 *.ad3 *.AD3);;FITS files (*.fits *.FITS);;ADHOC files (*.ad2 *.AD2 *.ad3 *.AD3)' )
+        self.log ( "File selected: %s." % file_name )
+        self.phase_map_tool = high_resolution_Fabry_Perot_phase_map_creation.high_resolution_Fabry_Perot_phase_map_creation ( file_name )
+        self.phase_map = self.phase_map_tool.get_qpixmap ( )
+        self.image_viewer = widget_viewer_2d.widget_viewer_2d ( )
+        self.image_viewer.opened.connect ( self.register_image_widget )
+        self.image_viewer.closed.connect ( self.deregister_image_widget )
+        self.image_viewer.set_QPixmap ( self.phase_map )
+        self.image_viewer.set_title ( file_name )
+        self.image_viewer.display ( )
+        self.addDockWidget ( PyQt4.QtCore.Qt.LeftDockWidgetArea, self.image_viewer )
 
 def main ( ):
     tuna_log = zmq_client.zmq_client ( )
