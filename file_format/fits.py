@@ -11,13 +11,20 @@ class fits ( file_format.file_format ):
     Consists mostly of a wrapper around Astropy's io.fits module.
     """
 
-    def __init__ ( self, file_name = None, image_ndarray = None ):
+    def __init__ ( self, file_name = None ):
         self.__file_name = file_name
-        self.__image_ndarray = image_ndarray
+        self.__is_readable = False
         super ( fits, self ).__init__ ( )
 
-    def get_ndarray ( self ):
+    def get_image_ndarray ( self ):
+        return self.__image_ndarray
+
+    def is_readable ( self ):
+        return self.__is_readable
+
+    def read ( self ):
         if self.__file_name == None:
+            print ( "No file_name for FITS read." )
             return
 
         print ( "Trying to read file as FITS file." )
@@ -30,8 +37,4 @@ class fits ( file_format.file_format ):
         print ( "File opened as a FITS file." )
         self.__image_ndarray = hdu_list[0].data
         print ( "Assigned data section of first HDU as the image ndarray." )
-        return self.__image_ndarray
-
-    def read ( self ):
-        self.get_ndarray ( )
-        return self.convert_from_ndarray_into_QPixmap_list ( self.__image_ndarray )
+        self.__is_readable = True

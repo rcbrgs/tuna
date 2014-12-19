@@ -58,13 +58,20 @@ class adhoc ( file_format.file_format ):
                 return
             self.__adhoc_type = adhoc_file['trailer']['number_of_dimensions'][0]            
 
-    def get_ndarray ( self ):
+    def get_image_ndarray ( self ):
+        return self.__image_ndarray
+
+    def read ( self ):
         if self.__file_name == None:
             return
         if self.__adhoc_type == None:
             self.discover_adhoc_type ( )
             if self.__adhoc_type == None:
+                self.__is_readable = False
                 return
+            else:
+                self.__is_readable = True
+
         if self.__file_object:
             self.__file_object.close ( )
 
@@ -78,11 +85,6 @@ class adhoc ( file_format.file_format ):
 
         if self.__adhoc_type == 3 or self.__adhoc_type == -3:
             self.read_adhoc_3d ( )
-        return self.__image_ndarray
-
-    def read ( self ):
-        self.get_ndarray ( )
-        return self.convert_from_ndarray_into_QPixmap_list ( self.__image_ndarray )
 
     def read_adhoc_2d ( self ):
         """
