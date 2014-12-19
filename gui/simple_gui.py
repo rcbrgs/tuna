@@ -7,7 +7,7 @@ Also, some facilities do not make sense outside of the standalone app, such as t
 
 import numpy
 import PyQt4.QtGui
-from PyQt4.QtGui import QAction
+from PyQt4.QtGui import QAction, QMainWindow
 import PyQt4.QtCore
 from PyQt4.QtCore import Qt
 import astropy.io.fits
@@ -15,12 +15,11 @@ import astropy.io.fits
 import sys
 sys.path.append ( '/home/nix/cloud_essential2/tuna' )
 from github.zmq import zmq_client
-#from github.gui import widget_toolbox, widget_viewer_2d
 from github.gui import widget_viewer_2d
 from github.file_format import adhoc, fits
 from github.tools.phase_map_creation import high_resolution_Fabry_Perot_phase_map_creation
 
-class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
+class tuna_viewer_2d ( QMainWindow ):
     def __init__ ( self, tuna_log_client, desktop_widget ):
         super ( tuna_viewer_2d, self ).__init__ ( )
         self.logger = tuna_log_client.log
@@ -83,18 +82,20 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         file_name = PyQt4.QtGui.QFileDialog.getOpenFileName ( self, 'Open file ...', '.', 'All known types (*.fits *.FITS *.ad2 *.AD2 *.ad3 *.AD3);;FITS files (*.fits *.FITS);;ADHOC files (*.ad2 *.AD2 *.ad3 *.AD3)' )
         self.log ( "File selected: %s." % file_name )
 
-        try:
-            fits_file = fits.fits ( file_name = file_name )
-            fits_file.read ( )
+        fits_file = fits.fits ( file_name = file_name, log = self.log )
+        fits_file.read ( )
+        if fits_file.is_readable ( ):
             image_ndarray = fits_file.get_image_ndarray ( )
-        except OSError as e:
-            self.log ( "OSError: %s." % e )
-        if not fits_file.is_readable ( ):
-            adhoc_file = adhoc.adhoc ( file_name = file_name )
+        else: 
+            adhoc_file = adhoc.adhoc ( file_name = file_name, log = self.log )
             adhoc_file.read ( )
-            image_ndarray = adhoc_file.get_image_ndarray ( )
-            
-        image_viewer = widget_viewer_2d.widget_viewer_2d ( )
+            if adhoc_file.is_readable ( ):
+                image_ndarray = adhoc_file.get_image_ndarray ( )
+            else:
+                self.log ( "Unable to open file %s." % file_name )
+                return
+
+        image_viewer = widget_viewer_2d.widget_viewer_2d ( log = self.log )
         image_viewer.set_image_ndarray ( image_ndarray )
         image_viewer.select_slice ( 0 )
         image_viewer.set_title ( file_name )
@@ -115,12 +116,13 @@ class tuna_viewer_2d ( PyQt4.QtGui.QMainWindow ):
         self.log ( "Opening getOpenFileName dialog." )
         file_name = PyQt4.QtGui.QFileDialog.getOpenFileName ( self, 'Open file ...', '.', 'All known types (*.fits *.FITS *.ad2 *.AD2 *.ad3 *.AD3);;FITS files (*.fits *.FITS);;ADHOC files (*.ad2 *.AD2 *.ad3 *.AD3)' )
         self.log ( "File selected: %s." % file_name )
-        self.phase_map_tool = high_resolution_Fabry_Perot_phase_map_creation.high_resolution_Fabry_Perot_phase_map_creation ( file_name )
-        self.phase_map = self.phase_map_tool.get_qpixmap ( )
-        self.image_viewer = widget_viewer_2d.widget_viewer_2d ( )
+        self.phase_map_tool = high_resolution_Fabry_Perot_phase_map_creation.high_resolution_Fabry_Perot_phase_map_creation ( file_name = file_name, log = self.log )
+        self.phase_map = self.phase_map_tool.get_image_ndarray ( )
+        self.image_viewer = widget_viewer_2d.widget_viewer_2d ( log = self.log )
         self.image_viewer.opened.connect ( self.register_image_widget )
         self.image_viewer.closed.connect ( self.deregister_image_widget )
-        self.image_viewer.set_QPixmap ( self.phase_map )
+        self.image_viewer.set_image_ndarray ( self.phase_map )
+        self.image_viewer.select_slice ( 0 )
         self.image_viewer.set_title ( file_name )
         self.image_viewer.display ( )
         self.addDockWidget ( Qt.LeftDockWidgetArea, self.image_viewer )

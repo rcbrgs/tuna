@@ -30,12 +30,16 @@ class adhoc ( file_format.file_format ):
     Please check the file adhoc_file_format.eml for documentation regarding this format.
     """
 
-    def __init__ ( self, adhoc_type = None, adhoc_trailer = None, file_name = None, image_ndarray = None ):
+    def __init__ ( self, adhoc_type = None, adhoc_trailer = None, file_name = None, image_ndarray = None, log = None ):
         self.__adhoc_type = adhoc_type
         self.__adhoc_trailer = adhoc_trailer
         self.__file_name = file_name
-        self.__image_ndarray = image_ndarray
+        self._image_ndarray = image_ndarray
         self.__file_object = None
+        if log:
+            self.log = log
+        else:
+            self.log = print
         super ( adhoc, self ).__init__ ( )
 
     def discover_adhoc_type ( self ):
@@ -54,12 +58,12 @@ class adhoc ( file_format.file_format ):
             adhoc_file = numpy.fromfile ( self.__file_name, dtype = adhoc_file_type )
             #print ( adhoc_file['trailer']['number_of_dimensions'] )
             if adhoc_file['trailer']['number_of_dimensions'] not in ( [2], [3], [-3] ):
-                print ( "Unrecognized number of dimensions." )
+                self.log ( "Unrecognized number of dimensions." )
                 return
             self.__adhoc_type = adhoc_file['trailer']['number_of_dimensions'][0]            
 
     def get_image_ndarray ( self ):
-        return self.__image_ndarray
+        return self._image_ndarray
 
     def read ( self ):
         if self.__file_name == None:
@@ -67,10 +71,10 @@ class adhoc ( file_format.file_format ):
         if self.__adhoc_type == None:
             self.discover_adhoc_type ( )
             if self.__adhoc_type == None:
-                self.__is_readable = False
+                self._is_readable = False
                 return
             else:
-                self.__is_readable = True
+                self._is_readable = True
 
         if self.__file_object:
             self.__file_object.close ( )
@@ -126,23 +130,23 @@ class adhoc ( file_format.file_format ):
         numpy_data = numpy.fromfile ( self.__file_name, dtype = adhoc_2d_file_type )
         
         if ( numpy_data['trailer']['lx'] >= 32768 ) |  ( numpy_data['trailer']['ly'] >= 32768 ):
-            print ( 'Error: lx or ly seems to be invalid: (' 
+            self.log ( 'Error: lx or ly seems to be invalid: (' 
                     + numpy.str ( numpy_data['trailer']['lx'][0] ) + ', ' 
                     + numpy.str ( numpy_data['trailer']['ly'][0] ) + ')' )
-            print ( 'If you want to allow arrays as large as this, modify the code!' )
+            self.log ( 'If you want to allow arrays as large as this, modify the code!' )
             return
 
         try:
-            self.__image_ndarray = numpy_data['data'][0].reshape ( numpy_data['trailer']['ly'], 
-                                                                   numpy_data['trailer']['lx'] )
+            self._image_ndarray = numpy_data['data'][0].reshape ( numpy_data['trailer']['ly'], 
+                                                                  numpy_data['trailer']['lx'] )
         except ValueError as e:
-            print ( "ValueError exception during NumPy reshape() (probably trying to open a 3d object with a 2d method).")
+            self.log ( "ValueError exception during NumPy reshape() (probably trying to open a 3d object with a 2d method).")
             raise e
     
-        self.__image_ndarray[numpy.where ( numpy_data == -3.1E38 )] = numpy.nan
+        self._image_ndarray[numpy.where ( numpy_data == -3.1E38 )] = numpy.nan
         self.__adhoc_trailer = numpy_data['trailer']
 
-        print ( "Successfully read file as adhoc 2d object." )
+        self.log ( "Successfully read file as adhoc 2d object." )
 
     def read_adhoc_3d ( self, xyz = True ):
         """
@@ -195,11 +199,11 @@ class adhoc ( file_format.file_format ):
         ad3 = np.fromfile ( self.__file_name, dtype = dt )
 
         if ( ad3['trailer']['lx'][0] * ad3['trailer']['ly'][0] * ad3['trailer']['lz'][0] >= 250 * 1024 * 1024 ):
-            print('Error: lx or ly or lz seems to be invalid: (' + 
+            self.log ( 'Error: lx or ly or lz seems to be invalid: (' + 
                   np.str(ad3['trailer']['lx'][0]) + ', ' + 
                   np.str(ad3['trailer']['ly'][0]) + ', ' + 
                   np.str(ad3['trailer']['lz'][0]) + ')')
-            print('If you want to allow arrays as large as this, modify the code!')
+            self.log ( 'If you want to allow arrays as large as this, modify the code!')
             return
 
         if ad3['trailer']['nbdim'] == -3:  # nbdim ?
@@ -217,9 +221,9 @@ class adhoc ( file_format.file_format ):
 
         data[np.where(data == -3.1E38)] = np.nan
         #ad3 = dtu(data, ad3['trailer'][0], filename)
-        self.__image_ndarray = data
+        self._image_ndarray = data
         self.__trailer = ad3['trailer'][0]
-        print ( "Successfully read adhoc 3d object." )
+        self.log ( "Successfully read adhoc 3d object." )
 
     def get_trailer ( self ):
         return self.__trailer

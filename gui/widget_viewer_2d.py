@@ -14,9 +14,13 @@ from PyQt4.QtCore import pyqtSignal, QSize
 class widget_viewer_2d ( QDockWidget ):
     opened = pyqtSignal ( str )
     closed = pyqtSignal ( str )
-    def __init__ ( self, *args, **kwargs ):
+    def __init__ ( self, log = None, *args, **kwargs ):
         super ( widget_viewer_2d, self ).__init__ ( *args, **kwargs )
         self.setFloating ( True )
+        if log:
+            self.log = log
+        else:
+            self.log = print
         
     def set_image_ndarray ( self, image_ndarray = numpy.ndarray ):
         self.__image_ndarray = image_ndarray
@@ -40,6 +44,7 @@ class widget_viewer_2d ( QDockWidget ):
 
         if len ( image_ndarray.shape ) == 3:
             for slice_index in range ( image_ndarray.shape[0] ):
+                self.log ( "Processing slice %s." % slice_index )
                 qpixmap_list.append ( self.pack_ndarray_slice_into_qpixmap ( 
                     image_height = image_ndarray.shape[1],
                     image_width  = image_ndarray.shape[2],
