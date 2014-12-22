@@ -12,17 +12,20 @@ import PyQt4.QtCore
 from PyQt4.QtCore import Qt
 import astropy.io.fits
 
-import sys
-sys.path.append ( '/home/nix/cloud_essential2/tuna' )
-from github.zmq import zmq_client
-from github.gui import widget_viewer_2d
-from github.file_format import adhoc, fits
-from github.tools.phase_map_creation import high_resolution_Fabry_Perot_phase_map_creation
+#import sys
+#sys.path.append ( '/home/nix/cloud_essential2/tuna' )
+#from github.zmq import zmq_client
+from zeromq import zmq_client
+from gui import widget_viewer_2d
+from file_format import adhoc, fits
+from tools.phase_map_creation import high_resolution_Fabry_Perot_phase_map_creation
 
-class tuna_viewer_2d ( QMainWindow ):
-    def __init__ ( self, tuna_log_client, desktop_widget ):
-        super ( tuna_viewer_2d, self ).__init__ ( )
-        self.logger = tuna_log_client.log
+class simple_gui ( QMainWindow ):
+#    def __init__ ( self, tuna_log_client = None, desktop_widget = None ):
+    def __init__ ( self, desktop_widget = None ):
+        super ( simple_gui, self ).__init__ ( )
+        self.__gui_zmq_client = zmq_client.zmq_client ( )
+        self.logger = self.__gui_zmq_client.log
         self.desktop_widget = desktop_widget
         self.open_images_list = [ ]
         self.init_gui ( )
@@ -128,9 +131,8 @@ class tuna_viewer_2d ( QMainWindow ):
         self.addDockWidget ( Qt.LeftDockWidgetArea, self.image_viewer )
 
 def main ( ):
-    tuna_log = zmq_client.zmq_client ( )
     app = PyQt4.QtGui.QApplication ( sys.argv )
-    main_widget = tuna_viewer_2d ( tuna_log, app.desktop ( ) )
+    main_widget = simple_gui ( tuna_log, app.desktop ( ) )
     sys.exit ( app.exec_ ( ) )
 
 if __name__ == "__main__":

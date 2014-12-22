@@ -1,5 +1,7 @@
 """
-Tuna's ZeroMQ bus module.
+Tuna's ZeroMQ proxy module.
+
+Its main responsibility is to forward messages, be it to other Tuna modules, or to external services.
 
 Classes:
 zmq_bus -- (stub) zmq proxy
@@ -7,7 +9,7 @@ zmq_bus -- (stub) zmq proxy
 
 import zmq
 
-class zmq_bus ( ):
+class zmq_proxy ( ):
     """
     (stub) zmq proxy: sets zmq context, binds to port 5000, and orchestrates tuna messages.
 
@@ -46,9 +48,9 @@ class zmq_bus ( ):
 
     def __call_test ( self, msg ):
         """
-        Test procedure for zmq_bus.
+        Test procedure for zmq_proxy.
         """
-        print ( "zmq_bus received the message '%s'." % msg )
+        print ( "zmq_proxy received the message '%s'." % msg )
 
 
     def check_ACK ( self, ack_msg ):
@@ -64,7 +66,7 @@ class zmq_bus ( ):
 
         self.__lock = False
         self.__zmq_socket_req.connect ( "tcp://127.0.0.1:5000" )
-        self.__zmq_socket_req.send ( b'test: Shutting down tuna zmq bus.' )
+        self.__zmq_socket_req.send ( b'test: Shutting down tuna zmq proxy.' )
         answer = self.__zmq_socket_req.recv ( )
         self.check_ACK ( answer )
 
@@ -92,8 +94,8 @@ class zmq_bus ( ):
                 self.__zmq_socket_rep.send ( b'ACK' )
 
 def main ( ):
-    zmq_proxy = zmq_bus ( )
-    zmq_proxy.run ( )
+    standalone_zmq_proxy = zmq_proxy ( )
+    standalone_zmq_proxy.run ( )
 
 if __name__ == "__main__":
     main ( )
