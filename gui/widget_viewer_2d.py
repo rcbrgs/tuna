@@ -6,7 +6,7 @@ It is composed of a QDockWidget that displays a QPixMap. Eventually, more image-
 
 import numpy
 from PyQt4.QtGui import QColor, QImage, QPixmap
-import pylab
+#import pylab
 import struct
 from PyQt4.QtGui import QDockWidget, QGridLayout, QLabel, QPalette, QPixmap, QScrollArea
 from PyQt4.QtCore import pyqtSignal, QSize
