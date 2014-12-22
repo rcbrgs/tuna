@@ -1,6 +1,4 @@
 import unittest
-#import sys
-#sys.path.append ( '/home/nix/sync/tuna/github' )
 
 class unit_test_tuna_simple_gui ( unittest.TestCase ):
     def setUp ( self ):

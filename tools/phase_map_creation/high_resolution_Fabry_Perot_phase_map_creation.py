@@ -1,8 +1,6 @@
 import numpy
-from sys import path
-path.append ( '/home/nix/sync/tuna' )
-from github.file_format import adhoc, file_format, fits
-from github.gui         import widget_viewer_2d
+from file_format import adhoc, file_format, fits
+from gui import widget_viewer_2d
 
 class high_resolution_Fabry_Perot_phase_map_creation ( object ):
     def __init__ ( self, file_name = str, log = None, *args, **kwargs ):

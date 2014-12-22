@@ -12,16 +12,12 @@ import PyQt4.QtCore
 from PyQt4.QtCore import Qt
 import astropy.io.fits
 
-#import sys
-#sys.path.append ( '/home/nix/cloud_essential2/tuna' )
-#from github.zmq import zmq_client
 from zeromq import zmq_client
 from gui import widget_viewer_2d
 from file_format import adhoc, fits
 from tools.phase_map_creation import high_resolution_Fabry_Perot_phase_map_creation
 
 class simple_gui ( QMainWindow ):
-#    def __init__ ( self, tuna_log_client = None, desktop_widget = None ):
     def __init__ ( self, desktop_widget = None ):
         super ( simple_gui, self ).__init__ ( )
         self.__gui_zmq_client = zmq_client.zmq_client ( )

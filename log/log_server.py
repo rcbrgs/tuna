@@ -6,6 +6,7 @@ log_server -- Daemon that saves to file messages received through ZeroMQ.
 """
 
 import logging
+from os.path import expanduser
 import zmq
 
 class log_server ( object ):
@@ -16,7 +17,8 @@ class log_server ( object ):
     def __init__ ( self ):
         super ( log_server, self ).__init__ ( )
         # config logging module
-        logging.basicConfig ( filename = '/home/nix/tuna.log', level = logging.DEBUG )
+        log_file_name = expanduser ( "~/tuna.log" )
+        logging.basicConfig ( filename = log_file_name, level = logging.DEBUG )
         logging.info ( "Tuna logging module started." )
         logging.debug ( "Logging threshold: logging DEBUG or higher." )
         # instantiate a REP node 

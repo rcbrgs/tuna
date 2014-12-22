@@ -7,16 +7,11 @@ from pyfits import Column
 from time import sleep
 import matplotlib as mpl
 from matplotlib import pyplot as plt
-from sys import path
-path.append ( "/home/nix/sync/tuna/" )
-from github.file_format import file_format
-#from PyQt.QtGui import QPixmap
-#import codecs
+from file_format import file_format
 
 #verifier l'organisation des cubes fits si on les ouvre en python
 #faire un programme readad qui voit l'extension pour savoir comment ouvir (soit ad2, ad3, ad1...)
 #gestion des NaN a inclure (input/output)!!!
-
 
 class adhoc ( file_format.file_format ):
     """

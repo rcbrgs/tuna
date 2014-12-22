@@ -1,7 +1,5 @@
 import numpy
-from sys import path
-path.append ( "/home/nix/sync/tuna/" )
-from github.file_format import file_format
+from file_format import file_format
 import astropy.io.fits
 import warnings
 
