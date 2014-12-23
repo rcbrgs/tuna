@@ -1,12 +1,10 @@
 import threading
+from ....zeromq import zmq_proxy
 
 class threaded_bus ( threading.Thread ):
     def __init__ ( self ):
         super ( threaded_bus, self ).__init__ ( )
-        import sys
-        sys.path.append ( '/home/nix/sync/tuna' )
-        from github.zmq import zmq_bus
-        self.zmq_bus_instance = zmq_bus.zmq_bus ( )
+        self.zmq_bus_instance = zmq_proxy.zmq_proxy ( )
 
     def close ( self ):
         self.zmq_bus_instance.close ( )

@@ -6,7 +6,7 @@ class unit_test_tuna_simple_gui ( unittest.TestCase ):
 
     def test_dock_widget ( self ):
         # dock can be created
-        mock_simple_gui = unittest.mock.MagicMock ( )
+        #mock_simple_gui = unittest.mock.MagicMock ( )
         # dock can be hidden
         # dock can be moved
         # dock can be restored
