@@ -38,12 +38,14 @@ from OpenGL.GL import ( GL_ARRAY_BUFFER,
                         glGetProgramInfoLog,
                         glGetShaderInfoLog,
                         glGetShaderiv,
+                        glGetUniformLocation,
                         glLinkProgram,
                         glLoadIdentity,
                         glMatrixMode,
                         glOrtho,
                         glPointSize,
                         glShaderSource,
+                        glUniformMatrix4fv,
                         glUseProgram,
                         glVertexAttribPointer,
                         glViewport )
@@ -59,26 +61,46 @@ from PyQt4.QtOpenGL import ( QGLWidget )
 class widget_shader_points_from_ndarray ( QGLWidget ):
     def __init__ ( self, image_ndarray = numpy.ndarray ):
         super ( widget_shader_points_from_ndarray, self ).__init__ ( )
-        self.vertex = """
+        #self.vertex = """
+        ##version 130
+        #in vec3 vin_position;
+        #in vec3 vin_color;
+        #out vec3 vout_color;
+        #
+        #void main(void)
+        #{
+        #    vout_color  = vin_color;
+        #    gl_Position = vec4 ( vin_position, 1.0 );
+        #}
+        #"""
+        translation = [1.0, 0.0, 0.0, 0.25,
+                       0.0, 1.0, 0.0, 0.50,
+                       0.0, 0.0, 1.0, 0.75]
+        self.translation = numpy.array ( translation, dtype = numpy.float32 )
+        self.translated_vertex_source = """
         #version 130
-        in vec3 vin_position;
-        in vec3 vin_color;
-        out vec3 vout_color;
-        
-        void main(void)
+        in vec3 position;
+        in vec3 color;
+        uniform mat4 translation_matrix;
+        out vec4 translated_position;
+        out vec3 computed_color;
+
+        void main ( void )
         {
-            vout_color  = vin_color;
-            gl_Position = vec4 ( vin_position, 1.0 );
+            computed_color = color;
+            translated_position = translation_matrix * vec4 ( position, 1.0 );
+            //gl_Position = translated_position;
+            gl_Position = vec4 ( position, 1.0 );
         }
         """
         self.fragment = """
         #version 130
-        in  vec3 vout_color;
+        in  vec3 computed_color;
         out vec4 fout_color;
         
         void main(void)
         {
-            fout_color = vec4 ( vout_color, 1.0 );
+            fout_color = vec4 ( computed_color, 1.0 );
         }
         """
         self.__image_ndarray = image_ndarray
@@ -103,27 +125,37 @@ class widget_shader_points_from_ndarray ( QGLWidget ):
         glClearDepth ( 1.0 )
 
     def paintGL ( self ):
-        program = link_shaders_into_program ( fragment_source = self.fragment, vertex_source = self.vertex )
-        vao_id = glGenVertexArrays(1)
-        glBindVertexArray(vao_id)
-        vbo_id = glGenBuffers(2)
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_id[0])
-        glBufferData(GL_ARRAY_BUFFER, ArrayDatatype.arrayByteCount(self.vertex_data), self.vertex_data, GL_STATIC_DRAW)
-        glVertexAttribPointer(program.attribute_location('vin_position'), 3, GL_FLOAT, GL_FALSE, 0, None)
-        glEnableVertexAttribArray(0)
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_id[1])
-        glBufferData(GL_ARRAY_BUFFER, ArrayDatatype.arrayByteCount(self.color_data), self.color_data, GL_STATIC_DRAW)
-        glVertexAttribPointer(program.attribute_location('vin_color'), 3, GL_FLOAT, GL_FALSE, 0, None)
-        glEnableVertexAttribArray(1)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-        glBindVertexArray(0)
-        glClear(GL_COLOR_BUFFER_BIT)
-        glUseProgram(program.program_id)
-        glBindVertexArray(vao_id)
+        program = link_shaders_into_program ( fragment_source = self.fragment, vertex_source = self.translated_vertex_source )
+        vao_id = glGenVertexArrays ( 1 )
+        glBindVertexArray ( vao_id )
+        vbo_id = glGenBuffers ( 2 )
+
+        glBindBuffer ( GL_ARRAY_BUFFER, vbo_id[0] )
+        glBufferData ( GL_ARRAY_BUFFER, ArrayDatatype.arrayByteCount ( self.vertex_data ), self.vertex_data, GL_STATIC_DRAW )
+        glVertexAttribPointer ( program.attribute_location ( 'position' ), 3, GL_FLOAT, GL_FALSE, 0, None )
+        glEnableVertexAttribArray ( 0 )
+        
+        glBindBuffer ( GL_ARRAY_BUFFER, vbo_id[1] )
+        glBufferData ( GL_ARRAY_BUFFER, ArrayDatatype.arrayByteCount ( self.color_data ), self.color_data, GL_STATIC_DRAW )
+        glVertexAttribPointer ( program.attribute_location ( 'color' ), 3, GL_FLOAT, GL_FALSE, 0, None )
+        glEnableVertexAttribArray ( 1 )
+
+        #glBindBuffer ( GL_ARRAY_BUFFER, vbo_id[2] )
+        #glBufferData ( GL_ARRAY_BUFFER, ArrayDatatype.arrayByteCount ( self.translation ), self.translation, GL_STATIC_DRAW )
+        #glVertexAttribPointer ( program.uniform_location ( 'translation' ), 4, GL_FLOAT, GL_FALSE, 0, None )
+        #glEnableVertexAttribArray ( 2 )
+        glUseProgram ( program.program_id )
+        glUniformMatrix4fv ( program.uniform_location ( 'translation_matrix' ), 1, GL_FALSE, self.translation )
+
+        glBindBuffer ( GL_ARRAY_BUFFER, 0 )
+        glBindVertexArray ( 0 )
+        glClear ( GL_COLOR_BUFFER_BIT )
+
+        glBindVertexArray ( vao_id )
         glPointSize ( 5.0 )
-        glDrawArrays(GL_POINTS, 0, 512*512)
-        glUseProgram(0)
-        glBindVertexArray(0)
+        glDrawArrays ( GL_POINTS, 0, 512*512 )
+        glUseProgram ( 0 )
+        glBindVertexArray ( 0 )
 
     def resizeGL ( self, width, height ):
         if width > height:
