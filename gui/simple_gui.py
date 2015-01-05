@@ -13,7 +13,7 @@ from PyQt4.QtCore import Qt
 import astropy.io.fits
 
 from zeromq import zmq_client
-from gui import widget_viewer_2d
+from gui import widget_viewer_2d, widget_viewer_3d
 from file_format import adhoc, fits
 from tools.phase_map_creation import high_resolution_Fabry_Perot_phase_map_creation
 
@@ -117,11 +117,12 @@ class simple_gui ( QMainWindow ):
         self.log ( "File selected: %s." % file_name )
         self.phase_map_tool = high_resolution_Fabry_Perot_phase_map_creation.high_resolution_Fabry_Perot_phase_map_creation ( file_name = file_name, log = self.log )
         self.phase_map = self.phase_map_tool.get_image_ndarray ( )
-        self.image_viewer = widget_viewer_2d.widget_viewer_2d ( log = self.log )
+        #self.image_viewer = widget_viewer_2d.widget_viewer_2d ( log = self.log )
+        self.image_viewer = widget_viewer_3d.widget_viewer_3d ( log = self.log )
         self.image_viewer.opened.connect ( self.register_image_widget )
         self.image_viewer.closed.connect ( self.deregister_image_widget )
         self.image_viewer.set_image_ndarray ( self.phase_map )
-        self.image_viewer.select_slice ( 0 )
+        #self.image_viewer.select_slice ( 0 )
         self.image_viewer.set_title ( file_name )
         self.image_viewer.display ( )
         self.addDockWidget ( Qt.LeftDockWidgetArea, self.image_viewer )
