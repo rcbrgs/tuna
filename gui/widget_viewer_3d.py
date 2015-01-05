@@ -11,6 +11,7 @@ from OpenGL.GL import ( GL_ARRAY_BUFFER,
                         GL_FLOAT,
                         GL_FRAGMENT_SHADER,
                         GL_LINK_STATUS,
+                        GL_POINTS,
                         GL_PROJECTION,
                         GL_STATIC_DRAW,
                         GL_TRIANGLES,
@@ -26,6 +27,7 @@ from OpenGL.GL import ( GL_ARRAY_BUFFER,
                         glCompileShader,
                         glCreateProgram,
                         glCreateShader,
+                        glDeleteProgram,
                         glDeleteShader,
                         glDrawArrays,
                         glEnableVertexAttribArray,
@@ -33,12 +35,14 @@ from OpenGL.GL import ( GL_ARRAY_BUFFER,
                         glGenVertexArrays,
                         glGetAttribLocation,
                         glGetProgramiv,
+                        glGetProgramInfoLog,
                         glGetShaderInfoLog,
                         glGetShaderiv,
                         glLinkProgram,
                         glLoadIdentity,
                         glMatrixMode,
                         glOrtho,
+                        glPointSize,
                         glShaderSource,
                         glUseProgram,
                         glVertexAttribPointer,
@@ -53,7 +57,7 @@ from PyQt4.QtGui import ( QDockWidget,
 from PyQt4.QtOpenGL import ( QGLWidget )
 
 class widget_shader_points_from_ndarray ( QGLWidget ):
-    def __init__ ( self ):
+    def __init__ ( self, image_ndarray = numpy.ndarray ):
         super ( widget_shader_points_from_ndarray, self ).__init__ ( )
         self.vertex = """
         #version 130
@@ -83,14 +87,30 @@ class widget_shader_points_from_ndarray ( QGLWidget ):
         self.color_data = numpy.array([1, 0, 0,
                                0, 1, 0,
                                0, 0, 1], dtype=numpy.float32)
-        self.__image_ndarray = None
+        self.__image_ndarray = image_ndarray
+        new_vertex_data = []
+        new_color_data = []
+        channel_max = numpy.amax ( image_ndarray )
+        height_max = image_ndarray.shape[0]
+        width_max = image_ndarray.shape[1]
+        for height in range ( image_ndarray.shape[0] ):
+            for width in range ( image_ndarray.shape[1] ):
+                new_vertex_data.append ( float ( height / height_max ) - 0.5 )
+                new_vertex_data.append ( float ( width  / width_max  ) - 0.5 )
+                new_vertex_data.append ( float ( image_ndarray[height][width] / channel_max ) - 0.5 )
+                new_color_data.append ( float ( image_ndarray[height][width] / channel_max ) )
+                new_color_data.append ( 0 )
+                new_color_data.append ( 0 )
+        self.vertex_data = numpy.array ( new_vertex_data, dtype = numpy.float32 )
+        self.color_data  = numpy.array ( new_color_data,  dtype = numpy.float32 )
+        #print ( self.vertex_data )
 
     def initializeGL ( self ):
         glClearColor ( 0.5, 0.5, 1.0, 1.0 )
         glClearDepth ( 1.0 )
         glMatrixMode ( GL_PROJECTION )
         glLoadIdentity ( )
-        glOrtho ( -50, 50, -50, 50, -50.0, 50.0 )
+        glOrtho ( -0.15, 50, -50, 50, -50.0, 50.0 )
 
     def paintGL ( self ):
         program = link_shaders_into_program ( fragment_source = self.fragment, vertex_source = self.vertex )
@@ -110,7 +130,8 @@ class widget_shader_points_from_ndarray ( QGLWidget ):
         glClear(GL_COLOR_BUFFER_BIT)
         glUseProgram(program.program_id)
         glBindVertexArray(vao_id)
-        glDrawArrays(GL_TRIANGLES, 0, 3)
+        glPointSize ( 5.0 )
+        glDrawArrays(GL_POINTS, 0, 512*512)
         glUseProgram(0)
         glBindVertexArray(0)
 
@@ -118,28 +139,17 @@ class widget_shader_points_from_ndarray ( QGLWidget ):
         glViewport ( 0, 0, width, height )
         glMatrixMode ( GL_PROJECTION )
         glLoadIdentity ( )
-        aspect_ratio = float ( width ) / float ( height )
-        print ( "aspect_ratio = %s." % aspect_ratio )
-
-    def set_image_ndarray ( self, image_ndarray = numpy.ndarray ):
-        self.__image_ndarray = image_ndarray
-        new_vertex_data = []
-        for slice_index in range ( image_ndarray.shape[0] ):
-            for height in range ( image_ndarray.shape[1] ):
-                for width in range ( image_ndarray.shape[2] ):
-                    new_vertex_data.append ( height )
-                    new_vertex_data.append ( width )
-                    new_vertex_data.append ( slice_index )
-        self.vertex_data = numpy.array ( new_vertex_data, dtype = numpy.float32 )
+        #aspect_ratio = float ( width ) / float ( height )
+        #print ( "aspect_ratio = %s." % aspect_ratio )
 
 class widget_viewer_3d ( QDockWidget ):
     opened = pyqtSignal ( str )
     closed = pyqtSignal ( str )
-    def __init__ ( self, log = None, *args, **kwargs ):
+    def __init__ ( self, image_ndarray = numpy.ndarray, log = None, *args, **kwargs ):
         super ( widget_viewer_3d, self ).__init__ ( *args, **kwargs )
         self.setFloating ( True )
-        self.__image_ndarray = None
-        self.__canvas_widget = widget_shader_points_from_ndarray ( )
+        self.__image_ndarray = image_ndarray
+        self.__canvas_widget = widget_shader_points_from_ndarray ( image_ndarray = self.__image_ndarray )
         if log:
             self.log = log
         else:
@@ -148,6 +158,7 @@ class widget_viewer_3d ( QDockWidget ):
     def set_image_ndarray ( self, image_ndarray = numpy.ndarray ):
         self.__image_ndarray = image_ndarray
         # populate shaders
+        self.__canvas_widget.set_image_ndarray ( self.__image_ndarray )
 
     def set_title ( self, title = str ):
         self.__title = title 
