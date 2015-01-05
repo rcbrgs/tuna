@@ -67,50 +67,40 @@ class widget_shader_points_from_ndarray ( QGLWidget ):
         
         void main(void)
         {
-        vout_color = vin_color;
-        gl_Position = vec4(vin_position, 1.0);
+            vout_color  = vin_color;
+            gl_Position = vec4 ( vin_position, 1.0 );
         }
         """
         self.fragment = """
         #version 130
-        in vec3 vout_color;
+        in  vec3 vout_color;
         out vec4 fout_color;
         
         void main(void)
         {
-        fout_color = vec4(vout_color, 1.0);
+            fout_color = vec4 ( vout_color, 1.0 );
         }
         """
-        self.vertex_data = numpy.array([0.75, 0.75, 0.0,
-                                0.75, -0.75, 0.0,
-                                -0.75, -0.75, 0.0], dtype=numpy.float32)
-        self.color_data = numpy.array([1, 0, 0,
-                               0, 1, 0,
-                               0, 0, 1], dtype=numpy.float32)
         self.__image_ndarray = image_ndarray
         new_vertex_data = []
         new_color_data = []
         channel_max = numpy.amax ( image_ndarray )
         height_max = image_ndarray.shape[0]
         width_max = image_ndarray.shape[1]
-        for height in range ( image_ndarray.shape[0] ):
-            for width in range ( image_ndarray.shape[1] ):
+        for height in range ( height_max ):
+            for width in range ( width_max ):
                 new_vertex_data.append ( float ( height / height_max ) - 0.5 )
                 new_vertex_data.append ( float ( width  / width_max  ) - 0.5 )
                 new_vertex_data.append ( float ( image_ndarray[height][width] / channel_max ) - 0.5 )
                 new_color_data.append ( float ( image_ndarray[height][width] / channel_max ) )
-                new_color_data.append ( 0 )
-                new_color_data.append ( 0 )
+                new_color_data.append ( float ( image_ndarray[height][width] / channel_max ) )
+                new_color_data.append ( float ( image_ndarray[height][width] / channel_max ) )
         self.vertex_data = numpy.array ( new_vertex_data, dtype = numpy.float32 )
         self.color_data  = numpy.array ( new_color_data,  dtype = numpy.float32 )
-        #print ( self.vertex_data )
 
     def initializeGL ( self ):
-        glClearColor ( 0.5, 0.5, 1.0, 1.0 )
+        glClearColor ( 1.0, 0.5, 1.0, 1.0 )
         glClearDepth ( 1.0 )
-        glMatrixMode ( GL_PROJECTION )
-        glLoadIdentity ( )
-        glOrtho ( -0.15, 50, -50, 50, -50.0, 50.0 )
 
     def paintGL ( self ):
         program = link_shaders_into_program ( fragment_source = self.fragment, vertex_source = self.vertex )
@@ -136,11 +126,10 @@ class widget_shader_points_from_ndarray ( QGLWidget ):
         glBindVertexArray(0)
 
     def resizeGL ( self, width, height ):
-        glViewport ( 0, 0, width, height )
-        glMatrixMode ( GL_PROJECTION )
-        glLoadIdentity ( )
-        #aspect_ratio = float ( width ) / float ( height )
-        #print ( "aspect_ratio = %s." % aspect_ratio )
+        if width > height:
+            glViewport ( 0, 0, height, height )
+        else:
+            glViewport ( 0, 0, width, width )
 
 class widget_viewer_3d ( QDockWidget ):
     opened = pyqtSignal ( str )
