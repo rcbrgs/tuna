@@ -48,7 +48,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
             return
 
         self.neighbours_to_consider = numpy.zeros ( shape = ( self.image_ndarray.shape[1], self.image_ndarray.shape[2] ) )
-        self.unwrap_phases ( )
+        self.unwrap_phases2 ( )
         self.phase_map_ndarray = numpy.ndarray ( shape = ( self.image_ndarray.shape[1], self.image_ndarray.shape[2] ) )
         
         self.log ( "Extracting phase map image from phase map table." )
@@ -58,6 +58,83 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
 
     def get_image_ndarray ( self ):
         return self.phase_map_ndarray
+
+    def unwrap_phases2 ( self ):
+        self.log ( "Unwrapping the phases." )
+        max_x = self.image_ndarray.shape[1]
+        max_y = self.image_ndarray.shape[2]
+        max_channel = numpy.amax ( self.max_slice[1] )
+        min_channel = numpy.amin ( self.max_slice[1] )
+        self.log ( "max_x = %d" % max_x )
+        self.log ( "max_y = %d" % max_y )
+        self.log ( "max_channel = %d" % max_channel )
+        self.log ( "min_channel = %d" % min_channel )
+
+        test_line=256
+        row = []
+        for item in range ( max_x ):
+            row.append ( self.max_slice[1][item][test_line] )
+        print ( row )
+
+        last_printed = 0
+        for y in range ( max_y ):
+            percentage_done = (int ) ( 100 * y / max_y )
+            if not last_printed == percentage_done:
+                self.log ( "Unwrapping phase %2d" % percentage_done + '%' )
+                last_printed = percentage_done
+
+            order_multipliers = numpy.zeros ( shape = ( max_x ) )
+            zeroes = 0
+            for x in range ( max_x ):
+                if self.max_slice[1][x][y] == 0.0:
+                    if x-1 > 0:
+                        if self.max_slice[1][x-1][y] == max_channel:
+                            order_multipliers[x] = 1
+                            zeroes += 1
+                    if x+1 < max_x:
+                        if self.max_slice[1][x+1][y] == max_channel:
+                            order_multipliers[x] = -1
+                            zeroes += 1
+                        
+            if y == test_line:
+                print ( "line ", y, " has ", zeroes, " zeroes." )
+
+            multipliers = numpy.zeros ( shape = ( max_x ) )
+            for x in range ( max_x ):
+                if order_multipliers[x] == 1:
+                    zeroes += 2
+                if order_multipliers[x] == -1:
+                    zeroes -= 2
+                multipliers[x] = zeroes / 2
+                    
+                        
+            #multipliers = numpy.zeros ( shape = ( max_x ) )
+            #climbing = True
+            #for x in range ( max_x ):
+            #    if climbing == True:
+            #        if order_multipliers[x] == 1:
+            #            zeroes -= 2
+            #        if zeroes == 0:
+            #            climbing = False
+            #    else:
+            #        if order_multipliers[x] == 1:
+            #            zeroes += 2
+            #    multipliers[x] = zeroes / 2
+
+            if y == test_line:
+                print ( multipliers )
+            for x in range ( max_x  ):
+                self.max_slice[1][x][y] += max_channel * multipliers[x]
+
+        max_channel = numpy.amax ( self.max_slice[1] )
+        min_channel = numpy.amin ( self.max_slice[1] )
+        self.log ( "max_channel = %d" % max_channel )
+        self.log ( "min_channel = %d" % min_channel )
+
+        row = []
+        for item in range ( max_x ):
+            row.append ( self.max_slice[1][item][test_line] )
+        print ( row )
 
     def unwrap_phases ( self ):
         """

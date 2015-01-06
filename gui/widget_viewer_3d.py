@@ -98,13 +98,13 @@ class widget_shader_points_from_ndarray ( QGLWidget ):
         new_vertex_data = []
         new_color_data = []
         channel_max = numpy.amax ( image_ndarray )
-        print ( "channel_max = ", channel_max )
+        #print ( "channel_max = ", channel_max )
         height_max = image_ndarray.shape[0]
         width_max = image_ndarray.shape[1]
         for height in range ( height_max ):
             for width in range ( width_max ):
-                new_vertex_data.append ( float ( height / height_max ) - 0.5 )
-                new_vertex_data.append ( float ( width  / width_max  ) - 0.5 )
+                new_vertex_data.append ( float ( width  / width_max  ) )
+                new_vertex_data.append ( float ( height / height_max ) )
                 new_vertex_data.append ( float ( image_ndarray[height][width] / channel_max ) )
                 #new_color_data.append ( float ( image_ndarray[height][width] / channel_max ) )
                 #new_color_data.append ( float ( image_ndarray[height][width] / channel_max ) )
@@ -112,7 +112,7 @@ class widget_shader_points_from_ndarray ( QGLWidget ):
                 new_color_data.append ( 0.0 )
                 new_color_data.append ( float ( image_ndarray[height][width] / channel_max ) )
         self.vertex_data = numpy.array ( new_vertex_data, dtype = numpy.float32 )
-        print ( "self.vertex_data amax = ", numpy.amax ( self.vertex_data ) )
+        #print ( "self.vertex_data amax = ", numpy.amax ( self.vertex_data ) )
         self.color_data  = numpy.array ( new_color_data,  dtype = numpy.float32 )
 
     def initializeGL ( self ):
