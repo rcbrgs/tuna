@@ -11,6 +11,7 @@ from OpenGL.GL import ( GL_ARRAY_BUFFER,
                         GL_FLOAT,
                         GL_FRAGMENT_SHADER,
                         GL_LINK_STATUS,
+                        GL_MODELVIEW,
                         GL_POINTS,
                         GL_PROJECTION,
                         GL_STATIC_DRAW,
@@ -53,6 +54,7 @@ from PyQt4.QtCore import ( pyqtSignal,
                            Qt )
 from PyQt4.QtGui import ( QDockWidget,
                           QGridLayout,
+                          QKeyEvent,
                           QLabel,
                           QPalette,
                           QScrollArea )
@@ -61,22 +63,11 @@ from PyQt4.QtOpenGL import ( QGLWidget )
 class widget_shader_points_from_ndarray ( QGLWidget ):
     def __init__ ( self, image_ndarray = numpy.ndarray ):
         super ( widget_shader_points_from_ndarray, self ).__init__ ( )
-        #self.vertex = """
-        ##version 130
-        #in vec3 vin_position;
-        #in vec3 vin_color;
-        #out vec3 vout_color;
-        #
-        #void main(void)
-        #{
-        #    vout_color  = vin_color;
-        #    gl_Position = vec4 ( vin_position, 1.0 );
-        #}
-        #"""
-        translation = [1.0, 0.0, 0.0, 0.25,
-                       0.0, 1.0, 0.0, 0.50,
-                       0.0, 0.0, 1.0, 0.75]
-        self.translation = numpy.array ( translation, dtype = numpy.float32 )
+        self.translation_array = [1.0, 0.0, 0.0, 0.00,
+                                  0.0, 1.0, 0.0, 0.00,
+                                  0.0, 0.0, 1.0, 0.00,
+                                  0.0, 0.0, 0.0, 1.00]
+        self.translation = numpy.array ( self.translation_array, dtype = numpy.float32 )
         self.translated_vertex_source = """
         #version 130
         in vec3 position;
@@ -89,8 +80,8 @@ class widget_shader_points_from_ndarray ( QGLWidget ):
         {
             computed_color = color;
             translated_position = translation_matrix * vec4 ( position, 1.0 );
-            //gl_Position = translated_position;
-            gl_Position = vec4 ( position, 1.0 );
+            gl_Position = translated_position;
+            //gl_Position = vec4 ( position, 1.0 );
         }
         """
         self.fragment = """
@@ -107,17 +98,21 @@ class widget_shader_points_from_ndarray ( QGLWidget ):
         new_vertex_data = []
         new_color_data = []
         channel_max = numpy.amax ( image_ndarray )
+        print ( "channel_max = ", channel_max )
         height_max = image_ndarray.shape[0]
         width_max = image_ndarray.shape[1]
         for height in range ( height_max ):
             for width in range ( width_max ):
                 new_vertex_data.append ( float ( height / height_max ) - 0.5 )
                 new_vertex_data.append ( float ( width  / width_max  ) - 0.5 )
-                new_vertex_data.append ( float ( image_ndarray[height][width] / channel_max ) - 0.5 )
-                new_color_data.append ( float ( image_ndarray[height][width] / channel_max ) )
-                new_color_data.append ( float ( image_ndarray[height][width] / channel_max ) )
+                new_vertex_data.append ( float ( image_ndarray[height][width] / channel_max ) )
+                #new_color_data.append ( float ( image_ndarray[height][width] / channel_max ) )
+                #new_color_data.append ( float ( image_ndarray[height][width] / channel_max ) )
+                new_color_data.append ( 0.0 )
+                new_color_data.append ( 0.0 )
                 new_color_data.append ( float ( image_ndarray[height][width] / channel_max ) )
         self.vertex_data = numpy.array ( new_vertex_data, dtype = numpy.float32 )
+        print ( "self.vertex_data amax = ", numpy.amax ( self.vertex_data ) )
         self.color_data  = numpy.array ( new_color_data,  dtype = numpy.float32 )
 
     def initializeGL ( self ):
@@ -140,10 +135,6 @@ class widget_shader_points_from_ndarray ( QGLWidget ):
         glVertexAttribPointer ( program.attribute_location ( 'color' ), 3, GL_FLOAT, GL_FALSE, 0, None )
         glEnableVertexAttribArray ( 1 )
 
-        #glBindBuffer ( GL_ARRAY_BUFFER, vbo_id[2] )
-        #glBufferData ( GL_ARRAY_BUFFER, ArrayDatatype.arrayByteCount ( self.translation ), self.translation, GL_STATIC_DRAW )
-        #glVertexAttribPointer ( program.uniform_location ( 'translation' ), 4, GL_FLOAT, GL_FALSE, 0, None )
-        #glEnableVertexAttribArray ( 2 )
         glUseProgram ( program.program_id )
         glUniformMatrix4fv ( program.uniform_location ( 'translation_matrix' ), 1, GL_FALSE, self.translation )
 
@@ -162,6 +153,38 @@ class widget_shader_points_from_ndarray ( QGLWidget ):
             glViewport ( 0, 0, height, height )
         else:
             glViewport ( 0, 0, width, width )
+        glMatrixMode ( GL_PROJECTION )
+        glLoadIdentity ( )
+        #  glOrtho( left , right , bottom , top , zNear , zFar ) 
+        glOrtho ( -1.0, 1.0,
+                  -1.0, 1.0,
+                  -10.0, 10.0 )
+        glMatrixMode ( GL_MODELVIEW )
+
+    def move_left ( self ):
+        self.translation_array[3] += 0.1
+        self.translation = numpy.array ( self.translation_array, dtype = numpy.float32 )
+        self.updateGL ( )
+
+    def move_right ( self ):
+        self.translation_array[3] -= 0.1
+        self.translation = numpy.array ( self.translation_array, dtype = numpy.float32 )
+        self.updateGL ( )
+
+    def move_up ( self ):
+        self.translation_array[7] += 0.1
+        self.translation = numpy.array ( self.translation_array, dtype = numpy.float32 )
+        self.updateGL ( )
+
+    def move_down ( self ):
+        self.translation_array[7] -= 0.1
+        self.translation = numpy.array ( self.translation_array, dtype = numpy.float32 )
+        self.updateGL ( )
+
+#    def move_ ( self ):
+#        self.translation_array[] = 0.1
+#        self.translation = numpy.array ( self.translation_array, dtype = numpy.float32 )
+#        self.updateGL ( )
 
 class widget_viewer_3d ( QDockWidget ):
     opened = pyqtSignal ( str )
@@ -185,7 +208,7 @@ class widget_viewer_3d ( QDockWidget ):
         self.__title = title 
 
     def closeEvent ( self, event ):
-        self.closed.emit ( str ( self.image_canvas.cacheKey ( ) ) )
+        #self.closed.emit ( str ( self.image_canvas.cacheKey ( ) ) )
         super ( widget_viewer_3d, self ).closeEvent ( event )
 
     def display ( self ):
@@ -201,6 +224,16 @@ class widget_viewer_3d ( QDockWidget ):
 
         self.setWidget ( self.__scroll_area )
 
+    def keyPressEvent ( self, event = QKeyEvent ):
+        #print ( "Key pressed. Code: ", event.key ( ), " string: ", event.text ( ) )
+        if event.key ( ) == 81:
+            self.__canvas_widget.move_left ( )
+        if event.key ( ) == 68:
+            self.__canvas_widget.move_right ( )
+        if event.key ( ) == 90:
+            self.__canvas_widget.move_up ( )
+        if event.key ( ) == 83:
+            self.__canvas_widget.move_down ( )
 
 class link_shaders_into_program ( object ):
     """
