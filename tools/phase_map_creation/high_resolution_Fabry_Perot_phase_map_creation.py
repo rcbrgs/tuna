@@ -148,7 +148,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
 
         def is_valid_position ( position = ( int, int ), ndarray = numpy.ndarray ):
             #print ( "is_valid_position", position )
-            print ( ndarray.shape )
+            #print ( ndarray.shape )
             if ( position[0] > 0 and 
                  position[0] < ndarray.shape[0] ):
                 if position[1] > 0 and position[1] < ndarray.shape[1]:
