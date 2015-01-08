@@ -1,31 +1,34 @@
 from math import floor
 import numpy
-from file_format import adhoc, file_format, fits
+from file_format import adhoc, file_reader, fits
 from gui import widget_viewer_2d
 
 class high_resolution_Fabry_Perot_phase_map_creation ( object ):
-    def __init__ ( self, file_name = str, log = None, *args, **kwargs ):
+    def __init__ ( self, file_object = file_reader.file_reader, file_name = str, log = None, *args, **kwargs ):
         super ( high_resolution_Fabry_Perot_phase_map_creation, self ).__init__ ( *args, **kwargs )
         if log:
             self.log = log
         else:
             self.log = print
 
-        self.max_channels = None
-        fits_file = fits.fits ( file_name = file_name, log = self.log )
-        fits_file.read ( )
-        if fits_file.is_readable ( ):
-            self.image_ndarray = fits_file.get_image_ndarray ( )
-            current_file = fits_file
-        else:
-            adhoc_file = adhoc.adhoc ( file_name = file_name, log = self.log )
-            adhoc_file.read ( )
-            if adhoc_file.is_readable ( ):
-                self.image_ndarray = adhoc_file.get_image_ndarray ( )
-                current_file = adhoc_file
+        if file_object == None:
+            self.max_channels = None
+            fits_file = fits.fits ( file_name = file_name, log = self.log )
+            fits_file.read ( )
+            if fits_file.is_readable ( ):
+                current_file = fits_file
             else:
-                self.log ( "Unable to open file %s." % file_name )
-                return
+                adhoc_file = adhoc.adhoc ( file_name = file_name, log = self.log )
+                adhoc_file.read ( )
+                if adhoc_file.is_readable ( ):
+                    current_file = adhoc_file
+                else:
+                    self.log ( "Unable to open file %s." % file_name )
+                    return
+        else:
+            current_file = file_object
+
+        self.image_ndarray = current_file.get_image_ndarray ( )
 
         index_intensity = 0
         index_slice = 1

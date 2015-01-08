@@ -7,13 +7,13 @@ from pyfits import Column
 from time import sleep
 import matplotlib as mpl
 from matplotlib import pyplot as plt
-from file_format import file_format
+from .file_reader import file_reader
 
 #verifier l'organisation des cubes fits si on les ouvre en python
 #faire un programme readad qui voit l'extension pour savoir comment ouvir (soit ad2, ad3, ad1...)
 #gestion des NaN a inclure (input/output)!!!
 
-class adhoc ( file_format.file_format ):
+class adhoc ( file_reader ):
     """
     Class for reading files in one of the ADHOC file formats (AD2 or AD3).
 
@@ -26,16 +26,17 @@ class adhoc ( file_format.file_format ):
     """
 
     def __init__ ( self, adhoc_type = None, adhoc_trailer = None, file_name = None, image_ndarray = None, log = None ):
+        super ( adhoc, self ).__init__ ( )
         self.__adhoc_type = adhoc_type
         self.__adhoc_trailer = adhoc_trailer
         self.__file_name = file_name
         self._image_ndarray = image_ndarray
         self.__file_object = None
-        if log:
+        if log != None:
             self.log = log
         else:
             self.log = print
-        super ( adhoc, self ).__init__ ( )
+        self.read ( )
 
     def discover_adhoc_type ( self ):
         if self.__file_name:
@@ -51,7 +52,6 @@ class adhoc ( file_format.file_format ):
                                                 [ ( 'number_of_dimensions', numpy.int32, 1 ),
                                                   ( 'parameters', numpy.int8, 252 ) ] ) ] )
             adhoc_file = numpy.fromfile ( self.__file_name, dtype = adhoc_file_type )
-            #print ( adhoc_file['trailer']['number_of_dimensions'] )
             if adhoc_file['trailer']['number_of_dimensions'] not in ( [2], [3], [-3] ):
                 self.log ( "Unrecognized number of dimensions." )
                 return

@@ -1,9 +1,9 @@
 import numpy
-from file_format import file_format
+from .file_reader import file_reader
 import astropy.io.fits
 import warnings
 
-class fits ( file_format.file_format ):
+class fits ( file_reader ):
     """
     Class for reading FITS files.
 

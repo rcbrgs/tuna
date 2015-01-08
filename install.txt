@@ -1,8 +1,11 @@
 sudo apt-get install python3
+sudo apt-get install python3-astropy
+sudo apt-get install python3-matplotlib
+sudo apt-get install python3-numpy
 sudo apt-get install python3-pyfits
 sudo apt-get install python3-pyqt4
 sudo apt-get install python3-scipy
 sudo apt-get install python3-zmq
-sudo apt-get install python3-numpy
-sudo apt-get install python3-astropy
-sudo apt-get install python3-matplotlib
+
+
+
