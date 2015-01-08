@@ -38,7 +38,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
             return
 
         self.neighbours_to_consider = numpy.zeros ( shape = ( self.image_ndarray.shape[1], self.image_ndarray.shape[2] ) )
-        #self.unwrap_phases3 ( )
+        #self.unwrap_phases ( )
         self.phase_map_ndarray = numpy.ndarray ( shape = ( self.image_ndarray.shape[1], self.image_ndarray.shape[2] ) )
         
         self.log ( "Extracting phase map image from phase map table." )
@@ -49,7 +49,42 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
     def get_image_ndarray ( self ):
         return self.phase_map_ndarray
 
-    def unwrap_phases3 ( self ):
+    def get_binary_noise_map ( self ):
+        """
+        This method will be applied to each pixel; it is at channel C.
+        All neighbours should be either in the same channel,
+        in the channel C +- 1, or, if C = 0 or C = max, the neighbours
+        could be at max or 0.
+        Pixels that do not conform to this are noisy and get value 1.
+        Normal pixels get value 0 and this produces a binary noise map.
+        """
+        self.log ( "Producing binary noise map." )
+        map = numpy.zeros ( shape = self.phase_map_ndarray.shape )
+        max_channel = numpy.amax ( self.phase_map_ndarray )
+        for x in range ( self.phase_map_ndarray.shape[0] ):
+            for y in range ( self.phase_map_ndarray.shape[1] ):
+                this_channel = self.phase_map_ndarray[x][y]
+                good_results = []
+                if this_channel == 0:
+                    good_results.append ( 0 )
+                    good_results.append ( 1 )
+                    good_results.append ( max_channel )
+                elif this_channel == max_channel:
+                    good_results.append ( max_channel )
+                    good_results.append ( 0 )
+                    good_results.append ( max_channel - 1 )
+                else:
+                    good_results.append ( this_channel )
+                    good_results.append ( this_channel + 1 )
+                    good_results.append ( this_channel - 1 )
+                neighbours = self.get_neighbours ( ( x, y ), self.phase_map_ndarray )                    
+                for neighbour in neighbours:
+                    if self.phase_map_ndarray[neighbour[0]][neighbour[1]] not in good_results:
+                        map[x][y] = 1.0
+                        break
+        return map                    
+
+    def unwrap_phases ( self ):
         self.log ( "Unwrapping the phases." )
         max_x = self.image_ndarray.shape[1]
         max_y = self.image_ndarray.shape[2]
@@ -102,13 +137,8 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         self.log ( "max_channel = %d" % max_channel )
         self.log ( "min_channel = %d" % min_channel )
 
-    def position_has_been_considered ( self, position = ( int, int ) ):
-        if self.neighbours_to_consider[position[0]][position[1]] == 0:
-            return False
-        return True
-
-    def get_neighbours ( self, position = ( int, int ) ):
-        print ( "get_neighbours ( position = ", position )
+    def get_neighbours ( self, position = ( int, int ), ndarray = numpy.ndarray ):
+        #print ( "get_neighbours", position )
         result = []
         x = position[0]
         y = position[1]
@@ -116,21 +146,17 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                                 ( x-1, y   ),             ( x+1, y   ),
                                 ( x-1, y-1 ), ( x, y-1 ), ( x+1, y-1 ) ]
 
-        def is_valid_position ( position = ( int, int ) ):
-            if position[0] > 0 and position[0] < self.max_slice.shape[0]:
-                if position[1] > 0 and position[1] < self.max_slice.shape[1]:
+        def is_valid_position ( position = ( int, int ), ndarray = numpy.ndarray ):
+            #print ( "is_valid_position", position )
+            print ( ndarray.shape )
+            if ( position[0] > 0 and 
+                 position[0] < ndarray.shape[0] ):
+                if position[1] > 0 and position[1] < ndarray.shape[1]:
                     return True
             return False
 
-        result.append ( position )
-        self.neighbours_to_consider [position[0]][position[1]] = 1
-
         for possibility in possible_neighbours:
-            if is_valid_position ( possibility ):
-                if self.position_has_been_considered ( possibility ):
-                    break
-                difference = self.max_slice[possibility[0]][possibility[1]] - self.max_slice[position[0]][position[1]] 
-                if difference ** 2 == 1:
-                    result.append ( self.get_neighbours ( ( possibility[0], possibility[1] ) ) )
+            if is_valid_position ( possibility, ndarray ):
+                result.append ( possibility )
                 
         return result
