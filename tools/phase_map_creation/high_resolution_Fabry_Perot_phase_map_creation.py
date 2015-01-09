@@ -1,4 +1,4 @@
-from math import floor
+from math import floor, sqrt
 import numpy
 from file_format import adhoc, file_reader, fits
 from gui import widget_viewer_2d
@@ -28,27 +28,34 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         else:
             current_file = file_object
 
-        self.image_ndarray = current_file.get_image_ndarray ( )
+        self.__image_ndarray = current_file.get_image_ndarray ( )
         
-        if self.image_ndarray.ndim == 3:
-            self.max_intensity = numpy.amax   ( self.image_ndarray, axis=0 )
-            self.max_slice     = numpy.argmax ( self.image_ndarray, axis=0 )
+        if self.__image_ndarray.ndim == 3:
+            self.log ( "Creating maximum channel per pixel image." )
+            self.max_channel_map = numpy.argmax ( self.__image_ndarray, axis=0 )
         else:
             self.log ( "Image does not have 3 dimensions, aborting." )
             return
 
-        self.neighbours_to_consider = numpy.zeros ( shape = ( self.image_ndarray.shape[1], self.image_ndarray.shape[2] ) )
-        self.phase_map_ndarray = numpy.ndarray ( shape = ( self.image_ndarray.shape[1], self.image_ndarray.shape[2] ) )
-        self.log ( "Extracting phase map image from phase map table." )
-        for x in range ( self.image_ndarray.shape[1] ):
-            for y in range ( self.image_ndarray.shape[2] ):
-                self.phase_map_ndarray[x][y] = self.max_slice[x][y]
-        self.unwrap_phases ( )
+        self.create_binary_noise_map ( )
+        self.create_ring_borders_map ( )
+        self.create_regions_map ( )
+        #self.unwrap_phases ( )
+        self.phase_map = self.max_channel_map
 
     def get_image_ndarray ( self ):
-        return self.phase_map_ndarray
+        return self.__image_ndarray
+
+    def get_phase_map ( self ):
+        return self.phase_map
+
+    def get_max_channel_map ( self ):
+        return self.max_channel_map
 
     def get_binary_noise_map ( self ):
+        return self.binary_noise_map
+
+    def create_binary_noise_map ( self ):
         """
         This method will be applied to each pixel; it is at channel C.
         All neighbours should be either in the same channel,
@@ -58,11 +65,11 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         Normal pixels get value 0 and this produces a binary noise map.
         """
         self.log ( "Producing binary noise map." )
-        map = numpy.zeros ( shape = self.phase_map_ndarray.shape )
-        max_channel = numpy.amax ( self.phase_map_ndarray )
-        for x in range ( self.phase_map_ndarray.shape[0] ):
-            for y in range ( self.phase_map_ndarray.shape[1] ):
-                this_channel = self.phase_map_ndarray[x][y]
+        map = numpy.zeros ( shape = self.max_channel_map.shape )
+        max_channel = numpy.amax ( self.max_channel_map )
+        for x in range ( self.max_channel_map.shape[0] ):
+            for y in range ( self.max_channel_map.shape[1] ):
+                this_channel = self.max_channel_map[x][y]
                 good_results = []
                 if this_channel == 0:
                     good_results.append ( 0 )
@@ -76,12 +83,127 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                     good_results.append ( this_channel )
                     good_results.append ( this_channel + 1 )
                     good_results.append ( this_channel - 1 )
-                neighbours = self.get_neighbours ( ( x, y ), self.phase_map_ndarray )                    
+                neighbours = self.get_neighbours ( ( x, y ), self.max_channel_map )
                 for neighbour in neighbours:
-                    if self.phase_map_ndarray[neighbour[0]][neighbour[1]] not in good_results:
+                    if self.max_channel_map[neighbour[0]][neighbour[1]] not in good_results:
                         map[x][y] = 1.0
                         break
-        return map                    
+        self.binary_noise_map = map
+
+    def get_neighbours ( self, position = ( int, int ), ndarray = numpy.ndarray ):
+        result = []
+        x = position[0]
+        y = position[1]
+        possible_neighbours = [ ( x-1, y+1 ), ( x, y+1 ), ( x+1, y+1 ),
+                                ( x-1, y   ),             ( x+1, y   ),
+                                ( x-1, y-1 ), ( x, y-1 ), ( x+1, y-1 ) ]
+
+        def is_valid_position ( position = ( int, int ), ndarray = numpy.ndarray ):
+            if ( position[0] >= 0 and 
+                 position[0] < ndarray.shape[0] ):
+                if position[1] >= 0 and position[1] < ndarray.shape[1]:
+                    return True
+            return False
+
+        for possibility in possible_neighbours:
+            if is_valid_position ( position = possibility, ndarray = ndarray ):
+                result.append ( possibility )
+                
+        return result
+
+    def create_ring_borders_map ( self ):
+        self.log ( "Producing ring borders map." )
+        self.ring_borders_map = numpy.zeros ( shape = self.max_channel_map.shape )
+        max_x = self.max_channel_map.shape[0]
+        max_y = self.max_channel_map.shape[1]
+        max_channel = numpy.amax ( self.max_channel_map )
+        for x in range ( max_x ):
+            for y in range ( max_y ):
+                if self.binary_noise_map[x][y] == 0:
+                    if self.max_channel_map[x][y] == 0.0:
+                        neighbours = self.get_neighbours ( ( x, y ), self.ring_borders_map )
+                        for neighbour in neighbours:
+                            if self.max_channel_map[neighbour[0]][neighbour[1]] == max_channel:
+                                self.ring_borders_map[x][y] = 1.0
+                                break
+
+    def get_ring_borders_map ( self ):
+        return self.ring_borders_map
+
+    def create_regions_map ( self ):
+        self.log ( "Producing regions map." )
+        self.regions_map = self.ring_borders_map
+        max_x = self.regions_map.shape[0]
+        max_y = self.regions_map.shape[1]
+        next_color = 10
+
+        def get_color ( position = ( int, int ) ):
+            x = position[0]
+            y = position[1]
+            max_distance = max ( max_x, max_y )
+            for distance in range ( 1, max_distance ):
+                possibilities = [ ( x - distance, y + distance ), ( x, y + distance ), ( x + distance, y + distance ),
+                                  ( x - distance, y ), ( x + distance, y ),
+                                  ( x - distance, y - distance ), ( x, y - distance ), ( x + distance, y - distance )]
+
+                for possibility in possibilities:
+                    if ( possibility[0] >= 0 and
+                         possibility[0] < max_x ):
+                        if ( possibility[1] >= 0 and
+                             possibility[1] < max_y ):
+                            if self.regions_map[possibility[0]][possibility[1]] > 1:
+                                return self.regions_map[possibility[0]][possibility[1]]
+            return None
+
+        for x in range ( max_x ):
+            #print ( "Coloring column %d." % x )
+            for y in range ( max_y ):
+                #print ( "Coloring (%d, %d)." % ( x, y ) )
+                color = get_color ( ( x, y ) )
+                if color != None:
+                    self.regions_map[x][y] = color
+                else:
+                    self.regions_map[x][y] = next_color
+                    next_color += 10
+                    
+                        
+
+#        def is_map_fully_colored ( ):
+#            for x in range ( max_x ):
+#                for y in range ( max_y ):
+#                    if self.regions_map[x][y] == 0:
+#                        print ( "pixel (%d, %d) not colored." % ( x, y ) )
+#                        return False
+#            return True
+
+        #while ( is_map_fully_colored ( ) == False ):
+#        for z in range ( 3 ):
+#            color += 10
+#            print ( "Coloring map with color %d." % color )
+#            first_pixel = True
+#            total_pixels = 0
+#            for x in range ( max_x ):
+#                for y in range ( max_y ):
+#                    if ( self.regions_map[x][y] == 0 ):
+#                        neighbours = self.get_neighbours ( position = ( x, y ), ndarray = self.regions_map )
+#                        borders_region = False
+#                        for neighbour in neighbours:
+#                            if self.regions_map[neighbour[0]][neighbour[1]] == color:
+#                                borders_region = True
+#                                break
+#                        if borders_region == True:
+#                            self.regions_map[x][y] = color
+#                            if ( visited_map[x][y] == 0 ):
+#                                visited_map[x][y] = 1
+#                        elif ( first_pixel == True ):
+#                            self.regions_map[x][y] = color
+#                            first_pixel = False
+#                        else:
+#                            total_pixels += 1
+#            print ( "Colored %d pixels with color %d." % ( total_pixels, color ) )
+                        
+    def get_regions_map ( self ):
+        return self.regions_map
 
     def unwrap_phases ( self ):
         self.log ( "Unwrapping the phases." )
@@ -164,26 +286,3 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         self.log ( "max_channel = %d" % max_channel )
         self.log ( "min_channel = %d" % min_channel )
 
-    def get_neighbours ( self, position = ( int, int ), ndarray = numpy.ndarray ):
-        #print ( "get_neighbours", position )
-        result = []
-        x = position[0]
-        y = position[1]
-        possible_neighbours = [ ( x-1, y+1 ), ( x, y+1 ), ( x+1, y+1 ),
-                                ( x-1, y   ),             ( x+1, y   ),
-                                ( x-1, y-1 ), ( x, y-1 ), ( x+1, y-1 ) ]
-
-        def is_valid_position ( position = ( int, int ), ndarray = numpy.ndarray ):
-            #print ( "is_valid_position", position )
-            #print ( ndarray.shape )
-            if ( position[0] > 0 and 
-                 position[0] < ndarray.shape[0] ):
-                if position[1] > 0 and position[1] < ndarray.shape[1]:
-                    return True
-            return False
-
-        for possibility in possible_neighbours:
-            if is_valid_position ( possibility, ndarray ):
-                result.append ( possibility )
-                
-        return result

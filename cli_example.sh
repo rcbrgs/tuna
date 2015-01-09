@@ -7,16 +7,24 @@ import tuna
 tuna_daemons = tuna.console.backend ( ) 
 tuna_daemons.start ( )
 
-# User-specific code would go here. For example, let's open an ADHOC file and calculate its phase map:
-some_adhoc_file = tuna.file_format.adhoc ( file_name = 'G094.AD3' )
-phase_map = tuna.tools.phase_map_creation.high_resolution_Fabry_Perot_phase_map_creation ( file_object = some_adhoc_file )
-# now let's create a fits object from the phase map object and save it as a fits file:
-new_fits_object = tuna.file_format.fits ( image_ndarray = phase_map.get_image_ndarray ( ) )
-#new_fits_object = tuna.file_format.fits ( image_ndarray = phase_map.get_binary_noise_map ( ) )
-new_fits_object.write ( file_name = 'phase_map.fits' )
+# User-specific code would go here.
+g094_image     = tuna.file_format.adhoc ( file_name = 'G094.AD3' )
+g094_phase_map = tuna.tools.phase_map_creation.high_resolution_Fabry_Perot_phase_map_creation ( file_object = g094_image )
 
-# Calling the GUI doesn't return yet, but is useful for tests so here it is an example:
-#tuna.gui.window_2d_viewer ( ndarray_object = new_fits_object.get_image_ndarray ( ) )
+fits_object = tuna.file_format.fits ( image_ndarray = g094_phase_map.get_max_channel_map ( ) )
+fits_object.write ( file_name = 'g094_1_max_channel_map.fits' )
+
+fits_object = tuna.file_format.fits ( image_ndarray = g094_phase_map.get_binary_noise_map ( ) )
+fits_object.write ( file_name = 'g094_2_binary_noise_map.fits' )
+
+fits_object = tuna.file_format.fits ( image_ndarray = g094_phase_map.get_ring_borders_map ( ) )
+fits_object.write ( file_name = 'g094_3_ring_borders_map.fits' )
+
+fits_object = tuna.file_format.fits ( image_ndarray = g094_phase_map.get_regions_map ( ) )
+fits_object.write ( file_name = 'g094_4_regions_map.fits' )
+
+fits_object = tuna.file_format.fits ( image_ndarray = g094_phase_map.get_phase_map ( ) )
+fits_object.write ( file_name = 'g094_5_phase_map.fits' )
 
 # This call is required to close the daemons gracefully:
 tuna_daemons.finish ( )
