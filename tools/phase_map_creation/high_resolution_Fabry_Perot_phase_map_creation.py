@@ -38,13 +38,12 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
             return
 
         self.neighbours_to_consider = numpy.zeros ( shape = ( self.image_ndarray.shape[1], self.image_ndarray.shape[2] ) )
-        #self.unwrap_phases ( )
         self.phase_map_ndarray = numpy.ndarray ( shape = ( self.image_ndarray.shape[1], self.image_ndarray.shape[2] ) )
-        
         self.log ( "Extracting phase map image from phase map table." )
         for x in range ( self.image_ndarray.shape[1] ):
             for y in range ( self.image_ndarray.shape[2] ):
                 self.phase_map_ndarray[x][y] = self.max_slice[x][y]
+        self.unwrap_phases ( )
 
     def get_image_ndarray ( self ):
         return self.phase_map_ndarray
@@ -95,26 +94,35 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         self.log ( "max_channel = %d" % max_channel )
         self.log ( "min_channel = %d" % min_channel )
 
+        test_mat = numpy.ndarray ( shape = ( self.image_ndarray.shape[1], 3 ) )
+        test_row = 152
+        if test_row != -1:
+            #print ( self.max_slice[0:-1][152] )
+            for x in range ( max_x ):
+                test_mat [x][0] = self.max_slice[x][test_row]
+
+        binary_noise_mask = self.get_binary_noise_map ( )
         max_zeroes = 0
         order_multipliers = numpy.zeros ( shape = ( max_y, max_x ) )
         last_printed = 0
         for y in range ( max_y ):
-            percentage_done = (int ) ( 100 * y / max_y )
+            percentage_done = ( int ) ( 100 * y / max_y )
             if not last_printed == percentage_done:
-                self.log ( "Unwrapping phase %2d" % percentage_done + '%' )
+                #self.log ( "Unwrapping phase %2d" % percentage_done + '%' )
                 last_printed = percentage_done
 
             zeroes = 0
             for x in range ( max_x ):
-                if self.max_slice[x][y] == 0.0:
-                    if x-1 > 0:
-                        if self.max_slice[x-1][y] == max_channel:
-                            order_multipliers[y][x] = 1
-                            zeroes += 1
-                    if x+1 < max_x:
-                        if self.max_slice[x+1][y] == max_channel:
-                            order_multipliers[y][x] = -1
-                            zeroes += 1
+                if binary_noise_mask[x][y] == 0:
+                    if self.max_slice[x][y] == 0.0:
+                        if x-1 > 0:
+                            if self.max_slice[x-1][y] == max_channel:
+                                order_multipliers[y][x] = 1
+                                zeroes += 1
+                        if x+1 < max_x:
+                            if self.max_slice[x+1][y] == max_channel:
+                                order_multipliers[y][x+1] = -1
+                                zeroes += 1
             if zeroes > max_zeroes: 
                 max_zeroes = zeroes
 
@@ -122,15 +130,34 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
             zeroes = max_zeroes
             multipliers = numpy.zeros ( shape = ( max_x ) )
             for x in range ( max_x ):
-                if order_multipliers[y][x] == 1:
-                    zeroes += 2
-                if order_multipliers[y][x] == -1:
-                    zeroes -= 2
+                if binary_noise_mask[x][y] == 0:
+                    if order_multipliers[y][x] == 1:
+                        zeroes += 2
+                    if order_multipliers[y][x] == -1:
+                        zeroes -= 2
                 multipliers[x] = floor ( zeroes / 2 )
 
-            for x in range ( max_x ):
-                self.max_slice[x][y] += max_channel * multipliers[x]
+            if y == test_row:
+                #print ( multipliers )
+                for x2 in range ( max_x ):
+                    test_mat [x2][1] = multipliers[x2]
+        
 
+            for x in range ( max_x ):
+                #self.max_slice[x][y] += max_channel * multipliers[x]
+                self.max_slice[x][y] = multipliers[x]
+
+        if test_row != -1:
+            #print ( self.max_slice[0:-1][152] )
+            for x in range ( max_x ):
+                test_mat [x][2] = self.max_slice[x][test_row]
+
+        print_str = ""
+        for x in range ( max_x ):
+            print_str += str ( "(%3d,%3d,%3d)" % ( test_mat[x][0], test_mat[x][1], test_mat[x][2] ) )
+        print ( print_str )
+
+        self.phase_map_ndarray = self.max_slice
 
         max_channel = numpy.amax ( self.max_slice )
         min_channel = numpy.amin ( self.max_slice )
