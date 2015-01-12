@@ -203,8 +203,8 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         region_order = { 0 : [ center_color ] }
         order = 0
 
-        #while connections != []:
-        for Z in range ( 10 ):
+        while connections != []:
+        #for Z in range ( 10 ):
             while order in region_order:
                 order += 1
             for color in colors:
