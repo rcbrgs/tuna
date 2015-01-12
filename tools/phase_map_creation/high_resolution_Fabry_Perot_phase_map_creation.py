@@ -52,7 +52,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
     def get_binary_noise_map ( self ):
         return self.binary_noise_map
 
-    def create_binary_noise_map ( self ):
+    def create_binary_noise_map ( self, bad_neighbours_threshold = 7, channel_threshold = 1 ):
         """
         This method will be applied to each pixel; it is at channel C.
         All neighbours should be either in the same channel,
@@ -60,6 +60,13 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         could be at max or 0.
         Pixels that do not conform to this are noisy and get value 1.
         Normal pixels get value 0 and this produces a binary noise map.
+
+        Parameters:
+        -----------
+        - bad_neighbours_threshold is the number of neighbours with bad 
+        values that the algorithm will tolerate. It defaults to 7.
+        - channel_threshold is the channel distance that will be tolerated. 
+        It defaults to 1.
         """
         self.log ( "Producing binary noise map." )
         map = numpy.zeros ( shape = self.max_channel_map.shape )
@@ -67,24 +74,17 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         for x in range ( self.max_channel_map.shape[0] ):
             for y in range ( self.max_channel_map.shape[1] ):
                 this_channel = self.max_channel_map[x][y]
-                good_results = []
-                if this_channel == 0:
-                    good_results.append ( 0 )
-                    good_results.append ( 1 )
-                    good_results.append ( max_channel )
-                elif this_channel == max_channel:
-                    good_results.append ( max_channel )
-                    good_results.append ( 0 )
-                    good_results.append ( max_channel - 1 )
-                else:
-                    good_results.append ( this_channel )
-                    good_results.append ( this_channel + 1 )
-                    good_results.append ( this_channel - 1 )
                 neighbours = self.get_neighbours ( ( x, y ), self.max_channel_map )
+                bad_results = 0
                 for neighbour in neighbours:
-                    if self.max_channel_map[neighbour[0]][neighbour[1]] not in good_results:
-                        map[x][y] = 1.0
-                        break
+                    result = ( self.max_channel_map[neighbour[0]][neighbour[1]] - this_channel )
+                    if result < 0:
+                        result *= -1
+                    if result > channel_threshold:
+                        bad_results += 1
+                if ( bad_results > bad_neighbours_threshold ):
+                    map[x][y] = 1.0
+
         self.binary_noise_map = map
 
     def get_neighbours ( self, position = ( int, int ), ndarray = numpy.ndarray ):
@@ -134,6 +134,8 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         max_y = self.regions_map.shape[1]
         color = 0
 
+        self.regions_map += self.binary_noise_map * ( -1 )
+
         for x in range ( max_x ):
             for y in range ( max_y ):
                 if ( self.regions_map[x][y] == 0 ):
@@ -150,7 +152,8 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                                 neighbourhood = self.get_neighbours ( position = ( testing[0], testing[1] ), ndarray = self.regions_map )
                                 for neighbour in neighbourhood:
                                     if self.ring_borders_map[neighbour[0]][neighbour[1]] == 0:
-                                        possibly_in_region.append ( neighbour )
+                                        if self.binary_noise_map[neighbour[0]][neighbour[1]] == 0:
+                                            possibly_in_region.append ( neighbour )
 
     def get_regions_map ( self ):
         return self.regions_map
@@ -200,7 +203,8 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         region_order = { 0 : [ center_color ] }
         order = 0
 
-        while connections != []:
+        #while connections != []:
+        for Z in range ( 10 ):
             while order in region_order:
                 order += 1
             for color in colors:
