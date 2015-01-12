@@ -26,8 +26,8 @@ fits_object.write ( file_name = 'g094_4_regions_map.fits' )
 fits_object = tuna.file_format.fits ( image_ndarray = g094_phase_map.get_order_map ( ) )
 fits_object.write ( file_name = 'g094_5_order_map.fits' )
 
-fits_object = tuna.file_format.fits ( image_ndarray = g094_phase_map.get_phase_map ( ) )
-fits_object.write ( file_name = 'g094_6_phase_map.fits' )
+fits_object = tuna.file_format.fits ( image_ndarray = g094_phase_map.get_unwrapped_phases_map ( ) )
+fits_object.write ( file_name = 'g094_6_unwrapped_phases_map.fits' )
 
 # This call is required to close the daemons gracefully:
 tuna_daemons.finish ( )

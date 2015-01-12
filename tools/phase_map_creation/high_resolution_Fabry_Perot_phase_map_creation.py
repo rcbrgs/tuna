@@ -41,14 +41,10 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         self.create_ring_borders_map ( )
         self.create_regions_map ( )
         self.create_order_map ( )
-        #self.unwrap_phases ( )
-        self.phase_map = self.max_channel_map
+        self.create_unwrapped_phases_map ( )
 
     def get_image_ndarray ( self ):
         return self.__image_ndarray
-
-    def get_phase_map ( self ):
-        return self.phase_map
 
     def get_max_channel_map ( self ):
         return self.max_channel_map
@@ -140,21 +136,21 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
 
         for x in range ( max_x ):
             for y in range ( max_y ):
-                if ( self.regions_map[x][y] == 0 and
-                     self.ring_borders_map[x][y] == 0 ):
-                    possibly_in_region = [ ( x, y ) ]
-                    color += 10
-                    if ( color > 1000 ):
-                        return
-                    self.log ( "Filling region %d." % ( color / 10 ) )
-                    while ( possibly_in_region != [ ] ):
-                        testing = possibly_in_region.pop ( )
-                        if self.regions_map[testing[0]][testing[1]] == 0:
-                            self.regions_map[testing[0]][testing[1]] = color
-                            neighbourhood = self.get_neighbours ( position = ( testing[0], testing[1] ), ndarray = self.regions_map )
-                            for neighbour in neighbourhood:
-                                if self.ring_borders_map[neighbour[0]][neighbour[1]] == 0:
-                                    possibly_in_region.append ( neighbour )
+                if ( self.regions_map[x][y] == 0 ):
+                    if ( self.ring_borders_map[x][y] == 0 ):
+                        possibly_in_region = [ ( x, y ) ]
+                        color += 10
+                        if ( color > 1000 ):
+                            return
+                        self.log ( "Filling region %d." % ( color / 10 ) )
+                        while ( possibly_in_region != [ ] ):
+                            testing = possibly_in_region.pop ( )
+                            if self.regions_map[testing[0]][testing[1]] == 0:
+                                self.regions_map[testing[0]][testing[1]] = color
+                                neighbourhood = self.get_neighbours ( position = ( testing[0], testing[1] ), ndarray = self.regions_map )
+                                for neighbour in neighbourhood:
+                                    if self.ring_borders_map[neighbour[0]][neighbour[1]] == 0:
+                                        possibly_in_region.append ( neighbour )
 
     def get_regions_map ( self ):
         return self.regions_map
@@ -231,87 +227,40 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                         self.order_map[x][y] = order_key
                         break
 
+        # Rings borders should get the value of its largest neighbouring region.
+        for x in range ( max_x ):
+            for y in range ( max_y ):
+                if self.ring_borders_map[x][y] == 1:
+                    order = 0
+                    for neighbour in self.get_neighbours ( position = ( x, y ), ndarray = self.order_map ):
+                        if self.order_map[neighbour[0]][neighbour[1]] > order:
+                            order = self.order_map[neighbour[0]][neighbour[1]]
+                    self.order_map[x][y] = order
+
     def get_order_map ( self ):
         return self.order_map
 
-    def unwrap_phases ( self ):
-        self.log ( "Unwrapping the phases." )
-        max_x = self.image_ndarray.shape[1]
-        max_y = self.image_ndarray.shape[2]
-        max_channel = numpy.amax ( self.max_slice )
-        min_channel = numpy.amin ( self.max_slice )
-        self.log ( "max_x = %d" % max_x )
-        self.log ( "max_y = %d" % max_y )
+    def create_unwrapped_phases_map ( self ):
+        self.log ( "Unwrapping the phases. Before unwrapping:" )
+        max_x = self.max_channel_map.shape[0]
+        max_y = self.max_channel_map.shape[1]
+        max_channel = numpy.amax ( self.max_channel_map )
+        min_channel = numpy.amin ( self.max_channel_map )
         self.log ( "max_channel = %d" % max_channel )
         self.log ( "min_channel = %d" % min_channel )
 
-        test_mat = numpy.ndarray ( shape = ( self.image_ndarray.shape[1], 3 ) )
-        test_row = 152
-        if test_row != -1:
-            #print ( self.max_slice[0:-1][152] )
-            for x in range ( max_x ):
-                test_mat [x][0] = self.max_slice[x][test_row]
+        self.unwrapped_phases_map = numpy.zeros ( shape = self.max_channel_map.shape )
 
-        binary_noise_mask = self.get_binary_noise_map ( )
-        max_zeroes = 0
-        order_multipliers = numpy.zeros ( shape = ( max_y, max_x ) )
-        last_printed = 0
-        for y in range ( max_y ):
-            percentage_done = ( int ) ( 100 * y / max_y )
-            if not last_printed == percentage_done:
-                #self.log ( "Unwrapping phase %2d" % percentage_done + '%' )
-                last_printed = percentage_done
-
-            zeroes = 0
-            for x in range ( max_x ):
-                if binary_noise_mask[x][y] == 0:
-                    if self.max_slice[x][y] == 0.0:
-                        if x-1 > 0:
-                            if self.max_slice[x-1][y] == max_channel:
-                                order_multipliers[y][x] = 1
-                                zeroes += 1
-                        if x+1 < max_x:
-                            if self.max_slice[x+1][y] == max_channel:
-                                order_multipliers[y][x+1] = -1
-                                zeroes += 1
-            if zeroes > max_zeroes: 
-                max_zeroes = zeroes
-
-        for y in range ( max_y ):
-            zeroes = max_zeroes
-            multipliers = numpy.zeros ( shape = ( max_x ) )
-            for x in range ( max_x ):
-                if binary_noise_mask[x][y] == 0:
-                    if order_multipliers[y][x] == 1:
-                        zeroes += 2
-                    if order_multipliers[y][x] == -1:
-                        zeroes -= 2
-                multipliers[x] = floor ( zeroes / 2 )
-
-            if y == test_row:
-                #print ( multipliers )
-                for x2 in range ( max_x ):
-                    test_mat [x2][1] = multipliers[x2]
-        
-
-            for x in range ( max_x ):
-                #self.max_slice[x][y] += max_channel * multipliers[x]
-                self.max_slice[x][y] = multipliers[x]
-
-        if test_row != -1:
-            #print ( self.max_slice[0:-1][152] )
-            for x in range ( max_x ):
-                test_mat [x][2] = self.max_slice[x][test_row]
-
-        print_str = ""
         for x in range ( max_x ):
-            print_str += str ( "(%3d,%3d,%3d)" % ( test_mat[x][0], test_mat[x][1], test_mat[x][2] ) )
-        print ( print_str )
+            for y in range ( max_y ):
+                self.unwrapped_phases_map[x][y] = self.max_channel_map[x][y] + max_channel * self.order_map[x][y]
 
-        self.phase_map_ndarray = self.max_slice
-
-        max_channel = numpy.amax ( self.max_slice )
-        min_channel = numpy.amin ( self.max_slice )
+        max_channel = numpy.amax ( self.unwrapped_phases_map )
+        min_channel = numpy.amin ( self.unwrapped_phases_map )
+        self.log ( "After unwrapping:" )
         self.log ( "max_channel = %d" % max_channel )
         self.log ( "min_channel = %d" % min_channel )
+
+    def get_unwrapped_phases_map ( self ):
+        return self.unwrapped_phases_map
 
