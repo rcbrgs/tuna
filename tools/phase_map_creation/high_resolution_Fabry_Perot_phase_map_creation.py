@@ -40,6 +40,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         self.create_binary_noise_map ( )
         self.create_ring_borders_map ( )
         self.create_regions_map ( )
+        self.create_order_map ( )
         #self.unwrap_phases ( )
         self.phase_map = self.max_channel_map
 
@@ -132,78 +133,106 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
 
     def create_regions_map ( self ):
         self.log ( "Producing regions map." )
-        self.regions_map = self.ring_borders_map
+        self.regions_map = numpy.zeros ( shape = self.ring_borders_map.shape )
         max_x = self.regions_map.shape[0]
         max_y = self.regions_map.shape[1]
-        next_color = 10
-
-        def get_color ( position = ( int, int ) ):
-            x = position[0]
-            y = position[1]
-            max_distance = max ( max_x, max_y )
-            for distance in range ( 1, max_distance ):
-                possibilities = [ ( x - distance, y + distance ), ( x, y + distance ), ( x + distance, y + distance ),
-                                  ( x - distance, y ), ( x + distance, y ),
-                                  ( x - distance, y - distance ), ( x, y - distance ), ( x + distance, y - distance )]
-
-                for possibility in possibilities:
-                    if ( possibility[0] >= 0 and
-                         possibility[0] < max_x ):
-                        if ( possibility[1] >= 0 and
-                             possibility[1] < max_y ):
-                            if self.regions_map[possibility[0]][possibility[1]] > 1:
-                                return self.regions_map[possibility[0]][possibility[1]]
-            return None
+        color = 0
 
         for x in range ( max_x ):
-            #print ( "Coloring column %d." % x )
             for y in range ( max_y ):
-                #print ( "Coloring (%d, %d)." % ( x, y ) )
-                color = get_color ( ( x, y ) )
-                if color != None:
-                    self.regions_map[x][y] = color
-                else:
-                    self.regions_map[x][y] = next_color
-                    next_color += 10
-                    
-                        
+                if ( self.regions_map[x][y] == 0 and
+                     self.ring_borders_map[x][y] == 0 ):
+                    possibly_in_region = [ ( x, y ) ]
+                    color += 10
+                    if ( color > 1000 ):
+                        return
+                    self.log ( "Filling region %d." % ( color / 10 ) )
+                    while ( possibly_in_region != [ ] ):
+                        testing = possibly_in_region.pop ( )
+                        if self.regions_map[testing[0]][testing[1]] == 0:
+                            self.regions_map[testing[0]][testing[1]] = color
+                            neighbourhood = self.get_neighbours ( position = ( testing[0], testing[1] ), ndarray = self.regions_map )
+                            for neighbour in neighbourhood:
+                                if self.ring_borders_map[neighbour[0]][neighbour[1]] == 0:
+                                    possibly_in_region.append ( neighbour )
 
-#        def is_map_fully_colored ( ):
-#            for x in range ( max_x ):
-#                for y in range ( max_y ):
-#                    if self.regions_map[x][y] == 0:
-#                        print ( "pixel (%d, %d) not colored." % ( x, y ) )
-#                        return False
-#            return True
-
-        #while ( is_map_fully_colored ( ) == False ):
-#        for z in range ( 3 ):
-#            color += 10
-#            print ( "Coloring map with color %d." % color )
-#            first_pixel = True
-#            total_pixels = 0
-#            for x in range ( max_x ):
-#                for y in range ( max_y ):
-#                    if ( self.regions_map[x][y] == 0 ):
-#                        neighbours = self.get_neighbours ( position = ( x, y ), ndarray = self.regions_map )
-#                        borders_region = False
-#                        for neighbour in neighbours:
-#                            if self.regions_map[neighbour[0]][neighbour[1]] == color:
-#                                borders_region = True
-#                                break
-#                        if borders_region == True:
-#                            self.regions_map[x][y] = color
-#                            if ( visited_map[x][y] == 0 ):
-#                                visited_map[x][y] = 1
-#                        elif ( first_pixel == True ):
-#                            self.regions_map[x][y] = color
-#                            first_pixel = False
-#                        else:
-#                            total_pixels += 1
-#            print ( "Colored %d pixels with color %d." % ( total_pixels, color ) )
-                        
     def get_regions_map ( self ):
         return self.regions_map
+
+    def create_order_map ( self ):
+        self.log ( "Producing center ring map." )
+        self.order_map = numpy.zeros ( shape = self.regions_map.shape )
+        max_x = self.regions_map.shape[0]
+        max_y = self.regions_map.shape[1]
+
+        pixel_count = 0
+        center_x = 0
+        center_y = 0
+        for x in range ( max_x ):
+            for y in range ( max_y ):
+                if ( self.ring_borders_map[x][y] == 1 ):
+                    pixel_count += 1
+                    center_x += x
+                    center_y += y
+        center_x /= int ( pixel_count )
+        center_y /= int ( pixel_count )
+        center_color = self.regions_map[center_x][center_y] 
+        self.log ( "Center of symmetric rings possibly near (%d, %d)." % ( center_x, center_y ) )
+        self.log ( "Center in region of color %d." % center_color )
+
+        colors = [ ]
+        connections = [ ]
+        for x in range ( max_x ):
+            for y in range ( max_y ):
+                if ( self.regions_map[x][y] not in colors ):
+                    colors.append ( self.regions_map[x][y] )
+                if ( self.ring_borders_map[x][y] == 1 ):
+                    neighbourhood = self.get_neighbours ( position = ( x, y ), ndarray = self.regions_map )
+                    relationship = []
+                    for neighbour in neighbourhood:
+                        if self.regions_map[neighbour[0]][neighbour[1]] > 1:
+                            if self.regions_map[neighbour[0]][neighbour[1]] not in relationship:
+                                relationship.append ( self.regions_map[neighbour[0]][neighbour[1]] )
+                    if len ( relationship ) == 2:
+                        if relationship not in connections:
+                            if [ relationship[1], relationship[0] ] not in connections:
+                                connections.append ( relationship )
+        print ( "Neighbourhood connections: ", connections )
+        colors.remove ( 0.0 )
+        print ( "Region colors: %s." % colors )
+
+        region_order = { 0 : [ center_color ] }
+        order = 0
+
+        while connections != []:
+            while order in region_order:
+                order += 1
+            for color in colors:
+                for connectee in region_order[order-1]:
+                    if ( [color, connectee] in connections ):
+                        connections.remove ( [color, connectee] )
+                        if ( order in region_order ):
+                            region_order[order].append ( color )
+                        else:
+                            region_order[order] = [ color ]
+                    if ( [connectee, color] in connections ):
+                        connections.remove ( [connectee, color] )
+                        if ( order in region_order ):
+                            region_order[order].append ( color )
+                        else:
+                            region_order[order] = [ color ]
+            self.log ( "region_order = %s." % region_order )
+
+        for x in range ( max_x ):
+            for y in range ( max_y ):
+                color = self.regions_map[x][y]
+                for order_key in region_order.keys ( ):
+                    if color in region_order[order_key]:
+                        self.order_map[x][y] = order_key
+                        break
+
+    def get_order_map ( self ):
+        return self.order_map
 
     def unwrap_phases ( self ):
         self.log ( "Unwrapping the phases." )
