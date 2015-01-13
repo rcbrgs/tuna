@@ -10,6 +10,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
             self.log = log
         else:
             self.log = print
+        self.max_channel_map = None
 
         if file_object == None:
             self.max_channels = None
