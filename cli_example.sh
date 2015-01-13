@@ -10,6 +10,7 @@ tuna_daemons.start ( )
 # User-specific code would go here.
 g094_image     = tuna.file_format.adhoc ( file_name = 'G094.AD3' )
 g094_phase_map = tuna.tools.phase_map_creation.high_resolution_Fabry_Perot_phase_map_creation ( file_object = g094_image )
+#g094_phase_map = tuna.tools.phase_map_creation.high_resolution_Fabry_Perot_phase_map_creation ( file_object = g094_image, bad_neighbours_threshold = 6, channel_threshold = 10 )
 
 fits_object = tuna.file_format.fits ( image_ndarray = g094_phase_map.get_max_channel_map ( ) )
 fits_object.write ( file_name = 'g094_1_max_channel_map.fits' )

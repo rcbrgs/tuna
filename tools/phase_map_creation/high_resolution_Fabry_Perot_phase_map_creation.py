@@ -4,7 +4,7 @@ from file_format import adhoc, file_reader, fits
 from gui import widget_viewer_2d
 
 class high_resolution_Fabry_Perot_phase_map_creation ( object ):
-    def __init__ ( self, file_object = file_reader.file_reader, file_name = str, log = None, *args, **kwargs ):
+    def __init__ ( self, file_object = file_reader.file_reader, file_name = str, log = None, bad_neighbours_threshold = 7, channel_threshold = 1, *args, **kwargs ):
         super ( high_resolution_Fabry_Perot_phase_map_creation, self ).__init__ ( *args, **kwargs )
         if log:
             self.log = log
@@ -37,7 +37,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
             self.log ( "Image does not have 3 dimensions, aborting." )
             return
 
-        self.create_binary_noise_map ( )
+        self.create_binary_noise_map ( bad_neighbours_threshold = bad_neighbours_threshold, channel_threshold = channel_threshold )
         self.create_ring_borders_map ( )
         self.create_regions_map ( )
         self.create_order_map ( )
@@ -78,8 +78,9 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                 bad_results = 0
                 for neighbour in neighbours:
                     result = ( self.max_channel_map[neighbour[0]][neighbour[1]] - this_channel )
-                    if result < 0:
-                        result *= -1
+                    other_result = this_channel + ( max_channel - self.max_channel_map[neighbour[0]][neighbour[1]] )
+                    if result > other_result:
+                        result = other_result
                     if result > channel_threshold:
                         bad_results += 1
                 if ( bad_results > bad_neighbours_threshold ):
@@ -143,6 +144,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                         possibly_in_region = [ ( x, y ) ]
                         color += 10
                         if ( color > 1000 ):
+                            self.log ( "More than a 100 colors? There must be a mistake. Aborting." )
                             return
                         self.log ( "Filling region %d." % ( color / 10 ) )
                         while ( possibly_in_region != [ ] ):
@@ -159,7 +161,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         return self.regions_map
 
     def create_order_map ( self ):
-        self.log ( "Producing center ring map." )
+        self.log ( "Producing order map." )
         self.order_map = numpy.zeros ( shape = self.regions_map.shape )
         max_x = self.regions_map.shape[0]
         max_y = self.regions_map.shape[1]
