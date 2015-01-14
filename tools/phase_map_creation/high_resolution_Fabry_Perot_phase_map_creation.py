@@ -2,6 +2,7 @@ from math import floor, sqrt
 import numpy
 from file_format import adhoc, file_reader, fits
 from gui import widget_viewer_2d
+from .orders import orders
 
 class high_resolution_Fabry_Perot_phase_map_creation ( object ):
     def __init__ ( self, file_object = file_reader.file_reader, file_name = str, log = None, bad_neighbours_threshold = 7, channel_threshold = 1, *args, **kwargs ):
@@ -162,6 +163,12 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         return self.regions_map
 
     def create_order_map ( self ):
+        orders_algorithm = orders ( regions = self.regions_map, ring_borders = self.ring_borders_map )
+        self.order_map = orders_algorithm.get_orders ( )
+        #self.log ( order_object.get_array ( ) )
+        #self.order_map = numpy.copy ( order_object.get_array ( ) )
+
+    def create_order_map_old ( self ):
         self.log ( "Producing order map." )
         self.order_map = numpy.zeros ( shape = self.regions_map.shape )
         max_x = self.regions_map.shape[0]
