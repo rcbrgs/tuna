@@ -86,6 +86,14 @@ class orders ( object ):
                             region_order[order] = [ color ]
             self.log ( "region_order = %s." % region_order )
 
+        # region_order indexed the order for each region in inverted fashion.
+        # So the dictionary is re-indexed to account for that.
+        reindexed_region_order = { }
+        for entry in region_order.keys ( ):
+            reindexed_region_order [order - entry] = region_order[entry]
+        self.log ( "reindexed_region_order = %s." % ( reindexed_region_order ) )
+        #region_order = reindexed_region_order
+
         for x in range ( max_x ):
             for y in range ( max_y ):
                 color = regions[x][y]
