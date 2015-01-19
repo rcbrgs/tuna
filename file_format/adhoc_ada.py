@@ -12,18 +12,18 @@ class ada ( file_reader ):
     developed at LAM by Jacques Boulesteix.
     """
 
-    def __init__ ( self, image_ndarray = None, log = None, file_name = None ):
+    def __init__ ( self, array = None, log = print, file_name = None ):
         super ( ada, self ).__init__ ( )
         self.__file_name = file_name
-        self.__image_ndarray = image_ndarray
-        if log != None:
-            self.log = log
-        else:
-            self.log = print
-        self.read ( )
+        self.__array = array
+        self.__metadata = { }
+        self.log = log
 
-    def get_image_ndarray ( self ):
-        return self.__image_ndarray
+    def get_array ( self ):
+        return self.__array
+
+    def get_metadata ( self ):
+        return self.__metadata
 
     def read ( self ):
         if self.__file_name != None:
@@ -37,40 +37,13 @@ class ada ( file_reader ):
         self.__file_path = dirname ( self.__file_name )
         self.log ( "self.__file_path = %s." % ( self.__file_path ) )
         
+        self.read_adt_metadata ( )
+
         adt = open ( self.__file_name, "r" )
-
-        notes_subsection_line_number = 0
-        for line in adt:
-            notes_subsection_line_number += 1
-            if line.startswith ( "-----------------------------------------------------------------------------" ):
-                self.log ( "Notes subsection starts at line %d." % ( notes_subsection_line_number ) )
-                break
-
-        data_section_line_number = notes_subsection_line_number
-        for line in adt:
-            data_section_line_number += 1
-            if line.startswith ( "==>" ):
-                self.log ( "Data section starts at line %d." % ( data_section_line_number ) )
-                break
-
-        adt_header = [ ]
-        adt.seek ( 0 )
-        for line in range ( notes_subsection_line_number - 1 ):
-            adt_header.append ( adt.readline ( ) )
-        self.log ( "adt_header = %s." % ( adt_header ) )
-
-        adt_parameters = { }
-        for entry in adt_header:
-            pair_regex = re.search ( " = ", entry )
-            if pair_regex != None:
-                pair = entry.split ( " = " )
-                adt_parameters[pair[0]] = pair[1]
-        self.log ( "adt_parameters = %s." % ( adt_parameters ) )
-                
-        number_of_channels = int ( adt_parameters['Number of channels'] )
+               
+        number_of_channels = int ( self.__metadata['Number of channels'] )
         self.log ( "number_of_channels = %s." % ( number_of_channels ) )
 
-        adt.seek ( 0 )
         for line in adt:
             if line.startswith ( "X and Y dimensions : 00512 00512" ):
                 dimensions_string = line.split ( " : " )[1]
@@ -98,7 +71,7 @@ class ada ( file_reader ):
         self.log ( "len ( photon_files ) = %d." % ( len ( photon_files ) ) )
 
         
-        self.__image_ndarray = numpy.zeros ( shape = ( number_of_channels,
+        self.__array = numpy.zeros ( shape = ( number_of_channels,
                                                        dimensions[0], 
                                                        dimensions[1] ) )
         files_processed = 0
@@ -137,6 +110,43 @@ class ada ( file_reader ):
         for photon in range ( photon_hits.shape[0] ):
             x = photon_hits[photon][0]
             y = photon_hits[photon][1]
-            self.__image_ndarray[channel][x][y] += 1                
+            self.__array[channel][x][y] += 1                
         #it seems that the first frame is duplicated
         #it would be nice to be able to display the creation of the image photon by photon
+
+    def read_adt_metadata ( self ):
+        adt = open ( self.__file_name, "r" )
+
+        adt_header_lines = []
+        for line in adt:
+            if line.startswith ( "-----------------------------------------------------------------------------" ):
+                break
+            adt_header_lines.append ( line )
+
+        adt_notes_lines = []
+        for line in adt:
+            if line.startswith ( "==>" ):
+                break
+            adt_notes_lines.append ( line )
+
+        adt_parameters = { }
+        for line in adt_header_lines:
+            pair_regex = re.search ( "=", line )
+            if pair_regex != None:
+                pair = line.split ( "=" )
+                key = pair[0].replace ( "\n", "" ).strip ( )
+                value = pair[1].replace ( "\n", "" ).strip ( )
+                adt_parameters[key] = value
+                #self.log ( "...............%s" % ( line ) )
+                #self.log ( "adt_parameters[%s] = %s" % ( key, adt_parameters[key] ) )
+            else:
+                adt_parameters[line] = ""
+
+        adt_notes = ""
+        for line in adt_notes_lines:
+            adt_notes += line.strip ( ).replace ( "\n", "" )
+
+        if "ADT notes" not in adt_parameters.keys ( ):
+            adt_parameters["ADT notes"] = adt_notes
+            
+        self.__metadata = adt_parameters

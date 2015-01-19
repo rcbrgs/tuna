@@ -6,6 +6,7 @@ This program provides access to Tuna's libraries' namespaces.
 
 from console     import console
 from file_format import file_format
+from file_format import file_format as io
 from gui         import gui
 from log         import log
 from tools       import tools
