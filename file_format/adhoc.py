@@ -25,18 +25,14 @@ class adhoc ( file_reader ):
     Please check the file adhoc_file_format.eml for documentation regarding this format.
     """
 
-    def __init__ ( self, adhoc_type = None, adhoc_trailer = None, file_name = None, image_ndarray = None, log = None ):
+    def __init__ ( self, adhoc_type = None, adhoc_trailer = None, file_name = None, array = None, log = print ):
         super ( adhoc, self ).__init__ ( )
         self.__adhoc_type = adhoc_type
         self.__adhoc_trailer = adhoc_trailer
         self.__file_name = file_name
-        self._image_ndarray = image_ndarray
+        self.__array = array
         self.__file_object = None
-        if log != None:
-            self.log = log
-        else:
-            self.log = print
-        self.read ( )
+        self.log = log
 
     def discover_adhoc_type ( self ):
         if self.__file_name:
@@ -44,10 +40,10 @@ class adhoc ( file_reader ):
                 self.__file_object.close ( )
             self.__file_object = open ( self.__file_name, "rb" )
             self.__file_object.seek ( 0, os.SEEK_END )
-            self._image_ndarray_size = ( self.__file_object.tell ( ) - 256 ) / 4  
+            self.__array_size = ( self.__file_object.tell ( ) - 256 ) / 4  
             self.__file_object.close ( )
 
-            adhoc_file_type = numpy.dtype ( [ ( 'image_data', numpy.float32, self._image_ndarray_size ),
+            adhoc_file_type = numpy.dtype ( [ ( 'image_data', numpy.float32, self.__array_size ),
                                               ( 'trailer', 
                                                 [ ( 'number_of_dimensions', numpy.int32, 1 ),
                                                   ( 'parameters', numpy.int8, 252 ) ] ) ] )
@@ -57,8 +53,8 @@ class adhoc ( file_reader ):
                 return
             self.__adhoc_type = adhoc_file['trailer']['number_of_dimensions'][0]            
 
-    def get_image_ndarray ( self ):
-        return self._image_ndarray
+    def get_array ( self ):
+        return self.__array
 
     def read ( self ):
         if self.__file_name == None:
@@ -76,8 +72,8 @@ class adhoc ( file_reader ):
 
         self.__file_object = open ( self.__file_name, "rb" )
 
-        if self._image_ndarray_size == None:
-            self._image_ndarray_size = ( self.__file_object.tell ( ) - 256 ) / 4  
+        if self.__array_size == None:
+            self.__array_size = ( self.__file_object.tell ( ) - 256 ) / 4  
 
         if self.__adhoc_type == 2:
             self.read_adhoc_2d ( )
@@ -91,7 +87,7 @@ class adhoc ( file_reader ):
 
         """
 
-        adhoc_2d_file_type = numpy.dtype ( [ ( 'data', np.float32, self._image_ndarray_size ), 
+        adhoc_2d_file_type = numpy.dtype ( [ ( 'data', np.float32, self.__array_size ), 
                                              ( 'trailer', 
                                                [ ( 'nbdim', np.int32 ), 
                                                  ( 'id', np.int8, 8 ), 
@@ -132,13 +128,13 @@ class adhoc ( file_reader ):
             return
 
         try:
-            self._image_ndarray = numpy_data['data'][0].reshape ( numpy_data['trailer']['ly'], 
+            self.__array = numpy_data['data'][0].reshape ( numpy_data['trailer']['ly'], 
                                                                   numpy_data['trailer']['lx'] )
         except ValueError as e:
             self.log ( "ValueError exception during NumPy reshape() (probably trying to open a 3d object with a 2d method).")
             raise e
     
-        self._image_ndarray[numpy.where ( numpy_data == -3.1E38 )] = numpy.nan
+        self.__array[numpy.where ( numpy_data == -3.1E38 )] = numpy.nan
         self.__adhoc_trailer = numpy_data['trailer']
 
         self.log ( "Successfully read file as adhoc 2d object." )
@@ -216,7 +212,7 @@ class adhoc ( file_reader ):
 
         data[np.where(data == -3.1E38)] = np.nan
         #ad3 = dtu(data, ad3['trailer'][0], filename)
-        self._image_ndarray = data
+        self.__array = data
         self.__trailer = ad3['trailer'][0]
         self.log ( "Successfully read adhoc 3d object." )
 

@@ -46,18 +46,19 @@ class fits ( file_reader ):
     def write ( self, file_name = None ):
         if self.__file_name:
             hdu = astrofits.PrimaryHDU ( self.__array )
-            with warnings.catch_warnings ( ):
-                warnings.simplefilter ( "ignore" )
-                for key in self.__metadata.keys ( ):
-                    value = self.__metadata[key]
-                    if ( len ( value ) + len ( key ) ) > 68:
-                        key = key [:7]
-                        value = value [:59]
-                    key = key.replace ( "\t", " " )
-                    try:
-                        hdu.header [key] = value
-                    except ValueError as error_message:
-                        self.log ( "ValueError: %s." % ( error_message ) )                
-                        self.log ( "key = value, len ( value ) + len ( key ): %s = %s, %d" % ( key, value, len ( value ) + len ( key ) ) )
+            if self.__metadata:
+                with warnings.catch_warnings ( ):
+                    warnings.simplefilter ( "ignore" )
+                    for key in self.__metadata.keys ( ):
+                        value = self.__metadata[key]
+                        if ( len ( value ) + len ( key ) ) > 68:
+                            key = key [:7]
+                            value = value [:59]
+                        key = key.replace ( "\t", " " )
+                        try:
+                            hdu.header [key] = value
+                        except ValueError as error_message:
+                            self.log ( "ValueError: %s." % ( error_message ) )                
+                            self.log ( "key = value, len ( value ) + len ( key ): %s = %s, %d" % ( key, value, len ( value ) + len ( key ) ) )
             hdu_list = astrofits.HDUList ( [hdu] )
             hdu_list.writeto ( self.__file_name )

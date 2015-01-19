@@ -44,9 +44,11 @@ class can ( file_reader ):
                 fits_object.read ( )
                 self.__array = fits_object.get_array ( )
                 self.__metadata = fits_object.get_metadata ( )
-            elif ( self.__file_name.startswith ( ".ad2", -5 ) or
-                   self.__file_name.startswith ( ".AD2", -5 ) or
-                   self.__file_name.startswith ( ".ad3", -5 ) or
-                   self.__file_name.startswith ( ".AD3", -5 ) ):
+            elif ( self.__file_name.startswith ( ".ad2", -4 ) or
+                   self.__file_name.startswith ( ".AD2", -4 ) or
+                   self.__file_name.startswith ( ".ad3", -4 ) or
+                   self.__file_name.startswith ( ".AD3", -4 ) ):
                 adhoc_object = adhoc ( file_name = self.__file_name )
-                self.__array = adhoc_object.get_image_ndarray ( )
+                adhoc_object.read ( )
+                self.__array = adhoc_object.get_array ( )
+                #self.__metadata = adhoc_object.get_metadata ( )

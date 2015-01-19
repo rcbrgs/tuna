@@ -5,12 +5,9 @@ from gui import widget_viewer_2d
 from .orders import orders
 
 class high_resolution_Fabry_Perot_phase_map_creation ( object ):
-    def __init__ ( self, file_object = file_reader.file_reader, file_name = str, log = None, bad_neighbours_threshold = 7, channel_threshold = 1, *args, **kwargs ):
+    def __init__ ( self, file_object = file_reader.file_reader, file_name = str, log = print, bad_neighbours_threshold = 7, channel_threshold = 1, *args, **kwargs ):
         super ( high_resolution_Fabry_Perot_phase_map_creation, self ).__init__ ( *args, **kwargs )
-        if log:
-            self.log = log
-        else:
-            self.log = print
+        self.log = log
         self.max_channel_map = None
 
         if file_object == None:
@@ -30,11 +27,11 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         else:
             current_file = file_object
 
-        self.__image_ndarray = current_file.get_image_ndarray ( )
+        self.__array = current_file.get_array ( )
         
-        if self.__image_ndarray.ndim == 3:
+        if self.__array.ndim == 3:
             self.log ( "Creating maximum channel per pixel image." )
-            self.max_channel_map = numpy.argmax ( self.__image_ndarray, axis=0 )
+            self.max_channel_map = numpy.argmax ( self.__array, axis=0 )
         else:
             self.log ( "Image does not have 3 dimensions, aborting." )
             return
@@ -45,8 +42,8 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         self.create_order_map ( )
         self.create_unwrapped_phases_map ( )
 
-    def get_image_ndarray ( self ):
-        return self.__image_ndarray
+    def get_array ( self ):
+        return self.__array
 
     def get_max_channel_map ( self ):
         return self.max_channel_map
@@ -54,62 +51,6 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
     def get_binary_noise_map ( self ):
         return self.binary_noise_map
 
-    def create_binary_noise_map ( self, bad_neighbours_threshold = 7, channel_threshold = 1 ):
-        """
-        This method will be applied to each pixel; it is at channel C.
-        All neighbours should be either in the same channel,
-        in the channel C +- 1, or, if C = 0 or C = max, the neighbours
-        could be at max or 0.
-        Pixels that do not conform to this are noisy and get value 1.
-        Normal pixels get value 0 and this produces a binary noise map.
-
-        Parameters:
-        -----------
-        - bad_neighbours_threshold is the number of neighbours with bad 
-        values that the algorithm will tolerate. It defaults to 7.
-        - channel_threshold is the channel distance that will be tolerated. 
-        It defaults to 1.
-        """
-        self.log ( "Producing binary noise map." )
-        map = numpy.zeros ( shape = self.max_channel_map.shape )
-        max_channel = numpy.amax ( self.max_channel_map )
-        for x in range ( self.max_channel_map.shape[0] ):
-            for y in range ( self.max_channel_map.shape[1] ):
-                this_channel = self.max_channel_map[x][y]
-                neighbours = self.get_neighbours ( ( x, y ), self.max_channel_map )
-                bad_results = 0
-                for neighbour in neighbours:
-                    result = ( self.max_channel_map[neighbour[0]][neighbour[1]] - this_channel )
-                    other_result = this_channel + ( max_channel - self.max_channel_map[neighbour[0]][neighbour[1]] )
-                    if result > other_result:
-                        result = other_result
-                    if result > channel_threshold:
-                        bad_results += 1
-                if ( bad_results > bad_neighbours_threshold ):
-                    map[x][y] = 1.0
-
-        self.binary_noise_map = map
-
-    def get_neighbours ( self, position = ( int, int ), ndarray = numpy.ndarray ):
-        result = []
-        x = position[0]
-        y = position[1]
-        possible_neighbours = [ ( x-1, y+1 ), ( x, y+1 ), ( x+1, y+1 ),
-                                ( x-1, y   ),             ( x+1, y   ),
-                                ( x-1, y-1 ), ( x, y-1 ), ( x+1, y-1 ) ]
-
-        def is_valid_position ( position = ( int, int ), ndarray = numpy.ndarray ):
-            if ( position[0] >= 0 and 
-                 position[0] < ndarray.shape[0] ):
-                if position[1] >= 0 and position[1] < ndarray.shape[1]:
-                    return True
-            return False
-
-        for possibility in possible_neighbours:
-            if is_valid_position ( position = possibility, ndarray = ndarray ):
-                result.append ( possibility )
-                
-        return result
 
     def create_ring_borders_map ( self ):
         self.log ( "Producing ring borders map." )
@@ -193,3 +134,60 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
     def get_unwrapped_phases_map ( self ):
         return self.unwrapped_phases_map
 
+
+def create_binary_noise_map ( bad_neighbours_threshold = 7, channel_threshold = 1, array = None, log = print ):
+    """
+    This method will be applied to each pixel; it is at channel C.
+    All neighbours should be either in the same channel,
+    in the channel C +- 1, or, if C = 0 or C = max, the neighbours
+    could be at max or 0.
+    Pixels that do not conform to this are noisy and get value 1.
+    Normal pixels get value 0 and this produces a binary noise map.
+    
+    Parameters:
+    -----------
+    - bad_neighbours_threshold is the number of neighbours with bad 
+    values that the algorithm will tolerate. It defaults to 7.
+    - channel_threshold is the channel distance that will be tolerated. 
+    It defaults to 1.
+    """
+    log ( "Producing binary noise map." )
+    noise_map = numpy.zeros ( shape = array.shape )
+    max_channel = numpy.amax ( array )
+    for x in range ( array.shape[0] ):
+        for y in range ( array.shape[1] ):
+            this_channel = array[x][y]
+            neighbours = get_neighbours ( ( x, y ), array )
+            bad_results = 0
+            for neighbour in neighbours:
+                result = array[neighbour[0]][neighbour[1]] - this_channel
+                other_result = this_channel + ( max_channel - array[neighbour[0]][neighbour[1]] )
+                if result > other_result:
+                    result = other_result
+                if result > channel_threshold:
+                    bad_results += 1
+            if ( bad_results > bad_neighbours_threshold ):
+                noise_map[x][y] = 1.0
+
+    return noise_map
+
+def get_neighbours ( position = ( int, int ), array = None ):
+    result = []
+    x = position[0]
+    y = position[1]
+    possible_neighbours = [ ( x-1, y+1 ), ( x, y+1 ), ( x+1, y+1 ),
+                            ( x-1, y   ),             ( x+1, y   ),
+                            ( x-1, y-1 ), ( x, y-1 ), ( x+1, y-1 ) ]
+
+    def is_valid_position ( position = ( int, int ), array = None ):
+        if ( position[0] >= 0 and 
+             position[0] < array.shape[0] ):
+            if position[1] >= 0 and position[1] < array.shape[1]:
+                return True
+        return False
+
+    for possibility in possible_neighbours:
+        if is_valid_position ( position = possibility, array = array ):
+            result.append ( possibility )
+                
+    return result
