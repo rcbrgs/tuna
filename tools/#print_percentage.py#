@@ -1,0 +1,3 @@
+def print_percentage ( current, maximum ):
+    percentage = current / maximum
+    self.log

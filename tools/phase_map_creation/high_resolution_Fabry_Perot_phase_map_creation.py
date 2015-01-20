@@ -48,29 +48,6 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
     def get_max_channel_map ( self ):
         return self.max_channel_map
 
-    def get_binary_noise_map ( self ):
-        return self.binary_noise_map
-
-
-    def create_ring_borders_map ( self ):
-        self.log ( "Producing ring borders map." )
-        self.ring_borders_map = numpy.zeros ( shape = self.max_channel_map.shape )
-        max_x = self.max_channel_map.shape[0]
-        max_y = self.max_channel_map.shape[1]
-        max_channel = numpy.amax ( self.max_channel_map )
-        for x in range ( max_x ):
-            for y in range ( max_y ):
-                if self.binary_noise_map[x][y] == 0:
-                    if self.max_channel_map[x][y] == 0.0:
-                        neighbours = self.get_neighbours ( ( x, y ), self.ring_borders_map )
-                        for neighbour in neighbours:
-                            if self.max_channel_map[neighbour[0]][neighbour[1]] == max_channel:
-                                self.ring_borders_map[x][y] = 1.0
-                                break
-
-    def get_ring_borders_map ( self ):
-        return self.ring_borders_map
-
     def create_regions_map ( self ):
         self.log ( "Producing regions map." )
         self.regions_map = numpy.zeros ( shape = self.ring_borders_map.shape )
@@ -134,60 +111,3 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
     def get_unwrapped_phases_map ( self ):
         return self.unwrapped_phases_map
 
-
-def create_binary_noise_map ( bad_neighbours_threshold = 7, channel_threshold = 1, array = None, log = print ):
-    """
-    This method will be applied to each pixel; it is at channel C.
-    All neighbours should be either in the same channel,
-    in the channel C +- 1, or, if C = 0 or C = max, the neighbours
-    could be at max or 0.
-    Pixels that do not conform to this are noisy and get value 1.
-    Normal pixels get value 0 and this produces a binary noise map.
-    
-    Parameters:
-    -----------
-    - bad_neighbours_threshold is the number of neighbours with bad 
-    values that the algorithm will tolerate. It defaults to 7.
-    - channel_threshold is the channel distance that will be tolerated. 
-    It defaults to 1.
-    """
-    log ( "Producing binary noise map." )
-    noise_map = numpy.zeros ( shape = array.shape )
-    max_channel = numpy.amax ( array )
-    for x in range ( array.shape[0] ):
-        for y in range ( array.shape[1] ):
-            this_channel = array[x][y]
-            neighbours = get_neighbours ( ( x, y ), array )
-            bad_results = 0
-            for neighbour in neighbours:
-                result = array[neighbour[0]][neighbour[1]] - this_channel
-                other_result = this_channel + ( max_channel - array[neighbour[0]][neighbour[1]] )
-                if result > other_result:
-                    result = other_result
-                if result > channel_threshold:
-                    bad_results += 1
-            if ( bad_results > bad_neighbours_threshold ):
-                noise_map[x][y] = 1.0
-
-    return noise_map
-
-def get_neighbours ( position = ( int, int ), array = None ):
-    result = []
-    x = position[0]
-    y = position[1]
-    possible_neighbours = [ ( x-1, y+1 ), ( x, y+1 ), ( x+1, y+1 ),
-                            ( x-1, y   ),             ( x+1, y   ),
-                            ( x-1, y-1 ), ( x, y-1 ), ( x+1, y-1 ) ]
-
-    def is_valid_position ( position = ( int, int ), array = None ):
-        if ( position[0] >= 0 and 
-             position[0] < array.shape[0] ):
-            if position[1] >= 0 and position[1] < array.shape[1]:
-                return True
-        return False
-
-    for possibility in possible_neighbours:
-        if is_valid_position ( position = possibility, array = array ):
-            result.append ( possibility )
-                
-    return result

@@ -31,28 +31,45 @@ def g092 ( ):
     fits_object.write ( file_name = 'g092_6_unwrapped_phases_map.fits' )
 
 def g093 ( ):
-    g093 = tuna.io.read ( file_name = '/home/nix/cloud_fpdata1/2014-11-05_Benoit_ngc772/G093/G093.ADT' )
-    tuna.io.write ( file_name   = 'g093_fits_file.fits',
-	            array       = g093.get_array    ( ), 
-		    metadata    = g093.get_metadata ( ),
-		    file_format = 'fits' )
-    g093b = tuna.io.read ( file_name = 'g093_fits_file.fits' )
-    print ( "Queensgate constant = %s." % ( g093b.get_metadata ( )['Queensgate constant'] ) )
+
+#    g093 = tuna.io.read ( file_name = '/home/nix/cloud_fpdata1/2014-11-05_Benoit_ngc772/G093/G093.ADT' )
+#    tuna.io.write ( file_name   = 'g093_fits_file.fits',#
+#	            array       = g093.get_array    ( ), 
+#		    metadata    = g093.get_metadata ( ),
+#		    file_format = 'fits' )
+    g093 = tuna.io.read ( file_name = ( 'g093_fits_file.fits' ) )
+    print ( g093.get_metadata ( ) [ 'Acquisition 334 whitelevel'] )
 
 def g094 ( ):
-    #g094_can = tuna.io.read ( file_name = 'examples/G094.AD3' )
-    #g094_barycenter_array = tuna.tools.phase_map_creation.create_barycenter_array ( array = g094_can.get_array ( ) )
-    #tuna.io.write ( file_name   = 'g094_fits_file.fits',
-#	             array       = g094_barycenter_array,
-#                    file_format = 'fits' )
-    g094_can = tuna.io.read ( file_name = 'g094_fits_file.fits' )  
-    g094_binary_noise_map = tuna.tools.phase_map_creation.create_binary_noise_map ( array = g094_can.get_array ( ) )
-    tuna.io.write (  file_name   = 'g094_binary_noise_map.fits',
+
+    g094_file = tuna.io.read ( file_name = 'examples/G094.AD3' )
+    g094_barycenter_array = tuna.tools.phase_map_creation.create_barycenter_array ( array = g094_file.get_array ( ) )
+    tuna.io.write ( file_name   = 'g094_1_phase_brute.fits',
+	            array       = g094_barycenter_array,
+                    file_format = 'fits' )
+
+#    g094_binary_noise_map = tuna.tools.phase_map_creation.create_binary_noise_array ( array = g094_barycenter_array, bad_neighbours_threshold = 6, channel_threshold = 0.5 )
+    g094_binary_noise_map = tuna.tools.phase_map_creation.create_binary_noise_array ( array = g094_barycenter_array )
+    tuna.io.write (  file_name   = 'g094_2_binary_noise_map.fits',
 	             array       = g094_binary_noise_map,
 		     file_format = 'fits' )
+
+    g094_ring_borders_map = tuna.tools.phase_map_creation.create_ring_borders_map ( array = g094_barycenter_array, noise_array = g094_binary_noise_map )
+    tuna.io.write (  file_name   = 'g094_3_ring_borders_map.fits',
+	             array       = g094_ring_borders_map,
+		     file_format = 'fits' )
+
+def airy ( ):
+
+    airy_array = tuna.tools.models.create_airy_array ( )
+    tuna.io.write (  file_name   = 'airy.fits',
+	             array       = airy_array,
+		     file_format = 'fits' )
+    
 #g092 ( )
-#g093 ( )
-g094 ( )
+g093 ( )
+#g094 ( )
+#airy ( )
 
 # This call is required to close the daemons gracefully:
 tuna_daemons.finish ( )
