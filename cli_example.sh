@@ -17,15 +17,15 @@ def g092 ( ):
                     file_format = 'fits' )
 
 #    g092_binary_noise_map = tuna.tools.phase_map_creation.create_binary_noise_array ( array = g092_barycenter_array, bad_neighbours_threshold = 6, channel_threshold = 0.5 )
-    g092_binary_noise_map = tuna.tools.phase_map_creation.create_binary_noise_array ( array = g092_barycenter_array )
-    tuna.io.write (  file_name   = 'g092_2_binary_noise_map.fits',
-	             array       = g092_binary_noise_map,
-		     file_format = 'fits' )
-
-    g092_ring_borders_map = tuna.tools.phase_map_creation.create_ring_borders_map ( array = g092_barycenter_array, noise_array = g092_binary_noise_map )
-    tuna.io.write (  file_name   = 'g092_3_ring_borders_map.fits',
-	             array       = g092_ring_borders_map,
-		     file_format = 'fits' )
+    #g092_binary_noise_map = tuna.tools.phase_map_creation.create_binary_noise_array ( array = g092_barycenter_array )
+    #tuna.io.write (  file_name   = 'g092_2_binary_noise_map.fits',
+#	             array       = g092_binary_noise_map,
+#		     file_format = 'fits' )
+#
+#    g092_ring_borders_map = tuna.tools.phase_map_creation.create_ring_borders_map ( array = g092_barycenter_array, noise_array = g092_binary_noise_map )
+#    tuna.io.write (  file_name   = 'g092_3_ring_borders_map.fits',
+#	             array       = g092_ring_borders_map,
+#		     file_format = 'fits' )
 
 def g093 ( ):
 
