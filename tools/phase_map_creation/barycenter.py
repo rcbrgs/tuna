@@ -13,52 +13,41 @@ class barycenter ( object ):
             return
             
         cube = self.__array
-        max_x = cube.shape[1]
-        max_y = cube.shape[2]
-        max_z = cube.shape[0]
-        half_width = floor ( max_z / 2 )
+        dep_index = 0
+        row_index = 1
+        col_index = 2
+        max_dep = cube.shape[dep_index]
+        max_row = cube.shape[row_index]
+        max_col = cube.shape[col_index]
+        barycenter_array = numpy.ndarray ( shape = ( max_row, max_col ) )
+        multipliers = numpy.ndarray ( shape = ( max_dep ) )
 
-        barycenter_array = numpy.ndarray ( shape = ( max_x, max_y ) )
-        multipliers = numpy.ndarray ( shape = ( max_z ) )
-        multipliers2 = numpy.ndarray ( shape = ( max_z ) )
+        for dep in range ( max_dep ):
+            multipliers[dep] = dep + 1
 
-        printables = [ x for x in range ( 0, 101, 10 ) ]
-        for x in range ( max_x ):
-            percentage = int ( 100 * ( x + 1 ) / max_x )
-            if ( percentage in printables ):
-                self.log ( "Barycenter array calculation: %d%%." % ( percentage ) )
-                printables.remove ( percentage )
-            for y in range ( max_y ):
-                profile = self.__array[:,x,y]
+        for row in range ( max_row ):
+            for col in range ( max_col ):
+                profile = self.__array[:,row,col]
                 mass = numpy.sum ( profile )
+                first_min_index = numpy.argmin ( profile )
+                if ( first_min_index != 0 ):
+                    shifted_profile_right = profile[first_min_index:]
+                    shifted_profile_left  = profile[:first_min_index]
+                else:
+                    shifted_profile_left = profile
+                    shifted_profile_right = []
+                    
+                shifted_profile = numpy.concatenate ( ( shifted_profile_right, shifted_profile_left ) )
 
-                first_max_index = numpy.argmax ( profile )
-                for z in range ( max_z ):
-                    distance = z - first_max_index
-                    multipliers2[z] = distance
-                    if distance < 0:
-                        distance *= -1
-                    if distance >= half_width:
-                        distance = max_z - distance
-                    multipliers[z] = distance
-                    #multipliers2[z] = half_width - distance
-
-                weighted_mass = profile * multipliers
+                weighted_mass = shifted_profile * multipliers
 
                 if mass == 0:
                     center_of_mass = 0
                 else:
-                    center_of_mass = numpy.sum ( weighted_mass ) / mass + first_max_index
-                barycenter_array[x][y] = center_of_mass
-
-                target_pixels = [ ( 250, 250 ) ]
-                if ( x, y ) in target_pixels:
-                    self.log ( profile )
-                    self.log ( first_max_index )
-                    self.log ( multipliers )
-                    self.log ( multipliers2 )
-                    self.log ( weighted_mass )
-                    self.log ( center_of_mass )
+                    center_of_mass = ( ( numpy.sum ( weighted_mass ) / mass ) + first_min_index - 1 ) % max_dep
+                    if center_of_mass == 0:
+                        center_of_mass = max_dep
+                barycenter_array[row][col] = center_of_mass
 
         return barycenter_array
 

@@ -9,35 +9,32 @@ tuna_daemons.start ( )
 
 # User-specific code would go here.
 def g092 ( ):
-    g092 = tuna.io.adhoc ( file_name = 'examples/G092.AD3' )
-    g092_phase_map = tuna.tools.phase_map_creation.high_resolution_Fabry_Perot_phase_map_creation ( file_object = g092 )
 
-    fits_object = tuna.io.fits ( image_ndarray = g092_phase_map.get_max_channel_map ( ) )
-    fits_object.write ( file_name = 'g092_1_max_channel_map.fits' )
+    g092_file = tuna.io.read ( file_name = 'examples/G092.AD3' )
+    g092_barycenter_array = tuna.tools.phase_map_creation.create_barycenter_array ( array = g092_file.get_array ( ) )
+    tuna.io.write ( file_name   = 'g092_1_phase_brute.fits',
+	            array       = g092_barycenter_array,
+                    file_format = 'fits' )
 
-    fits_object = tuna.io.fits ( image_ndarray = g092_phase_map.get_binary_noise_map ( ) )
-    fits_object.write ( file_name = 'g092_2_binary_noise_map.fits' )
+#    g092_binary_noise_map = tuna.tools.phase_map_creation.create_binary_noise_array ( array = g092_barycenter_array, bad_neighbours_threshold = 6, channel_threshold = 0.5 )
+    g092_binary_noise_map = tuna.tools.phase_map_creation.create_binary_noise_array ( array = g092_barycenter_array )
+    tuna.io.write (  file_name   = 'g092_2_binary_noise_map.fits',
+	             array       = g092_binary_noise_map,
+		     file_format = 'fits' )
 
-    fits_object = tuna.io.fits ( image_ndarray = g092_phase_map.get_ring_borders_map ( ) )
-    fits_object.write ( file_name = 'g092_3_ring_borders_map.fits' )
-
-    fits_object = tuna.io.fits ( image_ndarray = g092_phase_map.get_regions_map ( ) )
-    fits_object.write ( file_name = 'g092_4_regions_map.fits' )
-
-    fits_object = tuna.io.fits ( image_ndarray = g092_phase_map.get_order_map ( ) )
-    fits_object.write ( file_name = 'g092_5_order_map.fits' )
-
-    fits_object = tuna.io.fits ( image_ndarray = g092_phase_map.get_unwrapped_phases_map ( ) )
-    fits_object.write ( file_name = 'g092_6_unwrapped_phases_map.fits' )
+    g092_ring_borders_map = tuna.tools.phase_map_creation.create_ring_borders_map ( array = g092_barycenter_array, noise_array = g092_binary_noise_map )
+    tuna.io.write (  file_name   = 'g092_3_ring_borders_map.fits',
+	             array       = g092_ring_borders_map,
+		     file_format = 'fits' )
 
 def g093 ( ):
 
-#    g093 = tuna.io.read ( file_name = '/home/nix/cloud_fpdata1/2014-11-05_Benoit_ngc772/G093/G093.ADT' )
-#    tuna.io.write ( file_name   = 'g093_fits_file.fits',#
-#	            array       = g093.get_array    ( ), 
-#		    metadata    = g093.get_metadata ( ),
-#		    file_format = 'fits' )
-    g093 = tuna.io.read ( file_name = ( 'g093_fits_file.fits' ) )
+    g093 = tuna.io.read ( file_name = '/home/nix/cloud_fpdata1/2014-11-05_Benoit_ngc772/G093/G093.ADT' )
+    tuna.io.write ( file_name   = 'g093_fits_file.fits',#
+	            array       = g093.get_array    ( ), 
+		    metadata    = g093.get_metadata ( ),
+		    file_format = 'fits' )
+    #g093 = tuna.io.read ( file_name = ( 'g093_fits_file.fits' ) )
     print ( g093.get_metadata ( ) [ 'Acquisition 334 whitelevel'] )
 
 def g094 ( ):
@@ -66,8 +63,8 @@ def airy ( ):
 	             array       = airy_array,
 		     file_format = 'fits' )
     
-#g092 ( )
-g093 ( )
+g092 ( )
+#g093 ( )
 #g094 ( )
 #airy ( )
 
