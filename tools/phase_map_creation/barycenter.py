@@ -1,117 +1,25 @@
 from math import floor
 import numpy
 
+class spectrum_cube ( object ):
+    def __init__ ( self, log = print ):
+        super ( spectrum_cube, self ).__init__ ( )
+        self.log = log
+        self.max_dep = 0
+        self.max_row = 0
+        self.max_col = 0
+        self.channel_range = 0
+        self.channel_range_center = 0
+
 class barycenter ( object ):
     def __init__ ( self, array = None, log = print ):
         super ( barycenter, self ).__init__ ( )
-        self.__array = array
         self.log = log
+
+        self.__array = array
+        self.cube = spectrum_cube ( )
+        self.profile = None
     
-    def run_first_max ( self ):
-        self.log ( "Creating barycenter array." )
-        if self.__array.ndim != 3:
-            return
-            
-        cube = self.__array
-        dep_index = 0
-        row_index = 1
-        col_index = 2
-        max_dep = cube.shape[dep_index]
-        max_row = cube.shape[row_index]
-        max_col = cube.shape[col_index]
-        barycenter_array = numpy.ndarray ( shape = ( max_row, max_col ) )
-        multipliers = numpy.ndarray ( shape = ( max_dep ) )
-
-        for dep in range ( max_dep ):
-            multipliers[dep] = dep + 1
-
-        for row in range ( max_row ):
-            for col in range ( max_col ):
-                profile = self.__array[:,row,col]
-                mass = numpy.sum ( profile )
-                first_min_index = numpy.argmin ( profile )
-                if ( first_min_index != 0 ):
-                    shifted_profile_right = profile[first_min_index:]
-                    shifted_profile_left  = profile[:first_min_index]
-                else:
-                    shifted_profile_left = profile
-                    shifted_profile_right = []
-                    
-                shifted_profile = numpy.concatenate ( ( shifted_profile_right, shifted_profile_left ) )
-
-                weighted_mass = shifted_profile * multipliers
-
-                if mass == 0:
-                    center_of_mass = 0
-                else:
-                    center_of_mass = ( ( numpy.sum ( weighted_mass ) / mass ) + first_min_index - 1 ) % max_dep
-                    if center_of_mass == 0:
-                        center_of_mass = max_dep
-                barycenter_array[row][col] = center_of_mass
-
-        return barycenter_array
-
-    def run_by_left_shoulder ( self ):
-        """
-        Produces a barycenter array from the input array. Will do so by shifting the spectra so that the geometric center of the 3 contiguous regions containing the most mass is the geometric center of the shifted spectra.
-        The idea behind this is: considering the possible "profiles" of the spectra, the "central line" will be either near a single isolated peak, or near the valley between two peaks. 
-        Also a peak's finite differences should have the following patterns: + - or + = -, so only consecutive regions with these profiles are considered as candidates.
-        """
-        self.log ( "Creating barycenter array." )
-        if self.__array.ndim != 3:
-            return
-            
-        cube = self.__array
-        dep_index = 0
-        row_index = 1
-        col_index = 2
-        max_dep = cube.shape[dep_index]
-        max_row = cube.shape[row_index]
-        max_col = cube.shape[col_index]
-        barycenter_array = numpy.ndarray ( shape = ( max_row, max_col ) )
-        multipliers = numpy.ndarray ( shape = ( max_dep ) )
-
-        for dep in range ( max_dep ):
-            multipliers[dep] = dep + 1
-
-        test_points = [ ( 0, 0 ), ( 232, 270 ), ( 233, 270 ) ]
-
-        for row in range ( max_row ):
-            print ( "row = %d" % row )
-            for col in range ( max_col ):
-                profile = self.__array[:,row,col]
-                mass = numpy.sum ( profile )
-                spectral_regions = self.get_regions_list ( array = cube[:,row,col] )
-                first_min_index = self.find_start_index ( spectral_regions )
-                if ( first_min_index != 0 ):
-                    shifted_profile_right = profile[first_min_index:]
-                    shifted_profile_left  = profile[:first_min_index]
-                else:
-                    shifted_profile_left = profile
-                    shifted_profile_right = []
-                    
-                shifted_profile = numpy.concatenate ( ( shifted_profile_right, shifted_profile_left ) )
-
-                weighted_mass = shifted_profile * multipliers
-
-                if mass == 0:
-                    center_of_mass = 0
-                else:
-                    center_of_mass = ( ( numpy.sum ( weighted_mass ) / mass ) + first_min_index ) % max_dep
-                    if center_of_mass == 0:
-                        center_of_mass = max_dep
-                barycenter_array[row][col] = center_of_mass
-                if ( row, col ) in test_points:
-                    print ( "( %d, %d )" % ( row, col ) )
-                    print ( profile )
-                    print ( spectral_regions )
-                    print ( first_min_index )
-                    print ( shifted_profile )
-                    print ( weighted_mass )
-                    print ( center_of_mass )
-
-        return barycenter_array
-
     def run_by_central_shifting ( self ):
         """
         Produces a barycenter array from the input array by shifting the spectra, calculating the barycenter and then shifting the result an equal amount.
@@ -120,34 +28,29 @@ class barycenter ( object ):
         if self.__array.ndim != 3:
             return
             
-        cube = self.__array
-        dep_index = 0
-        row_index = 1
-        col_index = 2
-        max_dep = cube.shape[dep_index]
-        max_row = cube.shape[row_index]
-        max_col = cube.shape[col_index]
-        barycenter_array = numpy.ndarray ( shape = ( max_row, max_col ) )
-        multipliers = numpy.ndarray ( shape = ( max_dep ) )
-        center_channel = floor ( max_dep / 2 )
-        print ( "center_channel = %d" % center_channel )
+        self.cube.max_dep = self.__array.shape[0]
+        self.cube.max_row = self.__array.shape[1]
+        self.cube.max_col = self.__array.shape[2]
+        self.cube.channel_range = self.cube.max_dep
+        self.cube.channel_center = self.cube.max_dep / 2
 
-        for dep in range ( max_dep ):
+        barycenter_array = numpy.ndarray ( shape = ( self.cube.max_row, self.cube.max_col ) )
+        multipliers = numpy.ndarray ( shape = ( self.cube.max_dep ) )
+
+        for dep in range ( self.cube.max_dep ):
             multipliers[dep] = dep + 1
 
-        test_points = [ ( 0, 0 ), ( 24, 0 ), ( 24, 256 ), ( 24, 384 ), ( 24, 448 ), ( 24, 480 ), ( 24, 484 ), ( 24, 488 ), ( 24, 492 ), ( 24, 493 ), ( 24, 494 ),  ( 24, 496 ), ( 24, 512 ), ( 232, 270 ), ( 233, 270 ) ]
-        test_points = [ ( 93, 127 ), ( 93, 128 ) ]
-        test_points = [ ( 3, 460 ) ]
-        test_points = [ ( 9, 461 ) ]
         test_points = [ ( 2, 464 ) ]
 
-        for row in range ( max_row ):
-            #print ( "row = %d" % row )
-            for col in range ( max_col ):
-                profile = self.__array[:,row,col]
-                mass = numpy.sum ( profile )
-                spectral_regions = self.get_regions_list ( array = cube[:,row,col] )
-                peaks_regions = self.get_peaks_from_regions ( regions_list = spectral_regions )
+        for row in range ( self.cube.max_row ):
+            for col in range ( self.cube.max_col ):
+                self.profile = self.__array[:,row,col]
+                mass = numpy.sum ( self.profile )
+                spectral_regions = self.get_spectral_regions ( array = self.profile )
+                peaks_regions = self.get_peaks_regions ( regions_list = spectral_regions )
+
+
+
                 apex_position = self.get_apex_index ( peaks_regions = peaks_regions, profile = profile )
                 shift = apex_position - center_channel
 
@@ -284,6 +187,80 @@ class barycenter ( object ):
             differences[dep] = array[dep] - array[dep - 1]
         return differences
 
+    def get_spectral_regions ( self, array = None ):
+        """
+        Produces a dict containing keys:
+        region_signal, region_start_index, region_end_index, region_mass
+        Where region_signal is 1 if the finite differences are positive, -1 if negative and 0 if 0.
+        region_mass is the amount of signal in the channels contained in the region.
+
+        Parameters
+        ---
+        array -- 1D numpy ndarray
+        """
+        differences = self.get_finite_differences_1D ( array = array )
+        max_dep = array.shape[0]
+        # produce list of finite differences' signals
+        derivative_signal = numpy.zeros ( shape = ( max_dep ), dtype = numpy.int16 )
+        for dep in range ( max_dep ):
+            if differences[dep] > 0:
+                derivative_signal[dep] = 1
+            elif differences[dep] < 0:
+                derivative_signal[dep] = -1
+        # produce regions list, without mass
+        regions_list = []
+        region_start = 0
+        region_end = 0
+        region_signal = derivative_signal[0]
+        for dep in range ( 1, max_dep ):
+            if ( derivative_signal[dep] == region_signal ):
+                region_end = dep
+            else:
+                regions_list.append ( ( region_signal, region_start, region_end ) )
+                region_signal = derivative_signal[dep]
+                region_start = dep
+                region_end = dep
+            if ( dep == max_dep - 1 ):
+                regions_list.append ( ( region_signal, region_start, region_end ) )
+
+
+        end_list = len ( regions_list ) - 1
+        # if the first and final regions hav ethe same signal, merge both
+        if regions_list[0][0] == regions_list[end_list][0]:
+            region_signal = regions_list[0][0]
+            region_start = regions_list[end_list][1]
+            region_end = regions_list[0][2]
+            regions_list.pop ( end_list )
+            if ( len ( regions_list ) > 0 ):
+                regions_list.pop ( 0 )
+            regions_list.append ( ( region_signal, region_start, region_end ) )
+        # include the mass of each region
+        result_list = [ ]
+        for region in regions_list:
+            result_dict = { }
+            region_mass = 0
+
+            if ( region[1] <= region[2] ):
+                channel_start = region[1]
+                channel_end = region[2] + 1
+                for channel in range ( channel_start, channel_end ):
+                    region_mass += array[channel]
+
+            else:
+                left_end = region[2]
+                right_start = region[1]
+                for channel in range ( left_end + 1 ):
+                    region_mass += array[channel]
+                for channel in range ( right_start, array.shape[0] ):
+                    region_mass += array[channel]
+
+            result_dict['finite_difference_signal'] = region[0]
+            result_dict['profile_start_index'] = region[1]
+            result_dict['profile_end_index'] = region[2]
+            result_dict['mass'] = region_mass
+            result_list.append ( result_dict )
+        return result_list
+
     def get_regions_list ( self, array = None ):
         """
         Produces an unsorted list containing tuples of the form:
@@ -405,6 +382,38 @@ class barycenter ( object ):
                     peak_end = regions_list[next_region][2]
                     peak_mass = ( regions_list[region][3] + 
                                   regions_list[next_region][3] )
+                    peaks_list.append ( ( peak_start, peak_end, peak_mass ) )
+        return peaks_list
+
+    def get_peaks_regions ( self, regions_list = [] ):
+        """
+        Produces a peak list from the regions list.
+        Peaks must have the following patterns concerning their and their neighbours' finite differences:
+        +-
+        +=-
+
+        Parameters:
+        ---
+        regions_list -- list of tuples of type ( region_signal, region_start_index, region_end_index, region_mass )
+        """
+        peaks_list = []
+        for region in range ( len ( regions_list ) ):
+            if regions_list[region]['finite_difference_signal'] == 1:
+                next_region = ( region + 1 ) % len ( regions_list )
+                next_next_region = ( region + 2 ) % len ( regions_list )
+                if ( regions_list[next_region]['finite_difference_signal'] == 0 and
+                     regions_list[next_next_region]['finite_difference_signal'] == -1 ):
+                    peak_start = regions_list[region]['profile_start_index']
+                    peak_end = regions_list[next_next_region]['profile_end_index']
+                    peak_mass = ( regions_list[region]['mass'] +
+                                  regions_list[next_region]['mass'] +
+                                  regions_list[next_next_region]['mass'] )
+                    peaks_list.append ( ( peak_start, peak_end, peak_mass ) )
+                elif ( regions_list[next_region]['finite_difference_signal'] == -1 ):
+                    peak_start = regions_list[region]['profile_start_index']
+                    peak_end = regions_list[next_region]['profile_end_index']
+                    peak_mass = ( regions_list[region]['mass'] + 
+                                  regions_list[next_region]['mass'] )
                     peaks_list.append ( ( peak_start, peak_end, peak_mass ) )
         return peaks_list
 
