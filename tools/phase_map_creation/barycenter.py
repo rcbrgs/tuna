@@ -7,7 +7,7 @@ class barycenter ( object ):
         self.__array = array
         self.log = log
     
-    def run ( self ):
+    def run_first_max ( self ):
         self.log ( "Creating barycenter array." )
         if self.__array.ndim != 3:
             return
@@ -51,7 +51,7 @@ class barycenter ( object ):
 
         return barycenter_array
 
-    def run2 ( self ):
+    def run_by_left_shoulder ( self ):
         """
         Produces a barycenter array from the input array. Will do so by shifting the spectra so that the geometric center of the 3 contiguous regions containing the most mass is the geometric center of the shifted spectra.
         The idea behind this is: considering the possible "profiles" of the spectra, the "central line" will be either near a single isolated peak, or near the valley between two peaks. 
@@ -74,6 +74,8 @@ class barycenter ( object ):
         for dep in range ( max_dep ):
             multipliers[dep] = dep + 1
 
+        test_points = [ ( 0, 0 ), ( 232, 270 ), ( 233, 270 ) ]
+
         for row in range ( max_row ):
             print ( "row = %d" % row )
             for col in range ( max_col ):
@@ -95,12 +97,175 @@ class barycenter ( object ):
                 if mass == 0:
                     center_of_mass = 0
                 else:
-                    center_of_mass = ( ( numpy.sum ( weighted_mass ) / mass ) + first_min_index - 1 ) % max_dep
+                    center_of_mass = ( ( numpy.sum ( weighted_mass ) / mass ) + first_min_index ) % max_dep
+                    if center_of_mass == 0:
+                        center_of_mass = max_dep
+                barycenter_array[row][col] = center_of_mass
+                if ( row, col ) in test_points:
+                    print ( "( %d, %d )" % ( row, col ) )
+                    print ( profile )
+                    print ( spectral_regions )
+                    print ( first_min_index )
+                    print ( shifted_profile )
+                    print ( weighted_mass )
+                    print ( center_of_mass )
+
+        return barycenter_array
+
+    def run_by_central_shifting ( self ):
+        """
+        Produces a barycenter array from the input array by shifting the spectra, calculating the barycenter and then shifting the result an equal amount.
+        """
+        self.log ( "Creating barycenter array." )
+        if self.__array.ndim != 3:
+            return
+            
+        cube = self.__array
+        dep_index = 0
+        row_index = 1
+        col_index = 2
+        max_dep = cube.shape[dep_index]
+        max_row = cube.shape[row_index]
+        max_col = cube.shape[col_index]
+        barycenter_array = numpy.ndarray ( shape = ( max_row, max_col ) )
+        multipliers = numpy.ndarray ( shape = ( max_dep ) )
+        center_channel = floor ( max_dep / 2 )
+        print ( "center_channel = %d" % center_channel )
+
+        for dep in range ( max_dep ):
+            multipliers[dep] = dep + 1
+
+        test_points = [ ( 0, 0 ), ( 24, 0 ), ( 24, 256 ), ( 24, 384 ), ( 24, 448 ), ( 24, 480 ), ( 24, 484 ), ( 24, 488 ), ( 24, 492 ), ( 24, 493 ), ( 24, 494 ),  ( 24, 496 ), ( 24, 512 ), ( 232, 270 ), ( 233, 270 ) ]
+        test_points = [ ( 93, 127 ), ( 93, 128 ) ]
+        test_points = [ ( 3, 460 ) ]
+        test_points = [ ( 9, 461 ) ]
+        test_points = [ ( 2, 464 ) ]
+
+        for row in range ( max_row ):
+            #print ( "row = %d" % row )
+            for col in range ( max_col ):
+                profile = self.__array[:,row,col]
+                mass = numpy.sum ( profile )
+                spectral_regions = self.get_regions_list ( array = cube[:,row,col] )
+                peaks_regions = self.get_peaks_from_regions ( regions_list = spectral_regions )
+                apex_position = self.get_apex_index ( peaks_regions = peaks_regions, profile = profile )
+                shift = apex_position - center_channel
+
+                shifted_profile = self.shift_profile ( profile = profile, shift = shift )
+
+                weighted_mass = shifted_profile * multipliers
+
+                if mass == 0:
+                    center_of_mass = 0
+                else:
+                    center_of_mass = ( ( numpy.sum ( weighted_mass ) / mass ) + shift - 1 ) % ( max_dep )
                     if center_of_mass == 0:
                         center_of_mass = max_dep
                 barycenter_array[row][col] = center_of_mass
 
+                if ( row, col ) in test_points:
+                    print ( ">>>>>>>>>>>> position = ( %d, %d ) <<<<<<<<<<<<<<<<<<<" % ( row, col ) )
+                    print ( "profile = ", profile )
+                    print ( "mass = %d" % mass )
+                    print ( "spectral_positions = ", spectral_regions )
+                    print ( "peaks_regions = ", peaks_regions )
+                    print ( "apex_position = %d" % apex_position )
+                    print ( "shift = %d" % shift )
+                    print ( "shifted_profile = ", shifted_profile )
+                    print ( "weighted_mass = ", weighted_mass )
+                    print ( "center_of_mass = %f" % center_of_mass )
+
         return barycenter_array
+
+    def run_by_central_shifting_and_disconsider_far_away_peaks ( self ):
+        """
+        Produces a barycenter array from the input array by shifting the spectra, calculating the barycenter and then shifting the result an equal amount.
+        """
+        self.log ( "Creating barycenter array." )
+        if self.__array.ndim != 3:
+            return
+            
+        cube = self.__array
+        dep_index = 0
+        row_index = 1
+        col_index = 2
+        max_dep = cube.shape[dep_index]
+        max_row = cube.shape[row_index]
+        max_col = cube.shape[col_index]
+        barycenter_array = numpy.ndarray ( shape = ( max_row, max_col ) )
+        center_channel = floor ( max_dep / 2 )
+        print ( "center_channel = %d" % center_channel )
+
+        test_points = [ ( 0, 0 ), ( 24, 0 ), ( 24, 256 ), ( 24, 384 ), ( 24, 448 ), ( 24, 480 ), ( 24, 484 ), ( 24, 488 ), ( 24, 492 ), ( 24, 493 ), ( 24, 494 ),  ( 24, 496 ), ( 24, 512 ), ( 232, 270 ), ( 233, 270 ) ]
+        test_points = [ ( 93, 127 ), ( 93, 128 ) ]
+        test_points = [ ( 3, 460 ) ]
+        test_points = [ ( 9, 461 ) ]
+        test_points = [ ( 2, 464 ) ]
+
+        for row in range ( max_row ):
+            #print ( "row = %d" % row )
+            for col in range ( max_col ):
+                profile = self.__array[:,row,col]
+                mass = numpy.sum ( profile )
+                spectral_regions = self.get_regions_list ( array = cube[:,row,col] )
+                peaks_regions = self.get_peaks_from_regions ( regions_list = spectral_regions )
+                apex_position = self.get_apex_index ( peaks_regions = peaks_regions, profile = profile )
+                apex_peak_region_index = self.get_peaks_region ( position = apex_position, peaks_regions = peaks_regions )
+                region_to_consider = [apex_position]
+
+                multipliers = numpy.zeros ( shape = ( max_dep ) )
+                for dep in range ( max_dep ):
+                    if ( dep in region_to_consider ):
+                        multipliers[dep] = dep + 1
+
+                shift = apex_position - center_channel
+
+                shifted_profile = self.shift_profile ( profile = profile, shift = shift )
+
+                weighted_mass = shifted_profile * multipliers
+
+                if mass == 0:
+                    center_of_mass = 0
+                else:
+                    center_of_mass = ( ( numpy.sum ( weighted_mass ) / mass ) + shift - 1 ) % ( max_dep )
+                    if center_of_mass == 0:
+                        center_of_mass = max_dep
+                barycenter_array[row][col] = center_of_mass
+
+                if ( row, col ) in test_points:
+                    print ( ">>>>>>>>>>>> position = ( %d, %d ) <<<<<<<<<<<<<<<<<<<" % ( row, col ) )
+                    print ( "profile = ", profile )
+                    print ( "mass = %d" % mass )
+                    print ( "spectral_positions = ", spectral_regions )
+                    print ( "peaks_regions = ", peaks_regions )
+                    print ( "apex_position = %d" % apex_position )
+                    print ( "shift = %d" % shift )
+                    print ( "shifted_profile = ", shifted_profile )
+                    print ( "weighted_mass = ", weighted_mass )
+                    print ( "center_of_mass = %f" % center_of_mass )
+
+        return barycenter_array
+
+    def get_peaks_region ( self, position = 0, peaks_regions = [] ):
+        for peak in range ( len ( peaks_regions ) ):
+            if ( position > peaks_regions[peak][0] and
+                 position < peaks_regions[peak][1] ):
+                return peak
+        return len ( peaks_regions ) - 1
+
+    def shift_profile ( self, profile = numpy.ndarray, shift = 0 ):
+        """
+        Shifts a profile a given number of channels, positive values shift channel positions in the profile to the right.
+        """
+        if profile is not None:
+            if ( shift != 0 and
+                 shift != profile.shape[0] ):
+                shift_index = ( abs ( profile.shape[0] + shift ) ) % profile.shape[0]
+                profile_left = profile[0:shift]
+                profile_right = profile[shift:profile.shape[0]]
+                return numpy.concatenate ( ( profile_right, profile_left ) )
+            else:
+                return profile
 
     def get_finite_differences_1D ( self, array = None ):
         """
@@ -147,13 +312,14 @@ class barycenter ( object ):
         for dep in range ( 1, max_dep ):
             if ( derivative_signal[dep] == region_signal ):
                 region_end = dep
-                if dep == max_dep - 1:
-                    regions_list.append ( ( region_signal, region_start, region_end ) )
             else:
                 regions_list.append ( ( region_signal, region_start, region_end ) )
                 region_signal = derivative_signal[dep]
                 region_start = dep
                 region_end = dep
+            if ( dep == max_dep - 1 ):
+                regions_list.append ( ( region_signal, region_start, region_end ) )
+
 
         end_list = len ( regions_list ) - 1
         # if the first and final regions hav ethe same signal, merge both
@@ -165,16 +331,29 @@ class barycenter ( object ):
             if ( len ( regions_list ) > 0 ):
                 regions_list.pop ( 0 )
             regions_list.append ( ( region_signal, region_start, region_end ) )
-        # produce a final list including the mass of each region
+        # include the mass of each region
         result = []
         for region in regions_list:
             region_mass = 0
-            for channel in range ( region[1], region[2] + 1 ):
-                region_mass += array[channel]
+
+            if ( region[1] <= region[2] ):
+                channel_start = region[1]
+                channel_end = region[2] + 1
+                for channel in range ( channel_start, channel_end ):
+                    region_mass += array[channel]
+
+            else:
+                left_end = region[2]
+                right_start = region[1]
+                for channel in range ( left_end + 1 ):
+                    region_mass += array[channel]
+                for channel in range ( right_start, array.shape[0] ):
+                    region_mass += array[channel]
+
             result.append ( ( region[0], region[1], region[2], region_mass ) )
         return result
 
-    def get_peaks_from_regions ( self, regions_list = [] ):
+    def get_peaks_from_regions_old ( self, regions_list = [] ):
         """
         Produces a peak list from the regions list.
         Peaks must have the following patterns concerning their and their neighbours' finite differences:
@@ -197,6 +376,38 @@ class barycenter ( object ):
                     peaks_list.append ( ( regions_list[region][1], regions_list[next_region][2], ( regions_list[region][3] + regions_list[next_region][3] ) ) )
         return peaks_list
 
+    def get_peaks_from_regions ( self, regions_list = [] ):
+        """
+        Produces a peak list from the regions list.
+        Peaks must have the following patterns concerning their and their neighbours' finite differences:
+        +-
+        +=-
+
+        Parameters:
+        ---
+        regions_list -- list of tuples of type ( region_signal, region_start_index, region_end_index, region_mass )
+        """
+        peaks_list = []
+        for region in range ( len ( regions_list ) ):
+            if regions_list[region][0] == 1:
+                next_region = ( region + 1 ) % len ( regions_list )
+                next_next_region = ( region + 2 ) % len ( regions_list )
+                if ( regions_list[next_region][0] == 0 and
+                     regions_list[next_next_region][0] == -1 ):
+                    peak_start = regions_list[region][1]
+                    peak_end = regions_list[next_next_region][2]
+                    peak_mass = ( regions_list[region][3] +
+                                  regions_list[next_region][3] +
+                                  regions_list[next_next_region][3] )
+                    peaks_list.append ( ( peak_start, peak_end, peak_mass ) )
+                elif ( regions_list[next_region][0] == -1 ):
+                    peak_start = regions_list[region][1]
+                    peak_end = regions_list[next_region][2]
+                    peak_mass = ( regions_list[region][3] + 
+                                  regions_list[next_region][3] )
+                    peaks_list.append ( ( peak_start, peak_end, peak_mass ) )
+        return peaks_list
+
     def find_start_index ( self, regions_list = [] ):
         """
         Determines where is the left shoulder of the most massive peak of the spectra.
@@ -217,34 +428,47 @@ class barycenter ( object ):
 #        print ( peaks_list )
         return peaks_list[most_massive_peak][0]
 
-#    def remove_continuum_from_spectra ( self, array = None ):
-#        filtered_spectra = array
-#        mass = numpy.sum ( array )
-#        significance = 1
-#
-#        while ( significance == 1 ):
-#            minimum = numpy.argmin ( filtered_spectra )
-#            filtered_spectra_left = filtered_spectra[:minimum]
-#            filtered_spectra_right = filtered_spectra[minimum+1:]
-#            filtered_spectra = numpy.concatenate ( ( filtered_spectra_left, filtered_spectra_right ) )
-#            new_mass = numpy.sum ( filtered_spectra )
-#            significance = new_mass / mass
-#
-#        print ( "Pixel spectra significance after continuum removal = %f" % significance )
-#        
-#        return filtered_spectra
+    def get_apex_index ( self, peaks_regions = [], profile = numpy.ndarray ):
+        """
+        Determines where is the center of the most massive peak of the spectra.
+        
+        Parameters:
+        ---
+        peaks_regions -- list of tuples of the type ( region start_index, region_end_index, region_mass )
+        """
+        if peaks_regions == []:
+            return 0
+        peaks_masses = numpy.ndarray ( shape = ( len ( peaks_regions ) ) )
+        for peak in range ( len ( peaks_regions ) ):
+            peaks_masses[peak] = peaks_regions[peak][2]
+        #print ( "peaks_masses = ", peaks_masses )
+        most_massive_peak = numpy.argmax ( peaks_masses )
+        #print ( "most_massive_peak = %d" % most_massive_peak )
+        apex_region_start_index = peaks_regions[most_massive_peak][0]
+        #print ( "apex_region_start_index = %d" % apex_region_start_index )
+        apex_region_end_index = peaks_regions[most_massive_peak][1]
+        #print ( "apex_region_end_index = %d" % apex_region_end_index )
+
+        def get_argmax_from_wrapped_range ( start_index = 0, end_index = 0, profile = [] ):
+            if start_index <= end_index:
+                auxiliary = profile[start_index:end_index]
+                auxiliary_argmax = numpy.argmax ( auxiliary )
+                return auxiliary_argmax + start_index
+            else:
+                auxiliary_left = profile[start_index:]
+                auxiliary_right = profile[:end_index]
+                auxiliary = numpy.concatenate ( ( auxiliary_left, auxiliary_right ) )
+                auxiliary_argmax =  numpy.argmax ( auxiliary )
+                return ( auxiliary_argmax + start_index ) % len ( profile )
+
+        argmax = get_argmax_from_wrapped_range ( start_index = apex_region_start_index,
+                                                 end_index = apex_region_end_index,
+                                                 profile = profile )
+        
+        #print ( "argmax = %d" % argmax )
+        return argmax
 
 def create_barycenter_array ( array = None ):
-    test_row = 220
-    test_column = 220
     barycenter_object = barycenter ( array = array )
-    #test_differences = barycenter_object.get_finite_differences_1D ( array = array[:,test_row,test_column] )
-    #test_filter = barycenter_object.remove_continuum_from_spectra ( array = array[:,test_row,test_column] )
-    #for row in range ( test_row - 1, test_row + 2 ):
-    #    print ( " row %d: " % row )
-    #    print ( array[:,row,test_column] )
-    #    test_regions_list = barycenter_object.get_regions_list ( array[:,row,test_column] )
-    #    print ( test_regions_list ) 
-    #    left_shoulder = barycenter_object.find_start_index ( test_regions_list )
-    #    print ( left_shoulder )
-    return barycenter_object.run2 ( )
+    #return barycenter_object.run_by_central_shifting ( )
+    return barycenter_object.run_by_central_shifting_and_disconsider_far_away_peaks ( )
