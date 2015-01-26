@@ -11,10 +11,25 @@ tuna_daemons.start ( )
 def g092 ( ):
 
     g092_file = tuna.io.read ( file_name = 'examples/G092.AD3' )
-    g092_barycenter_array = tuna.tools.phase_map_creation.create_barycenter_array ( array = g092_file.get_array ( ) )
-    tuna.io.write ( file_name   = 'g092_1_phase_brute.fits',
+    g092_barycenter = tuna.tools.phase_map_creation.barycenter ( array = g092_file.get_array ( ) )
+    g092_barycenter_array = g092_barycenter.run ( )
+   
+    tuna.io.write ( file_name   = 'g092_0_photon_counts.fits',
+	            array       = g092_barycenter.get_photon_counts_array ( ),
+                    file_format = 'fits' )
+
+    tuna.io.write ( file_name   = 'g092_1_number_of_spectral_regions.fits',
+	            array       = g092_barycenter.get_number_of_spectral_regions_array ( ),
+                    file_format = 'fits' )
+
+    tuna.io.write ( file_name   = 'g092_2_number_of_spectral_peaks.fits',
+	            array       = g092_barycenter.get_number_of_spectral_peaks_array ( ),
+                    file_format = 'fits' )
+
+    tuna.io.write ( file_name   = 'g092_9_barycenter.fits',
 	            array       = g092_barycenter_array,
                     file_format = 'fits' )
+
 
 #    g092_binary_noise_map = tuna.tools.phase_map_creation.create_binary_noise_array ( array = g092_barycenter_array, bad_neighbours_threshold = 6, channel_threshold = 0.5 )
     #g092_binary_noise_map = tuna.tools.phase_map_creation.create_binary_noise_array ( array = g092_barycenter_array )
