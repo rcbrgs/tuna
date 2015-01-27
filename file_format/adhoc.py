@@ -17,11 +17,9 @@ class adhoc ( file_reader ):
     """
     Class for reading files in one of the ADHOC file formats (AD2 or AD3).
 
-    First implemented by Benoît Epinat from LAM.
+    First implemented by Benoit Epinat from LAM.
     The ADHOC file formats were developed for use with the ADHOC software solution,
     developed at LAM by Jacques Boulesteix.
-    The source code for this software is not open (or at least not available at the
-    time of this writing).
     Please check the file adhoc_file_format.eml for documentation regarding this format.
     """
 

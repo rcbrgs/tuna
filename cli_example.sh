@@ -8,40 +8,28 @@ tuna_daemons = tuna.console.backend ( )
 tuna_daemons.start ( )
 
 # User-specific code would go here.
-def g092 ( ):
-
-    g092_file = tuna.io.read ( file_name = 'examples/G092.AD3' )
-    g092_barycenter = tuna.tools.phase_map_creation.barycenter ( array = g092_file.get_array ( ) )
-    g092_barycenter_array = g092_barycenter.run ( )
-   
-    tuna.io.write ( file_name   = 'g092_0_photon_counts.fits',
-	            array       = g092_barycenter.get_photon_counts_array ( ),
-                    file_format = 'fits' )
-
-    tuna.io.write ( file_name   = 'g092_1_number_of_spectral_regions.fits',
-	            array       = g092_barycenter.get_number_of_spectral_regions_array ( ),
-                    file_format = 'fits' )
-
-    tuna.io.write ( file_name   = 'g092_2_number_of_spectral_peaks.fits',
-	            array       = g092_barycenter.get_number_of_spectral_peaks_array ( ),
-                    file_format = 'fits' )
-
-    tuna.io.write ( file_name   = 'g092_9_barycenter.fits',
+def g092_create_barycenter ( ):
+    g092_raw_file = tuna.io.read ( file_name = 'examples/G092.AD3' )
+    g092_barycenter_array = tuna.tools.phase_map_creation.create_barycenter_array ( array = g092_raw_file.get_array ( ) )
+    tuna.io.write ( file_name   = 'g092_barycenter.fits',
 	            array       = g092_barycenter_array,
                     file_format = 'fits' )
 
+def g092_compare_barycenter ( ):
+    g092_barycenter_file = tuna.io.read ( file_name = 'g092_barycenter.fits' )
+    g092_barycenter_array = g092_barycenter_file.get_array ( )
+    g092_barycenter_gold_file = tuna.io.read ( file_name = 'examples/cal_bru.ad2' )
+    g092_barycenter_gold_array = g092_barycenter_gold_file.get_array ( )
+    import numpy
+    comparison = numpy.ndarray ( shape = g092_barycenter_array.shape )
+    for row in range ( comparison.shape[0] ):
+        for col in range ( comparison.shape[1] ):
+            comparison[row][col] = g092_barycenter_gold_array[comparison.shape[0] - 1 - row][col] - g092_barycenter_array[row][col]
 
-#    g092_binary_noise_map = tuna.tools.phase_map_creation.create_binary_noise_array ( array = g092_barycenter_array, bad_neighbours_threshold = 6, channel_threshold = 0.5 )
-    #g092_binary_noise_map = tuna.tools.phase_map_creation.create_binary_noise_array ( array = g092_barycenter_array )
-    #tuna.io.write (  file_name   = 'g092_2_binary_noise_map.fits',
-#	             array       = g092_binary_noise_map,
-#		     file_format = 'fits' )
-#
-#    g092_ring_borders_map = tuna.tools.phase_map_creation.create_ring_borders_map ( array = g092_barycenter_array, noise_array = g092_binary_noise_map )
-#    tuna.io.write (  file_name   = 'g092_3_ring_borders_map.fits',
-#	             array       = g092_ring_borders_map,
-#		     file_format = 'fits' )
-
+    tuna.io.write ( file_name   = 'g092_barycenter_comparison.fits',
+                    array       = comparison,
+                    file_format = 'fits' )
+    
 def g093 ( ):
 
     g093 = tuna.io.read ( file_name = '/home/nix/cloud_fpdata1/2014-11-05_Benoit_ngc772/G093/G093.ADT' )
@@ -78,7 +66,8 @@ def airy ( ):
 	             array       = airy_array,
 		     file_format = 'fits' )
     
-g092 ( )
+g092_create_barycenter ( )
+g092_compare_barycenter ( )
 #g093 ( )
 #g094 ( )
 #airy ( )
