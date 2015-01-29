@@ -68,6 +68,7 @@ class orders ( object ):
         order = 0
 
         while connections != []:
+            flag = False
             while order in region_order:
                 order += 1
             for color in colors:
@@ -78,13 +79,19 @@ class orders ( object ):
                             region_order[order].append ( color )
                         else:
                             region_order[order] = [ color ]
+                        flag = True
                     if ( [connectee, color] in connections ):
                         connections.remove ( [connectee, color] )
                         if ( order in region_order ):
                             region_order[order].append ( color )
                         else:
                             region_order[order] = [ color ]
+                        flag = True
+                    if flag == False:
+                        region_order[order] = [ color ]
+                        
             self.log ( "region_order = %s." % region_order )
+            self.log ( "connections = %s." % str ( connections ) )
 
         # region_order indexed the order for each region in inverted fashion.
         # So the dictionary is re-indexed to account for that.
@@ -102,13 +109,14 @@ class orders ( object ):
                         orders[x][y] = order_key
                         break
 
-        # Rings borders should get the value of its largest neighbouring region.
+        # Rings borders should get the value of its smallest neighbouring region.
         for x in range ( max_x ):
             for y in range ( max_y ):
                 if ring_borders[x][y] == 1:
-                    order = 0
+                    order = 100
                     for neighbour in get_pixel_neighbours ( position = ( x, y ), array = orders ):
-                        if orders[neighbour[0]][neighbour[1]] > order:
+                        if ( orders[neighbour[0]][neighbour[1]] < order and
+                             ring_borders[neighbour[0]][neighbour[1]] != 1 ):
                             order = orders[neighbour[0]][neighbour[1]]
                     orders[x][y] = order
                     
