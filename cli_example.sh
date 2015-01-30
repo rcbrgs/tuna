@@ -35,6 +35,7 @@ def g092_unwrap_phase_map ( ):
     g092_array = g092_raw_file.get_array ( )
     high_res_FP_phase_map_tool = tuna.tools.phase_map_creation.high_resolution_Fabry_Perot_phase_map_creation ( array = g092_array,wrapped_phase_map_algorithm = tuna.tools.phase_map_creation.create_barycenter_array, channel_threshold = 0.5, noise_mask_radius = 11 )
     g092_wrapped_array = high_res_FP_phase_map_tool.get_wrapped_phase_map_array ( )
+    g092_continuum_array = high_res_FP_phase_map_tool.get_continuum_array ( )
     g092_unwrapped_array = high_res_FP_phase_map_tool.get_unwrapped_phase_map_array ( )
     g092_binary_noise_array = high_res_FP_phase_map_tool.get_binary_noise_array ( )
     g092_ring_borders_array = high_res_FP_phase_map_tool.get_ring_borders_array ( )
@@ -44,19 +45,22 @@ def g092_unwrap_phase_map ( ):
     tuna.io.write ( file_name   = '1_g092_wrapped_phase_map_barycenter.fits',
                     array       = g092_wrapped_array,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = '2_g092_binary_noise.fits',
+    tuna.io.write ( file_name   = '2_g092_continuum.fits',
+                    array       = g092_continuum_array,
+                    file_format = 'fits' )    
+    tuna.io.write ( file_name   = '3_g092_binary_noise.fits',
                     array       = g092_binary_noise_array,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = '3_g092_ring_borders.fits',
+    tuna.io.write ( file_name   = '4_g092_ring_borders.fits',
                     array       = g092_ring_borders_array,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = '4_g092_regions.fits',
+    tuna.io.write ( file_name   = '5_g092_regions.fits',
                     array       = g092_regions_array,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = '5_g092_orders.fits',
+    tuna.io.write ( file_name   = '6_g092_orders.fits',
                     array       = g092_order_array,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = '6_g092_unwrapped_phase_map.fits',
+    tuna.io.write ( file_name   = '7_g092_unwrapped_phase_map.fits',
                     array       = g092_unwrapped_array,
                     file_format = 'fits' )    
 

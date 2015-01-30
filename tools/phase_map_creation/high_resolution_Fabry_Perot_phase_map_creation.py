@@ -6,6 +6,7 @@ from .noise import create_noise_array
 from .orders import orders
 from .ring_borders import create_ring_borders_map
 from tools.get_pixel_neighbours import get_pixel_neighbours
+from .spectrum import create_continuum_array
 
 def create_max_channel_map ( self, array = numpy.ndarray ):
     """
@@ -51,11 +52,19 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
             self.log ( "Image does not have 3 dimensions, aborting." )
             return
 
+        self.log ( "Creating continuum array." )
+        self.continuum_array = create_continuum_array ( array = array )
         self.binary_noise_array = create_noise_array ( bad_neighbours_threshold = bad_neighbours_threshold, channel_threshold = channel_threshold, array = self.wrapped_phase_map_array, noise_mask_radius = noise_mask_radius )
         self.ring_borders_array = create_ring_borders_map ( log = self.log, array = self.wrapped_phase_map_array, noise_array = self.binary_noise_array )
         self.create_regions_array ( )
         self.create_order_array ( )
         self.create_unwrapped_phase_map_array ( )
+
+    def get_continuum_array ( self ):
+        """
+        Returns the continuum array.
+        """
+        return self.continuum_array
 
     def get_array ( self ):
         """
@@ -145,7 +154,8 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         for x in range ( max_x ):
             for y in range ( max_y ):
                 if ( self.binary_noise_array[x][y] == 0 ):
-                    self.unwrapped_phase_map[x][y] = self.wrapped_phase_map_array[x][y] + max_channel * self.order_array[x][y]
+                    #self.unwrapped_phase_map[x][y] = self.wrapped_phase_map_array[x][y] + max_channel * self.order_array[x][y]
+                    self.unwrapped_phase_map[x][y] = self.wrapped_phase_map_array[x][y] + max_channel * self.order_array[x][y] - self.continuum_array[x][y]
 
         max_channel = numpy.amax ( self.unwrapped_phase_map )
         min_channel = numpy.amin ( self.unwrapped_phase_map )
