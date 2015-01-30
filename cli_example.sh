@@ -33,7 +33,7 @@ def g092_compare_barycenter ( ):
 def g092_unwrap_phase_map ( ):
     g092_raw_file = tuna.io.read ( file_name = 'examples/G092.AD3' )
     g092_array = g092_raw_file.get_array ( )
-    high_res_FP_phase_map_tool = tuna.tools.phase_map_creation.high_resolution_Fabry_Perot_phase_map_creation ( array = g092_array,wrapped_phase_map_algorithm = tuna.tools.phase_map_creation.create_barycenter_array, channel_threshold = 0.5, noise_mask_radius = 11 )
+    high_res_FP_phase_map_tool = tuna.tools.phase_map_creation.high_resolution_Fabry_Perot_phase_map_creation ( array = g092_array,wrapped_phase_map_algorithm = tuna.tools.phase_map_creation.create_barycenter_array, channel_threshold = 1, bad_neighbours_threshold = 7, noise_mask_radius = 7 )
     g092_wrapped_array = high_res_FP_phase_map_tool.get_wrapped_phase_map_array ( )
     g092_continuum_array = high_res_FP_phase_map_tool.get_continuum_array ( )
     g092_unwrapped_array = high_res_FP_phase_map_tool.get_unwrapped_phase_map_array ( )
@@ -42,11 +42,11 @@ def g092_unwrap_phase_map ( ):
     g092_regions_array = high_res_FP_phase_map_tool.get_regions_array ( )
     g092_order_array = high_res_FP_phase_map_tool.get_order_array ( )
 
-    tuna.io.write ( file_name   = '1_g092_wrapped_phase_map_barycenter.fits',
-                    array       = g092_wrapped_array,
-                    file_format = 'fits' )    
-    tuna.io.write ( file_name   = '2_g092_continuum.fits',
+    tuna.io.write ( file_name   = '1_g092_continuum.fits',
                     array       = g092_continuum_array,
+                    file_format = 'fits' )    
+    tuna.io.write ( file_name   = '2_g092_wrapped_phase_map_barycenter.fits',
+                    array       = g092_wrapped_array,
                     file_format = 'fits' )    
     tuna.io.write ( file_name   = '3_g092_binary_noise.fits',
                     array       = g092_binary_noise_array,
@@ -67,7 +67,7 @@ def g092_unwrap_phase_map ( ):
 def g093 ( ):
 
     g093 = tuna.io.read ( file_name = '/home/nix/cloud_fpdata1/2014-11-05_Benoit_ngc772/G093/G093.ADT' )
-    tuna.io.write ( file_name   = 'g093_fits_file.fits',#
+    tuna.io.write ( file_name   = 'g093_fits_file.fits',
 	            array       = g093.get_array    ( ), 
 		    metadata    = g093.get_metadata ( ),
 		    file_format = 'fits' )

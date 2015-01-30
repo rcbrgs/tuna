@@ -1,4 +1,4 @@
-from math import sqrt
+from math import ceil, sqrt
 import numpy
 from tools.get_pixel_neighbours import get_pixel_neighbours
 
@@ -45,8 +45,8 @@ def create_noise_array ( array = None,
     return noise_map
 
 def include_noise_circle ( position = ( int, int ), radius = int, array = numpy.array ):
-    for x in range ( position[0] - radius, position[0] + radius ):
-        for y in range ( position[1] - radius, position[1] + radius ):
+    for x in range ( position[0] - ceil ( radius ), position[0] + ceil ( radius ) + 1 ):
+        for y in range ( position[1] - ceil ( radius ), position[1] + ceil ( radius ) + 1 ):
             if position_is_valid_pixel_address ( position = ( x, y ), array = array ):
                 if sqrt ( ( x - position[0] )**2 + ( y - position[1] )**2 ) <= radius:
                     array[x][y] = 1

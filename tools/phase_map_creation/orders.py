@@ -5,11 +5,12 @@ from gui import widget_viewer_2d
 from tools.get_pixel_neighbours import get_pixel_neighbours
 
 class orders ( object ):
-    def __init__ ( self, log = print, regions = None, ring_borders = None ):
+    def __init__ ( self, log = print, regions = None, ring_borders = None, noise = numpy.ndarray ):
         super ( orders, self ).__init__ ( )
         self.log = log
         self.__regions = regions
         self.__ring_borders = ring_borders
+        self.__noise = noise
         self.__orders = None
 
         if ( self.__ring_borders != None and
@@ -34,9 +35,10 @@ class orders ( object ):
         for x in range ( max_x ):
             for y in range ( max_y ):
                 if ( ring_borders[x][y] == 1 ):
-                    pixel_count += 1
-                    center_x += x
-                    center_y += y
+                    if ( self.__noise[x][y] == 0 ):
+                        pixel_count += 1
+                        center_x += x
+                        center_y += y
         center_x /= int ( pixel_count )
         center_y /= int ( pixel_count )
         center_color = regions[center_x][center_y] 
@@ -62,6 +64,8 @@ class orders ( object ):
                                 connections.append ( relationship )
         print ( "Neighbourhood connections: ", connections )
         colors.remove ( 0.0 )
+        if -1 in colors:
+            colors.remove ( -1 )
         print ( "Region colors: %s." % colors )
 
         region_order = { 0 : [ center_color ] }
@@ -113,12 +117,26 @@ class orders ( object ):
         # Rings borders should get the value of its smallest neighbouring region.
         for x in range ( max_x ):
             for y in range ( max_y ):
-                if ring_borders[x][y] == 1:
-                    order = 100
+                if ( ring_borders[x][y] == 1 and
+                     self.__noise[x][y] == 0 ):
+                    possible_orders = [ ]
                     for neighbour in get_pixel_neighbours ( position = ( x, y ), array = orders ):
-                        if ( orders[neighbour[0]][neighbour[1]] < order and
-                             ring_borders[neighbour[0]][neighbour[1]] != 1 ):
-                            order = orders[neighbour[0]][neighbour[1]]
-                    orders[x][y] = order
+                        if orders[neighbour[0]][neighbour[1]] not in possible_orders:
+                            if ring_borders[neighbour[0]][neighbour[1]] == 0:
+                                possible_orders.append ( orders[neighbour[0]][neighbour[1]] )
+                    if ( len ( possible_orders ) == 0 ):
+                        orders[x][y] = 0
+                        continue
+                    if ( len ( possible_orders ) == 1 ):
+                        # Sometomes the border is two pixels thick, and the only non-border neighbours
+                        # will be of the next region.
+                        orders[x][y] = numpy.amin ( numpy.array ( possible_orders ) ) - 1
+                    else:
+                        orders[x][y] = numpy.amin ( numpy.array ( possible_orders ) )
+
+        # Supposing the noise is on the perifery of the map, attributing the highest order to the noise
+        # region is better than attributing order = 0 there.
+        max_order = numpy.amax ( orders )
+        orders += max_order * self.__noise
                     
         self.__orders = orders

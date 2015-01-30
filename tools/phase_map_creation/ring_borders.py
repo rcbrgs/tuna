@@ -13,10 +13,13 @@ class ring_borders ( object ):
         ring_borders_map = numpy.zeros ( shape = self.__array.shape )
         max_x = self.__array.shape[0]
         max_y = self.__array.shape[1]
-        threshold = 1
+        max_channel = numpy.amax ( self.__array )
+        threshold = max_channel / 2
         for x in range ( max_x ):
-            #self.log ( "Processing row %d." % ( x ) )
             for y in range ( max_y ):
+                if self.__noise_array[x][y] == 1:
+                    ring_borders_map[x][y] = 1
+                    continue
                 neighbours = get_pixel_neighbours ( ( x, y ), ring_borders_map )
                 for neighbour in neighbours:
                     if self.__noise_array[neighbour[0]][neighbour[1]] == 0:
