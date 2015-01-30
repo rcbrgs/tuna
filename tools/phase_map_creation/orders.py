@@ -87,8 +87,9 @@ class orders ( object ):
                         else:
                             region_order[order] = [ color ]
                         flag = True
-                    if flag == False:
-                        region_order[order] = [ color ]
+            if flag == False:
+                break
+                #region_order[order] = [ color ]
                         
             self.log ( "region_order = %s." % region_order )
             self.log ( "connections = %s." % str ( connections ) )
