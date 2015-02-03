@@ -1,3 +1,4 @@
+#from .concentric_rings_model import find_concentric_rings
 from math import floor, sqrt
 import numpy
 from file_format import adhoc, file_reader, fits
@@ -7,7 +8,6 @@ from .orders import orders
 from .ring_borders import create_ring_borders_map
 from tools.get_pixel_neighbours import get_pixel_neighbours
 from .spectrum import create_continuum_array
-from .concentric_rings_model import find_concentric_rings
 
 def create_max_channel_map ( self, array = numpy.ndarray ):
     """
@@ -60,7 +60,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         self.log ( "Creating wrapped phase map." )
         self.wrapped_phase_map_array = wrapped_phase_map_algorithm ( array = self.filtered_array )
 
-        find_concentric_rings ( array = self.wrapped_phase_map_array )
+#        find_concentric_rings ( array = self.wrapped_phase_map_array )
 
         self.binary_noise_array = create_noise_array ( bad_neighbours_threshold = bad_neighbours_threshold, 
                                                        channel_threshold = channel_threshold, 
@@ -115,13 +115,6 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         max_y = self.regions_array.shape[1]
         color = 0
 
-        #for x in range ( max_x ):
-        #    for y in range ( max_y ):
-        #        if self.binary_noise_array[x][y] == 1:
-        #            #self.regions_array += self.binary_noise_array * ( -1 )
-        #            self.regions_array[x][y] = -1
-        #            for neighbour in get_pixel_neighbours ( position = ( x, y ), array = self.regions_array ):
-        #                self.regions_array[neighbour[0]][neighbour[1]] = -1
         self.regions_array = -1 * self.binary_noise_array
 
         for x in range ( max_x ):
@@ -167,8 +160,6 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
 
         for x in range ( max_x ):
             for y in range ( max_y ):
-                #if ( self.binary_noise_array[x][y] == 0 ):
-                #    self.unwrapped_phase_map[x][y] = self.wrapped_phase_map_array[x][y] + max_channel * self.order_array[x][y]
                 self.unwrapped_phase_map[x][y] = self.wrapped_phase_map_array[x][y] + max_channel * self.order_array[x][y]
                     
         max_channel = numpy.amax ( self.unwrapped_phase_map )

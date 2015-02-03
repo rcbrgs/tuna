@@ -43,11 +43,16 @@ def find_concentric_rings ( array = numpy.ndarray ):
         per_value_centers[element] = per_value_entry
     for row in range ( row_max ):
         for col in range ( col_max ):
-            value = array[row][col]
-            per_value_centers[value]['sum'] += ( row, col )
+            value = int ( array[row][col] )
+            new_tuple = ( per_value_centers[value]['sum'][0] + row,
+                          per_value_centers[value]['sum'][1] + col )
+            per_value_centers[value]['sum'] = new_tuple
             per_value_centers[value]['pixels'] += 1
     for element in distinct_values:
-        print ( per_value_centers[element]['sum'] / per_value_centers[element]['pixels'] )
+        print ( "Center for channel %d, %d pixels: ( %f, %f )." % ( element, 
+                                                                    per_value_centers[element]['pixels'],
+                                                                    int ( per_value_centers[element]['sum'][0] / per_value_centers[element]['pixels'] ),
+                                                                    int ( per_value_centers[element]['sum'][1] / per_value_centers[element]['pixels'] ) ) )
     
 
     #for row in range ( row_max ):
