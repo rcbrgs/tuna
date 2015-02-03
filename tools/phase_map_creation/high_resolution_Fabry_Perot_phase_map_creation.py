@@ -7,6 +7,7 @@ from .orders import orders
 from .ring_borders import create_ring_borders_map
 from tools.get_pixel_neighbours import get_pixel_neighbours
 from .spectrum import create_continuum_array
+from .concentric_rings_model import find_concentric_rings
 
 def create_max_channel_map ( self, array = numpy.ndarray ):
     """
@@ -58,6 +59,8 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
 
         self.log ( "Creating wrapped phase map." )
         self.wrapped_phase_map_array = wrapped_phase_map_algorithm ( array = self.filtered_array )
+
+        find_concentric_rings ( array = self.wrapped_phase_map_array )
 
         self.binary_noise_array = create_noise_array ( bad_neighbours_threshold = bad_neighbours_threshold, 
                                                        channel_threshold = channel_threshold, 
