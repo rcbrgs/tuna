@@ -10,7 +10,7 @@ class fits ( file_reader ):
     Consists mostly of a wrapper around Astropy's io.fits module.
     """
 
-    def __init__ ( self, file_name = None, log = print, array = None, metadata = { } ):
+    def __init__ ( self, file_name = None, log = print, array = None, metadata = [ ] ):
         super ( fits, self ).__init__ ( )
         self.log = log
         self.__file_name = file_name
@@ -36,8 +36,13 @@ class fits ( file_reader ):
             self.log ( "File %s opened as a FITS file." % self.__file_name )
             self.__array = hdu_list[0].data
             self.log ( "Assigned data section of first HDU as the image ndarray." )
+            metadata = [ ]
             for key in hdu_list[0].header.keys ( ):
-                self.__metadata[key] = hdu_list[0].header[key]
+                metadata_dict = { }
+                metadata_dict['key'] = key
+                metadata_dict['value'] = hdu_list[0].header[key]
+                metadata_dict['comment'] = hdu_list[0].header.comments[key]
+                self.__metadata.append ( metadata_dict )
             self._is_readable = True
         except OSError as e:
             self.log ( "OSError: %s." % e )
@@ -47,16 +52,34 @@ class fits ( file_reader ):
         if self.__file_name:
             hdu = astrofits.PrimaryHDU ( self.__array )
             if self.__metadata:
+                key_list = [ ]
                 with warnings.catch_warnings ( ):
                     warnings.simplefilter ( "ignore" )
-                    for key in self.__metadata.keys ( ):
-                        value = self.__metadata[key]
-                        if ( len ( value ) + len ( key ) ) > 68:
-                            key = key [:7]
+                    for entry in self.__metadata:
+                        comment = entry['comment']
+                        value = entry['value']
+                        key = entry['key']
+
+                        if len ( key ) > 8:
+                            comment += "Original key = " + key + ". "
+                            key = key[:7]
+
+                        # check for repeated keys
+                        repeat = 1
+                        while key in key_list:
+                            repeat += 1
+                            key = str ( repeat ) + key[: - len ( str ( repeat ) )]
+
+                        key_list.append ( key )
+
+                        if value == None:
+                            value = ""
+                        elif len ( value ) > 60:
+                            comment += "Original value = " + value + ". "
                             value = value [:59]
-                        key = key.replace ( "\t", " " )
+
                         try:
-                            hdu.header [key] = value
+                            hdu.header [key] = ( value, comment )
                         except ValueError as error_message:
                             self.log ( "ValueError: %s." % ( error_message ) )                
                             self.log ( "key = value, len ( value ) + len ( key ): %s = %s, %d" % ( key, value, len ( value ) + len ( key ) ) )

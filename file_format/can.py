@@ -30,6 +30,12 @@ class can ( file_reader ):
     def get_metadata ( self ):
         return self.__metadata
 
+    def get_metadata_parameter ( self, parameter = str ):
+        for entry in self.__metadata:
+            if entry['key'] == parameter:
+                return entry['value']
+        return None
+
     def read ( self ):
         if self.__file_name:
             if ( self.__file_name.startswith ( ".ADT", -4 ) or
@@ -51,4 +57,4 @@ class can ( file_reader ):
                 adhoc_object = adhoc ( file_name = self.__file_name )
                 adhoc_object.read ( )
                 self.__array = adhoc_object.get_array ( )
-                #self.__metadata = adhoc_object.get_metadata ( )
+
