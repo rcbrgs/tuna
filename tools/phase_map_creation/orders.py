@@ -5,7 +5,13 @@ from gui import widget_viewer_2d
 from tools.get_pixel_neighbours import get_pixel_neighbours
 
 class orders ( object ):
+    """
+    Responsible for creating arrays where each position correspond to the distance, in number of FSR bandwidths, from the intereference image center.
+    """
     def __init__ ( self, log = print, regions = None, ring_borders = None, noise = numpy.ndarray ):
+        """
+        Initializes variables and calls the array creation method.
+        """
         super ( orders, self ).__init__ ( )
         self.log = log
         self.__regions = regions
@@ -18,10 +24,16 @@ class orders ( object ):
             self.run ( )
 
     def get_orders ( self ):
+        """
+        Returns the FSR distance array.
+        """
         self.log ( __name__ )
         return self.__orders
 
     def run ( self ):
+        """
+        FSR distance array creation method.
+        """
         self.log ( __name__ )
         regions = self.__regions
         ring_borders = self.__ring_borders
@@ -39,9 +51,22 @@ class orders ( object ):
                         pixel_count += 1
                         center_x += x
                         center_y += y
+
+        if pixel_count == 0:
+            self.log ( "No borders detected in phase map." )
+            self.log ( "Orders map set to zero-filled array." )
+            self.__orders = numpy.zeros ( shape = self.__regions.shape )
+            return
+            
         center_x /= int ( pixel_count )
         center_y /= int ( pixel_count )
         center_color = regions[center_x][center_y] 
+        if ( center_color == 0 ):
+            self.log ( "Center detected to be on a border, which is wrong." )
+            self.log ( "Setting FSR distance array to zero-filled array." )
+            self.__orders = numpy.zeros ( shape = self.__regions.shape )
+            return
+
         self.log ( "Center of symmetric rings possibly near (%d, %d)." % ( center_x, center_y ) )
         self.log ( "Center in region of color %d." % center_color )
 
@@ -71,6 +96,9 @@ class orders ( object ):
         region_order = { 0 : [ center_color ] }
         order = 0
 
+        self.log ( "region_order = %s." % region_order )
+        self.log ( "connections = %s." % str ( connections ) )
+
         while connections != []:
             flag = False
             while order in region_order:
@@ -92,8 +120,9 @@ class orders ( object ):
                             region_order[order] = [ color ]
                         flag = True
             if flag == False:
-                break
+                self.log ( "Broke connections re-indexing to avoid infinite loop." )
                 #region_order[order] = [ color ]
+                break
                         
             self.log ( "region_order = %s." % region_order )
             self.log ( "connections = %s." % str ( connections ) )
