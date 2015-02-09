@@ -3,77 +3,27 @@ This model corresponds to the idea that a Fabry-Perot data file should consist o
 This will not be exact because of noise. Therefore, if we are able to fit the model to most of a data file, the parts that do not fit well might be noise.
 """
 
+import math
 import numpy
+import scipy
+import scipy.interpolate as interpolate
+from scipy import stats
 
-#class ring ( object ):
-#    """
-#    Representation of an individual ring in a FP image.
-#    """
-#    def __init__ ( self, array, center, spectral_value, spectral_value_uncertainty )
-#        super ( ring, self ).__init__ ( )
-#        self.__array = array
-#        self.__center = center
-#        self.__spectral_value = spectral_value
-#        self.__spectral_value_uncertainty = spectral_value_uncertainty
-#        
-#    def set_array ( self, array = numpy.ndarray ):
-#        self.__array = array#
-#
-#def create_ring_array ( array, spectral_value, spectral_value_uncertainty ):
-#    ring_array = numpy.zeros ( shape = array.shape, dtype = numpy.int16 )
-#    for row in range ( array.shape[0] ):
-#        for col in range ( array.shape[1] ):
-#            if ( array[row][col] >= spectral_value - spectral_value_uncertainty and
-#                 array[row][col] <= spectral_value + spectral_value_uncertainty ):
-#                ring_array = 1
-#    ring ( array = ring_array, spectral_value = 
-
-def find_concentric_rings ( array = numpy.ndarray ):
-    row_max = array.shape[0]
-    col_max = array.shape[1]
-    # find center: find distinct values
-    distinct_values = [ element for element in range ( int ( numpy.amax ( array ) ) + 1 ) ]
-    print ( distinct_values )
-    # find center: find per-value medians
-    per_value_centers = { }
-    for element in distinct_values:
-        per_value_entry = { }
-        per_value_entry['sum'] = ( 0, 0 )
-        per_value_entry['pixels'] = 0
-        per_value_centers[element] = per_value_entry
-    for row in range ( row_max ):
-        for col in range ( col_max ):
-            value = int ( array[row][col] )
-            new_tuple = ( per_value_centers[value]['sum'][0] + row,
-                          per_value_centers[value]['sum'][1] + col )
-            per_value_centers[value]['sum'] = new_tuple
-            per_value_centers[value]['pixels'] += 1
-    for element in distinct_values:
-        print ( "Center for channel %d, %d pixels: ( %f, %f )." % ( element, 
-                                                                    per_value_centers[element]['pixels'],
-                                                                    int ( per_value_centers[element]['sum'][0] / per_value_centers[element]['pixels'] ),
-                                                                    int ( per_value_centers[element]['sum'][1] / per_value_centers[element]['pixels'] ) ) )
-    
-
-    #for row in range ( row_max ):
-    #    for col in range ( col_max ):
-    #        if array[row][col] not in distinct_values:
-    #            distinct_values.append ( array[row][col] )
-    
-    
-    # find rings around center
-
-def get_free_spectral_range( array = numpy.ndarray ):
+def get_free_spectral_range ( array = numpy.ndarray ):
     """
-    A quick-and-dirty way to measure the free range in FP units.
+    A quick-and-dirty way to measure the free spectral range in number of channels.
     The method subtracts each frame of the data-cube from the
-    first one. Then, it calculates the absolute value and collapse
-    in X and Y. The FSR is where the resulting spectrum is minimum,
+    first one. Therefore, frames similar to the first will
+    have values near zero.
+    Then, it calculates the absolute value of the differences and 
+    accumulates a sum in X and Y. 
+    The FSR is where the resulting spectrum is minimum,
     excluding (of course), the first one.
-    Originally written by Bruno Quint, adapted by Renato Borges.
+
+    Originally written by Bruno Quint for phmxtractor, adapted by Renato Borges.
     """
 
-    print ( " Finding the free-spectral-range." )
+    print ( "Finding the free-spectral-range." )
 
     # First frame is the reference frame
     ref_frame = array[0,:,:]
@@ -109,29 +59,17 @@ def get_free_spectral_range( array = numpy.ndarray ):
 
     return fsr
 
-def find_concentric_rings_center ( array = numpy.ndarray ):
+def find_concentric_rings_center_old ( array = numpy.ndarray ):
     """
     Function used to find the center of the rings inside a FP data-cube.
     Originally developed by Bruno Quint, for phmxtractor.py, adapted by Renato Borges for Tuna.
     """
 
-    #from __future__ import division, print_function
-    #import argparse
-    #import astropy.io.fits as pyfits
-    import matplotlib.pyplot as pyplot
-    #import numpy
-    #import time
-    #import scipy
-    #import scipy.interpolate as interpolate
-    #import scipy.ndimage as ndimage
-    #import sys
-
-    #now = time.time()
-
     # Renaming some variables
     width = array.shape[0]
     height = array.shape[1]
-    #fsr = round(self.free_spectral_range / self.header['C3_3'])
+    free_spectral_range = get_free_spectral_range ( array = array )
+    fsr = round ( free_spectral_range )
 
     # Choosing the points
     x = ( numpy.linspace ( 0.2, 0.8, 500 ) * width ).astype ( int )
@@ -140,12 +78,9 @@ def find_concentric_rings_center ( array = numpy.ndarray ):
     ref_x = width / 2
     ref_y = height / 2
 
-    self.log ( "Start center finding." )
+    print ( "Start center finding." )
     old_ref_x = ref_x
     old_ref_y = ref_y
-
-    #if self.show:
-        #pyplot.figure()
 
     for i in range ( 6 ):
         ref_y = max ( ref_y, 0 )
@@ -157,85 +92,160 @@ def find_concentric_rings_center ( array = numpy.ndarray ):
         temp_x = array[:fsr, ref_y, x]
         temp_y = array[:fsr, y, ref_x]
 
-            temp_x = numpy.argmax(temp_x, axis=0)
-            temp_y = numpy.argmax(temp_y, axis=0)
+        temp_x = numpy.argmax ( temp_x, axis = 0 )
+        temp_y = numpy.argmax ( temp_y, axis = 0 )
+        
+        px = scipy.polyfit ( x, temp_x, 2 )
+        py = scipy.polyfit ( y, temp_y, 2 )
+        
+        ref_x = round ( - px[1] / ( 2.0 * px[0] ) )
+        ref_y = round ( - py[1] / ( 2.0 * py[0] ) )
+        
+        # Selecting valid data
+        error_x = numpy.abs ( temp_x - scipy.polyval ( px, x ) )
+        error_y = numpy.abs ( temp_y - scipy.polyval ( py, y ) )
+        
+        cond_x = numpy.where ( error_x <= 3 * error_x.std ( ), True, False )
+        cond_y = numpy.where ( error_y <= 3 * error_y.std ( ), True, False )
+        
+        x = x[cond_x]
+        y = y[cond_y]
+        
+        # Choosing when to stop
+        if ( ( abs ( old_ref_x - ref_x ) <= 2 ) and 
+             ( abs ( old_ref_y - ref_y ) <= 2 ) ):
+            #try:
+            #    # If the cube was binned this will be useful
+            #    ref_x = ( ref_x - self.header['CRPIX1'] + 1 ) * self.header['CDELT1'] + self.header['CRVAL1']
+            #
+            #    # If the cube was binned this will be useful
+            #    ref_y = (ref_y - self.header['CRPIX2']) * self.header['CDELT2'] + self.header['CRVAL2']
+            #except KeyError:
+            #    pass
+            print ( "Rings center found at: [%d, %d]" % ( ref_x, ref_y ) )
+            return ref_x, ref_y
+        else:
+            old_ref_x = ref_x
+            old_ref_y = ref_y
 
-            px = scipy.polyfit(x, temp_x, 2)
-            py = scipy.polyfit(y, temp_y, 2)
+    print ( "Rings center NOT found." )
 
-            ref_x = round(- px[1] / (2.0 * px[0]))
-            ref_y = round(- py[1] / (2.0 * py[0]))
+    #ref_x = self.header['NAXIS1'] // 2
+    #ref_y = self.header['NAXIS2'] // 2
+    
+    # If the cube was binned this will be useful
+    #try:
+    #    ref_x = (ref_x - self.header['CRPIX1']) \
+        #            * self.header['CDELT1'] + self.header['CRVAL1']
+    #    ref_y = (ref_y - self.header['CRPIX2']) \
+        #            * self.header['CDELT2'] + self.header['CRVAL2']
+    #except:
+    #    pass
 
-            if self.show:
-                pyplot.title("Finding center of the rings")
-                pyplot.cla()
-                pyplot.plot(x, temp_x, 'b.', alpha=0.25)
-                pyplot.plot(x, scipy.polyval(px, x), 'b-', lw=2)
-                pyplot.plot(y, temp_y, 'r.', alpha=0.25)
-                pyplot.plot(y, scipy.polyval(py, y), 'r-', lw=2)
-                pyplot.gca().yaxis.set_ticklabels([])
-                pyplot.axvline(ref_x, ls='--', c='blue', label='x')
-                pyplot.axvline(ref_y, ls='--', c='red', label='y')
-                pyplot.legend(loc='best')
-                pyplot.grid()
-                pyplot.ylabel("Iteration number %d" %(i+1))
+    return ref_x, ref_y
 
-            # Selecting valid data
-            error_x = numpy.abs(temp_x - scipy.polyval(px, x))
-            error_y = numpy.abs(temp_y - scipy.polyval(py, y))
+def find_concentric_rings_center ( ia_array = numpy.ndarray ):
+    """
+    Function used to find the center of the rings inside a FP data-cube.
+    Originally developed by Bruno Quint, for phmxtractor.py, adapted by Renato Borges for Tuna.
+    """
 
-            cond_x = numpy.where(error_x <= 3 * error_x.std(), True, False)
-            cond_y = numpy.where(error_y <= 3 * error_y.std(), True, False)
+    from ..get_pixel_neighbours import get_pixel_neighbours
 
-            x = x[cond_x]
-            y = y[cond_y]
+    # Renaming some variables
+    width = ia_array.shape[1]
+    height = ia_array.shape[2]
+    free_spectral_range = get_free_spectral_range ( array = ia_array )
+    fsr = round ( free_spectral_range )
 
-            # Choosing when to stop
-            if (abs(old_ref_x - ref_x) <= 2) and (abs(old_ref_y - ref_y) <= 2):
+    i_center_row = int ( height / 2 )
+    i_center_col = int ( width / 2 )
+    f_distance = min ( i_center_row, i_center_col ) / 2
 
-                try:
-                    # If the cube was binned this will be useful
-                    ref_x = (ref_x - self.header['CRPIX1'] + 1) \
-                            * self.header['CDELT1'] + self.header['CRVAL1']
+    print ( "Start center finding." )
 
-                    # If the cube was binned this will be useful
-                    ref_y = (ref_y - self.header['CRPIX2']) \
-                            * self.header['CDELT2'] + self.header['CRVAL2']
-                except KeyError:
-                    pass
+    tl_neighbourhood = get_pixel_neighbours ( array = ia_array[0,:,:], position = ( i_center_row, i_center_col ) )
+    f_current_max_similitude = get_ring_similitude ( ia_array = ia_array[0,:,:], it_center = ( i_center_row, i_center_col ), f_distance = f_distance )
+    t_current_max_similitude_pixel = ( i_center_row, i_center_col )
+    b_center_has_moved = True
 
-                if self.verbose:
-                    print(" Rings center found at: [%d, %d]" % (ref_x, ref_y))
-                    print(" Done in %.2f s" % (time.time() - now))
+    for row in range ( int ( f_distance ), width - int ( f_distance ) ):
+        #print ( "Row: %d" % row )
+        for col in range ( int ( f_distance ), height - int ( f_distance ) ):
+            print ("Considering ( %d, %d )." % ( row, col ) )
+            f_ring_similitude = get_ring_similitude ( ia_array = ia_array[0,:,:], it_center = ( row, col ), f_distance = f_distance )
+            if ( f_ring_similitude > f_current_max_similitude ):
+                f_current_max_similitude = f_ring_similitude
+                t_current_max_similitude_pixel = ( row, col )
+                print ( "t_current_max_similitude_pixel = %s" % str ( t_current_max_similitude_pixel ) )
+                print ( "f_current_max_similitude = %f" % f_current_max_similitude )
 
-                if self.show:
-                    pyplot.show()
+    #print ( "t_current_max_similitude_pixel = %s" % str ( t_current_max_similitude_pixel ) )
+    #print ( "f_current_max_similitude = %f" % f_current_max_similitude )
 
-                return ref_x, ref_y
+    #print ( "PyQubeVis position = ( %d, %d )" % ( t_current_max_similitude_pixel[0], ia_array.shape[1] - t_current_max_similitude_pixel[1] ) )
 
-            else:
-                old_ref_x = ref_x
-                old_ref_y = ref_y
+    return None, None
 
-        if self.show:
-            pyplot.show()
+def get_ring_similitude_old ( ia_array = numpy.ndarray, it_center = ( int, int ), f_distance = float ):
+    """
+    Returns the similitude of a ring with radius f_distance centered on it_center with thickness 1.
+    Similitude is the number of pixels that have modal value.
+    """
 
-        if self.verbose:
-            print(" Rings center NOT found.")
+    import math
 
-        ref_x = self.header['NAXIS1'] // 2
-        ref_y = self.header['NAXIS2'] // 2
+    i_center_row = it_center[0]
+    i_center_col = it_center[1]
 
-        # If the cube was binned this will be useful
-        try:
-            ref_x = (ref_x - self.header['CRPIX1']) \
-                    * self.header['CDELT1'] + self.header['CRVAL1']
-            ref_y = (ref_y - self.header['CRPIX2']) \
-                    * self.header['CDELT2'] + self.header['CRVAL2']
-        except:
-            pass
+    il_range_rows = range ( ia_array.shape[0] )
+    il_range_cols = range ( ia_array.shape[1] )
 
-        if self.verbose:
-            print(" Done in %.2f s" % (time.time() - now))
-            print(" Using [%d, %d]." % (ref_x, ref_y))
-        return ref_x, ref_y
+    i_pixel_count = 0
+    ia_photons = numpy.ndarray ( shape = ( ia_array.shape[0] * ia_array.shape[1] ) )
+
+    for i_row in il_range_rows:
+        for i_col in il_range_cols:
+            f_calculated_distance = math.sqrt ( ( i_row - i_center_row ) ** 2 +
+                                                ( i_col - i_center_col ) ** 2 )
+            if ( f_calculated_distance <= f_distance and
+                 f_calculated_distance > f_distance - 1 ):
+                ia_photons[i_pixel_count] = ia_array[i_row][i_col] 
+                i_pixel_count += 1
+
+    i_mode = stats.mode ( numpy.array ( ia_photons[:i_pixel_count] ), axis = None )
+    return i_mode[1][0]
+
+def get_ring_similitude ( ia_array = numpy.ndarray, it_center = ( int, int ), f_distance = float ):
+    """
+    Returns the similitude of a ring with radius f_distance centered on it_center with thickness 1.
+    Similitude is the number of pixels that have modal value.
+    """
+
+    i_center_row = it_center[0]
+    i_center_col = it_center[1]
+
+    f_squared_distance = f_distance ** 2
+    i_distance = int ( f_distance )
+
+    il_range_rows = range ( ia_array.shape[0] )
+    il_range_cols = range ( ia_array.shape[1] )
+
+    i_pixel_count = 0
+    ia_photons = numpy.zeros ( shape = ( ia_array.shape[0] * ia_array.shape[1] ) )
+
+    for i_row in il_range_rows:
+        for i_col in il_range_cols:
+            i_row_distance = abs ( i_center_row - i_row )
+            i_col_distance = abs ( i_center_col - i_col )
+            if ( ( i_row_distance <= i_distance ) and
+                 ( i_col_distance <= i_distance ) ):
+                f_squared_distance = ( ( i_row - i_center_row ) ** 2 +
+                                       ( i_col - i_center_col ) ** 2 )
+                if ( ( f_squared_distance <= f_distance ) and
+                     ( f_squared_distance > f_distance - 1 ) ):
+                    ia_photons[i_pixel_count] = ia_array[i_row][i_col] 
+                    i_pixel_count += 1
+
+    i_mode = stats.mode ( numpy.array ( ia_photons[:i_pixel_count] ), axis = None )
+    return i_mode[1][0]
