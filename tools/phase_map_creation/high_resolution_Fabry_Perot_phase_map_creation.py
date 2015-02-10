@@ -70,6 +70,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
 
         self.ring_borders_array = create_ring_borders_map ( log = self.log, 
                                                             array = self.wrapped_phase_map_array, 
+                                                            iit_center = self.__iit_center,
                                                             noise_array = self.binary_noise_array )
         self.create_regions_array ( )
         self.create_order_array ( )
