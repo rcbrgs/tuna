@@ -147,7 +147,6 @@ def find_concentric_rings_center_old ( array = numpy.ndarray ):
 def find_concentric_rings_center ( ia_array = numpy.ndarray ):
     """
     Function used to find the center of the rings inside a FP data-cube.
-    Originally developed by Bruno Quint, for phmxtractor.py, adapted by Renato Borges for Tuna.
     """
 
     from ..get_pixel_neighbours import get_pixel_neighbours
@@ -160,19 +159,29 @@ def find_concentric_rings_center ( ia_array = numpy.ndarray ):
 
     i_center_row = int ( height / 2 )
     i_center_col = int ( width / 2 )
-    f_distance = min ( i_center_row, i_center_col ) / 2
+    #f_distance = min ( i_center_row, i_center_col ) / 2
+    f_distance = 10
+    i_distance = int ( f_distance )
 
     print ( "Start center finding." )
 
     tl_neighbourhood = get_pixel_neighbours ( array = ia_array[0,:,:], position = ( i_center_row, i_center_col ) )
-    f_current_max_similitude = get_ring_similitude ( ia_array = ia_array[0,:,:], it_center = ( i_center_row, i_center_col ), f_distance = f_distance )
+    f_current_max_similitude = get_ring_similitude ( ia_array = ia_array[0,:,:], it_center = ( i_center_row, i_center_col ), f_distance = 5 )
     t_current_max_similitude_pixel = ( i_center_row, i_center_col )
     b_center_has_moved = True
 
-    for row in range ( int ( f_distance ), width - int ( f_distance ) ):
-        #print ( "Row: %d" % row )
-        for col in range ( int ( f_distance ), height - int ( f_distance ) ):
-            print ("Considering ( %d, %d )." % ( row, col ) )
+    print ( "t_current_max_similitude_pixel = %s" % str ( t_current_max_similitude_pixel ) )
+    print ( "f_current_max_similitude = %f" % f_current_max_similitude )
+
+    i_row_lowest  = max ( [ 0, i_center_row - i_distance ] )
+    i_row_highest = min ( [ i_center_row    + i_distance, ia_array.shape[2] ] )
+    i_col_lowest  = max ( [ 0, i_center_col - i_distance ] )
+    i_col_highest = min ( [ i_center_col    + i_distance, ia_array.shape[1] ] )
+
+    for row in range ( i_row_lowest, i_row_highest ):
+        #print ( "Considering row: %d" % row )
+        for col in range ( i_col_lowest, i_col_highest ):
+            #print ("Considering ( %d, %d )." % ( row, col ) )
             f_ring_similitude = get_ring_similitude ( ia_array = ia_array[0,:,:], it_center = ( row, col ), f_distance = f_distance )
             if ( f_ring_similitude > f_current_max_similitude ):
                 f_current_max_similitude = f_ring_similitude
@@ -180,41 +189,7 @@ def find_concentric_rings_center ( ia_array = numpy.ndarray ):
                 print ( "t_current_max_similitude_pixel = %s" % str ( t_current_max_similitude_pixel ) )
                 print ( "f_current_max_similitude = %f" % f_current_max_similitude )
 
-    #print ( "t_current_max_similitude_pixel = %s" % str ( t_current_max_similitude_pixel ) )
-    #print ( "f_current_max_similitude = %f" % f_current_max_similitude )
-
-    #print ( "PyQubeVis position = ( %d, %d )" % ( t_current_max_similitude_pixel[0], ia_array.shape[1] - t_current_max_similitude_pixel[1] ) )
-
-    return None, None
-
-def get_ring_similitude_old ( ia_array = numpy.ndarray, it_center = ( int, int ), f_distance = float ):
-    """
-    Returns the similitude of a ring with radius f_distance centered on it_center with thickness 1.
-    Similitude is the number of pixels that have modal value.
-    """
-
-    import math
-
-    i_center_row = it_center[0]
-    i_center_col = it_center[1]
-
-    il_range_rows = range ( ia_array.shape[0] )
-    il_range_cols = range ( ia_array.shape[1] )
-
-    i_pixel_count = 0
-    ia_photons = numpy.ndarray ( shape = ( ia_array.shape[0] * ia_array.shape[1] ) )
-
-    for i_row in il_range_rows:
-        for i_col in il_range_cols:
-            f_calculated_distance = math.sqrt ( ( i_row - i_center_row ) ** 2 +
-                                                ( i_col - i_center_col ) ** 2 )
-            if ( f_calculated_distance <= f_distance and
-                 f_calculated_distance > f_distance - 1 ):
-                ia_photons[i_pixel_count] = ia_array[i_row][i_col] 
-                i_pixel_count += 1
-
-    i_mode = stats.mode ( numpy.array ( ia_photons[:i_pixel_count] ), axis = None )
-    return i_mode[1][0]
+    return t_current_max_similitude_pixel
 
 def get_ring_similitude ( ia_array = numpy.ndarray, it_center = ( int, int ), f_distance = float ):
     """
@@ -242,7 +217,7 @@ def get_ring_similitude ( ia_array = numpy.ndarray, it_center = ( int, int ), f_
                  ( i_col_distance <= i_distance ) ):
                 f_squared_distance = ( ( i_row - i_center_row ) ** 2 +
                                        ( i_col - i_center_col ) ** 2 )
-                if ( ( f_squared_distance <= f_distance ) and
+                if ( ( f_squared_distance <= f_distance + 1 ) and
                      ( f_squared_distance > f_distance - 1 ) ):
                     ia_photons[i_pixel_count] = ia_array[i_row][i_col] 
                     i_pixel_count += 1
