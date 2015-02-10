@@ -2,6 +2,7 @@
 from math import floor, sqrt
 import numpy
 from file_format import adhoc, file_reader, fits
+from .find_image_center_by_symmetry import find_image_center_by_symmetry
 from gui import widget_viewer_2d
 from .noise import create_noise_array
 from .orders import orders
@@ -60,7 +61,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         self.log ( "Creating wrapped phase map." )
         self.wrapped_phase_map_array = wrapped_phase_map_algorithm ( array = self.filtered_array )
 
-#        find_concentric_rings ( array = self.wrapped_phase_map_array )
+        self.__iit_center = find_image_center_by_symmetry ( ia_data = self.wrapped_phase_map_array )
 
         self.binary_noise_array = create_noise_array ( bad_neighbours_threshold = bad_neighbours_threshold, 
                                                        channel_threshold = channel_threshold, 
@@ -141,7 +142,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         return self.regions_array
 
     def create_order_array ( self ):
-        orders_algorithm = orders ( regions = self.regions_array, ring_borders = self.ring_borders_array, noise = self.binary_noise_array )
+        orders_algorithm = orders ( iit_center = self.__iit_center, regions = self.regions_array, ring_borders = self.ring_borders_array, noise = self.binary_noise_array )
         self.order_array = orders_algorithm.get_orders ( )
 
     def get_order_array ( self ):

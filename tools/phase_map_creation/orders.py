@@ -8,12 +8,13 @@ class orders ( object ):
     """
     Responsible for creating arrays where each position correspond to the distance, in number of FSR bandwidths, from the intereference image center.
     """
-    def __init__ ( self, log = print, regions = None, ring_borders = None, noise = numpy.ndarray ):
+    def __init__ ( self, log = print, iit_center = ( int, int ), regions = None, ring_borders = None, noise = numpy.ndarray ):
         """
         Initializes variables and calls the array creation method.
         """
         super ( orders, self ).__init__ ( )
         self.log = log
+        self.__iit_center = iit_center
         self.__regions = regions
         self.__ring_borders = ring_borders
         self.__noise = noise
@@ -42,15 +43,11 @@ class orders ( object ):
         max_y = orders.shape[1]
 
         pixel_count = 0
-        center_x = 0
-        center_y = 0
         for x in range ( max_x ):
             for y in range ( max_y ):
                 if ( ring_borders[x][y] == 1 ):
                     if ( self.__noise[x][y] == 0 ):
                         pixel_count += 1
-                        center_x += x
-                        center_y += y
 
         if pixel_count == 0:
             self.log ( "No borders detected in phase map." )
@@ -58,8 +55,8 @@ class orders ( object ):
             self.__orders = numpy.zeros ( shape = self.__regions.shape )
             return
             
-        center_x /= int ( pixel_count )
-        center_y /= int ( pixel_count )
+        center_x = self.__iit_center[0]
+        center_y = self.__iit_center[1]
         center_color = regions[center_x][center_y] 
         if ( center_color == 0 ):
             self.log ( "Center detected to be on a border, which is wrong." )

@@ -6,9 +6,9 @@ If a cube is received, it will use the first plane as its input.
 
 import numpy
 
-class find_image_center_by_symmetry ( object ):
+class image_center_by_symmetry ( object ):
     def __init__ ( self, ia_array = numpy.ndarray ):
-        super ( find_image_center_by_symmetry, self ).__init__ ( )
+        super ( image_center_by_symmetry, self ).__init__ ( )
         self.__ia_input_array = None
         if ia_array.ndim == 2:
             self.__ia_input_array = ia_array
@@ -63,3 +63,7 @@ class find_image_center_by_symmetry ( object ):
             ia_col_guess_differences = ia_left - ia_right
             ia_col_results[i_current_guess_col] = - numpy.sum ( numpy.abs ( ia_col_guess_differences ) )
         self.__i_center_col = numpy.argmin ( ia_col_results )
+
+def find_image_center_by_symmetry ( ia_data = numpy.ndarray ):
+    o_finder = image_center_by_symmetry ( ia_array = ia_data )
+    return o_finder.get_center ( )

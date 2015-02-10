@@ -10,8 +10,8 @@ tuna_daemons.start ( )
 def g092_find_center ( ):
     g092 = tuna.io.read ( file_name = '/home/nix/cloud_fpdata1/2014-11-05_Benoit_ngc772/G092/G092.AD3' )
     g092_array = g092.get_array ( )
-    g092_ring_center = tuna.tools.phase_map_creation.find_image_center_by_symmetry ( ia_array = g092_array )
-    print ( g092_ring_center.get_center ( ) )
+    g092_ring_center = tuna.tools.phase_map_creation.find_image_center_by_symmetry ( ia_data = g092_array )
+    print ( g092_ring_center )
 
 g092_find_center ( )
 
