@@ -3,6 +3,7 @@ import numpy
 from file_format import adhoc, file_reader, fits
 from gui import widget_viewer_2d
 from tools.get_pixel_neighbours import get_pixel_neighbours
+from time import time
 
 class orders ( object ):
     """
@@ -28,14 +29,16 @@ class orders ( object ):
         """
         Returns the FSR distance array.
         """
-        self.log ( __name__ )
+        #self.log ( __name__ )
         return self.__orders
 
     def run ( self ):
         """
         FSR distance array creation method.
         """
-        self.log ( __name__ )
+        i_start = time ( )
+        self.log ( "orders.run", end='' )
+
         regions = self.__regions
         ring_borders = self.__ring_borders
         orders = numpy.zeros ( shape = regions.shape )
@@ -64,8 +67,8 @@ class orders ( object ):
             self.__orders = numpy.zeros ( shape = self.__regions.shape )
             return
 
-        self.log ( "Center of symmetric rings possibly near (%d, %d)." % ( center_x, center_y ) )
-        self.log ( "Center in region of color %d." % center_color )
+        #self.log ( "Center of symmetric rings possibly near (%d, %d)." % ( center_x, center_y ) )
+        #self.log ( "Center in region of color %d." % center_color )
 
         colors = [ ]
         connections = [ ]
@@ -84,17 +87,17 @@ class orders ( object ):
                         if relationship not in connections:
                             if [ relationship[1], relationship[0] ] not in connections:
                                 connections.append ( relationship )
-        print ( "Neighbourhood connections: ", connections )
+        #print ( "Neighbourhood connections: ", connections )
         colors.remove ( 0.0 )
         if -1 in colors:
             colors.remove ( -1 )
-        print ( "Region colors: %s." % colors )
+        #print ( "Region colors: %s." % colors )
 
         region_order = { 0 : [ center_color ] }
         order = 0
 
-        self.log ( "region_order = %s." % region_order )
-        self.log ( "connections = %s." % str ( connections ) )
+        #self.log ( "region_order = %s." % region_order )
+        #self.log ( "connections = %s." % str ( connections ) )
 
         while connections != []:
             flag = False
@@ -121,15 +124,15 @@ class orders ( object ):
                 #region_order[order] = [ color ]
                 break
                         
-            self.log ( "region_order = %s." % region_order )
-            self.log ( "connections = %s." % str ( connections ) )
+            #self.log ( "region_order = %s." % region_order )
+            #self.log ( "connections = %s." % str ( connections ) )
 
         # region_order indexed the order for each region in inverted fashion.
         # So the dictionary is re-indexed to account for that.
         reindexed_region_order = { }
         for entry in region_order.keys ( ):
             reindexed_region_order [order - entry] = region_order[entry]
-        self.log ( "reindexed_region_order = %s." % ( reindexed_region_order ) )
+        #self.log ( "reindexed_region_order = %s." % ( reindexed_region_order ) )
         #region_order = reindexed_region_order
 
         for x in range ( max_x ):
@@ -166,3 +169,5 @@ class orders ( object ):
         orders += max_order * self.__noise
                     
         self.__orders = orders
+
+        self.log ( " %ds." % ( time ( ) - i_start ) )

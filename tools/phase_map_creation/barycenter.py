@@ -1,5 +1,6 @@
 from math import floor
 import numpy
+from time import time
 
 class spectrum_cube ( object ):
     """
@@ -37,7 +38,7 @@ class barycenter ( object ):
         """
         Returns a barycenter array from the input array, using the FWHH channels as the relevant signals.
         """
-        self.log ( "Creating barycenter array from FWHH channels." )
+        #self.log ( "Creating barycenter array from FWHH channels." )
         if self.__array.ndim != 3:
             return
             
@@ -137,5 +138,14 @@ class barycenter ( object ):
             return channel + 1
 
 def create_barycenter_array ( array = None ):
+    """
+    Create a wrapped phase map using the barycenter of each spectrum as the pixel value.
+    """
+    i_start = time ( )
+    print ( "create_barycenter_array", end='' )
+
     barycenter_object = barycenter ( array = array )
-    return barycenter_object.run ( )
+    fa_barycenter = barycenter_object.run ( )
+
+    print ( " %ds." % ( time ( ) - i_start ) )
+    return fa_barycenter

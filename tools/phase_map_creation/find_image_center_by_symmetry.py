@@ -5,6 +5,7 @@ If a cube is received, it will use the first plane as its input.
 """
 
 import numpy
+from time import time
 
 class image_center_by_symmetry ( object ):
     def __init__ ( self, ia_array = numpy.ndarray ):
@@ -38,7 +39,7 @@ class image_center_by_symmetry ( object ):
 
         ia_input = self.__ia_input_array
         
-        print ( "Searching for most symmetric by-row split." )
+        #print ( "Searching for most symmetric by-row split." )
         ia_row_results = numpy.zeros ( shape = ( ia_input.shape[0] ) )
         for i_current_guess_row in range ( int ( ia_input.shape[0] / 16 ), int ( ia_input.shape[0] / 16 ) * 15 ):
             ia_bottom = ia_input[:i_current_guess_row - 1,:]
@@ -51,7 +52,7 @@ class image_center_by_symmetry ( object ):
             ia_row_results[i_current_guess_row] = - numpy.sum ( numpy.abs ( ia_row_guess_differences ) )
         self.__i_center_row = numpy.argmin ( ia_row_results )
 
-        print ( "Searching for most symmetric columnar split." )
+        #print ( "Searching for most symmetric columnar split." )
         ia_col_results = numpy.zeros ( shape = ( ia_input.shape[1] ) )
         for i_current_guess_col in range ( int ( ia_input.shape[1] / 16 ), int ( ia_input.shape[1] / 16 ) * 15 ):
             ia_left   = ia_input[:,:i_current_guess_col - 1]
@@ -64,6 +65,17 @@ class image_center_by_symmetry ( object ):
             ia_col_results[i_current_guess_col] = - numpy.sum ( numpy.abs ( ia_col_guess_differences ) )
         self.__i_center_col = numpy.argmin ( ia_col_results )
 
+        #print ( "Center near ( %d, %d )." % ( self.__i_center_row, self.__i_center_col ) )
+        
 def find_image_center_by_symmetry ( ia_data = numpy.ndarray ):
+    """
+    Try to find the center of the rings.
+    """
+    i_start = time ( )
+    print ( "find_image_center_by_symmetry", end='' )
+
     o_finder = image_center_by_symmetry ( ia_array = ia_data )
-    return o_finder.get_center ( )
+    iit_center = o_finder.get_center ( )
+
+    print ( " %ds." % ( time ( ) - i_start ) )
+    return iit_center

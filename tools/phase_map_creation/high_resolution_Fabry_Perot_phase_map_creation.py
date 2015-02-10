@@ -6,9 +6,10 @@ from .find_image_center_by_symmetry import find_image_center_by_symmetry
 from gui import widget_viewer_2d
 from .noise import create_noise_array
 from .orders import orders
-from .ring_borders import create_ring_borders_map
+from .ring_borders import create_ring_borders_map, create_borders_to_center_distances
 from tools.get_pixel_neighbours import get_pixel_neighbours
 from .spectrum import create_continuum_array
+from time import time
 
 def create_max_channel_map ( self, array = numpy.ndarray ):
     """
@@ -51,14 +52,12 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
             self.log ( "Image does not have 3 dimensions, aborting." )
             return
 
-        self.log ( "Creating continuum array." )
         self.continuum_array = create_continuum_array ( array = array )
 
         self.filtered_array = numpy.ndarray ( shape = array.shape )
         for dep in range ( array.shape[0] ):
             self.filtered_array[dep,:,:] = array[dep,:,:] - self.continuum_array
 
-        self.log ( "Creating wrapped phase map." )
         self.wrapped_phase_map_array = wrapped_phase_map_algorithm ( array = self.filtered_array )
 
         self.__iit_center = find_image_center_by_symmetry ( ia_data = self.wrapped_phase_map_array )
@@ -69,24 +68,35 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                                                        noise_mask_radius = noise_mask_radius )
 
         self.ring_borders_array = create_ring_borders_map ( log = self.log, 
-                                                            array = self.wrapped_phase_map_array, 
+                                                            array = self.wrapped_phase_map_array,
                                                             iit_center = self.__iit_center,
                                                             noise_array = self.binary_noise_array )
+        self.__borders_to_center_distances = create_borders_to_center_distances ( log = self.log, 
+                                                                                  array = self.wrapped_phase_map_array,
+                                                                                  iit_center = self.__iit_center,
+                                                                                  noise_array = self.binary_noise_array )
+
         self.create_regions_array ( )
         self.create_order_array ( )
         self.create_unwrapped_phase_map_array ( )
-
-    def get_continuum_array ( self ):
-        """
-        Returns the continuum array.
-        """
-        return self.continuum_array
 
     def get_array ( self ):
         """
         Returns the raw data array (same as the input).
         """
         return self.__array
+
+    def get_borders_to_center_distances ( self ):
+        """
+        Returns the array containing the distances from each border pixel to the tuned center of the array.
+        """
+        return self.__borders_to_center_distances
+
+    def get_continuum_array ( self ):
+        """
+        Returns the continuum array.
+        """
+        return self.continuum_array
 
     def get_wrapped_phase_map_array ( self ):
         """
@@ -111,7 +121,9 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         Creates a 2D numpy.ndarray where each pixel will have a value of -1 if it is noise; 0 if it is in a border; and some multiple of 10 otherwise.
         The map is created by selecting a non-
         """
-        self.log ( "Producing regions map." )
+        i_start = time ( )
+        self.log ( "create_regions_array" )
+
         self.regions_array = numpy.zeros ( shape = self.ring_borders_array.shape )
         max_x = self.regions_array.shape[0]
         max_y = self.regions_array.shape[1]
@@ -128,7 +140,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                         if ( color > 1000 ):
                             self.log ( "More than a 100 colors? There must be a mistake. Aborting." )
                             return
-                        self.log ( "Filling region %d." % ( color / 10 ) )
+                        #self.log ( "Filling region %d." % ( color / 10 ) )
                         while ( possibly_in_region != [ ] ):
                             testing = possibly_in_region.pop ( )
                             if self.regions_array[testing[0]][testing[1]] == 0:
@@ -138,6 +150,8 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                                     if self.ring_borders_array[neighbour[0]][neighbour[1]] == 0:
                                         if self.binary_noise_array[neighbour[0]][neighbour[1]] == 0:
                                             possibly_in_region.append ( neighbour )
+                
+        self.log ( " %ds." % ( time ( ) - i_start ) )
 
     def get_regions_array ( self ):
         return self.regions_array
@@ -150,13 +164,18 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         return self.order_array
 
     def create_unwrapped_phase_map_array ( self ):
-        self.log ( "Unwrapping the phases. Before unwrapping:" )
+        """
+        Unwraps the phase map according using the order array constructed.
+        """
+        i_start = time ( )
+        self.log ( "create_unwrapped_phase_map_array", end='' )
+
         max_x = self.wrapped_phase_map_array.shape[0]
         max_y = self.wrapped_phase_map_array.shape[1]
         max_channel = numpy.amax ( self.wrapped_phase_map_array )
         min_channel = numpy.amin ( self.wrapped_phase_map_array )
-        self.log ( "max_channel = %d" % max_channel )
-        self.log ( "min_channel = %d" % min_channel )
+        #self.log ( "max_channel = %d" % max_channel )
+        #self.log ( "min_channel = %d" % min_channel )
 
         self.unwrapped_phase_map = numpy.zeros ( shape = self.wrapped_phase_map_array.shape )
 
@@ -166,9 +185,11 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                     
         max_channel = numpy.amax ( self.unwrapped_phase_map )
         min_channel = numpy.amin ( self.unwrapped_phase_map )
-        self.log ( "After unwrapping:" )
-        self.log ( "max_channel = %d" % max_channel )
-        self.log ( "min_channel = %d" % min_channel )
+        #self.log ( "After unwrapping:" )
+        #self.log ( "max_channel = %d" % max_channel )
+        #self.log ( "min_channel = %d" % min_channel )
+
+        self.log ( " %ds." % ( time ( ) - i_start ) )
 
     def get_unwrapped_phase_map_array ( self ):
         return self.unwrapped_phase_map

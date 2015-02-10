@@ -1,6 +1,7 @@
 from math import ceil, sqrt
 import numpy
 from tools.get_pixel_neighbours import get_pixel_neighbours
+from time import time
 
 def create_noise_array ( array = None, 
                          bad_neighbours_threshold = 7, 
@@ -23,7 +24,9 @@ def create_noise_array ( array = None,
     - channel_threshold is the channel distance that will be tolerated. 
     It defaults to 1.
     """
-    log ( "Producing binary noise map." )
+    i_start = time ( )
+    log ( "create_noise_array", end='' )
+
     noise_map = numpy.zeros ( shape = array.shape, dtype = numpy.int16 )
     max_channel = numpy.amax ( array )
     for x in range ( array.shape[0] ):
@@ -42,6 +45,7 @@ def create_noise_array ( array = None,
                 include_noise_circle ( position = ( x, y ), radius = noise_mask_radius, array = noise_map )
                 continue
 
+    print ( " %ds" % ( time ( ) - i_start ) )
     return noise_map
 
 def include_noise_circle ( position = ( int, int ), radius = int, array = numpy.array ):
