@@ -71,6 +71,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                                                             array = self.wrapped_phase_map_array,
                                                             iit_center = self.__iit_center,
                                                             noise_array = self.binary_noise_array )
+
         self.__borders_to_center_distances = create_borders_to_center_distances ( log = self.log, 
                                                                                   array = self.wrapped_phase_map_array,
                                                                                   iit_center = self.__iit_center,
@@ -122,7 +123,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         The map is created by selecting a non-
         """
         i_start = time ( )
-        self.log ( "create_regions_array" )
+        self.log ( "create_regions_array", end = '' )
 
         self.regions_array = numpy.zeros ( shape = self.ring_borders_array.shape )
         max_x = self.regions_array.shape[0]
