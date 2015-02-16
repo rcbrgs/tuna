@@ -67,15 +67,20 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                                                        array = self.wrapped_phase_map_array, 
                                                        noise_mask_radius = noise_mask_radius )
 
-        self.ring_borders_array = create_ring_borders_map ( log = self.log, 
-                                                            array = self.wrapped_phase_map_array,
-                                                            iit_center = self.__iit_center,
-                                                            noise_array = self.binary_noise_array )
+        ia_ring_borders_array = create_ring_borders_map ( log = self.log, 
+                                                          array = self.wrapped_phase_map_array,
+                                                          iit_center = self.__iit_center,
+                                                          noise_array = self.binary_noise_array )
+        self.ring_borders_array = ia_ring_borders_array.astype ( float )
 
-        self.__borders_to_center_distances = create_borders_to_center_distances ( log = self.log, 
-                                                                                  array = self.wrapped_phase_map_array,
-                                                                                  iit_center = self.__iit_center,
-                                                                                  noise_array = self.binary_noise_array )
+        
+        self.__fa_borders_to_center_distances = create_borders_to_center_distances ( log = self.log, 
+                                                                                     array = self.wrapped_phase_map_array,
+                                                                                     iit_center = self.__iit_center,
+                                                                                     noise_array = self.binary_noise_array )
+
+        #self.ring_borders_array = self.__borders_to_center_distances
+        #print ( self.ring_borders_array[200] )
 
         self.create_regions_array ( )
         self.create_order_array ( )
@@ -91,7 +96,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         """
         Returns the array containing the distances from each border pixel to the tuned center of the array.
         """
-        return self.__borders_to_center_distances
+        return self.__fa_borders_to_center_distances
 
     def get_continuum_array ( self ):
         """
@@ -115,6 +120,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         """
         Returns the ring borders.
         """
+        #print ( self.ring_borders_array[200] )
         return self.ring_borders_array
 
     def create_regions_array ( self ):
@@ -130,7 +136,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         max_y = self.regions_array.shape[1]
         color = 0
 
-        self.regions_array = -1 * self.binary_noise_array
+        #self.regions_array = -1 * self.binary_noise_array
 
         for x in range ( max_x ):
             for y in range ( max_y ):
@@ -149,8 +155,24 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                                 neighbourhood = get_pixel_neighbours ( position = ( testing[0], testing[1] ), array = self.regions_array )
                                 for neighbour in neighbourhood:
                                     if self.ring_borders_array[neighbour[0]][neighbour[1]] == 0:
-                                        if self.binary_noise_array[neighbour[0]][neighbour[1]] == 0:
-                                            possibly_in_region.append ( neighbour )
+                                        #if self.binary_noise_array[neighbour[0]][neighbour[1]] == 0:
+                                        #    possibly_in_region.append ( neighbour )
+                                        possibly_in_region.append ( neighbour )
+
+        # Coloring borders so that pixels change region when they wrap around the FSR.
+        ia_nonexplored_borders = numpy.copy ( self.ring_borders_array )
+        while ( numpy.sum ( ia_nonexplored_borders ) > 0 ):
+            for x in range ( max_x ):
+                for y in range ( max_y ):
+                    if ( ia_nonexplored_borders[x][y] > 0 ):
+                        neighbourhood = get_pixel_neighbours ( position = ( x, y ), array = self.regions_array )
+                        il_possible_colors = [ ]
+                        for neighbour in neighbourhood:
+                            if ia_nonexplored_borders[neighbour[0]][neighbour[1]] == 0:
+                                il_possible_colors.append ( self.regions_array[neighbour[0]][neighbour[1]] )
+                        if il_possible_colors != [ ]:
+                            ia_nonexplored_borders[x][y] = 0
+                            self.borders_array = min ( il_possible_colors )                        
                 
         self.log ( " %ds." % ( time ( ) - i_start ) )
 
@@ -158,7 +180,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         return self.regions_array
 
     def create_order_array ( self ):
-        orders_algorithm = orders ( iit_center = self.__iit_center, regions = self.regions_array, ring_borders = self.ring_borders_array, noise = self.binary_noise_array )
+        orders_algorithm = orders ( fa_borders_to_center_distances = self.__fa_borders_to_center_distances, iit_center = self.__iit_center, regions = self.regions_array, ring_borders = self.ring_borders_array, noise = self.binary_noise_array )
         self.order_array = orders_algorithm.get_orders ( )
 
     def get_order_array ( self ):
@@ -182,7 +204,10 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
 
         for x in range ( max_x ):
             for y in range ( max_y ):
-                self.unwrapped_phase_map[x][y] = self.wrapped_phase_map_array[x][y] + max_channel * self.order_array[x][y]
+                if self.ring_borders_array[x][y] == 0:
+                    self.unwrapped_phase_map[x][y] = self.wrapped_phase_map_array[x][y] + max_channel * self.order_array[x][y]
+                else:
+                    self.unwrapped_phase_map[x][y] = -1 # self.wrapped_phase_map_array[x][y] + max_channel * ( self.order_array[x][y] - 1 )
                     
         max_channel = numpy.amax ( self.unwrapped_phase_map )
         min_channel = numpy.amin ( self.unwrapped_phase_map )

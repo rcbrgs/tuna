@@ -10,6 +10,7 @@ class ring_borders ( object ):
         self.__fa_borders_to_center_distances = None
         self.__iit_center = iit_center
         self.__noise_array = noise_array
+        self.__ia_synthetic_borders = None
         self.log = log
 
     def create_borders_to_center_distances ( self ):
@@ -66,20 +67,36 @@ class ring_borders ( object ):
     def create_synthetic_borders ( self ):
         if self.__fa_borders_to_center_distances == None:
             self.create_borders_to_center_distances ( )
-        fa_array = self.__fa_borders_to_center_distances
+        ia_array = numpy.zeros ( shape = self.__fa_borders_to_center_distances.shape, dtype = numpy.int8 )
         # collect all distinct radii values in a list
         il_distinct_radii = [ ]
-        for i_row in range ( fa_array.shape[0] ):
-            for i_col in range ( fa_array.shape[1] ):
-                i_element = int ( fa_array[i_row][i_col] )
+        for i_row in range ( ia_array.shape[0] ):
+            for i_col in range ( ia_array.shape[1] ):
+                i_element = int ( self.__fa_borders_to_center_distances[i_row][i_col] )
                 if i_element != 0:
                     if i_element not in il_distinct_radii:
                         il_distinct_radii.append ( i_element )
-        print ( sorted ( il_distinct_radii ) )
-        for i_row in range ( fa_array.shape[0] ):
-            for i_col in range ( fa_array.shape[1] ):
-                i_distance = int ( math.sqrt ( ( self.__iit_tuned_center[0] - i_row ) ** 2 +
-                                               ( self.__iit_tuned_center[1] - i_col ) ** 2 ) )
+        il_sorted_radii = sorted ( il_distinct_radii )
+        #print ( il_sorted_radii )
+        # Collapse sequential values
+        #il_collapsed_radii = [ il_sorted_radii[0] ]
+        #for element in range ( 1, len ( il_sorted_radii ) ):
+        #    if ( il_sorted_radii[element] != il_sorted_radii[element - 1] + 1 ):
+        #        il_collapsed_radii.append ( il_sorted_radii[element] )
+
+        # Produce an array where pixels distant any radii from the center have a value of 1.
+        for i_row in range ( ia_array.shape[0] ):
+            for i_col in range ( ia_array.shape[1] ):
+                f_distance = sqrt ( ( self.__iit_tuned_center[0] - i_row ) ** 2 +
+                                    ( self.__iit_tuned_center[1] - i_col ) ** 2 )
+                #for i_radius in il_collapsed_radii:
+                for i_radius in il_sorted_radii:
+                    # These values were chosen so that the border will necessarily fall within a "band" with halfwidth of 2^1/2 pixels.
+                    if ( ( f_distance > i_radius - 1.5 ) and
+                         ( f_distance < i_radius + 1.5 ) ):
+                        ia_array[i_row][i_col] = i_radius
+        #print ( ia_array[200] )
+        self.__ia_synthetic_borders = ia_array
 
     def fine_tune_center ( self ):
         """
@@ -109,10 +126,17 @@ class ring_borders ( object ):
         #print ( "tuned center = %s" % str ( self.__iit_tuned_center ) )
 
     def get_borders_to_center_distances ( self ):
+        if self.__fa_borders_to_center_distances == None:
+            self.create_borders_to_center_distances ( )
         return self.__fa_borders_to_center_distances
 
     def get_map ( self ):
         return self.__ring_borders_map
+
+    def get_synthetic_borders ( self ):
+        if self.__ia_synthetic_borders == None:
+            self.create_synthetic_borders ( )
+        return self.__ia_synthetic_borders
 
     def get_tuned_center ( self ):
         self.fine_tune_center ( )
@@ -124,9 +148,11 @@ def create_ring_borders_map ( log = print, array = None, iit_center = ( int, int
 
     ring_borders_object = ring_borders ( log = log, array = array, iit_center = iit_center, noise_array = noise_array )
     ring_borders_object.create_map_from_barycenter_array ( )
-    
+    ring_borders_object.fine_tune_center ( )    
+    ring_borders_object.create_synthetic_borders ( )
+
     log ( " %ds." % ( time ( ) - start ) )
-    return ring_borders_object.get_map ( )
+    return ring_borders_object.get_synthetic_borders ( )
 
 def create_borders_to_center_distances ( log = print, array = None, iit_center = ( int, int ), noise_array = None ):
     start = time ( )
@@ -135,8 +161,8 @@ def create_borders_to_center_distances ( log = print, array = None, iit_center =
     ring_borders_object = ring_borders ( log = log, array = array, iit_center = iit_center, noise_array = noise_array )
     ring_borders_object.create_map_from_barycenter_array ( )
     ring_borders_object.fine_tune_center ( )
-    ring_borders_object.create_borders_to_center_distances ( )
-    ring_borders_object.create_synthetic_borders ( )
-    
+    result = ring_borders_object.get_borders_to_center_distances ( )
+
     log ( " %ds." % ( time ( ) - start ) )
-    return ring_borders_object.get_borders_to_center_distances ( )
+    return result
+

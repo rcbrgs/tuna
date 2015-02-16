@@ -9,7 +9,7 @@ tuna_daemons.start ( )
 
 # User-specific code would go here.
 def g092_compare_barycenter ( ):
-    g092_barycenter_file = tuna.io.read ( file_name = '2_g092_wrapped_phase_map_barycenter.fits' )
+    g092_barycenter_file = tuna.io.read ( file_name = '2_g092_wrapped_barycenter.fits' )
     g092_barycenter_array = g092_barycenter_file.get_array ( )
     g092_barycenter_gold_file = tuna.io.read ( file_name = 'examples/cal_bru.ad2' )
     g092_barycenter_gold_array = g092_barycenter_gold_file.get_array ( )
@@ -19,7 +19,7 @@ def g092_compare_barycenter ( ):
         for col in range ( comparison.shape[1] ):
             comparison[row][col] = g092_barycenter_gold_array[comparison.shape[0] - 1 - row][col] - g092_barycenter_array[row][col]
 
-    tuna.io.write ( file_name   = '8_g092_gold_standard_comparison.fits',
+    tuna.io.write ( file_name   = '9_g092_gold_standard_comparison.fits',
                     array       = comparison,
                     file_format = 'fits' )
     
@@ -32,6 +32,7 @@ def g092_unwrap_phase_map ( ):
     g092_unwrapped_array = high_res_FP_phase_map_tool.get_unwrapped_phase_map_array ( )
     g092_binary_noise_array = high_res_FP_phase_map_tool.get_binary_noise_array ( )
     g092_ring_borders_array = high_res_FP_phase_map_tool.get_ring_borders_array ( )
+    #print ( g092_ring_borders_array[200] )
     g092_borders_to_center_distances = high_res_FP_phase_map_tool.get_borders_to_center_distances ( )
     g092_regions_array = high_res_FP_phase_map_tool.get_regions_array ( )
     g092_order_array = high_res_FP_phase_map_tool.get_order_array ( )
@@ -39,25 +40,25 @@ def g092_unwrap_phase_map ( ):
     tuna.io.write ( file_name   = '1_g092_continuum.fits',
                     array       = g092_continuum_array,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = '2_g092_wrapped_phase_map_barycenter.fits',
+    tuna.io.write ( file_name   = '2_g092_wrapped_barycenter.fits',
                     array       = g092_wrapped_array,
                     file_format = 'fits' )    
     tuna.io.write ( file_name   = '3_g092_binary_noise.fits',
                     array       = g092_binary_noise_array,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = '4_g092_ring_borders.fits',
-                    array       = g092_ring_borders_array,
-                    file_format = 'fits' )    
-    tuna.io.write ( file_name   = '4_g092_borders_to_center_distances.fits',
+    tuna.io.write ( file_name   = '4_g092_borders_center_distances.fits',
                     array       = g092_borders_to_center_distances,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = '5_g092_regions.fits',
+    tuna.io.write ( file_name   = '5_g092_synthetic_ring_borders.fits',
+                    array       = g092_ring_borders_array,
+                    file_format = 'fits' )    
+    tuna.io.write ( file_name   = '6_g092_regions.fits',
                     array       = g092_regions_array,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = '6_g092_orders.fits',
+    tuna.io.write ( file_name   = '7_g092_orders.fits',
                     array       = g092_order_array,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = '7_g092_unwrapped_phase_map.fits',
+    tuna.io.write ( file_name   = '8_g092_unwrapped_phase_map.fits',
                     array       = g092_unwrapped_array,
                     file_format = 'fits' )    
 
