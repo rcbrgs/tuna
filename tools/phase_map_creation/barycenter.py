@@ -83,6 +83,55 @@ class barycenter ( object ):
 
         return barycenter_array
 
+    def create_barycenter_using_peak ( self ):
+        """
+        Returns a barycenter array from the input array, using the shoulder-to-shoulder peak channels as the relevant signals.
+        """
+        self.log ( "Creating barycenter array from peak channels." )
+        if self.__array.ndim != 3:
+            return
+            
+        self.cube.max_dep = self.__array.shape[self.cube.dep_index]
+        self.cube.max_row = self.__array.shape[self.cube.row_index]
+        self.cube.max_col = self.__array.shape[self.cube.col_index]
+        barycenter_array = numpy.ndarray ( shape = ( self.cube.max_row, self.cube.max_col ) )
+
+        for row in range ( self.cube.max_row ):
+            for col in range ( self.cube.max_col ):
+                profile = self.__array[:,row,col]
+                d_shoulder = self.get_fwhh ( profile = profile )
+
+                shoulder_mask = numpy.zeros ( shape = ( self.cube.max_dep ) )
+                multipliers = numpy.zeros ( shape = ( self.cube.max_dep ) )
+                cursor = d_shoulder['i_left_shoulder']
+                multiplier = 1
+                multipliers[cursor] = multiplier
+                shoulder_mask[cursor] = 1
+                while ( cursor != d_shoulder['i_right_shoulder'] ):
+                    cursor = self.get_right_channel ( channel = cursor, profile = profile )
+                    multiplier += 1
+                    multipliers[cursor] = multiplier
+                    shoulder_mask[cursor] = 1
+                
+                weighted_photon_count = multipliers * profile
+                weighted_sum = numpy.sum ( weighted_photon_count )
+                shoulder_photon_count = shoulder_mask * profile
+                shoulder_photon_count_sum = numpy.sum ( shoulder_photon_count )
+
+                if shoulder_photon_count_sum == 0:
+                    center_of_mass = 0
+                else:
+                    center_of_mass = weighted_sum / shoulder_photon_count_sum
+
+                shifted_center_of_mass = d_shoulder['i_left_shoulder'] - 1 + center_of_mass
+
+                if shifted_center_of_mass != self.cube.max_dep:
+                    ordered_shifted_center_of_mass = shifted_center_of_mass % ( self.cube.max_dep )
+                
+                barycenter_array[row][col] = ordered_shifted_center_of_mass
+
+        return barycenter_array
+
     def get_fwhh ( self, profile = numpy.ndarray ):
         """
         Returns a dict containing the indices of the FWHH channels in the profile, and the relevant data for FWHH calculation.
@@ -109,7 +158,29 @@ class barycenter ( object ):
             if cursor not in fwhh_profile_indices:
                 fwhh_profile_indices.append ( cursor )
             cursor = self.get_right_channel ( cursor )
+
+        # Using only the FWHH channels causes pixelation of the phase map,
+        # therefore the whole peak is used.
+
+        i_left_shoulder = self.get_left_channel ( max_height_index )
+        while ( ( profile [ i_left_shoulder ] - profile [ self.get_right_channel ( i_left_shoulder ) ] <= 0 ) and
+                ( i_left_shoulder != max_height_index ) ):
+            i_left_shoulder = self.get_left_channel ( i_left_shoulder )
+        i_left_shoulder = self.get_right_channel ( i_left_shoulder )
+
+        i_right_shoulder = self.get_right_channel ( max_height_index )
+        while ( ( profile [ i_right_shoulder ] - profile [ self.get_left_channel ( i_right_shoulder ) ] <= 0 ) and
+                ( i_right_shoulder != max_height_index ) ):
+            i_right_shoulder = self.get_right_channel ( i_right_shoulder )
+        i_right_shoulder = self.get_left_channel ( i_right_shoulder )
             
+        il_shoulder_indices = [ i_left_shoulder ]
+        cursor = i_left_shoulder
+        while ( cursor != i_right_shoulder ):
+            if cursor not in il_shoulder_indices:
+                il_shoulder_indices.append ( cursor )
+            cursor = self.get_right_channel ( cursor )
+
         fwhh_dict = { }
         fwhh_dict['max_height'] = max_height
         fwhh_dict['half_height'] = half_height
@@ -117,6 +188,9 @@ class barycenter ( object ):
         fwhh_dict['leftmost_hh'] = leftmost_hh
         fwhh_dict['rightmost_hh'] = rightmost_hh
         fwhh_dict['profile_indices'] = fwhh_profile_indices
+        fwhh_dict['i_left_shoulder'] = i_left_shoulder
+        fwhh_dict['i_right_shoulder'] = i_right_shoulder
+        fwhh_dict['il_shoulder_indices'] = il_shoulder_indices
         return fwhh_dict
         
     def get_left_channel ( self, channel = int,  profile = numpy.ndarray ):
@@ -145,7 +219,8 @@ def create_barycenter_array ( array = None ):
     print ( "create_barycenter_array", end='' )
 
     barycenter_object = barycenter ( array = array )
-    fa_barycenter = barycenter_object.run ( )
+    #fa_barycenter = barycenter_object.run ( )
+    fa_barycenter = barycenter_object.create_barycenter_using_peak ( )
 
     print ( " %ds." % ( time ( ) - i_start ) )
     return fa_barycenter
