@@ -268,6 +268,9 @@ class orders ( object ):
 
 
     def run ( self ):
+        self.create_fsr_map ( )
+
+    def create_fsr_map ( self ):
         """
         FSR distance array creation method.
         """
@@ -303,8 +306,8 @@ class orders ( object ):
                 if self.__fa_borders_to_center_distances [ i_row ] [ i_col ] > 0:
                     b_possible_new_ring = True
                     for f_ring in fl_rings:
-                        if ( ( self.__fa_borders_to_center_distances [ i_row ] [ i_col ] < f_ring + 1 ) and
-                             ( self.__fa_borders_to_center_distances [ i_row ] [ i_col ] > f_ring - 1 ) ):
+                        if ( ( self.__fa_borders_to_center_distances [ i_row ] [ i_col ] < f_ring + 5 ) and
+                             ( self.__fa_borders_to_center_distances [ i_row ] [ i_col ] > f_ring - 5 ) ):
                             b_possible_new_ring = False
                     if b_possible_new_ring:
                         fl_rings.append ( self.__fa_borders_to_center_distances [ i_row ] [ i_col ] )
@@ -312,6 +315,7 @@ class orders ( object ):
 
         # order rings by distance
         fl_ordered_rings = sorted ( fl_rings )
+        self.log ( "fl_ordered_rings = %s" % str ( fl_ordered_rings ) )
 
         # attribute FSR by verifying ring-relative "position"
         d_regions_fsr = { }
@@ -327,9 +331,28 @@ class orders ( object ):
             d_regions_fsr [ f_region ] = i_region_fsr
             fl_regions.remove ( f_region )
 
+        self.log ( "d_regions_fsr = %s" % str ( d_regions_fsr ) ) 
+
         for i_row in range ( max_x ):
             for i_col in range ( max_y ):
                 orders [ i_row ] [ i_col ] = d_regions_fsr [ self.__regions [ i_row ] [ i_col ] ]
+
+        # correction for center deviation: 
+        # row-wise, each fsr increase can happen only when the wrapped map goes from max channel to 0,
+        # and each fsr decrease can happen only when the wrapped map goes from 0 to max channel.
+        self.log ( "Center deviation correction" )
+        for i_row in range ( max_x ):
+            i_previous = orders [ i_row ] [ 0 ]
+            for i_col in range ( 1, max_y ):
+                if orders [ i_row ] [ i_col ] > i_previous:
+                    if self.__fa_borders_to_center_distances [ i_row ] [ i_col ] == 0:
+                        orders [ i_row ] [ i_col ] = i_previous
+                        print ( ">" )
+                if orders [ i_row ] [ i_col ] < i_previous:
+                    if self.__fa_borders_to_center_distances [ i_row ] [ i_col ] == 0:
+                        orders [ i_row ] [ i_col ] = i_previous
+                        print ( "<" )
+                i_previous = orders [ i_row ] [ i_col ]
         
         self.__orders = orders
 

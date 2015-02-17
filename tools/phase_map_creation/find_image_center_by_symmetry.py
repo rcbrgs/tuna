@@ -32,7 +32,7 @@ class image_center_by_symmetry ( object ):
             self.find_center ( )
             return ( self.__i_center_row, self.__i_center_col )
 
-    def find_center ( self ):
+    def find_center_old ( self ):
         """
         Tries to find the center of the image, by splitting the image into halves and subtracting same-sized chunks of the halves, where the relative distances to the center are the same.
         """
@@ -40,7 +40,8 @@ class image_center_by_symmetry ( object ):
         ia_input = self.__ia_input_array
         
         #print ( "Searching for most symmetric by-row split." )
-        ia_row_results = numpy.zeros ( shape = ( ia_input.shape[0] ) )
+        ia_row_results = numpy.ndarray ( shape = ( ia_input.shape[0] ) )
+        ia_row_results.fill ( numpy.inf )
         for i_current_guess_row in range ( int ( ia_input.shape[0] / 16 ), int ( ia_input.shape[0] / 16 ) * 15 ):
             ia_bottom = ia_input[:i_current_guess_row - 1,:]
             ia_top    = ia_input[i_current_guess_row + 1:,:]
@@ -48,12 +49,14 @@ class image_center_by_symmetry ( object ):
             ia_bottom = ia_bottom[:i_row_guess_max,:]
             ia_top    = ia_top   [:i_row_guess_max,:]
             ia_top    = ia_top   [::-1,:]
-            ia_row_guess_differences = ia_bottom - ia_top
-            ia_row_results[i_current_guess_row] = - numpy.sum ( numpy.abs ( ia_row_guess_differences ) )
+            ia_row_guess_difference = ia_bottom - ia_top
+            ia_row_results [ i_current_guess_row ] = numpy.sum ( numpy.abs ( ia_row_guess_difference ) )
+        #print ( ia_row_results )
         self.__i_center_row = numpy.argmin ( ia_row_results )
 
         #print ( "Searching for most symmetric columnar split." )
-        ia_col_results = numpy.zeros ( shape = ( ia_input.shape[1] ) )
+        ia_col_results = numpy.ndarray ( shape = ( ia_input.shape[1] ) )
+        ia_col_results.fill ( numpy.inf )
         for i_current_guess_col in range ( int ( ia_input.shape[1] / 16 ), int ( ia_input.shape[1] / 16 ) * 15 ):
             ia_left   = ia_input[:,:i_current_guess_col - 1]
             ia_right  = ia_input[:,i_current_guess_col + 1:]
@@ -61,8 +64,45 @@ class image_center_by_symmetry ( object ):
             ia_left   = ia_left  [:,:i_col_guess_max]
             ia_right  = ia_right [:,:i_col_guess_max]
             ia_right  = ia_right [:,::-1]
-            ia_col_guess_differences = ia_left - ia_right
-            ia_col_results[i_current_guess_col] = - numpy.sum ( numpy.abs ( ia_col_guess_differences ) )
+            ia_col_guess_difference = ia_left - ia_right
+            ia_col_results [ i_current_guess_col ] = numpy.sum ( numpy.abs ( ia_col_guess_difference ) )
+        print ( ia_col_results )
+        self.__i_center_col = numpy.argmin ( ia_col_results )
+
+        #print ( "Center near ( %d, %d )." % ( self.__i_center_row, self.__i_center_col ) )
+
+
+    def find_center ( self ):
+        """
+        Tries to find the center of the image, by splitting the image into same-sized chunks, where the relative distances to the center are the same. The center will have circular symmetry, and therefore these chunks will be very similar.
+        """
+
+        ia_input = self.__ia_input_array
+        
+        #print ( "Searching for most symmetric by-row split." )
+        ia_row_results = numpy.ndarray ( shape = ( ia_input.shape[0] ) )
+        ia_row_results.fill ( numpy.inf )
+        i_sixteenth = int ( ia_input.shape [ 0 ] / 16 )
+        for i_row in range ( i_sixteenth, i_sixteenth * 15 ):
+            ia_bottom = ia_input [ i_row - i_sixteenth : i_row - 1, : ]
+            ia_top    = ia_input [ i_row + 1 : i_row + i_sixteenth, : ]
+            ia_top    = ia_top   [ : : -1, : ]
+            ia_difference = ia_bottom - ia_top
+            ia_row_results [ i_row ] = numpy.sum ( numpy.abs ( ia_difference ) )
+        #print ( ia_row_results )
+        self.__i_center_row = numpy.argmin ( ia_row_results )
+
+        #print ( "Searching for most symmetric columnar split." )
+        ia_col_results = numpy.ndarray ( shape = ( ia_input.shape[1] ) )
+        ia_col_results.fill ( numpy.inf )
+        i_sixteenth = int ( ia_input.shape [ 1 ] / 16 )
+        for i_col in range ( i_sixteenth, i_sixteenth * 15 ):
+            ia_left   = ia_input [ : , i_col - i_sixteenth : i_col - 1 ]
+            ia_right  = ia_input [ : , i_col + 1 : i_col + i_sixteenth ]
+            ia_right  = ia_right [ : , : : -1 ]
+            ia_difference = ia_left - ia_right
+            ia_col_results [ i_col ] = numpy.sum ( numpy.abs ( ia_difference ) )
+        #print ( ia_col_results )
         self.__i_center_col = numpy.argmin ( ia_col_results )
 
         #print ( "Center near ( %d, %d )." % ( self.__i_center_row, self.__i_center_col ) )

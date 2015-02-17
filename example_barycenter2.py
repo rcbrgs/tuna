@@ -31,10 +31,10 @@ def g092_unwrap_phase_map ( ):
     g092_continuum_array = high_res_FP_phase_map_tool.get_continuum_array ( )
     g092_unwrapped_array = high_res_FP_phase_map_tool.get_unwrapped_phase_map_array ( )
     g092_binary_noise_array = high_res_FP_phase_map_tool.get_binary_noise_array ( )
-    g092_ring_borders_array = high_res_FP_phase_map_tool.get_ring_borders_array ( )
+    #g092_ring_borders_array = high_res_FP_phase_map_tool.get_ring_borders_array ( )
     #print ( g092_ring_borders_array[200] )
     g092_borders_to_center_distances = high_res_FP_phase_map_tool.get_borders_to_center_distances ( )
-    g092_regions_array = high_res_FP_phase_map_tool.get_regions_array ( )
+    #g092_regions_array = high_res_FP_phase_map_tool.get_regions_array ( )
     g092_order_array = high_res_FP_phase_map_tool.get_order_array ( )
 
     tuna.io.write ( file_name   = '1_g092_continuum.fits',
@@ -49,12 +49,12 @@ def g092_unwrap_phase_map ( ):
     tuna.io.write ( file_name   = '4_g092_borders_center_distances.fits',
                     array       = g092_borders_to_center_distances,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = '5_g092_synthetic_ring_borders.fits',
-                    array       = g092_ring_borders_array,
-                    file_format = 'fits' )    
-    tuna.io.write ( file_name   = '6_g092_regions.fits',
-                    array       = g092_regions_array,
-                    file_format = 'fits' )    
+    #tuna.io.write ( file_name   = '5_g092_synthetic_ring_borders.fits',
+    #                array       = g092_ring_borders_array,
+    #                file_format = 'fits' )    
+    #tuna.io.write ( file_name   = '6_g092_regions.fits',
+    #                array       = g092_regions_array,
+    #                file_format = 'fits' )    
     tuna.io.write ( file_name   = '7_g092_orders.fits',
                     array       = g092_order_array,
                     file_format = 'fits' )    
