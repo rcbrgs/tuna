@@ -33,7 +33,8 @@ def g092_unwrap_phase_map ( ):
     g092_binary_noise_array = high_res_FP_phase_map_tool.get_binary_noise_array ( )
     g092_borders_to_center_distances = high_res_FP_phase_map_tool.get_borders_to_center_distances ( )
     g092_order_array = high_res_FP_phase_map_tool.get_order_array ( )
-    g092_parabolic_map = high_res_FP_phase_map_tool.get_parabolic_model ( )
+    g092_parabolic_polyfit_map = high_res_FP_phase_map_tool.get_parabolic_polyfit_model ( )
+    g092_parabolic_guess_map = high_res_FP_phase_map_tool.get_parabolic_guess_model ( )
 
     tuna.io.write ( file_name   = '1_g092_continuum.fits',
                     array       = g092_continuum_array,
@@ -53,9 +54,12 @@ def g092_unwrap_phase_map ( ):
     tuna.io.write ( file_name   = '6_g092_unwrapped_phase_map.fits',
                     array       = g092_unwrapped_array,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = '7_g092_parabolic_model.fits',
-                    array       = g092_parabolic_map,
+    tuna.io.write ( file_name   = '7_g092_parabolic_polyfit_model.fits',
+                    array       = g092_parabolic_polyfit_map,
                     file_format = 'fits' )    
+    tuna.io.write ( file_name   = '8_g092_parabolic_guess_model.fits',
+                    array       = g092_parabolic_guess_map,
+                    file_format = 'fits' )
 
 g092_unwrap_phase_map ( )
 g092_compare_barycenter ( )

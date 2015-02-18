@@ -20,8 +20,8 @@ class parabola ( object ):
         """
         i_max_rows = self.__ffa_unwrapped.shape [ 0 ]
         i_max_cols = self.__ffa_unwrapped.shape [ 1 ]
-        self.__alpha = self.estimate_alpha ( )
-        self.__beta = self.estimate_beta ( )
+        self.estimate_alpha ( )
+        self.estimate_beta ( )
         self.__ffa_model = numpy.ndarray ( shape = ( i_max_rows, i_max_cols ) )
         for i_row in range ( i_max_rows ):
             for i_col in range ( i_max_cols ):
@@ -70,7 +70,7 @@ class parabola ( object ):
     def get_model_map ( self ):
         return self.__ffa_model
 
-def fit_parabolic_model ( iit_center = ( int, int ), log = print, ffa_noise = numpy.ndarray, ffa_unwrapped = numpy.ndarray ):
+def fit_parabolic_model_by_polyfit ( iit_center = ( int, int ), log = print, ffa_noise = numpy.ndarray, ffa_unwrapped = numpy.ndarray ):
     """
     Interface function to fit a parabolic model to a given input.
     """
@@ -79,6 +79,19 @@ def fit_parabolic_model ( iit_center = ( int, int ), log = print, ffa_noise = nu
 
     o_parabola = parabola ( iit_center = iit_center, log = log, ffa_noise = ffa_noise, ffa_unwrapped = ffa_unwrapped )
     o_parabola.create_model_map_by_polyfit ( )
+
+    log ( " %ds." % ( time ( ) - start ) )
+    return o_parabola.get_model_map ( )
+
+def fit_parabolic_model_by_guess ( iit_center = ( int, int ), log = print, ffa_noise = numpy.ndarray, ffa_unwrapped = numpy.ndarray ):
+    """
+    Interface function to fit a parabolic model to a given input.
+    """
+    start = time ( )
+    log ( "fit_parabolic_model", end = '' )
+
+    o_parabola = parabola ( iit_center = iit_center, log = log, ffa_noise = ffa_noise, ffa_unwrapped = ffa_unwrapped )
+    o_parabola.create_model_map_by_guess ( )
 
     log ( " %ds." % ( time ( ) - start ) )
     return o_parabola.get_model_map ( )

@@ -7,7 +7,7 @@ from .noise import create_noise_array
 from .ring_borders import create_ring_borders_map, create_borders_to_center_distances
 from tools.get_pixel_neighbours import get_pixel_neighbours
 from .spectrum import create_continuum_array
-from tools.models.parabola import fit_parabolic_model
+from tools.models.parabola import fit_parabolic_model_by_polyfit, fit_parabolic_model_by_guess
 from time import time
 
 def create_max_channel_map ( self, array = numpy.ndarray ):
@@ -82,11 +82,15 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
 
         self.create_unwrapped_phase_map_array ( )
 
-        self.__ffa_parabolic_model = fit_parabolic_model ( iit_center = self.__iit_center,
-                                                           log = log,
-                                                           ffa_noise = self.binary_noise_array,
-                                                           ffa_unwrapped = self.unwrapped_phase_map )
-                                                           
+        self.__ffa_parabolic_model_polyfit = fit_parabolic_model_by_polyfit ( iit_center = self.__iit_center,
+                                                                              log = log,
+                                                                              ffa_noise = self.binary_noise_array,
+                                                                              ffa_unwrapped = self.unwrapped_phase_map )
+        
+        self.__ffa_parabolic_model_guess = fit_parabolic_model_by_guess ( iit_center = self.__iit_center,
+                                                                          log = log,
+                                                                          ffa_noise = self.binary_noise_array,
+                                                                          ffa_unwrapped = self.unwrapped_phase_map )
 
     def get_array ( self ):
         """
@@ -106,11 +110,17 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         """
         return self.continuum_array
 
-    def get_parabolic_model ( self ):
+    def get_parabolic_guess_model ( self ):
         """
         Returns a parabolic model of the data.
         """
-        return self.__ffa_parabolic_model
+        return self.__ffa_parabolic_model_guess
+
+    def get_parabolic_polyfit_model ( self ):
+        """
+        Returns a parabolic model of the data.
+        """
+        return self.__ffa_parabolic_model_polyfit
 
     def get_wrapped_phase_map_array ( self ):
         """
