@@ -3,9 +3,7 @@ import numpy
 from file_format import adhoc, file_reader, fits
 from .find_image_center_by_symmetry import find_image_center_by_symmetry
 from .fsr import create_fsr_map
-#from gui import widget_viewer_2d
 from .noise import create_noise_array
-from .orders import orders
 from .ring_borders import create_ring_borders_map, create_borders_to_center_distances
 from tools.get_pixel_neighbours import get_pixel_neighbours
 from .spectrum import create_continuum_array
@@ -61,7 +59,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         self.wrapped_phase_map_array = wrapped_phase_map_algorithm ( array = self.filtered_array )
 
         self.__iit_center = find_image_center_by_symmetry ( ia_data = self.wrapped_phase_map_array )
-        #self.__iit_center = ( 218, 255 )
+
         #self.log ( "__iit_center = %s" % str ( self.__iit_center ) )
 
         self.binary_noise_array = create_noise_array ( bad_neighbours_threshold = bad_neighbours_threshold, 
@@ -119,11 +117,10 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         """
         return self.ring_borders_array
 
-    def create_order_array ( self ):
-        orders_algorithm = orders ( fa_borders_to_center_distances = self.__fa_borders_to_center_distances, iit_center = self.__iit_center, regions = self.regions_array, ring_borders = self.ring_borders_array, noise = self.binary_noise_array )
-        self.order_array = orders_algorithm.get_orders ( )
-
     def get_order_array ( self ):
+        """
+        Return the relative FSR map.
+        """
         return self.order_array
 
     def create_unwrapped_phase_map_array ( self ):

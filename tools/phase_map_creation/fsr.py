@@ -20,10 +20,13 @@ class fsr ( object ):
         self.__max_cols = fa_distances.shape [ 1 ]
         self.__fa_wrapped = fa_wrapped
 
-    def create_fsr_map ( self, f_ring_thickness_threshold = 3.0 ):
+    def create_fsr_map ( self ):
         """
         FSR distance array creation method.
         """
+        # Estimate ring thickness as at least 3, or 1/100 of the smallest dimension.
+        f_ring_thickness_threshold = max ( 3, min ( [ self.__fa_wrapped.shape [ 0 ], self.__fa_wrapped.shape [ 1 ] ] ) / 100 )
+        #self.log ( "f_ring_thickness_threshold = %f" % f_ring_thickness_threshold )
         # find how many rings are there
         fl_rings = [ ]
         for i_row in range ( self.__max_rows ):

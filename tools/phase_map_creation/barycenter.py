@@ -87,7 +87,7 @@ class barycenter ( object ):
         """
         Returns a barycenter array from the input array, using the shoulder-to-shoulder peak channels as the relevant signals.
         """
-        self.log ( "Creating barycenter array from peak channels." )
+        #self.log ( "Creating barycenter array from peak channels." )
         if self.__array.ndim != 3:
             return
             
@@ -160,15 +160,15 @@ class barycenter ( object ):
             cursor = self.get_right_channel ( cursor )
 
         # Using only the FWHH channels causes pixelation of the phase map,
-        # therefore the whole peak is used.
+        # therefore the whole peak is used, starting with the FWHH.
 
-        i_left_shoulder = self.get_left_channel ( max_height_index )
+        i_left_shoulder = self.get_left_channel ( leftmost_hh )
         while ( ( profile [ i_left_shoulder ] - profile [ self.get_right_channel ( i_left_shoulder ) ] <= 0 ) and
                 ( i_left_shoulder != max_height_index ) ):
             i_left_shoulder = self.get_left_channel ( i_left_shoulder )
         i_left_shoulder = self.get_right_channel ( i_left_shoulder )
 
-        i_right_shoulder = self.get_right_channel ( max_height_index )
+        i_right_shoulder = self.get_right_channel ( rightmost_hh )
         while ( ( profile [ i_right_shoulder ] - profile [ self.get_left_channel ( i_right_shoulder ) ] <= 0 ) and
                 ( i_right_shoulder != max_height_index ) ):
             i_right_shoulder = self.get_right_channel ( i_right_shoulder )
