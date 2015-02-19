@@ -4,18 +4,11 @@ from file_format import adhoc, file_reader, fits
 from .find_image_center_by_symmetry import find_image_center_by_symmetry
 from .fsr import create_fsr_map
 from .noise import create_noise_array
+from tools.models.parabola import fit_parabolic_model_by_guess, fit_parabolic_model_by_Polynomial2D
 from .ring_borders import create_ring_borders_map, create_borders_to_center_distances
 from tools.get_pixel_neighbours import get_pixel_neighbours
 from .spectrum import create_continuum_array
-from tools.models.parabola import fit_parabolic_model_by_polyfit, fit_parabolic_model_by_guess
 from time import time
-
-def create_max_channel_map ( self, array = numpy.ndarray ):
-    """
-    Uses numpy.argmax to return the 2D array with the maxima along the depth of a 3D cube.
-    Notice that numpy currently returns the index of the first maximum if there are several maxima.
-    """
-    return numpy.argmax ( array, axis = 0 )
 
 class high_resolution_Fabry_Perot_phase_map_creation ( object ):
     """
@@ -82,15 +75,15 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
 
         self.create_unwrapped_phase_map_array ( )
 
-        self.__ffa_parabolic_model_polyfit = fit_parabolic_model_by_polyfit ( iit_center = self.__iit_center,
-                                                                              log = log,
-                                                                              ffa_noise = self.binary_noise_array,
-                                                                              ffa_unwrapped = self.unwrapped_phase_map )
-        
         self.__ffa_parabolic_model_guess = fit_parabolic_model_by_guess ( iit_center = self.__iit_center,
                                                                           log = log,
                                                                           ffa_noise = self.binary_noise_array,
                                                                           ffa_unwrapped = self.unwrapped_phase_map )
+
+        self.__ffa_parabolic_model_Polynomial2D = fit_parabolic_model_by_Polynomial2D ( iit_center = self.__iit_center,
+                                                                                        log = log,
+                                                                                        ffa_noise = self.binary_noise_array,
+                                                                                        ffa_unwrapped = self.unwrapped_phase_map )
 
     def get_array ( self ):
         """
@@ -116,11 +109,11 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         """
         return self.__ffa_parabolic_model_guess
 
-    def get_parabolic_polyfit_model ( self ):
+    def get_parabolic_Polynomial2D_model ( self ):
         """
         Returns a parabolic model of the data.
         """
-        return self.__ffa_parabolic_model_polyfit
+        return self.__ffa_parabolic_model_Polynomial2D
 
     def get_wrapped_phase_map_array ( self ):
         """
@@ -181,3 +174,10 @@ def create_high_resolution_phase_map ( array = numpy.ndarray,
                                        wrapped_phase_map_algorithm = create_max_channel_map ):
     high_resolution_Fabry_Perot_phase_map_creation_object = high_resolution_Fabry_Perot_phase_map_creation ( array = array, wrapped_phase_map_algorithm = wrapped_phase_map_algorithm )
     return high_resolution_Fabry_Perot_phase_map_creation_object.get_unwrapped_phase_map ( )
+
+def create_max_channel_map ( self, array = numpy.ndarray ):
+    """
+    Uses numpy.argmax to return the 2D array with the maxima along the depth of a 3D cube.
+    Notice that numpy currently returns the index of the first maximum if there are several maxima.
+    """
+    return numpy.argmax ( array, axis = 0 )
