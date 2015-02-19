@@ -18,6 +18,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
     def __init__ ( self, 
                    array = numpy.ndarray,
                    bad_neighbours_threshold = 7, 
+                   il_channel_subset = None,
                    channel_threshold = 1, 
                    log = print, 
                    noise_mask_radius = 0,
@@ -38,17 +39,25 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         super ( high_resolution_Fabry_Perot_phase_map_creation, self ).__init__ ( *args, **kwargs )
         self.log = log
 
-        self.__array = array
-        
-        if self.__array.ndim != 3:
+        if array.ndim != 3:
             self.log ( "Image does not have 3 dimensions, aborting." )
             return
 
-        self.continuum_array = create_continuum_array ( array = array )
+        if il_channel_subset != None:
+            self.log ( "Using a subset of channels: %s" % str ( il_channel_subset ) )
+            f3a_subset = numpy.ndarray ( shape = ( len ( il_channel_subset ), array.shape [ 1 ], array.shape [ 2 ] ) )
+            il_sorted_subset = sorted ( il_channel_subset )
+            for i_channel in range ( len ( il_sorted_subset ) ):
+                f3a_subset [ i_channel ] = array [ il_sorted_subset [ i_channel ] ]
+            self.__array = f3a_subset
+        else:
+            self.__array = array
 
-        self.filtered_array = numpy.ndarray ( shape = array.shape )
-        for dep in range ( array.shape[0] ):
-            self.filtered_array[dep,:,:] = array[dep,:,:] - self.continuum_array
+        self.continuum_array = create_continuum_array ( array = self.__array )
+
+        self.filtered_array = numpy.ndarray ( shape = self.__array.shape )
+        for dep in range ( self.__array.shape[0] ):
+            self.filtered_array[dep,:,:] = self.__array[dep,:,:] - self.continuum_array
 
         self.wrapped_phase_map_array = wrapped_phase_map_algorithm ( array = self.filtered_array )
 
@@ -170,10 +179,13 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
     def get_unwrapped_phase_map_array ( self ):
         return self.unwrapped_phase_map
 
-def create_high_resolution_phase_map ( array = numpy.ndarray,
-                                       wrapped_phase_map_algorithm = None ):
-    high_resolution_Fabry_Perot_phase_map_creation_object = high_resolution_Fabry_Perot_phase_map_creation ( array = array, wrapped_phase_map_algorithm = wrapped_phase_map_algorithm )
-    return high_resolution_Fabry_Perot_phase_map_creation_object.get_unwrapped_phase_map ( )
+#def create_high_resolution_phase_map ( array = numpy.ndarray,
+#                                       il_channel_subset = None,
+#                                       wrapped_phase_map_algorithm = None ):
+#    o_phase_map = high_resolution_Fabry_Perot_phase_map_creation ( array = array,
+#                                                                   il_channel_subset = il_channel_subset,
+#                                                                   wrapped_phase_map_algorithm = wrapped_phase_map_algorithm )
+#    return o_phase_map.get_unwrapped_phase_map ( )
 
 def create_max_channel_map ( self, array = numpy.ndarray ):
     """
