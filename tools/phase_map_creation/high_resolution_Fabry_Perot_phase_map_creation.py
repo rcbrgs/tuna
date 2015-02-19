@@ -21,7 +21,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                    channel_threshold = 1, 
                    log = print, 
                    noise_mask_radius = 0,
-                   wrapped_phase_map_algorithm = create_max_channel_map, 
+                   wrapped_phase_map_algorithm = None, 
                    *args, 
                    **kwargs ):
         """
@@ -171,7 +171,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         return self.unwrapped_phase_map
 
 def create_high_resolution_phase_map ( array = numpy.ndarray,
-                                       wrapped_phase_map_algorithm = create_max_channel_map ):
+                                       wrapped_phase_map_algorithm = None ):
     high_resolution_Fabry_Perot_phase_map_creation_object = high_resolution_Fabry_Perot_phase_map_creation ( array = array, wrapped_phase_map_algorithm = wrapped_phase_map_algorithm )
     return high_resolution_Fabry_Perot_phase_map_creation_object.get_unwrapped_phase_map ( )
 
