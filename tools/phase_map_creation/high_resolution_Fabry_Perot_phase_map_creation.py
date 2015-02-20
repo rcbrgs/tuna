@@ -1,6 +1,7 @@
 from math import floor, sqrt
 import numpy
 from file_format import adhoc, file_reader, fits
+from .find_image_center_by_arc_segmentation import find_image_center_by_arc_segmentation
 from .find_image_center_by_symmetry import find_image_center_by_symmetry
 from .fsr import create_fsr_map
 from .noise import create_noise_array
@@ -62,8 +63,10 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         self.wrapped_phase_map_array = wrapped_phase_map_algorithm ( array = self.filtered_array )
 
         self.__iit_center = find_image_center_by_symmetry ( ia_data = self.wrapped_phase_map_array )
+        self.log ( "__iit_center = %s" % str ( self.__iit_center ) )
 
-        #self.log ( "__iit_center = %s" % str ( self.__iit_center ) )
+        arc_center = find_image_center_by_arc_segmentation ( ffa_unwrapped = self.wrapped_phase_map_array )
+        self.log ( "arc_center   = %s" % str ( arc_center ) )
 
         self.binary_noise_array = create_noise_array ( bad_neighbours_threshold = bad_neighbours_threshold, 
                                                        channel_threshold = channel_threshold, 
