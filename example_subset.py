@@ -12,7 +12,7 @@ def g092_subset ( ):
     g092_raw_file = tuna.io.read ( file_name = 'examples/G092.AD3' )
     g092_array = g092_raw_file.get_array ( )
     high_res_FP_phase_map_tool = tuna.tools.phase_map_creation.high_resolution_Fabry_Perot_phase_map_creation ( array = g092_array, 
-                                                                                                                il_channel_subset = [ 5, 6, 7, 8 ],
+                                                                                                                il_channel_subset = [ 12, 15, 31 ],
                                                                                                                 wrapped_phase_map_algorithm = tuna.tools.phase_map_creation.create_barycenter_array, 
                                                                                                                 channel_threshold = 1, 
                                                                                                                 bad_neighbours_threshold = 7, 

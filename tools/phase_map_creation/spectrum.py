@@ -21,8 +21,9 @@ def average_of_lowest_channels ( array = numpy.ndarray, number_of_channels = 3 )
     """
     Returns the average of the three lowest channels of the input profile.
     """
-    auxiliary = array
+    auxiliary = numpy.copy ( array )
     minimum_sum = 0
+    number_of_channels = min ( [ number_of_channels, array.shape [ 0 ] ] )
 
     for element in range ( number_of_channels ):
         minimum_index = numpy.argmin ( auxiliary )

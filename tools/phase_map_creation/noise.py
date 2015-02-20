@@ -29,6 +29,8 @@ def create_noise_array ( array = None,
 
     noise_map = numpy.zeros ( shape = array.shape, dtype = numpy.int16 )
     max_channel = numpy.amax ( array )
+    if ( max_channel == 0 ):
+        return noise_map
     for x in range ( array.shape[0] ):
         for y in range ( array.shape[1] ):
             this_channel = array[x][y]
@@ -38,7 +40,7 @@ def create_noise_array ( array = None,
             number_of_neighbours = len ( neighbours )
             bad_results = 8 - number_of_neighbours
             for neighbour in neighbours:
-                distance = abs ( array[neighbour[0]][neighbour[1]] - this_channel ) % max_channel
+                distance = abs ( array [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] - this_channel ) % max_channel
                 if distance > channel_threshold:
                     bad_results += 1
             if ( bad_results > bad_neighbours_threshold ):
