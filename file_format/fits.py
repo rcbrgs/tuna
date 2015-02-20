@@ -52,6 +52,7 @@ class fits ( file_reader ):
         if self.__file_name:
             hdu = astrofits.PrimaryHDU ( self.__array )
             if self.__metadata:
+                d_columns = { }
                 key_list = [ ]
                 with warnings.catch_warnings ( ):
                     warnings.simplefilter ( "ignore" )
@@ -83,5 +84,21 @@ class fits ( file_reader ):
                         except ValueError as error_message:
                             self.log ( "ValueError: %s." % ( error_message ) )                
                             self.log ( "key = value, len ( value ) + len ( key ): %s = %s, %d" % ( key, value, len ( value ) + len ( key ) ) )
+                        
+                        # table related stuff
+                        if key not in d_columns . keys ( ) :
+                            d_columns [ 'key' ] = [ value ]
+                        else :
+                            d_columns [ 'key' ] . append ( [ value ] )
+                fits_columns = [ ]
+                for s_key in d_columns . keys ( ):
+                    fits_columns . append ( astrofits . Column ( name = s_key, array = d_columns [ s_key ], format = 'A' ) )
+                fits_columns_definition = astrofits . ColDefs ( fits_columns )
+                # The new_table method will be deprecated, when it is, use the commented line below.
+                fits_table_hdu = astrofits . new_table ( fits_columns_definition )                
+                #fits_table_hdu = astrofits . BinTableHDU . from_columns ( fits_columns_definition )
+                hdu_list = astrofits.HDUList ( [ hdu, fits_table_hdu ] )
+                hdu_list.writeto ( "table_" + self.__file_name )
+
             hdu_list = astrofits.HDUList ( [hdu] )
             hdu_list.writeto ( self.__file_name )
