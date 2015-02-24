@@ -28,7 +28,7 @@ class image_center_by_arc_segmentation ( object ):
             return ( self.__i_center_row, self.__i_center_col )
         else:
             self.find_center ( )
-            return ( self.__i_center_row, self.__i_center_col )
+            return ( self.__i_center_row, self.__i_center_col ), self.__iia_ring_borders
 
     def find_center ( self ):
         """
@@ -37,14 +37,25 @@ class image_center_by_arc_segmentation ( object ):
         self.detect_ring_borders ( )
         print ( "numpy.amax ( self.__iia_ring_borders ) = %d" % numpy.amax ( self.__iia_ring_borders ) )
         iitl_random_points = [ ]
-        for i_points in range ( 4 ):
+        # get first pixel in some border:
+        i_random_row = random.randint ( 0, self.__ffa_unwrapped.shape [ 0 ] - 1 )
+        i_random_col = random.randint ( 0, self.__ffa_unwrapped.shape [ 1 ] - 1 )
+        while ( self.__iia_ring_borders [ i_random_row ] [ i_random_col ] == 0 ):
             i_random_row = random.randint ( 0, self.__ffa_unwrapped.shape [ 0 ] - 1 )
             i_random_col = random.randint ( 0, self.__ffa_unwrapped.shape [ 1 ] - 1 )
-            #print ( "i_random_row, i_random_col = %d, %d" % ( i_random_row, i_random_col ) )
-            while ( ( self.__iia_ring_borders [ i_random_row ] [ i_random_col ] != 2 ) or
-                    ( ( i_random_row, i_random_col ) in iitl_random_points ) ):
+        i_first_color = int ( self.__ffa_unwrapped [ i_random_row ] [ i_random_col ] )
+        iitl_random_points . append ( ( i_random_row, i_random_col ) )
+        # get 3 other points in same border
+        for i_points in range ( 3 ):
+            i_random_row = random.randint ( 0, self.__ffa_unwrapped.shape [ 0 ] - 1 )
+            i_random_col = random.randint ( 0, self.__ffa_unwrapped.shape [ 1 ] - 1 )
+            i_random_color = self.__ffa_unwrapped [ i_random_row ] [ i_random_col ]
+            while ( ( self.__iia_ring_borders [ i_random_row ] [ i_random_col ] == 0 ) or
+                    ( ( i_random_row, i_random_col ) in iitl_random_points ) or
+                    ( i_random_color != i_first_color ) ):
                 i_random_row = random.randint ( 0, self.__ffa_unwrapped.shape [ 0 ] - 1 )
                 i_random_col = random.randint ( 0, self.__ffa_unwrapped.shape [ 1 ] - 1 )
+                i_random_color = int ( self.__ffa_unwrapped [ i_random_row ] [ i_random_col ] )
                 #print ( "i_random_row, i_random_col = %d, %d" % ( i_random_row, i_random_col ) )
             iitl_random_points . append ( ( i_random_row, i_random_col ) )
         print ( "iitl_random_points = %s" % str ( iitl_random_points ) )
@@ -75,9 +86,10 @@ class image_center_by_arc_segmentation ( object ):
             for i_col in range ( max_cols ):
                 neighbours = get_pixel_neighbours ( ( i_row, i_col ), ring_borders_map )
                 for neighbour in neighbours:
-                    distance = self.__ffa_unwrapped [ i_row ] [ i_col ] - self.__ffa_unwrapped [ neighbour [ 0 ] ] [ neighbour [ 1 ] ]
-                    if distance > threshold:
-                        ring_borders_map [ i_row ] [ i_col ] = int ( distance )
+                    distance = abs ( self.__ffa_unwrapped [ i_row ] [ i_col ] - self.__ffa_unwrapped [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] )
+                    if ( distance > threshold and
+                        int ( self.__ffa_unwrapped [ i_row ] [ i_col ] ) == 0 ):
+                        ring_borders_map [ i_row ] [ i_col ] = 2
                         break
 
         # create ring regions
@@ -95,7 +107,6 @@ class image_center_by_arc_segmentation ( object ):
                     i_current_region += 1
 
         self.__iia_ring_borders = ring_borders_map
-
         
 def find_image_center_by_arc_segmentation ( ffa_unwrapped = numpy.ndarray ):
     """
@@ -105,7 +116,7 @@ def find_image_center_by_arc_segmentation ( ffa_unwrapped = numpy.ndarray ):
     print ( "find_image_center_by_arc_segmentation", end='' )
 
     o_finder = image_center_by_arc_segmentation ( ffa_unwrapped = ffa_unwrapped )
-    iit_center = o_finder.get_center ( )
+    iit_center, borders = o_finder.get_center ( )
 
     print ( " %ds." % ( time ( ) - i_start ) )
-    return iit_center
+    return iit_center, borders.astype ( numpy.float64 )
