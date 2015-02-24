@@ -12,3 +12,4 @@ def write ( file_name = None, array = None, metadata = None, file_format = None 
          file_format == 'FITS' ):
         fits_io_object = fits ( file_name = file_name, array = array, metadata = metadata )
         fits_io_object.write ( )
+        fits_io_object.write_metadata_table ( )
