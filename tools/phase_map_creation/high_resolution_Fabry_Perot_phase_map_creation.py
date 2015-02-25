@@ -89,10 +89,10 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                                                                           ffa_noise = self.binary_noise_array,
                                                                           ffa_unwrapped = self.unwrapped_phase_map )
 
-        self.__ffa_parabolic_model_Polynomial2D = fit_parabolic_model_by_Polynomial2D ( iit_center = self.__iit_center,
-                                                                                        log = log,
-                                                                                        ffa_noise = self.binary_noise_array,
-                                                                                        ffa_unwrapped = self.unwrapped_phase_map )
+        self.__parabolic_coefficients, self.__ffa_parabolic_model_Polynomial2D = fit_parabolic_model_by_Polynomial2D ( iit_center = self.__iit_center,
+                                                                                                                  log = log,
+                                                                                                                  ffa_noise = self.binary_noise_array,
+                                                                                                                  ffa_unwrapped = self.unwrapped_phase_map )
 
     def get_array ( self ):
         """
@@ -123,6 +123,9 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         Returns a parabolic model of the data.
         """
         return self.__ffa_parabolic_model_Polynomial2D
+
+    def get_parabolic_Polynomial2D_coefficients ( self ):
+        return self.__parabolic_coefficients
 
     def get_wrapped_phase_map_array ( self ):
         """

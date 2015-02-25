@@ -53,7 +53,20 @@ class parabola ( object ):
         with warnings.catch_warnings ( ):
             warnings.simplefilter ( 'ignore' )
             polynomial_fit = LevMarLSQFitter_fit ( Polynomial2D_model, iia_x_dimension, iia_y_dimension, self.__ffa_unwrapped )
+        #print ( str ( polynomial_fit ) )
+        #print ( str ( polynomial_fit.parameters ) )
+        self.__d_coefficients = { }
+        self.__d_coefficients['x0y0'] = polynomial_fit.parameters [ 0 ]
+        self.__d_coefficients['x1y0'] = polynomial_fit.parameters [ 1 ]
+        self.__d_coefficients['x2y0'] = polynomial_fit.parameters [ 2 ]
+        self.__d_coefficients['x0y1'] = polynomial_fit.parameters [ 3 ]
+        self.__d_coefficients['x0y2'] = polynomial_fit.parameters [ 4 ]
+        self.__d_coefficients['x1y1'] = polynomial_fit.parameters [ 5 ]
+        #print ( self.__d_coefficients )
         self.__ffa_model = polynomial_fit ( iia_x_dimension, iia_y_dimension )
+
+    def get_coefficients ( self ):
+        return self.__d_coefficients
 
     def get_model_map ( self ):
         return self.__ffa_model
@@ -80,7 +93,7 @@ def fit_parabolic_model_by_Polynomial2D ( iit_center = ( int, int ), log = print
 
     o_parabola = parabola ( iit_center = iit_center, log = log, ffa_noise = ffa_noise, ffa_unwrapped = ffa_unwrapped )
     o_parabola.create_model_map_by_Polynomial2D ( )
+    log ( "d_coefficients = %s" % str ( o_parabola.get_coefficients ( ) ) )
 
     log ( " %ds." % ( time ( ) - start ) )
-    return o_parabola.get_model_map ( )
-
+    return o_parabola.get_coefficients, o_parabola.get_model_map ( )
