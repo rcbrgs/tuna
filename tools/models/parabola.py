@@ -96,4 +96,4 @@ def fit_parabolic_model_by_Polynomial2D ( iit_center = ( int, int ), log = print
     log ( "d_coefficients = %s" % str ( o_parabola.get_coefficients ( ) ) )
 
     log ( " %ds." % ( time ( ) - start ) )
-    return o_parabola.get_coefficients, o_parabola.get_model_map ( )
+    return o_parabola.get_coefficients ( ), o_parabola.get_model_map ( )

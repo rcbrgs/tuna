@@ -94,6 +94,8 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
                                                                                                                   ffa_noise = self.binary_noise_array,
                                                                                                                   ffa_unwrapped = self.unwrapped_phase_map )
 
+        self.verify_parabolic_model ( )
+
     def get_array ( self ):
         """
         Returns the raw data array (same as the input).
@@ -182,13 +184,9 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
     def get_unwrapped_phase_map_array ( self ):
         return self.unwrapped_phase_map
 
-#def create_high_resolution_phase_map ( array = numpy.ndarray,
-#                                       il_channel_subset = None,
-#                                       wrapped_phase_map_algorithm = None ):
-#    o_phase_map = high_resolution_Fabry_Perot_phase_map_creation ( array = array,
-#                                                                   il_channel_subset = il_channel_subset,
-#                                                                   wrapped_phase_map_algorithm = wrapped_phase_map_algorithm )
-#    return o_phase_map.get_unwrapped_phase_map ( )
+    def verify_parabolic_model ( self ):
+        self.log ( "Ratio between 2nd degree coefficients is: %f" % ( self.__parabolic_coefficients [ 'x2y0' ] / 
+                                                                      self.__parabolic_coefficients [ 'x0y2' ] ) )
 
 def create_max_channel_map ( self, array = numpy.ndarray ):
     """
