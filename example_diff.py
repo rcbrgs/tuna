@@ -16,6 +16,7 @@ def g092_compare_barycenter ( ):
     g092_barycenter_gold_file = tuna.io.read ( file_name = 'examples/cal_bru.ad2' )
     g092_barycenter_gold_array = g092_barycenter_gold_file.get_array ( )
     g092_barycenter_gold_cube = tuna.data_cube.cube ( tan_data = g092_barycenter_gold_array )
+    g092_barycenter_gold_flipped_cube = tuna.data_cube.flip ( s_axis = 'rows', o_cube = g092_barycenter_gold_cube )
 
     o_comparison = tuna.data_cube.subtract ( o_cube_left = g092_barycenter_gold_cube, o_cube_right = g092_barycenter_cube )
 
