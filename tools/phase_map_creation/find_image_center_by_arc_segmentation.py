@@ -12,10 +12,11 @@ import sympy
 from time import time
 
 class image_center_by_arc_segmentation ( object ):
-    def __init__ ( self, ffa_unwrapped = numpy.ndarray ):
+    def __init__ ( self, log = print, ffa_unwrapped = numpy.ndarray ):
         super ( image_center_by_arc_segmentation, self ).__init__ ( )
         self.__i_center_row = None
         self.__i_center_col = None
+        self.log = log
         self.__ffa_unwrapped = ffa_unwrapped
         random.seed ( )
 
@@ -25,7 +26,7 @@ class image_center_by_arc_segmentation ( object ):
         """
         if ( ( self.__i_center_row is not None ) and
              ( self.__i_center_col is not None ) ):
-            return ( self.__i_center_row, self.__i_center_col )
+            return ( self.__i_center_row, self.__i_center_col ), self.__iia_ring_borders
         else:
             self.find_center ( )
             return ( self.__i_center_row, self.__i_center_col ), self.__iia_ring_borders
@@ -67,7 +68,12 @@ class image_center_by_arc_segmentation ( object ):
         o_chord_1 = sympy.geometry.Line ( o_point_2, o_point_3 )
         #print ( "o_chord_0.equation ( ) = " % str ( o_chord_0.equation ( ) ) )
         #print ( "o_chord_1.equation ( ) = " % str ( o_chord_1.equation ( ) ) )
-        o_point_center = sympy.geometry.intersection ( o_chord_0, o_chord_1 ) [ 0 ]
+        ol_intersection = sympy.geometry.intersection ( o_chord_0, o_chord_1 )
+        if ( len ( ol_intersection ) == 0 ):
+            self.log ( "No intersection found!" )
+            return
+        else:
+            o_point_center = ol_intersection [ 0 ]
         print ( "o_point_center = %s" % str ( o_point_center ) )
         self.__i_center_row = o_point_center . x
         self.__i_center_col = o_point_center . y
@@ -81,30 +87,53 @@ class image_center_by_arc_segmentation ( object ):
         max_rows = self.__ffa_unwrapped.shape[0]
         max_cols = self.__ffa_unwrapped.shape[1]
         max_channel = numpy.amax ( self.__ffa_unwrapped )
-        threshold = max_channel / 2
+        threshold = max_channel - 1
+        i_next_color = 10
+        d_color_counts = { }
         for i_row in range ( max_rows ):
             for i_col in range ( max_cols ):
                 neighbours = get_pixel_neighbours ( ( i_row, i_col ), ring_borders_map )
+                il_distances = [ ]
+                il_colors = [ ]
                 for neighbour in neighbours:
-                    distance = abs ( self.__ffa_unwrapped [ i_row ] [ i_col ] - self.__ffa_unwrapped [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] )
-                    if ( distance > threshold and
-                        int ( self.__ffa_unwrapped [ i_row ] [ i_col ] ) == 0 ):
-                        ring_borders_map [ i_row ] [ i_col ] = 2
-                        break
+                    il_distances.append ( abs ( self.__ffa_unwrapped [ i_row ] [ i_col ] - self.__ffa_unwrapped [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] ) )
+                    il_colors.append ( ring_borders_map [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] )
+                i_max_distance = max ( il_distances )
+                if ( i_max_distance > threshold and
+                     int ( self.__ffa_unwrapped [ i_row ] [ i_col ] ) == 0 ):
+                    i_color = max ( il_colors )
+                    if ( i_color == 0 ):
+                        i_color = i_next_color
+                        i_next_color += 1
 
-        # create ring regions
-        i_current_region = 2
-        for i_row in range ( max_rows ):
-            for i_col in range ( max_cols ):
-                if ring_borders_map [ i_row ] [ i_col ] == 1:
-                    ring_borders_map [ i_row ] [ i_col ] = i_current_region
-                    neighbourhood = get_pixel_neighbours ( position = ( i_row, i_col ), array = ring_borders_map )
-                    while ( neighbourhood != [ ] ):
-                        neighbour = neighbourhood.pop ( )
-                        if ring_borders_map [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] == 1:
-                            ring_borders_map [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] = i_current_region
-                            neighbourhood.extend ( get_pixel_neighbours ( position = ( neighbour ), array = ring_borders_map ) )
-                    i_current_region += 1
+                    ring_borders_map [ i_row ] [ i_col ] = int ( i_color )
+                    if i_color in d_color_counts.keys ( ):
+                        d_color_counts [ i_color ] += 1
+                    else:
+                        d_color_counts [ i_color ] = 1
+
+                    neighbours = get_pixel_neighbours ( ( i_row, i_col ), ring_borders_map )
+                    for neighbour in neighbours:
+                        if self.__ffa_unwrapped [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] == 0:
+                            ring_borders_map [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] = int ( i_color )
+                            if i_color in d_color_counts.keys ( ):
+                                d_color_counts [ i_color ] += 1
+                            else:
+                                d_color_counts [ i_color ] = 1
+
+        # filter out everything but the largest arc
+        #i_max_arc_count = max ( d_color_counts.values ( ) )
+        #for i_color, i_count in d_color_counts.items ( ):
+        #    if i_count == i_max_arc_count:
+        #        i_max_arc_color = i_color
+        #        break
+        #self.log ( "i_max_arc_color, i_max_arc_count = %d, %d" % ( i_max_arc_color, i_max_arc_count ) )
+        #for i_row in range ( max_rows ):
+        #    for i_col in range ( max_cols ):
+        #        if ring_borders_map [ i_row ] [ i_col ] != i_max_arc_color:
+        #            ring_borders_map [ i_row ] [ i_col ] = 0
+        #        else:
+        #            ring_borders_map [ i_row ] [ i_col ] = 1
 
         self.__iia_ring_borders = ring_borders_map
         
