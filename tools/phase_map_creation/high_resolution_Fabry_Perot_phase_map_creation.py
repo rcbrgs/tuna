@@ -1,6 +1,7 @@
 from math import floor, sqrt
 import numpy
 from file_format import adhoc, file_reader, fits
+from .find_image_center_by_arc_segmentation import find_image_center_by_arc_segmentation
 from .find_image_center_by_symmetry import find_image_center_by_symmetry
 from .fsr import create_fsr_map
 from .noise import create_noise_array
@@ -61,9 +62,9 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
 
         self.wrapped_phase_map_array = wrapped_phase_map_algorithm ( array = self.filtered_array )
 
-        self.__iit_center = find_image_center_by_symmetry ( ia_data = self.wrapped_phase_map_array )
-
-        #self.log ( "__iit_center = %s" % str ( self.__iit_center ) )
+        #self.__iit_center = find_image_center_by_symmetry ( ia_data = self.wrapped_phase_map_array )
+        self.__iit_center = find_image_center_by_arc_segmentation ( ffa_unwrapped = self.wrapped_phase_map_array )
+        self.log ( "__iit_center = %s" % str ( self.__iit_center ) )
 
         self.binary_noise_array = create_noise_array ( bad_neighbours_threshold = bad_neighbours_threshold, 
                                                        channel_threshold = channel_threshold, 
@@ -84,10 +85,10 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
 
         self.create_unwrapped_phase_map_array ( )
 
-        self.__ffa_parabolic_model_guess = fit_parabolic_model_by_guess ( iit_center = self.__iit_center,
-                                                                          log = log,
-                                                                          ffa_noise = self.binary_noise_array,
-                                                                          ffa_unwrapped = self.unwrapped_phase_map )
+        #self.__ffa_parabolic_model_guess = fit_parabolic_model_by_guess ( iit_center = self.__iit_center,
+        #                                                                  log = log,
+        #                                                                  ffa_noise = self.binary_noise_array,
+        #                                                                  ffa_unwrapped = self.unwrapped_phase_map )
 
         self.__parabolic_coefficients, self.__ffa_parabolic_model_Polynomial2D = fit_parabolic_model_by_Polynomial2D ( iit_center = self.__iit_center,
                                                                                                                   log = log,
@@ -114,11 +115,11 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         """
         return self.continuum_array
 
-    def get_parabolic_guess_model ( self ):
-        """
-        Returns a parabolic model of the data.
-        """
-        return self.__ffa_parabolic_model_guess
+    #def get_parabolic_guess_model ( self ):
+    #    """
+    #    Returns a parabolic model of the data.
+    #    """
+    #    return self.__ffa_parabolic_model_guess
 
     def get_parabolic_Polynomial2D_model ( self ):
         """
