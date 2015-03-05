@@ -12,7 +12,10 @@ class ada ( file_reader ):
     developed at LAM by Jacques Boulesteix.
     """
 
-    def __init__ ( self, array = None, log = print, file_name = None ):
+    def __init__ ( self, 
+                   array = None, 
+                   log = print, 
+                   file_name = None ):
         """
         Create ada object.
         """

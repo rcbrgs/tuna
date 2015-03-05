@@ -23,7 +23,12 @@ class adhoc ( file_reader ):
     Please check the file adhoc_file_format.eml for documentation regarding this format.
     """
 
-    def __init__ ( self, adhoc_type = None, adhoc_trailer = None, file_name = None, array = None, log = print ):
+    def __init__ ( self, 
+                   adhoc_type = None, 
+                   adhoc_trailer = None, 
+                   file_name = None, 
+                   array = None, 
+                   log = print ):
         super ( adhoc, self ).__init__ ( )
         self.__adhoc_type = adhoc_type
         self.__adhoc_trailer = adhoc_trailer

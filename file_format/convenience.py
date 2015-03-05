@@ -1,15 +1,23 @@
 from .can import can
-from file_format.fits import fits
+from .fits import fits
+from zeromq.zmq_client import zmq_client
 
 def read ( file_name = None ):
+    o_zmq_bus = zmq_client ( )
     if file_name:
-        tuna_can = can ( file_name = file_name )
+        tuna_can = can ( file_name = file_name,
+                         log = o_zmq_bus.log )
         tuna_can.read ( )
         return tuna_can
 
-def write ( file_name = None, array = None, metadata = None, file_format = None ):
+def write ( array       = None, 
+            file_format = None,
+            file_name   = None, 
+            metadata    = None ):
     if ( file_format == 'fits' or
          file_format == 'FITS' ):
-        fits_io_object = fits ( file_name = file_name, array = array, metadata = metadata )
+        fits_io_object = fits ( file_name = file_name, 
+                                array = array, 
+                                metadata = metadata )
         fits_io_object.write ( )
         fits_io_object.write_metadata_table ( )

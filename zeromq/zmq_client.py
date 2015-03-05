@@ -25,8 +25,8 @@ class zmq_client ( ):
         Sends (byte string) message to log_server through the (stub) proxy.
         """
 
-        prefixed_msg = b"log: " + msg
-        self.zmq_socket_req.send ( prefixed_msg )
+        prefixed_msg = "log: " + msg
+        self.zmq_socket_req.send_unicode ( prefixed_msg )
         answer = self.zmq_socket_req.recv ( )
         if answer.decode("utf-8") != 'ACK':
             print ( u'Something is fishy!' )

@@ -11,9 +11,13 @@ class fsr ( object ):
     """
     Responsible for computing and storing a 2D array of integers with the number of FSRs from the axis until each pixel.
     """
-    def __init__ ( self, fa_distances = numpy.ndarray, iit_center = ( int, int ), log = print, fa_wrapped = numpy.ndarray ):
+    def __init__ ( self, 
+                   fa_distances = numpy.ndarray, 
+                   iit_center = ( int, int ), 
+                   log = print, 
+                   fa_wrapped = numpy.ndarray ):
         super ( fsr, self ).__init__ ( )
-        self.__fa_distances = fa_distances
+        self.__a_distances = fa_distances
         self.__iit_center = iit_center
         self.log = log
         self.__max_rows = fa_distances.shape [ 0 ]
@@ -24,21 +28,20 @@ class fsr ( object ):
         """
         FSR distance array creation method.
         """
-        # Estimate ring thickness as at least 3, or 1/100 of the smallest dimension.
-        f_ring_thickness_threshold = max ( 3, min ( [ self.__fa_wrapped.shape [ 0 ], self.__fa_wrapped.shape [ 1 ] ] ) / 100 )
-        #self.log ( "f_ring_thickness_threshold = %f" % f_ring_thickness_threshold )
+        f_ring_thickness_threshold = self.estimate_ring_thickness ( )
+        self.log ( "debug: f_ring_thickness_threshold = %f" % f_ring_thickness_threshold )
         # find how many rings are there
         fl_rings = [ ]
         for i_row in range ( self.__max_rows ):
             for i_col in range ( self.__max_cols ):
-                if self.__fa_distances [ i_row ] [ i_col ] > 0:
+                if self.__a_distances [ i_row ] [ i_col ] > 0:
                     b_possible_new_ring = True
                     for f_ring in fl_rings:
-                        if ( ( self.__fa_distances [ i_row ] [ i_col ] < f_ring + f_ring_thickness_threshold ) and
-                             ( self.__fa_distances [ i_row ] [ i_col ] > f_ring - f_ring_thickness_threshold ) ):
+                        if ( ( self.__a_distances [ i_row ] [ i_col ] < f_ring + f_ring_thickness_threshold ) and
+                             ( self.__a_distances [ i_row ] [ i_col ] > f_ring - f_ring_thickness_threshold ) ):
                             b_possible_new_ring = False
                     if b_possible_new_ring:
-                        fl_rings.append ( self.__fa_distances [ i_row ] [ i_col ] )
+                        fl_rings.append ( self.__a_distances [ i_row ] [ i_col ] )
         #self.log ( "fl_rings = %s" % str ( fl_rings ) )
 
         # order rings by distance
@@ -47,7 +50,7 @@ class fsr ( object ):
 
         # attribute FSR by verifying ring-relative "position"
         i_median_channel = int ( numpy.amax ( self.__fa_wrapped ) / 2 )
-        ia_fsr = numpy.ndarray ( shape = self.__fa_distances.shape, dtype = numpy.int8 )
+        ia_fsr = numpy.ndarray ( shape = self.__a_distances.shape, dtype = numpy.int8 )
         for i_row in range ( self.__max_rows ):
             for i_col in range ( self.__max_cols ):
                 i_fsr_result = len ( fl_ordered_rings )
@@ -63,12 +66,40 @@ class fsr ( object ):
                 ia_fsr [ i_row ] [ i_col ] = i_fsr_result
 
         return ia_fsr
+
+    def estimate_ring_thickness ( self ):
+        a_distances = numpy.unique ( self.__a_distances.astype ( numpy.int16 ) )
+        self.log ( "a_distances = %s" % str ( a_distances ) )
+
+        l_distances = [ ]
+        l_ranges = [ ]
+        for i_col in range ( a_distances.shape [ 0 ] ):
+            i_this_distance = a_distances [ i_col ]
+            if i_this_distance != 0:
+                if l_distances == [ ]:
+                    l_distances.append ( i_this_distance )
+                    continue
+                i_last_distance = l_distances [ -1 ]
+                if ( i_this_distance == i_last_distance + 1 ):
+                    l_distances.append ( i_this_distance )
+                    continue
+                else:
+                    l_ranges.append ( l_distances )
+                    l_distances = [ i_this_distance ]
+        if l_distances not in l_ranges:
+            l_ranges.append ( l_distances )
+        self.log ( "l_ranges = %s" % str ( l_ranges ) )
+        l_thicknesses = [ ]
+        for l_range in l_ranges:
+            l_thicknesses.append ( len ( l_range ) )
+        self.log ( "debug: l_thicknesses = %s" % str ( l_thicknesses ) )
+        return max ( l_thicknesses )
         
 def create_fsr_map ( fa_distances = numpy.ndarray, iit_center = ( int, int ), log = print, fa_wrapped = numpy.ndarray ):
     log ( "create_fsr_map", end='' )
     start = time ( )
     
     fsr_object = fsr ( fa_distances = fa_distances, iit_center = iit_center, log = log, fa_wrapped = fa_wrapped )
-    return fsr_object.create_fsr_map ( )
-    
+
     log ( " %ds." % ( time ( ) - start ) )
+    return fsr_object.create_fsr_map ( )

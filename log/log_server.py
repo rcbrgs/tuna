@@ -18,7 +18,10 @@ class log_server ( object ):
         super ( log_server, self ).__init__ ( )
         # config logging module
         log_file_name = expanduser ( "~/tuna.log" )
-        logging.basicConfig ( filename = log_file_name, level = logging.DEBUG )
+        s_format = "%(asctime)-15s %(message)s"
+        logging.basicConfig ( filename = log_file_name, 
+                              format = s_format, 
+                              level = logging.DEBUG )
         logging.info ( "Tuna logging module started." )
         logging.debug ( "Logging threshold: logging DEBUG or higher." )
         # instantiate a REP node 
@@ -35,12 +38,30 @@ class log_server ( object ):
 
         self._keep_running = True
 
+    def parse ( self, 
+                s_msg = str ):
+        s_decoded = s_msg.decode ( "utf-8" )
+        l_split = s_decoded.partition ( ": " )
+        if len ( l_split [2] ) == 0:
+            s_type = "info"
+            s_contents = l_split [ 0 ]
+        else:
+            s_type = l_split [ 0 ].lower ( )
+            s_contents = l_split [ 2 ]
+        if ( s_type == "debug" ):
+            logging.debug ( s_contents )
+        elif ( s_type == "info" ):
+            logging.info ( s_contents )
+        else:
+            logging.info ( s_contents )
+        
     def run ( self ):
         while self._keep_running == True:
             zmq_buffer = dict ( self.__zmq_poller.poll ( 5000 ) )
             if self.__zmq_socket_rep in zmq_buffer and zmq_buffer [ self.__zmq_socket_rep ] == zmq.POLLIN:
                 msg = self.__zmq_socket_rep.recv ( )
-                logging.debug ( "%s" % msg.decode("utf-8") )
+                #logging.debug ( "%s" % msg.decode("utf-8") )
+                self.parse ( msg )
                 self.__zmq_socket_rep.send ( b'ACK' )
 
     def close ( self ):

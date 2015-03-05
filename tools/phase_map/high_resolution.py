@@ -5,13 +5,13 @@ from .find_image_center_by_arc_segmentation import find_image_center_by_arc_segm
 from .find_image_center_by_symmetry import find_image_center_by_symmetry
 from .fsr import create_fsr_map
 from .noise import create_noise_array
-from tools.models.parabola import fit_parabolic_model_by_guess, fit_parabolic_model_by_Polynomial2D
+from tools.models.parabola import fit_parabolic_model_by_Polynomial2D
 from .ring_borders import create_ring_borders_map, create_borders_to_center_distances
 from tools.get_pixel_neighbours import get_pixel_neighbours
 from .spectrum import create_continuum_array
 from time import time
 
-class high_resolution_Fabry_Perot_phase_map_creation ( object ):
+class high_resolution ( object ):
     """
     Creates and stores an unwrapped phase map, taking as input a raw data cube.
     Intermediary products are the binary noise, the ring borders, the regions and orders maps.
@@ -37,7 +37,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         - noise_mas_radius : the distance from a noise pixel that will be marked as noise also (size of a circle around each noise pixel).
         - wrapped_phase_map_algorithm : name of the function to be used to compute the wrapped phase map.
         """
-        super ( high_resolution_Fabry_Perot_phase_map_creation, self ).__init__ ( *args, **kwargs )
+        super ( high_resolution, self ).__init__ ( *args, **kwargs )
         self.log = log
 
         if array.ndim != 3:
@@ -62,9 +62,7 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
 
         self.wrapped_phase_map_array = wrapped_phase_map_algorithm ( array = self.filtered_array )
 
-        #self.__iit_center = find_image_center_by_symmetry ( ia_data = self.wrapped_phase_map_array )
         self.__iit_center = find_image_center_by_arc_segmentation ( ffa_unwrapped = self.wrapped_phase_map_array )
-        self.log ( "__iit_center = %s" % str ( self.__iit_center ) )
 
         self.binary_noise_array = create_noise_array ( bad_neighbours_threshold = bad_neighbours_threshold, 
                                                        channel_threshold = channel_threshold, 
@@ -84,11 +82,6 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         self.order_array = self.__ia_fsr.astype ( dtype = numpy.float64 )
 
         self.create_unwrapped_phase_map_array ( )
-
-        #self.__ffa_parabolic_model_guess = fit_parabolic_model_by_guess ( iit_center = self.__iit_center,
-        #                                                                  log = log,
-        #                                                                  ffa_noise = self.binary_noise_array,
-        #                                                                  ffa_unwrapped = self.unwrapped_phase_map )
 
         self.__parabolic_coefficients, self.__ffa_parabolic_model_Polynomial2D = fit_parabolic_model_by_Polynomial2D ( iit_center = self.__iit_center,
                                                                                                                   log = log,
@@ -114,12 +107,6 @@ class high_resolution_Fabry_Perot_phase_map_creation ( object ):
         Returns the continuum array.
         """
         return self.continuum_array
-
-    #def get_parabolic_guess_model ( self ):
-    #    """
-    #    Returns a parabolic model of the data.
-    #    """
-    #    return self.__ffa_parabolic_model_guess
 
     def get_parabolic_Polynomial2D_model ( self ):
         """

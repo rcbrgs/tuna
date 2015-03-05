@@ -10,7 +10,11 @@ class fits ( file_reader ):
     Consists mostly of a wrapper around Astropy's io.fits module.
     """
 
-    def __init__ ( self, file_name = None, log = print, array = None, metadata = [ ] ):
+    def __init__ ( self, 
+                   file_name = None, 
+                   log = print, 
+                   array = None, 
+                   metadata = [ ] ):
         super ( fits, self ).__init__ ( )
         self.log = log
         self.__file_name = file_name
