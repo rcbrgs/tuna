@@ -26,46 +26,62 @@ class image_center_by_arc_segmentation ( object ):
         """
         if ( ( self.__i_center_row is not None ) and
              ( self.__i_center_col is not None ) ):
-            return ( self.__i_center_row, self.__i_center_col ), self.__iia_ring_borders
+            return ( self.__i_center_row, self.__i_center_col )
         else:
             self.find_center ( )
-            return ( self.__i_center_row, self.__i_center_col ), self.__iia_ring_borders
+            return ( self.__i_center_row, self.__i_center_col )
 
     def find_center ( self ):
         """
         Tries to find the center by segmenting arcs and searching for the intersection of rays perpendicular to these segments.
         """
         self.detect_ring_borders ( )
-        t_center = ( 0, 0 )
-        i_intersect_row = -1
-        i_intersect_col = -1
-        i_convergence_tries = 1
 
-        while ( t_center != ( i_intersect_row, i_intersect_col ) ):
+        i_convergence_tries = 1
+        l_bisections = [ ]
+        l_centers = [ ]
+        while ( True ):
             o_chord_bisector_0 = self.get_random_chord_bisector ( )
             o_chord_bisector_1 = self.get_random_chord_bisector ( )
-            self.log ( "o_chord_bisector_0 = %s, slope = %s" % ( str ( o_chord_bisector_0.equation ( ) ), str ( float ( o_chord_bisector_0.slope.evalf ( ) ) ) ) )
-            self.log ( "o_chord_bisector_1 = %s, slope = %s" % ( str ( o_chord_bisector_1.equation ( ) ), str ( float ( o_chord_bisector_1.slope.evalf ( ) ) ) ) )
-            l_lines_to_plot = [ o_chord_bisector_0, o_chord_bisector_1 ]
-            self.plot_lines ( l_lines = l_lines_to_plot, i_color = i_convergence_tries * 10 )
+            while ( sympy.Line.is_parallel ( o_chord_bisector_0, o_chord_bisector_1 ) ):
+                    o_chord_bisector_0 = self.get_random_chord_bisector ( )
+                    o_chord_bisector_1 = self.get_random_chord_bisector ( )
+                    
+            #self.log ( "o_chord_bisector_0 = %s, slope = %s" % ( str ( o_chord_bisector_0.equation ( ) ), str ( float ( o_chord_bisector_0.slope.evalf ( ) ) ) ) )
+            #self.log ( "o_chord_bisector_1 = %s, slope = %s" % ( str ( o_chord_bisector_1.equation ( ) ), str ( float ( o_chord_bisector_1.slope.evalf ( ) ) ) ) )
+            l_bisections.append ( ( o_chord_bisector_0, o_chord_bisector_1, i_convergence_tries * 10 ) )
             ol_intersection = sympy.geometry.intersection ( o_chord_bisector_0, o_chord_bisector_1 )
             if ( len ( ol_intersection ) != 0 ):
                 o_point_center = ol_intersection [ 0 ]
                 i_intersect_row = int ( o_point_center.x.evalf ( ) )
                 i_intersect_col = int ( o_point_center.y.evalf ( ) )
-                self.log ( "o_point_center = %s" % str ( ( i_intersect_row, i_intersect_col ) ) )
-                self.log ( "i_convergence_tries * 10 = %s" % str ( i_convergence_tries * 10 ) )
-                t_center = ( int ( ( t_center [ 0 ] + 2 * i_intersect_row ) / 3 ),
-                             int ( ( t_center [ 1 ] + 2 * i_intersect_col ) / 3 ) )
-                self.log ( "t_center now at %s" % str ( t_center ) )
+                #self.log ( "o_point_center = %s" % str ( ( i_intersect_row, i_intersect_col ) ) )
+                #self.log ( "i_convergence_tries * 10 = %s" % str ( i_convergence_tries * 10 ) )
+                l_centers.append ( ( int ( i_intersect_row ), int ( i_intersect_col ) ) )
+                i_sum_row = 0
+                i_sum_col = 0
+                for i_center in range ( len ( l_centers ) ):
+                    i_sum_row +=  l_centers [ i_center ] [ 0 ]
+                    i_sum_col +=  l_centers [ i_center ] [ 1 ]
+                t_center = ( int ( i_sum_row / len ( l_centers ) ),
+                             int ( i_sum_col / len ( l_centers ) ) )
+                #self.log ( "t_center now at %s" % str ( t_center ) )
             i_convergence_tries += 1
             if ( i_convergence_tries > 10 ):
-                self.log ( "Threshold for convergence reached." )
-                break
+                if ( t_center == ( i_intersect_row, i_intersect_col ) ):
+                    #self.log ( "t_center converged at %s" % str ( t_center ) )
+                    break
+                if ( i_convergence_tries > 1000 ):
+                    self.log ( "Threshold for convergence reached." )
+                    break
+        # plot bisection lines for debug: (very slow)
+        #for i_bisection in range ( len ( l_bisections ) ):
+        #    self.plot_line ( o_line = l_bisections [ i_bisection ] [ 0 ], i_color = l_bisections [ i_bisection ] [ 2 ] )
+        #    self.plot_line ( o_line = l_bisections [ i_bisection ] [ 1 ], i_color = l_bisections [ i_bisection ] [ 2 ] )
 
         self.__i_center_row = t_center [ 0 ]
         self.__i_center_col = t_center [ 1 ]
-        print ( "Center near ( %d, %d )." % ( self.__i_center_row, self.__i_center_col ) )
+        #print ( "Center near ( %d, %d )." % ( self.__i_center_row, self.__i_center_col ) )
 
     def detect_ring_borders ( self ):
         """
@@ -75,40 +91,48 @@ class image_center_by_arc_segmentation ( object ):
         max_rows = self.__ffa_unwrapped.shape[0]
         max_cols = self.__ffa_unwrapped.shape[1]
         max_channel = numpy.amax ( self.__ffa_unwrapped )
-        threshold = max_channel - 1
-        i_next_color = 10
-        d_color_counts = { }
+        f_channel_threshold = max_channel - 1
+
         for i_row in range ( max_rows ):
             for i_col in range ( max_cols ):
                 neighbours = get_pixel_neighbours ( ( i_row, i_col ), ring_borders_map )
-                il_distances = [ ]
-                il_colors = [ ]
+                l_distances = [ ]
                 for neighbour in neighbours:
-                    il_distances.append ( int ( abs ( self.__ffa_unwrapped [ i_row ] [ i_col ] - 
-                                                      self.__ffa_unwrapped [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] ) ) )
-                    il_colors.append ( ring_borders_map [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] )
-                i_max_distance = max ( il_distances )
-                if ( i_max_distance > threshold and
+                    l_distances.append ( int ( abs ( self.__ffa_unwrapped [ i_row ] [ i_col ] - 
+                                                     self.__ffa_unwrapped [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] ) ) )
+                f_max_distance = max ( l_distances )
+                if ( f_max_distance > f_channel_threshold and
                      int ( self.__ffa_unwrapped [ i_row ] [ i_col ] ) == 0 ):
-                    i_color = max ( il_colors )
-                    if ( i_color == 0 ):
-                        i_color = i_next_color
-                        i_next_color += 1
+                    ring_borders_map [ i_row ] [ i_col ] = 1
 
-                    ring_borders_map [ i_row ] [ i_col ] = int ( i_color )
+        # color continuous ring borders with different colors
+        i_next_color = 2
+        for i_row in range ( max_rows ):
+            #self.log ( "i_row = %d" % i_row )
+            for i_col in range ( max_cols ):
+                if ring_borders_map [ i_row ] [ i_col ] == 1:
+                    l_borderhood = [ ( i_row, i_col ) ]
+                    while ( l_borderhood != [ ] ):
+                        #self.log ( "l_borderhood = %s" % str ( l_borderhood ) )
+                        t_tocolor_pixel = l_borderhood.pop ( )
+                        l_neighbours = get_pixel_neighbours ( ( t_tocolor_pixel [ 0 ], t_tocolor_pixel [ 1 ] ), ring_borders_map )
+                        for t_neighbour in l_neighbours:
+                            if t_neighbour not in l_borderhood:
+                                if ring_borders_map [ t_neighbour [ 0 ] ] [ t_neighbour [ 1 ] ] == 1:
+                                    l_borderhood.append ( t_neighbour )
+                        ring_borders_map [ t_tocolor_pixel [ 0 ] ] [ t_tocolor_pixel [ 1 ] ] = i_next_color
+                    i_next_color += 1
+                
+        # how many pixels are colored in each color?
+        d_color_counts = { }
+        for i_row in range ( max_rows ):
+            for i_col in range ( max_cols ):
+                i_color = ring_borders_map [ i_row ] [ i_col ]
+                if i_color > 0:
                     if i_color in d_color_counts.keys ( ):
                         d_color_counts [ i_color ] += 1
                     else:
                         d_color_counts [ i_color ] = 1
-
-                    #neighbours = get_pixel_neighbours ( ( i_row, i_col ), ring_borders_map )
-                    #for neighbour in neighbours:
-                    #    if int ( self.__ffa_unwrapped [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] ) == 0:
-                    #        ring_borders_map [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] = int ( i_color )
-                    #        if i_color in d_color_counts.keys ( ):
-                    #            d_color_counts [ i_color ] += 1
-                    #        else:
-                    #            d_color_counts [ i_color ] = 1
 
         # filter out everything but the largest arc
         i_max_arc_count = max ( d_color_counts.values ( ) )
@@ -116,7 +140,7 @@ class image_center_by_arc_segmentation ( object ):
             if i_count == i_max_arc_count:
                 i_max_arc_color = i_color
                 break
-        self.log ( "i_max_arc_color, i_max_arc_count = %d, %d" % ( i_max_arc_color, i_max_arc_count ) )
+        #self.log ( "i_max_arc_color, i_max_arc_count = %d, %d" % ( i_max_arc_color, i_max_arc_count ) )
         for i_row in range ( max_rows ):
             for i_col in range ( max_cols ):
                 if ring_borders_map [ i_row ] [ i_col ] != i_max_arc_color:
@@ -147,7 +171,7 @@ class image_center_by_arc_segmentation ( object ):
         l_max_distance_points = self.get_most_distant_points ( l_random_points )
         o_point_0 = sympy.Point ( l_max_distance_points [ 0 ] [ 0 ], l_max_distance_points [ 0 ] [ 1 ] )
         o_point_1 = sympy.Point ( l_max_distance_points [ 1 ] [ 0 ], l_max_distance_points [ 1 ] [ 1 ] )
-        self.log ( "o_point_0, o_point_1 = %s, %s" % ( str ( o_point_0 ), str ( o_point_1 ) ) )
+        #self.log ( "o_point_0, o_point_1 = %s, %s" % ( str ( o_point_0 ), str ( o_point_1 ) ) )
         o_chord_segment = sympy.Segment ( o_point_0, o_point_1 )
         return o_chord_segment.perpendicular_bisector ( )
 
@@ -161,25 +185,21 @@ class image_center_by_arc_segmentation ( object ):
             i_random_color = self.__iia_ring_borders [ i_random_row ] [ i_random_col ]
         return ( i_random_row, i_random_col )
 
-    def plot_lines ( self, l_lines, i_color ):
-        max_rows = self.__ffa_unwrapped.shape [ 0 ]
-        max_cols = self.__ffa_unwrapped.shape [ 1 ]
-        d_coefficients = { }
-        for i_line in range ( len ( l_lines ) ):
-            f_coeff_x = l_lines [ i_line ].coefficients [ 0 ].evalf ( )
-            f_coeff_y = l_lines [ i_line ].coefficients [ 1 ].evalf ( )
-            f_coeff_C = l_lines [ i_line ].coefficients [ 2 ].evalf ( )
-            d_coefficients [ i_line ] = ( f_coeff_x, f_coeff_y, f_coeff_C )
+    def plot_line ( self, o_line, i_color ):
+        max_rows = self.__iia_ring_borders.shape [ 0 ]
+        max_cols = self.__iia_ring_borders.shape [ 1 ]
+        f_coeff_x = o_line.coefficients [ 0 ].evalf ( )
+        f_coeff_y = o_line.coefficients [ 1 ].evalf ( )
+        f_coeff_C = o_line.coefficients [ 2 ].evalf ( )
+        d_coefficients = [ f_coeff_x, f_coeff_y, f_coeff_C ]
         for i_row in range ( max_rows ):
             for i_col in range ( max_cols ):
-                for i_line in range ( len ( l_lines ) ): 
-                    f_result = ( ( d_coefficients [ i_line ] [ 0 ] * i_row ) + 
-                                 ( d_coefficients [ i_line ] [ 1 ] * i_col ) + 
-                                 ( d_coefficients [ i_line ] [ 2 ] ) )
-                    if ( abs ( f_result ) < 3 ):
-                        self.__iia_ring_borders [ i_row ] [ i_col ] = i_color
-                        break
-        
+                f_result = ( ( d_coefficients [ 0 ] * i_row ) + 
+                             ( d_coefficients [ 1 ] * i_col ) + 
+                             ( d_coefficients [ 2 ] ) )
+                if ( abs ( f_result ) < 100 ):
+                    self.__iia_ring_borders [ i_row ] [ i_col ] = i_color
+
 def find_image_center_by_arc_segmentation ( ffa_unwrapped = numpy.ndarray ):
     """
     Try to find the center of the rings.
@@ -188,7 +208,7 @@ def find_image_center_by_arc_segmentation ( ffa_unwrapped = numpy.ndarray ):
     print ( "find_image_center_by_arc_segmentation", end='' )
 
     o_finder = image_center_by_arc_segmentation ( ffa_unwrapped = ffa_unwrapped )
-    iit_center, borders = o_finder.get_center ( )
+    iit_center = o_finder.get_center ( )
 
     print ( " %ds." % ( time ( ) - i_start ) )
-    return iit_center, borders.astype ( numpy.float64 )
+    return iit_center
