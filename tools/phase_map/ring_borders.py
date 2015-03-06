@@ -113,23 +113,21 @@ class ring_borders ( object ):
 
 def create_ring_borders_map ( log = print, array = None, iit_center = ( int, int ), noise_array = None ):
     start = time ( )
-    log ( "create_ring_borders_map", end='' )
 
     ring_borders_object = ring_borders ( log = log, array = array, iit_center = iit_center, noise_array = noise_array )
     ring_borders_object.create_map_from_barycenter_array ( )
     ring_borders_object.create_synthetic_borders ( )
 
-    log ( " %ds." % ( time ( ) - start ) )
+    log ( "create_ring_borders_map() took %ds." % ( time ( ) - start ) )
     return ring_borders_object.get_synthetic_borders ( )
 
 def create_borders_to_center_distances ( log = print, array = None, iit_center = ( int, int ), noise_array = None ):
     start = time ( )
-    log ( "create_borders_to_center_distances", end='' )
 
     ring_borders_object = ring_borders ( log = log, array = array, iit_center = iit_center, noise_array = noise_array )
     ring_borders_object.create_map_from_barycenter_array ( )
     result = ring_borders_object.get_borders_to_center_distances ( )
 
-    log ( " %ds." % ( time ( ) - start ) )
+    log ( "info: create_borders_to_center_distances() took %ds." % ( time ( ) - start ) )
     return result
 

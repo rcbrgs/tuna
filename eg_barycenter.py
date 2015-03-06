@@ -67,8 +67,8 @@ def unwrap_phase_map ( ):
                     array       = a_parabolic_model,
                     file_format = 'fits' )    
 
-    t_parabolic_coefficients = o_high_res.get_parabolic_Polynomial2D_coefficients ( )
-    print ( "Parabolic model coefficients = %s" % str ( t_parabolic_coefficients ) )
+    #t_parabolic_coefficients = o_high_res.get_parabolic_Polynomial2D_coefficients ( )
+    #print ( "Parabolic model coefficients = %s" % str ( t_parabolic_coefficients ) )
 
 unwrap_phase_map ( )
 compare_barycenter ( )

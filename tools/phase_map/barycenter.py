@@ -189,15 +189,15 @@ class barycenter ( object ):
         else:
             return channel + 1
 
-def create_barycenter_array ( array = None ):
+def create_barycenter_array ( array = None,
+                              log = print ):
     """
     Create a wrapped phase map using the barycenter of each spectrum as the pixel value.
     """
     i_start = time ( )
-    print ( "create_barycenter_array", end='' )
 
     barycenter_object = barycenter ( array = array )
     fa_barycenter = barycenter_object.create_barycenter_using_peak ( )
 
-    print ( " %ds." % ( time ( ) - i_start ) )
+    log ( "info: create_barycenter_array() took %ds." % ( time ( ) - i_start ) )
     return fa_barycenter

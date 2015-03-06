@@ -10,6 +10,7 @@ from .ring_borders import create_ring_borders_map, create_borders_to_center_dist
 from tools.get_pixel_neighbours import get_pixel_neighbours
 from .spectrum import create_continuum_array
 from time import time
+from zeromq.zmq_client import zmq_client
 
 class high_resolution ( object ):
     """
@@ -21,7 +22,7 @@ class high_resolution ( object ):
                    bad_neighbours_threshold = 7, 
                    il_channel_subset = None,
                    channel_threshold = 1, 
-                   log = print, 
+                   log = None, 
                    noise_mask_radius = 0,
                    wrapped_phase_map_algorithm = None, 
                    *args, 
@@ -38,7 +39,13 @@ class high_resolution ( object ):
         - wrapped_phase_map_algorithm : name of the function to be used to compute the wrapped phase map.
         """
         super ( high_resolution, self ).__init__ ( *args, **kwargs )
-        self.log = log
+        if log == None:
+            o_zmq_client = zmq_client ( )
+            self.log = o_zmq_client.log
+        else:
+            self.log = log
+
+        self.log ( "info: Starting high_resolution pipeline." )
 
         if array.ndim != 3:
             self.log ( "Image does not have 3 dimensions, aborting." )
@@ -54,19 +61,23 @@ class high_resolution ( object ):
         else:
             self.__array = array
 
-        self.continuum_array = create_continuum_array ( array = self.__array )
+        self.continuum_array = create_continuum_array ( array = self.__array, 
+                                                        log = self.log )
 
         self.filtered_array = numpy.ndarray ( shape = self.__array.shape )
         for dep in range ( self.__array.shape[0] ):
             self.filtered_array[dep,:,:] = self.__array[dep,:,:] - self.continuum_array
 
-        self.wrapped_phase_map_array = wrapped_phase_map_algorithm ( array = self.filtered_array )
+        self.wrapped_phase_map_array = wrapped_phase_map_algorithm ( array = self.filtered_array,
+                                                                     log = self.log )
 
-        self.__iit_center = find_image_center_by_arc_segmentation ( ffa_unwrapped = self.wrapped_phase_map_array )
+        self.__iit_center = find_image_center_by_arc_segmentation ( ffa_unwrapped = self.wrapped_phase_map_array,
+                                                                    log = self.log )
 
-        self.binary_noise_array = create_noise_array ( bad_neighbours_threshold = bad_neighbours_threshold, 
+        self.binary_noise_array = create_noise_array ( array = self.wrapped_phase_map_array, 
+                                                       bad_neighbours_threshold = bad_neighbours_threshold, 
                                                        channel_threshold = channel_threshold, 
-                                                       array = self.wrapped_phase_map_array, 
+                                                       log = self.log,
                                                        noise_mask_radius = noise_mask_radius )
 
         self.__fa_borders_to_center_distances = create_borders_to_center_distances ( log = self.log, 
@@ -84,11 +95,38 @@ class high_resolution ( object ):
         self.create_unwrapped_phase_map_array ( )
 
         self.__parabolic_coefficients, self.__ffa_parabolic_model_Polynomial2D = fit_parabolic_model_by_Polynomial2D ( iit_center = self.__iit_center,
-                                                                                                                  log = log,
-                                                                                                                  ffa_noise = self.binary_noise_array,
-                                                                                                                  ffa_unwrapped = self.unwrapped_phase_map )
+                                                                                                                       log = self.log,
+                                                                                                                       ffa_noise = self.binary_noise_array,
+                                                                                                                       ffa_unwrapped = self.unwrapped_phase_map )
 
         self.verify_parabolic_model ( )
+
+    def create_unwrapped_phase_map_array ( self ):
+        """
+        Unwraps the phase map according using the order array constructed.
+        """
+        i_start = time ( )
+
+        max_x = self.wrapped_phase_map_array.shape[0]
+        max_y = self.wrapped_phase_map_array.shape[1]
+        max_channel = numpy.amax ( self.wrapped_phase_map_array )
+        min_channel = numpy.amin ( self.wrapped_phase_map_array )
+        #self.log ( "max_channel = %d" % max_channel )
+        #self.log ( "min_channel = %d" % min_channel )
+
+        self.unwrapped_phase_map = numpy.zeros ( shape = self.wrapped_phase_map_array.shape )
+
+        for x in range ( max_x ):
+            for y in range ( max_y ):
+                self.unwrapped_phase_map[x][y] = self.wrapped_phase_map_array[x][y] + max_channel * float ( self.order_array[x][y] )
+                    
+        max_channel = numpy.amax ( self.unwrapped_phase_map )
+        min_channel = numpy.amin ( self.unwrapped_phase_map )
+        #self.log ( "After unwrapping:" )
+        #self.log ( "max_channel = %d" % max_channel )
+        #self.log ( "min_channel = %d" % min_channel )
+
+        self.log ( "info: create_unwrapped_phase_map_array() took %ds." % ( time ( ) - i_start ) )
 
     def get_array ( self ):
         """
@@ -141,40 +179,12 @@ class high_resolution ( object ):
         """
         return self.order_array
 
-    def create_unwrapped_phase_map_array ( self ):
-        """
-        Unwraps the phase map according using the order array constructed.
-        """
-        i_start = time ( )
-        self.log ( "create_unwrapped_phase_map_array", end='' )
-
-        max_x = self.wrapped_phase_map_array.shape[0]
-        max_y = self.wrapped_phase_map_array.shape[1]
-        max_channel = numpy.amax ( self.wrapped_phase_map_array )
-        min_channel = numpy.amin ( self.wrapped_phase_map_array )
-        #self.log ( "max_channel = %d" % max_channel )
-        #self.log ( "min_channel = %d" % min_channel )
-
-        self.unwrapped_phase_map = numpy.zeros ( shape = self.wrapped_phase_map_array.shape )
-
-        for x in range ( max_x ):
-            for y in range ( max_y ):
-                self.unwrapped_phase_map[x][y] = self.wrapped_phase_map_array[x][y] + max_channel * float ( self.order_array[x][y] )
-                    
-        max_channel = numpy.amax ( self.unwrapped_phase_map )
-        min_channel = numpy.amin ( self.unwrapped_phase_map )
-        #self.log ( "After unwrapping:" )
-        #self.log ( "max_channel = %d" % max_channel )
-        #self.log ( "min_channel = %d" % min_channel )
-
-        self.log ( " %ds." % ( time ( ) - i_start ) )
-
     def get_unwrapped_phase_map_array ( self ):
         return self.unwrapped_phase_map
 
     def verify_parabolic_model ( self ):
-        self.log ( "Ratio between 2nd degree coefficients is: %f" % ( self.__parabolic_coefficients [ 'x2y0' ] / 
-                                                                      self.__parabolic_coefficients [ 'x0y2' ] ) )
+        self.log ( "info: Ratio between 2nd degree coefficients is: %f" % ( self.__parabolic_coefficients [ 'x2y0' ] / 
+                                                                            self.__parabolic_coefficients [ 'x0y2' ] ) )
 
 def create_max_channel_map ( self, array = numpy.ndarray ):
     """

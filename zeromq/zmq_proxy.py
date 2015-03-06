@@ -66,7 +66,7 @@ class zmq_proxy ( ):
 
         self.__lock = False
         self.__zmq_socket_req.connect ( "tcp://127.0.0.1:5000" )
-        self.__zmq_socket_req.send ( b'test: Shutting down tuna zmq proxy.' )
+        self.__zmq_socket_req.send ( b'info: Shutting down zmq_proxy.' )
         answer = self.__zmq_socket_req.recv ( )
         self.check_ACK ( answer )
 

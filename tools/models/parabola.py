@@ -9,7 +9,11 @@ class parabola ( object ):
     """
     Responsible for generating parabolic models and the fitting of models to data.
     """
-    def __init__ ( self, iit_center = ( int, int ), log = print, ffa_noise = numpy.ndarray, ffa_unwrapped = numpy.ndarray ):
+    def __init__ ( self, 
+                   ffa_noise = numpy.ndarray, 
+                   ffa_unwrapped = numpy.ndarray,
+                   iit_center = ( int, int ), 
+                   log = print ):
         super ( parabola, self ).__init__ ( )
         self.__iit_center = iit_center
         self.log = log
@@ -56,11 +60,9 @@ def fit_parabolic_model_by_Polynomial2D ( iit_center = ( int, int ),
     Interface function to fit a parabolic model to a given input.
     """
     start = time ( )
-    log ( "fit_parabolic_model", end = '' )
 
     o_parabola = parabola ( iit_center = iit_center, log = log, ffa_noise = ffa_noise, ffa_unwrapped = ffa_unwrapped )
     o_parabola.create_model_map_by_Polynomial2D ( )
-    #log ( "d_coefficients = %s" % str ( o_parabola.get_coefficients ( ) ) )
 
-    log ( " %ds." % ( time ( ) - start ) )
+    log ( "info: fit_parabolic_model() took %ds." % ( time ( ) - start ) )
     return o_parabola.get_coefficients ( ), o_parabola.get_model_map ( )

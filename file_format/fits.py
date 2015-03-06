@@ -32,14 +32,14 @@ class fits ( file_reader ):
             self.log ( "No file_name for FITS read." )
             self._is_readable = False
 
-        self.log ( "Trying to read file %s as FITS file." % self.__file_name )
+        self.log ( "debug: Trying to read file %s as FITS file." % self.__file_name )
         try:
             with warnings.catch_warnings ( ):
                 warnings.simplefilter ( "ignore" )
                 hdu_list = astrofits.open ( self.__file_name )
-            self.log ( "File %s opened as a FITS file." % self.__file_name )
+            self.log ( "info: File %s opened as a FITS file." % self.__file_name )
             self.__array = hdu_list[0].data
-            self.log ( "Assigned data section of first HDU as the image ndarray." )
+            self.log ( "debug: Assigned data section of first HDU as the image ndarray." )
             metadata = [ ]
             for key in hdu_list[0].header.keys ( ):
                 metadata_dict = { }
@@ -86,8 +86,8 @@ class fits ( file_reader ):
                         try:
                             hdu.header [key] = ( value, comment )
                         except ValueError as error_message:
-                            self.log ( "ValueError: %s." % ( error_message ) )                
-                            self.log ( "key = value, len ( value ) + len ( key ): %s = %s, %d" % ( key, value, len ( value ) + len ( key ) ) )
+                            self.log ( "error: ValueError: %s." % ( error_message ) )                
+                            self.log ( "error: key = value, len ( value ) + len ( key ): %s = %s, %d" % ( key, value, len ( value ) + len ( key ) ) )
                         
             hdu_list = astrofits.HDUList ( [hdu] )
             hdu_list.writeto ( self.__file_name )

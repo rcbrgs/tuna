@@ -1,12 +1,13 @@
 import numpy
 from time import time
 
-def create_continuum_array ( array = numpy.ndarray ):
+def create_continuum_array ( array = numpy.ndarray,
+                             log = print ):
     """
     Returns a 2D numpy ndarray where each pixel has the value of the continuum level of the input 3D array.
     """
     i_start = time ( )
-    print ( "create_continuum_array", end='' )
+    
 
     continuum_array = numpy.ndarray ( shape = ( array.shape[1], array.shape[2] ) )
     for row in range ( array.shape[1] ):
@@ -14,7 +15,7 @@ def create_continuum_array ( array = numpy.ndarray ):
             continuum_array[row][col] = average_of_lowest_channels ( array = array[:,row,col], 
                                                                      number_of_channels = 3 )
 
-    print ( " %ds." % ( time ( ) - i_start ) )
+    log ( "info: create_continuum_array() took %ds." % ( time ( ) - i_start ) )
     return continuum_array
 
 def average_of_lowest_channels ( array = numpy.ndarray, number_of_channels = 3 ):

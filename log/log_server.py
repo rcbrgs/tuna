@@ -22,8 +22,8 @@ class log_server ( object ):
         logging.basicConfig ( filename = log_file_name, 
                               format = s_format, 
                               level = logging.DEBUG )
-        logging.info ( "Tuna logging module started." )
-        logging.debug ( "Logging threshold: logging DEBUG or higher." )
+        logging.debug ( "Tuna (debug): Logging module started." )
+        logging.info  ( "Tuna  (info): Logging threshold: logging DEBUG or higher." )
         # instantiate a REP node 
         self.__zmq_context = zmq.Context ( )
         self.__zmq_socket_rep = self.__zmq_context.socket ( zmq.REP )
@@ -43,24 +43,35 @@ class log_server ( object ):
         s_decoded = s_msg.decode ( "utf-8" )
         l_split = s_decoded.partition ( ": " )
         if len ( l_split [2] ) == 0:
-            s_type = "info"
+            s_type = "?"
             s_contents = l_split [ 0 ]
         else:
             s_type = l_split [ 0 ].lower ( )
             s_contents = l_split [ 2 ]
-        if ( s_type == "debug" ):
-            logging.debug ( s_contents )
+        # logging levels are:
+        # CRITICAL 50
+        # ERROR    40
+        # WARNING  30
+        # INFO     20
+        # DEBUG    10
+        if ( s_type == "debug" ): 
+            logging.debug   ( "Tuna (debug): " + s_contents )
         elif ( s_type == "info" ):
-            logging.info ( s_contents )
+            logging.info    ( "Tuna  (info): " + s_contents )
+        elif ( s_type == "warning" ):
+            logging.warning ( "Tuna  (warn): " + s_contents )
+        elif ( s_type == "error" ):
+            logging.warning ( "Tuna (error): " + s_contents )
+        elif ( s_type == "critical" ):
+            logging.warning ( "Tuna  (crit): " + s_contents )
         else:
-            logging.info ( s_contents )
+            logging.debug   ( "Tuna     (?): " + s_contents )
         
     def run ( self ):
         while self._keep_running == True:
             zmq_buffer = dict ( self.__zmq_poller.poll ( 5000 ) )
             if self.__zmq_socket_rep in zmq_buffer and zmq_buffer [ self.__zmq_socket_rep ] == zmq.POLLIN:
                 msg = self.__zmq_socket_rep.recv ( )
-                #logging.debug ( "%s" % msg.decode("utf-8") )
                 self.parse ( msg )
                 self.__zmq_socket_rep.send ( b'ACK' )
 

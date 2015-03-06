@@ -25,7 +25,6 @@ def create_noise_array ( array = None,
     It defaults to 1.
     """
     i_start = time ( )
-    log ( "create_noise_array", end='' )
 
     noise_map = numpy.zeros ( shape = array.shape, dtype = numpy.int16 )
     max_channel = numpy.amax ( array )
@@ -47,7 +46,7 @@ def create_noise_array ( array = None,
                 include_noise_circle ( position = ( x, y ), radius = noise_mask_radius, array = noise_map )
                 continue
 
-    print ( " %ds" % ( time ( ) - i_start ) )
+    log ( "info: create_noise_array() took %ds" % ( time ( ) - i_start ) )
     return noise_map
 
 def include_noise_circle ( position = ( int, int ), radius = int, array = numpy.array ):

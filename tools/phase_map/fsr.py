@@ -69,7 +69,7 @@ class fsr ( object ):
 
     def estimate_ring_thickness ( self ):
         a_distances = numpy.unique ( self.__a_distances.astype ( numpy.int16 ) )
-        self.log ( "a_distances = %s" % str ( a_distances ) )
+        self.log ( "debug: a_distances = %s" % str ( a_distances ) )
 
         l_distances = [ ]
         l_ranges = [ ]
@@ -88,18 +88,23 @@ class fsr ( object ):
                     l_distances = [ i_this_distance ]
         if l_distances not in l_ranges:
             l_ranges.append ( l_distances )
-        self.log ( "l_ranges = %s" % str ( l_ranges ) )
+        self.log ( "debug: l_ranges = %s" % str ( l_ranges ) )
         l_thicknesses = [ ]
         for l_range in l_ranges:
             l_thicknesses.append ( len ( l_range ) )
         self.log ( "debug: l_thicknesses = %s" % str ( l_thicknesses ) )
         return max ( l_thicknesses )
         
-def create_fsr_map ( fa_distances = numpy.ndarray, iit_center = ( int, int ), log = print, fa_wrapped = numpy.ndarray ):
-    log ( "create_fsr_map", end='' )
+def create_fsr_map ( fa_distances = numpy.ndarray, 
+                     iit_center = ( int, int ), 
+                     log = print, 
+                     fa_wrapped = numpy.ndarray ):
     start = time ( )
     
-    fsr_object = fsr ( fa_distances = fa_distances, iit_center = iit_center, log = log, fa_wrapped = fa_wrapped )
+    fsr_object = fsr ( fa_distances = fa_distances, 
+                       iit_center = iit_center, 
+                       log = log, 
+                       fa_wrapped = fa_wrapped )
 
-    log ( " %ds." % ( time ( ) - start ) )
+    log ( "info: create_fsr_map() took %ds." % ( time ( ) - start ) )
     return fsr_object.create_fsr_map ( )
