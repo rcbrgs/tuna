@@ -180,6 +180,8 @@ class image_center_by_arc_segmentation ( object ):
         o_point_1 = sympy.Point ( l_max_distance_points [ 1 ] [ 0 ], l_max_distance_points [ 1 ] [ 1 ] )
         #self.log ( "debug: o_point_0, o_point_1 = %s, %s" % ( str ( o_point_0 ), str ( o_point_1 ) ) )
         o_chord_segment = sympy.Segment ( o_point_0, o_point_1 )
+        if ( type ( o_chord_segment ) is sympy.Point ):
+            self.log ( "error: Segmentation created a point." )
         return o_chord_segment.perpendicular_bisector ( )
 
     def get_random_point_in_border ( self ):

@@ -11,14 +11,13 @@ tuna_daemons.start ( )
 def compare_barycenter ( ):
     o_barycenter_file      = tuna.io.read ( file_name = '2_wrapped.fits' )
     a_barycenter           = o_barycenter_file.get_array ( )
-    o_barycenter_gold_file = tuna.io.read ( file_name = 'sample_data/cal_bru.ad2' )
+    o_barycenter_gold_file = tuna.io.read ( file_name = 'sample_data/g094_compever_bru.ad2' )
     a_barycenter_gold      = o_barycenter_gold_file.get_array ( )
+
     import numpy
     a_comparison = numpy.ndarray ( shape = a_barycenter.shape )
     for i_row in range ( a_comparison.shape[0] ):
         for i_col in range ( a_comparison.shape[1] ):
-            # If the comparison seem to be "shifted" vertically between gold and result, change following line:
-            #a_comparison [ i_row ] [ i_col ] = ( a_barycenter_gold [ a_comparison.shape[0] - 1 - i_row ] [ i_col ] - 
             a_comparison [ i_row ] [ i_col ] = ( a_barycenter_gold [ i_row ] [ i_col ] - 
                                                  a_barycenter [ i_row ] [ i_col ] )
 
@@ -34,6 +33,7 @@ def unwrap_phase_map ( ):
                                                         channel_threshold = 1, 
                                                         bad_neighbours_threshold = 7, 
                                                         noise_mask_radius = 7 )
+
     a_continuum              = o_high_res.get_continuum_array ( )
     a_wrapped                = o_high_res.get_wrapped_phase_map_array ( )
     a_noise                  = o_high_res.get_binary_noise_array ( )

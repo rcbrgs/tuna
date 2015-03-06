@@ -1,22 +1,6 @@
+from math import floor
 import numpy
 from time import time
-
-def create_continuum_array ( array = numpy.ndarray,
-                             log = print ):
-    """
-    Returns a 2D numpy ndarray where each pixel has the value of the continuum level of the input 3D array.
-    """
-    i_start = time ( )
-    
-
-    continuum_array = numpy.ndarray ( shape = ( array.shape[1], array.shape[2] ) )
-    for row in range ( array.shape[1] ):
-        for col in range ( array.shape[2] ):
-            continuum_array[row][col] = average_of_lowest_channels ( array = array[:,row,col], 
-                                                                     number_of_channels = 3 )
-
-    log ( "info: create_continuum_array() took %ds." % ( time ( ) - i_start ) )
-    return continuum_array
 
 def average_of_lowest_channels ( array = numpy.ndarray, number_of_channels = 3 ):
     """
@@ -36,3 +20,38 @@ def average_of_lowest_channels ( array = numpy.ndarray, number_of_channels = 3 )
         auxiliary = numpy.array ( next_auxiliary )
 
     return minimum_sum / number_of_channels
+
+def create_continuum_array ( array = numpy.ndarray,
+                             log = print ):
+    """
+    Returns a 2D numpy ndarray where each pixel has the value of the continuum level of the input 3D array.
+    """
+    i_start = time ( )
+    
+
+    continuum_array = numpy.ndarray ( shape = ( array.shape[1], array.shape[2] ) )
+    for row in range ( array.shape[1] ):
+        for col in range ( array.shape[2] ):
+            #continuum_array[row][col] = average_of_lowest_channels ( array = array[:,row,col], 
+            continuum_array[row][col] = median_of_lowest_channels ( a_spectrum = array [ :, row, col ], 
+                                                                    i_channels = 3 )
+
+    log ( "info: create_continuum_array() took %ds." % ( time ( ) - i_start ) )
+    return continuum_array
+
+def median_of_lowest_channels ( a_spectrum = numpy.ndarray,
+                                i_channels = 3 ):
+    """
+    Returns the median of the three lowest channels of the input profile.
+    """
+    a_auxiliary = numpy.copy ( a_spectrum )
+    l_lowest = [ ]
+    for i_channel in range ( i_channels ):
+        l_lowest.append ( numpy.amin ( a_auxiliary ) )
+        a_auxiliary = numpy.delete ( a_auxiliary, numpy.argmin ( a_auxiliary ) )
+    l_lowest.sort ( )
+
+    if ( i_channels % 2 == 0 ):
+        return ( l_lowest [ i_channels / 2 ] + l_lowest [ i_channels / 2 - 1 ] ) / 2
+    else:
+        return l_lowest [ floor ( i_channels / 2 ) ]
