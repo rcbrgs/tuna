@@ -14,10 +14,14 @@ def write ( array       = None,
             file_format = None,
             file_name   = None, 
             metadata    = None ):
+    o_zmq_bus = zmq_client ( )
+    log = o_zmq_bus.log
     if ( file_format == 'fits' or
          file_format == 'FITS' ):
         fits_io_object = fits ( file_name = file_name, 
                                 array = array, 
+                                log = log,
                                 metadata = metadata )
         fits_io_object.write ( )
         fits_io_object.write_metadata_table ( )
+        log ( "info: FITS file written at %s." % str ( file_name ) )
