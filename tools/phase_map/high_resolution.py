@@ -48,11 +48,11 @@ class high_resolution ( object ):
         self.log ( "info: Starting high_resolution pipeline." )
 
         if array.ndim != 3:
-            self.log ( "Image does not have 3 dimensions, aborting." )
+            self.log ( "warning: Image does not have 3 dimensions, aborting." )
             return
 
         if il_channel_subset != None:
-            self.log ( "Using a subset of channels: %s" % str ( il_channel_subset ) )
+            self.log ( "info: Using a subset of channels: %s" % str ( il_channel_subset ) )
             f3a_subset = numpy.ndarray ( shape = ( len ( il_channel_subset ), array.shape [ 1 ], array.shape [ 2 ] ) )
             il_sorted_subset = sorted ( il_channel_subset )
             for i_channel in range ( len ( il_sorted_subset ) ):
