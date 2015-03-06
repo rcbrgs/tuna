@@ -72,7 +72,7 @@ class image_center_by_arc_segmentation ( object ):
                     #self.log ( "t_center converged at %s" % str ( t_center ) )
                     break
                 if ( i_convergence_tries > 1000 ):
-                    self.log ( "Threshold for convergence reached." )
+                    self.log ( "warning: Reached threshold for center convergence using chord perpendiculars." )
                     break
         # plot bisection lines for debug: (very slow)
         #for i_bisection in range ( len ( l_bisections ) ):
@@ -104,6 +104,10 @@ class image_center_by_arc_segmentation ( object ):
                 if ( f_max_distance > f_channel_threshold and
                      int ( self.__ffa_unwrapped [ i_row ] [ i_col ] ) == 0 ):
                     ring_borders_map [ i_row ] [ i_col ] = 1
+        if ( numpy.sum ( ring_borders_map ) == 0 ):
+            self.log ( "warning: No borders detected." )
+            self.__iia_ring_borders = numpy.ones ( shape = ring_borders_map.shape )
+            return
 
         # color continuous ring borders with different colors
         i_next_color = 2
@@ -135,18 +139,21 @@ class image_center_by_arc_segmentation ( object ):
                         d_color_counts [ i_color ] = 1
 
         # filter out everything but the largest arc
-        i_max_arc_count = max ( d_color_counts.values ( ) )
-        for i_color, i_count in d_color_counts.items ( ):
-            if i_count == i_max_arc_count:
-                i_max_arc_color = i_color
-                break
-        #self.log ( "i_max_arc_color, i_max_arc_count = %d, %d" % ( i_max_arc_color, i_max_arc_count ) )
-        for i_row in range ( max_rows ):
-            for i_col in range ( max_cols ):
-                if ring_borders_map [ i_row ] [ i_col ] != i_max_arc_color:
-                    ring_borders_map [ i_row ] [ i_col ] = 0
-                else:
-                    ring_borders_map [ i_row ] [ i_col ] = 1
+        if ( d_color_counts == { } ):
+            self.log ( "debug: d_color_counts == { }" )
+        else:
+            i_max_arc_count = max ( d_color_counts.values ( ) )
+            for i_color, i_count in d_color_counts.items ( ):
+                if i_count == i_max_arc_count:
+                    i_max_arc_color = i_color
+                    break
+            #self.log ( "i_max_arc_color, i_max_arc_count = %d, %d" % ( i_max_arc_color, i_max_arc_count ) )
+            for i_row in range ( max_rows ):
+                for i_col in range ( max_cols ):
+                    if ring_borders_map [ i_row ] [ i_col ] != i_max_arc_color:
+                        ring_borders_map [ i_row ] [ i_col ] = 0
+                    else:
+                        ring_borders_map [ i_row ] [ i_col ] = 1
 
         self.__iia_ring_borders = numpy.copy ( ring_borders_map )
 
@@ -171,7 +178,7 @@ class image_center_by_arc_segmentation ( object ):
         l_max_distance_points = self.get_most_distant_points ( l_random_points )
         o_point_0 = sympy.Point ( l_max_distance_points [ 0 ] [ 0 ], l_max_distance_points [ 0 ] [ 1 ] )
         o_point_1 = sympy.Point ( l_max_distance_points [ 1 ] [ 0 ], l_max_distance_points [ 1 ] [ 1 ] )
-        #self.log ( "o_point_0, o_point_1 = %s, %s" % ( str ( o_point_0 ), str ( o_point_1 ) ) )
+        #self.log ( "debug: o_point_0, o_point_1 = %s, %s" % ( str ( o_point_0 ), str ( o_point_1 ) ) )
         o_chord_segment = sympy.Segment ( o_point_0, o_point_1 )
         return o_chord_segment.perpendicular_bisector ( )
 
@@ -207,7 +214,8 @@ def find_image_center_by_arc_segmentation ( ffa_unwrapped = numpy.ndarray,
     """
     i_start = time ( )
 
-    o_finder = image_center_by_arc_segmentation ( ffa_unwrapped = ffa_unwrapped )
+    o_finder = image_center_by_arc_segmentation ( ffa_unwrapped = ffa_unwrapped,
+                                                  log = log )
     iit_center = o_finder.get_center ( )
 
     log ( "info: find_image_center_by_arc_segmentation() took %ds." % ( time ( ) - i_start ) )
