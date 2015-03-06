@@ -50,21 +50,21 @@ class ada ( file_reader ):
             if ( self.__file_name.lower ( ).startswith ( ".adt", -4 ) ):
                 self.read_adt ( )
         else:
-            self.log ( "File name %s does not have .ADT or .adt suffix, aborting." % ( self.__file_name ) )
+            self.log ( "warning: File name %s does not have .ADT or .adt suffix, aborting." % ( self.__file_name ) )
 
     def read_adt ( self ):
         """
         Reads a file as an ADT file.
         """
         self.__file_path = dirname ( self.__file_name )
-        self.log ( "self.__file_path = %s." % ( self.__file_path ) )
+        self.log ( "debug: self.__file_path = %s." % ( self.__file_path ) )
         
         self.read_adt_metadata ( )
 
         adt = open ( self.__file_name, "r" )
                
         number_of_channels = int ( self.get_metadata_parameter ( parameter = 'Number of channels' ) )
-        self.log ( "number_of_channels = %s." % ( number_of_channels ) )
+        self.log ( "debug: number_of_channels = %s." % ( number_of_channels ) )
 
         for line in adt:
             if line.startswith ( "X and Y dimensions : 00512 00512" ):
@@ -72,14 +72,14 @@ class ada ( file_reader ):
                 dimensions = [ int ( dimensions_string.split ( " " )[0] ),
                                int ( dimensions_string.split ( " " )[1] ) ]
                 break
-        self.log ( "dimensions = %s." % ( dimensions ) )
+        self.log ( "debug: dimensions = %s." % ( dimensions ) )
        
         data_files = 0
         adt.seek ( 0 )
         for line in adt:
             if line.startswith ( "==>" ):
                 data_files += 1
-        self.log ( "data_files = %d." % ( data_files ) )
+        self.log ( "debug: data_files = %d." % ( data_files ) )
 
         photon_files = []
         file_list = listdir ( self.__file_path )
@@ -90,7 +90,7 @@ class ada ( file_reader ):
                     photon_files.append ( file_name )
 
         photon_files.sort ( )
-        self.log ( "len ( photon_files ) = %d." % ( len ( photon_files ) ) )
+        self.log ( "debug: len ( photon_files ) = %d." % ( len ( photon_files ) ) )
 
         
         self.__array = numpy.zeros ( shape = ( number_of_channels,
@@ -101,9 +101,9 @@ class ada ( file_reader ):
         for element in range ( len ( photon_files ) ):
             file_name_entry = photon_files[element]
             channel = element % number_of_channels
-            percentage_done = int ( 100 * files_processed / len ( photon_files ) )
+            percentage_done = int ( 10 * files_processed / len ( photon_files ) )
             if last_printed < percentage_done:
-                self.log ( "Adding photon counts into numpy array: %3d" % ( percentage_done ) + '%')
+                self.log ( "info: Adding photon counts into numpy array: %3d" % ( percentage_done * 10 ) + '%')
                 last_printed = percentage_done
 
             file_result = self.read_ada ( file_name = file_name_entry, channel = channel )
