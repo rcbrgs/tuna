@@ -9,11 +9,11 @@ tuna_daemons.start ( )
 
 # User-specific code would go here.
 def compare_barycenter ( ):
-    o_file       = tuna.io.read ( file_name = 'sample_data/g092_wrapped_barycenter.fits' )
+    o_file       = tuna.io.read ( file_name = 'sample_data/g094_adhoc_prb.fits' )
     a_barycenter = o_file.get_array ( )
     a_cube       = tuna.data_cube.cube ( tan_data = a_barycenter )
 
-    o_gold_file         = tuna.io.read ( file_name = 'sample_data/cal_bru.ad2' )
+    o_gold_file         = tuna.io.read ( file_name = 'sample_data/g094_compever_prb.ad2' )
     a_gold              = o_gold_file.get_array ( )
     a_gold_cube         = tuna.data_cube.cube ( tan_data = a_gold )
     a_gold_flipped_cube = tuna.data_cube.flip ( s_axis = 'rows', o_cube = a_gold_cube )
