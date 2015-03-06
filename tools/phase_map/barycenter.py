@@ -69,6 +69,7 @@ class barycenter ( object ):
         # The weighted-by-distance mass value is the profile times the multipliers array;
         # The total mass value is the profile times the shoulder_mask.
         for row in range ( self.cube.max_row ):
+            #self.log ( "debug: row = %d" % row )
             for col in range ( self.cube.max_col ):
                 profile = self.__array[:,row,col]
                 d_shoulder = self.get_fwhh ( profile = profile )
