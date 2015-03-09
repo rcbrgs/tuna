@@ -22,6 +22,7 @@ def average_of_lowest_channels ( array = numpy.ndarray, number_of_channels = 3 )
     return minimum_sum / number_of_channels
 
 def create_continuum_array ( array = numpy.ndarray,
+                             f_continuum_to_FSR_ratio = float,
                              log = print ):
     """
     Returns a 2D numpy ndarray where each pixel has the value of the continuum level of the input 3D array.
@@ -34,17 +35,18 @@ def create_continuum_array ( array = numpy.ndarray,
         for col in range ( array.shape[2] ):
             #continuum_array[row][col] = average_of_lowest_channels ( array = array[:,row,col], 
             continuum_array[row][col] = median_of_lowest_channels ( a_spectrum = array [ :, row, col ], 
-                                                                    i_channels = 3 )
+                                                                    f_continuum_to_FSR_ratio = f_continuum_to_FSR_ratio )
 
     log ( "info: create_continuum_array() took %ds." % ( time ( ) - i_start ) )
     return continuum_array
 
-def median_of_lowest_channels ( a_spectrum = numpy.ndarray,
-                                i_channels = 3 ):
+def median_of_lowest_channels ( f_continuum_to_FSR_ratio = 0.5,
+                                a_spectrum = numpy.ndarray ):
     """
     Returns the median of the three lowest channels of the input profile.
     """
     a_auxiliary = numpy.copy ( a_spectrum )
+    i_channels = int ( f_continuum_to_FSR_ratio * a_spectrum.shape [ 0 ] )
     l_lowest = [ ]
     for i_channel in range ( i_channels ):
         l_lowest.append ( numpy.amin ( a_auxiliary ) )
