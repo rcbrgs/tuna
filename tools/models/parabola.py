@@ -46,6 +46,9 @@ class parabola ( object ):
         #print ( self.__d_coefficients )
         self.__ffa_model = polynomial_fit ( iia_x_dimension, iia_y_dimension )
 
+    def get_center ( self ):
+        return ( numpy.argmin ( self.__ffa_model [ :, 0 ] ), numpy.argmin ( self.__ffa_model [ 0, : ] ) )
+
     def get_coefficients ( self ):
         return self.__d_coefficients
 
@@ -63,6 +66,7 @@ def fit_parabolic_model_by_Polynomial2D ( iit_center = ( int, int ),
 
     o_parabola = parabola ( iit_center = iit_center, log = log, ffa_noise = ffa_noise, ffa_unwrapped = ffa_unwrapped )
     o_parabola.create_model_map_by_Polynomial2D ( )
+    log ( "info: o_parabola.get_center() = %s" % str ( o_parabola.get_center ( ) ) )
 
     log ( "info: fit_parabolic_model() took %ds." % ( time ( ) - start ) )
     return o_parabola.get_coefficients ( ), o_parabola.get_model_map ( )

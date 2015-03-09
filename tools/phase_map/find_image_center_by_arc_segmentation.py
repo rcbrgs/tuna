@@ -81,7 +81,6 @@ class image_center_by_arc_segmentation ( object ):
 
         self.__i_center_row = t_center [ 0 ]
         self.__i_center_col = t_center [ 1 ]
-        #print ( "Center near ( %d, %d )." % ( self.__i_center_row, self.__i_center_col ) )
 
     def detect_ring_borders ( self ):
         """
@@ -219,6 +218,7 @@ def find_image_center_by_arc_segmentation ( ffa_unwrapped = numpy.ndarray,
     o_finder = image_center_by_arc_segmentation ( ffa_unwrapped = ffa_unwrapped,
                                                   log = log )
     iit_center = o_finder.get_center ( )
+    log ( "info: Center detected at %s ." % str ( iit_center ) )
 
     log ( "info: find_image_center_by_arc_segmentation() took %ds." % ( time ( ) - i_start ) )
     return iit_center
