@@ -1,0 +1,8 @@
+Tuna 0.6:
+- Added tool to flip cubes along a dimension.
+- Added tool to calculate difference between two cubes.
+- Added tool to find ring center using arc chord perpendiculars.
+- Renamed some modules to make them simpler and shorter.
+- Parabolic fit now also returns the equation coefficients.
+- Continuum now uses median instead of average.
+- Log messages are now parameterizable in levels (debug, info, warning, error, critical).
