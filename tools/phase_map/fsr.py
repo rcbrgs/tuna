@@ -28,7 +28,7 @@ class fsr ( object ):
         """
         FSR distance array creation method.
         """
-        f_ring_thickness_threshold = self.estimate_ring_thickness ( ) * 2
+        f_ring_thickness_threshold = self.estimate_ring_thickness ( ) * 3
         self.log ( "debug: f_ring_thickness_threshold = %f" % f_ring_thickness_threshold )
         # find how many rings are there
         fl_rings = [ ]
