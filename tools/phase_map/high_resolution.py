@@ -5,6 +5,7 @@ from .find_image_center_by_arc_segmentation import find_image_center_by_arc_segm
 from .find_image_center_by_symmetry import find_image_center_by_symmetry
 from .fsr import create_fsr_map
 from .noise import create_noise_array
+from tools.models.airy     import fit_Airy
 from tools.models.parabola import fit_parabolic_model_by_Polynomial2D
 from .ring_borders import create_ring_borders_map, create_borders_to_center_distances
 from tools.get_pixel_neighbours import get_pixel_neighbours
@@ -102,6 +103,10 @@ class high_resolution ( object ):
 
         self.verify_parabolic_model ( )
 
+        self.__a_airy = fit_Airy ( t_center = self.__iit_center,
+                                   log = self.log,
+                                   a_filtered = self.filtered_array )
+
     def create_unwrapped_phase_map_array ( self ):
         """
         Unwraps the phase map according using the order array constructed.
@@ -128,6 +133,9 @@ class high_resolution ( object ):
         #self.log ( "min_channel = %d" % min_channel )
 
         self.log ( "info: create_unwrapped_phase_map_array() took %ds." % ( time ( ) - i_start ) )
+
+    def get_airy ( self ):
+        return self.__a_airy
 
     def get_array ( self ):
         """
