@@ -28,7 +28,7 @@ class fsr ( object ):
         """
         FSR distance array creation method.
         """
-        f_ring_thickness_threshold = self.estimate_ring_thickness ( ) * 3
+        f_ring_thickness_threshold = self.estimate_ring_thickness ( )
         self.log ( "debug: f_ring_thickness_threshold = %f" % f_ring_thickness_threshold )
         # find how many rings are there
         fl_rings = [ ]
@@ -89,11 +89,16 @@ class fsr ( object ):
         if l_distances not in l_ranges:
             l_ranges.append ( l_distances )
         self.log ( "debug: l_ranges = %s" % str ( l_ranges ) )
-        l_thicknesses = [ ]
-        for l_range in l_ranges:
-            l_thicknesses.append ( len ( l_range ) )
+
+        if l_ranges == [ [ ] ]:
+            return 0
+
+        l_thicknesses = [ l_ranges [ 0 ] [ 0 ] ]
+        for l_range in range ( 1, len ( l_ranges ) ):
+            l_thicknesses.append ( l_ranges [ l_range ] [ 0 ] - l_ranges [ l_range - 1 ] [ -1 ] )
         self.log ( "debug: l_thicknesses = %s" % str ( l_thicknesses ) )
-        return max ( l_thicknesses )
+
+        return int ( min ( l_thicknesses ) * 0.25 )
         
     def estimate_ring_thickness_old ( self ):
         a_distances = numpy.unique ( self.__a_distances.astype ( numpy.int16 ) )
