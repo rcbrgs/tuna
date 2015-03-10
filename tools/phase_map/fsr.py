@@ -95,6 +95,34 @@ class fsr ( object ):
         self.log ( "debug: l_thicknesses = %s" % str ( l_thicknesses ) )
         return max ( l_thicknesses )
         
+    def estimate_ring_thickness_old ( self ):
+        a_distances = numpy.unique ( self.__a_distances.astype ( numpy.int16 ) )
+        self.log ( "debug: a_distances = %s" % str ( a_distances ) )
+
+        l_distances = [ ]
+        l_ranges = [ ]
+        for i_col in range ( a_distances.shape [ 0 ] ):
+            i_this_distance = a_distances [ i_col ]
+            if i_this_distance != 0:
+                if l_distances == [ ]:
+                    l_distances.append ( i_this_distance )
+                    continue
+                i_last_distance = l_distances [ -1 ]
+                if ( i_this_distance == i_last_distance + 1 ):
+                    l_distances.append ( i_this_distance )
+                    continue
+                else:
+                    l_ranges.append ( l_distances )
+                    l_distances = [ i_this_distance ]
+        if l_distances not in l_ranges:
+            l_ranges.append ( l_distances )
+        self.log ( "debug: l_ranges = %s" % str ( l_ranges ) )
+        l_thicknesses = [ ]
+        for l_range in l_ranges:
+            l_thicknesses.append ( len ( l_range ) )
+        self.log ( "debug: l_thicknesses = %s" % str ( l_thicknesses ) )
+        return max ( l_thicknesses )
+        
 def create_fsr_map ( fa_distances = numpy.ndarray, 
                      iit_center = ( int, int ), 
                      log = print, 
