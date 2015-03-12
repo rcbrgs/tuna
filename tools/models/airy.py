@@ -47,7 +47,7 @@ class airy ( object ):
         f_min_distance = 1904
         # task: find the f_max_distance
         #f_max_distance = 1926
-        f_max_distance = 1905
+        f_max_distance = 1904.325
 
         #a_fit = numpy.zeros ( shape = ( 22, self.__a_filtered.shape [ 1 ], self.__a_filtered.shape [ 2 ] ) )
         a_fit = numpy.zeros ( shape = self.__a_filtered.shape )
