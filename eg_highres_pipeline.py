@@ -76,6 +76,21 @@ def unwrap_phase_map ( ):
     #t_parabolic_coefficients = o_high_res.get_parabolic_Polynomial2D_coefficients ( )
     #print ( "Parabolic model coefficients = %s" % str ( t_parabolic_coefficients ) )
 
+def compile_raw_data_from_ADAs ( ):
+    o_file = tuna.io.read ( file_name = 'sample_data/G093/G093.ADT' )
+    a_raw = o_file.get_array ( )
+
+    tuna.io.write ( file_name   = 'raw.fits',
+                    array       = a_raw, 
+                    metadata    = o_file.get_metadata ( ),
+                    file_format = 'fits' )
+
+convert_file ( )
+
+# This call is required to close the daemons gracefully:
+tuna_daemons.finish ( )
+
+
 unwrap_phase_map ( )
 compare_barycenter ( )
 

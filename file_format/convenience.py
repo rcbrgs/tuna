@@ -13,7 +13,8 @@ def read ( file_name = None ):
 def write ( array       = None, 
             file_format = None,
             file_name   = None, 
-            metadata    = None ):
+            metadata    = None,
+            d_photons   = None ):
     o_zmq_bus = zmq_client ( )
     log = o_zmq_bus.log
     if ( file_format == 'fits' or
@@ -21,7 +22,8 @@ def write ( array       = None,
         fits_io_object = fits ( file_name = file_name, 
                                 array = array, 
                                 log = log,
-                                metadata = metadata )
+                                metadata = metadata,
+                                d_photons = d_photons )
         fits_io_object.write ( )
         fits_io_object.write_metadata_table ( )
         log ( "info: FITS file written at %s." % str ( file_name ) )

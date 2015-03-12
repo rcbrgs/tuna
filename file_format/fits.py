@@ -11,10 +11,11 @@ class fits ( file_reader ):
     """
 
     def __init__ ( self, 
+                   array = None, 
                    file_name = None, 
                    log = print, 
-                   array = None, 
-                   metadata = [ ] ):
+                   metadata = [ ],
+                   d_photons = None ):
         super ( fits, self ).__init__ ( )
         self.log = log
         self.__file_name = file_name
@@ -135,3 +136,36 @@ class fits ( file_reader ):
         o_primary_hdu = astrofits.PrimaryHDU ( )
         hdu_list = astrofits.HDUList ( [ o_primary_hdu, fits_table_hdu ] )
         hdu_list.writeto ( "table_" + self.__file_name )
+
+    def write_photons_table ( self ):
+        if self.__d_photons == None:
+            return
+            
+
+        d_columns = { }
+        d_columns [ 'channel' ] = [ [ ], "I2" ]
+        d_columns [ 'x' ]       = [ [ ], "I3" ]
+        d_columns [ 'y' ]       = [ [ ], "I3" ]
+        d_columns [ 'photons' ] = [ [ ], "I10" ]
+
+        for d_entry in self.__d_photons:
+            d_columns [ 'channel' ] [ 0 ] .append ( d_entry [ 'channel' ] )
+            d_columns [ 'x' ]       [ 0 ] .append ( d_entry [ 'x'       ] )
+            d_columns [ 'y' ]       [ 0 ] .append ( d_entry [ 'y'       ] )
+            d_columns [ 'photons' ] [ 0 ] .append ( d_entry [ 'photons' ] )
+
+        
+        fits_columns = [ ]
+        for s_key in d_columns.keys ( ):
+            #self.log ( "Appending column %s." % s_key )
+            fits_columns . append ( astrofits . Column ( name = s_key, 
+                                                         array  = d_columns [ s_key ] [ 0 ], 
+                                                         format = d_columns [ s_key ] [ 1 ] ) )
+
+        fits_columns_definition = astrofits . ColDefs ( fits_columns )
+        # The new_table method will be deprecated, when it is, use the commented line below.
+        fits_table_hdu = astrofits . new_table ( fits_columns_definition )                
+        #fits_table_hdu = astrofits . BinTableHDU . from_columns ( fits_columns_definition )
+        o_primary_hdu = astrofits.PrimaryHDU ( )
+        hdu_list = astrofits.HDUList ( [ o_primary_hdu, fits_table_hdu ] )
+        hdu_list.writeto ( "photons_" + self.__file_name )

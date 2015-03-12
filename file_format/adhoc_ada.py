@@ -23,6 +23,7 @@ class ada ( file_reader ):
         self.__file_name = file_name
         self.__array = array
         self.__metadata = { }
+        self.__d_photons = { }
         self.log = log
 
     def get_array ( self ):
@@ -133,8 +134,20 @@ class ada ( file_reader ):
             x = photon_hits[photon][0]
             y = photon_hits[photon][1]
             self.__array[channel][x][y] += 1                
+            # photons table:
+            s_key = str ( channel ) + ":" + str ( x ) + ":" + str ( y )
+            if s_key not in d_photons.keys ( ):
+                d_photon [ 'channel' ] = channel
+                d_photon [ 'x' ] = x
+                d_photon [ 'y' ] = y
+                d_photon [ 'photons' ] = 1
+                d_photons [ s_key ] = d_photon
+            else:
+                d_photons [ s_key ] [ 'photons' ] += 1
+
         #it seems that the first frame is duplicated
         #it would be nice to be able to display the creation of the image photon by photon
+
 
     def read_adt_metadata ( self ):
         """
