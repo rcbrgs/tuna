@@ -18,11 +18,13 @@ class airy ( object ):
 
     def fit ( self,
               f_beam         = 1., 
-              f_wavelength   = 0.6563, 
               f_finesse      = 15, 
-              f_reflectivity = 0.99, 
               f_focal_length = 0.1, 
-              f_pixel_size   = 9. ):
+              f_min_distance = None,
+              f_max_distance = None,
+              f_pixel_size   = 9.,
+              f_reflectivity = 0.99, 
+              f_wavelength   = 0.6563 ):
         """
         Airy function in order to compute a ring
         Originally written by Benoît Epinat.
@@ -44,10 +46,9 @@ class airy ( object ):
     
         # task: find the f_min_distance that produces the correct number of rings
         # task: find the f_min_distance that has the innermost ring with the same distance as the raw data
-        f_min_distance = 1904
+        #f_min_distance = 1904
         # task: find the f_max_distance
-        #f_max_distance = 1926
-        f_max_distance = 1904.325
+        #f_max_distance = 1904.325
 
         #a_fit = numpy.zeros ( shape = ( 22, self.__a_filtered.shape [ 1 ], self.__a_filtered.shape [ 2 ] ) )
         a_fit = numpy.zeros ( shape = self.__a_filtered.shape )
@@ -86,6 +87,8 @@ class airy ( object ):
         return self.__a_fit
 
 def fit_Airy ( t_center = ( int, int ), 
+               f_max_distance = None,
+               f_min_distance = None,
                log = print, 
                a_filtered = numpy.ndarray ):
     """
@@ -96,7 +99,8 @@ def fit_Airy ( t_center = ( int, int ),
     o_model = airy ( t_center = t_center, 
                      log = log, 
                      a_filtered = a_filtered )
-    o_model.fit ( )
+    o_model.fit ( f_max_distance = f_max_distance,
+                  f_min_distance = f_min_distance )
 
     log ( "info: Airy o_model() took %ds." % ( time ( ) - start ) )
     return o_model.get_fit ( )

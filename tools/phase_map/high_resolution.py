@@ -19,6 +19,8 @@ class high_resolution ( object ):
     Intermediary products are the binary noise, the ring borders, the regions and orders maps.
     """
     def __init__ ( self, 
+                   f_airy_max_distance = None,
+                   f_airy_min_distance = None,
                    array = numpy.ndarray,
                    bad_neighbours_threshold = 7, 
                    il_channel_subset = None,
@@ -103,9 +105,13 @@ class high_resolution ( object ):
 
         self.verify_parabolic_model ( )
 
-        self.__a_airy = fit_Airy ( t_center = self.__iit_center,
-                                   log = self.log,
-                                   a_filtered = self.filtered_array )
+        if ( f_airy_max_distance != None and
+             f_airy_min_distance != None ):
+            self.__a_airy = fit_Airy ( t_center = self.__iit_center,
+                                       f_max_distance = f_airy_max_distance,
+                                       f_min_distance = f_airy_min_distance,
+                                       log = self.log,
+                                       a_filtered = self.filtered_array )
 
     def create_unwrapped_phase_map_array ( self ):
         """
