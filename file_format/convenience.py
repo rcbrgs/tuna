@@ -26,4 +26,5 @@ def write ( array       = None,
                                 d_photons = d_photons )
         fits_io_object.write ( )
         fits_io_object.write_metadata_table ( )
+        fits_io_object.write_photons_table ( )
         log ( "info: FITS file written at %s." % str ( file_name ) )

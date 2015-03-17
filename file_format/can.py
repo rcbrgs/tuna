@@ -13,6 +13,7 @@ class can ( file_reader ):
         self.log = log
         self.__metadata = { }
         self.__array = None
+        self.__d_photons = None
 
     def get_array ( self ):
         return self.__array
@@ -39,6 +40,9 @@ class can ( file_reader ):
                 return entry['value']
         return None
 
+    def get_photons ( self ):
+        return self.__d_photons
+
     def read ( self ):
         if self.__file_name:
             if ( self.__file_name.startswith ( ".ADT", -4 ) or
@@ -48,6 +52,7 @@ class can ( file_reader ):
                 ada_object.read ( )
                 self.__array = ada_object.get_array ( )
                 self.__metadata = ada_object.get_metadata ( )
+                self.__d_photons = ada_object.get_photons ( )
             elif ( self.__file_name.startswith ( ".fits", -5 ) or
                    self.__file_name.startswith ( ".FITS", -5 ) ):
                 fits_object = fits ( file_name = self.__file_name,
@@ -63,4 +68,3 @@ class can ( file_reader ):
                                        log = self.log )
                 adhoc_object.read ( )
                 self.__array = adhoc_object.get_array ( )
-

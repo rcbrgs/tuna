@@ -43,6 +43,9 @@ class ada ( file_reader ):
             if entry['key'] == parameter:
                 return entry['value']
 
+    def get_photons ( self ):
+        return self.__d_photons
+
     def read ( self ):
         """
         Validates input and starts the reading procedure.
@@ -136,15 +139,16 @@ class ada ( file_reader ):
             self.__array[channel][x][y] += 1                
             # photons table:
             s_key = str ( channel ) + ":" + str ( x ) + ":" + str ( y )
-            if s_key not in d_photons.keys ( ):
+            if s_key not in self.__d_photons.keys ( ):
+                d_photon = { }
                 d_photon [ 'channel' ] = channel
-                d_photon [ 'x' ] = x
-                d_photon [ 'y' ] = y
+                d_photon [ 'x'       ] = x
+                d_photon [ 'y'       ] = y
                 d_photon [ 'photons' ] = 1
-                d_photons [ s_key ] = d_photon
+                self.__d_photons [ s_key ] = d_photon
             else:
-                d_photons [ s_key ] [ 'photons' ] += 1
-
+                self.__d_photons [ s_key ] [ 'photons' ] += 1
+                
         #it seems that the first frame is duplicated
         #it would be nice to be able to display the creation of the image photon by photon
 

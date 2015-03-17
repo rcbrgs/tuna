@@ -21,6 +21,7 @@ class fits ( file_reader ):
         self.__file_name = file_name
         self.__array = array
         self.__metadata = metadata
+        self.__d_photons = d_photons
 
     def get_array ( self ):
         return self.__array
@@ -135,24 +136,26 @@ class fits ( file_reader ):
         #fits_table_hdu = astrofits . BinTableHDU . from_columns ( fits_columns_definition )
         o_primary_hdu = astrofits.PrimaryHDU ( )
         hdu_list = astrofits.HDUList ( [ o_primary_hdu, fits_table_hdu ] )
-        hdu_list.writeto ( "table_" + self.__file_name )
+        hdu_list.writeto ( "metadata_" + self.__file_name )
 
     def write_photons_table ( self ):
         if self.__d_photons == None:
             return
-            
 
         d_columns = { }
         d_columns [ 'channel' ] = [ [ ], "I2" ]
         d_columns [ 'x' ]       = [ [ ], "I3" ]
         d_columns [ 'y' ]       = [ [ ], "I3" ]
-        d_columns [ 'photons' ] = [ [ ], "I10" ]
+        d_columns [ 'photons' ] = [ [ ], "I5" ]
 
         for d_entry in self.__d_photons:
-            d_columns [ 'channel' ] [ 0 ] .append ( d_entry [ 'channel' ] )
-            d_columns [ 'x' ]       [ 0 ] .append ( d_entry [ 'x'       ] )
-            d_columns [ 'y' ]       [ 0 ] .append ( d_entry [ 'y'       ] )
-            d_columns [ 'photons' ] [ 0 ] .append ( d_entry [ 'photons' ] )
+            #self.log ( "debug: d_columns = %s" % str ( d_columns ) )
+            #self.log ( "debug: d_columns [ 'channel' ] = %s" % str ( d_columns [ 'channel' ] ) )
+            #self.log ( "debug: d_columns [ 'channel' ] [ 0 ] = %s" % str ( d_columns [ 'channel' ] [ 0 ] ) ) 
+            d_columns [ 'channel' ] [ 0 ] .append ( self.__d_photons [ d_entry ] [ 'channel' ] )
+            d_columns [ 'x' ]       [ 0 ] .append ( self.__d_photons [ d_entry ] [ 'x'       ] )
+            d_columns [ 'y' ]       [ 0 ] .append ( self.__d_photons [ d_entry ] [ 'y'       ] )
+            d_columns [ 'photons' ] [ 0 ] .append ( self.__d_photons [ d_entry ] [ 'photons' ] )
 
         
         fits_columns = [ ]

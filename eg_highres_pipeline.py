@@ -83,14 +83,10 @@ def compile_raw_data_from_ADAs ( ):
     tuna.io.write ( file_name   = 'raw.fits',
                     array       = a_raw, 
                     metadata    = o_file.get_metadata ( ),
-                    file_format = 'fits' )
+                    file_format = 'fits',
+                    d_photons   = o_file.get_photons ( ) )
 
-convert_file ( )
-
-# This call is required to close the daemons gracefully:
-tuna_daemons.finish ( )
-
-
+compile_raw_data_from_ADAs ( )
 unwrap_phase_map ( )
 compare_barycenter ( )
 
