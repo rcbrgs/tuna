@@ -56,11 +56,10 @@ class high_resolution ( object ):
 
         if il_channel_subset != None:
             self.log ( "info: Using a subset of channels: %s" % str ( il_channel_subset ) )
-            f3a_subset = numpy.ndarray ( shape = ( len ( il_channel_subset ), array.shape [ 1 ], array.shape [ 2 ] ) )
-            il_sorted_subset = sorted ( il_channel_subset )
-            for i_channel in range ( len ( il_sorted_subset ) ):
-                f3a_subset [ i_channel ] = array [ il_sorted_subset [ i_channel ] ]
-            self.__array = f3a_subset
+            for i_channel in range ( array.shape [ 0 ] ):
+                if i_channel not in il_channel_subset:
+                    self.__array = self.substitute_channel_by_interpolation ( a_raw = array,
+                                                                              i_channel = i_channel )
         else:
             self.__array = array
 
@@ -196,6 +195,18 @@ class high_resolution ( object ):
 
     def get_unwrapped_phase_map_array ( self ):
         return self.unwrapped_phase_map
+
+    def substitute_channel_by_interpolation ( self, 
+                                              i_channel = int,
+                                              a_raw = numpy.ndarray ):
+        """
+        For each pixel in a cube's slice, substitute the value by the interpolation of the values of the neighbouring slices.
+        """
+        i_deps = a_raw.shape [ 0 ]
+        i_left_channel  = ( i_channel - 1 + i_deps ) % i_deps
+        i_right_channel = ( i_channel + 1 ) % i_deps
+        a_raw [ i_channel ] = ( a_raw [ i_left_channel ] + a_raw [ i_right_channel ] ) / 2
+        return a_raw
 
     def verify_parabolic_model ( self ):
         self.log ( "info: Ratio between 2nd degree coefficients is: %f" % ( self.__parabolic_coefficients [ 'x2y0' ] / 

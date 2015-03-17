@@ -98,7 +98,7 @@ class fsr ( object ):
             l_thicknesses.append ( l_ranges [ l_range ] [ 0 ] - l_ranges [ l_range - 1 ] [ -1 ] )
         self.log ( "debug: l_thicknesses = %s" % str ( l_thicknesses ) )
 
-        return int ( max ( min ( l_thicknesses ) * 0.25, 10 ) )
+        return int ( max ( min ( l_thicknesses ) * 0.25, 20 ) )
         
     def estimate_ring_thickness_old ( self ):
         a_distances = numpy.unique ( self.__a_distances.astype ( numpy.int16 ) )

@@ -15,12 +15,12 @@ def channel_subset ( ):
     o_high_res = tuna.tools.phase_map.high_resolution ( array = a_raw, 
                                                         channel_threshold = 1, 
                                                         bad_neighbours_threshold = 7, 
-                                                        # no channel 21
-                                                        #il_channel_subset = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+                                                        # no channel 20
+                                                        il_channel_subset = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
                                                         # no channels 20 and 21
                                                         #il_channel_subset = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
                                                         # no channels 20, 21 and 22
-                                                        il_channel_subset = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+                                                        #il_channel_subset = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
                                                         noise_mask_radius = 7,
                                                         wrapped_phase_map_algorithm = tuna.tools.phase_map.create_barycenter_array )
 
@@ -59,7 +59,7 @@ def compare_barycenter ( ):
     a_barycenter = o_file.get_array ( )
     a_cube       = tuna.data_cube.cube ( tan_data = a_barycenter )
 
-    o_gold_file         = tuna.io.read ( file_name = 'sample_data/g094_compever_prb.ad2' )
+    o_gold_file         = tuna.io.read ( file_name = 'sample_data/g094_tuna_unwrapped.fits' )
     a_gold              = o_gold_file.get_array ( )
     a_gold_cube         = tuna.data_cube.cube ( tan_data = a_gold )
     a_gold_flipped_cube = tuna.data_cube.flip ( s_axis = 'rows', o_cube = a_gold_cube )
