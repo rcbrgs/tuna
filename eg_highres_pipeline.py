@@ -26,7 +26,7 @@ def compare_barycenter ( ):
                     file_format = 'fits' )
     
 def unwrap_phase_map ( ):
-    o_raw_file = tuna.io.read ( file_name = 'sample_data/G092.AD3' )
+    o_raw_file = tuna.io.read ( file_name = 'sample_data/G094.AD3' )
     a_raw      = o_raw_file.get_array ( )
     o_high_res = tuna.tools.phase_map.high_resolution ( f_airy_max_distance = 1904.325,
                                                         f_airy_min_distance = 1904,
