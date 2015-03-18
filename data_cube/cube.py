@@ -10,21 +10,27 @@ class cube ( object ):
     """
     def __init__ ( self,
                    log = print,
-                   tan_data = None ):
+                   f_calibration_wavelength = None,
+                   f_free_spectral_range = None,
+                   tan_data = None,
+                   f_scanning_wavelength = None ):
         super ( cube, self ).__init__ ( )
+        self.__f_calibration_wavelength = f_calibration_wavelength
+        self.__f_free_spectral_range = f_free_spectral_range
         self.log = log
+        self.__f_scanning_wavelength = f_scanning_wavelength
         if tan_data != None:
             self.__ndim = tan_data.ndim
             if self.__ndim == 3:
                 self.__tan_data = numpy.copy ( tan_data )
-                self.__planes = self.__tan_data.shape [ 0 ]
-                self.__rows   = self.__tan_data.shape [ 1 ]
-                self.__cols   = self.__tan_data.shape [ 2 ]
+                self.__i_planes = self.__tan_data.shape [ 0 ]
+                self.__i_rows   = self.__tan_data.shape [ 1 ]
+                self.__i_cols   = self.__tan_data.shape [ 2 ]
             elif self.__ndim == 2:
                 self.__tan_data = numpy.ndarray ( shape = ( 1, tan_data.shape [ 0 ], tan_data.shape [ 1 ] ) )
-                self.__planes = 1
-                self.__rows   = self.__tan_data.shape [ 1 ]
-                self.__cols   = self.__tan_data.shape [ 2 ]
+                self.__i_planes = 1
+                self.__i_rows   = self.__tan_data.shape [ 1 ]
+                self.__i_cols   = self.__tan_data.shape [ 2 ]
                 for i_row in self.get_rows_range ( ):
                     for i_col in self.get_cols_range ( ):
                         self.__tan_data [ 0 ] [ i_row ] [ i_col ] = tan_data [ i_row ] [ i_col ]
@@ -34,20 +40,41 @@ class cube ( object ):
     def get_array ( self ):
         return self.__tan_data
 
+    def get_calibration_wavelength ( self ):
+        return self.__f_calibration_wavelength
+
     def get_cols ( self ):
-        return self.__cols
+        return self.__i_cols
 
     def get_cols_range ( self ):
-        return range ( self.__cols )
+        return range ( self.__i_cols )
+
+    def get_free_spectral_range ( self ):
+        return self.__f_free_spectral_range
 
     def get_planes ( self ):
-        return self.__planes
+        return self.__i_planes
 
     def get_planes_range ( self ):
-        return range ( self.__planes )
+        return range ( self.__i_planes )
 
     def get_rows ( self ):
-        return self.__rows
+        return self.__i_rows
 
     def get_rows_range ( self ):
-        return range ( self.__rows )
+        return range ( self.__i_rows )
+
+    def get_scanning_wavelength ( self ):
+        return self.__f_scanning_wavelength
+
+    def set_calibration_wavelength ( self, 
+                                     f_calibration_wavelength = None ):
+        self.__f_calibration_wavelength = f_calibration_wavelength
+
+    def set_free_spectral_range ( self,
+                                  f_free_spectral_range = None ):
+        self.__f_free_spectral_range = f_free_spectral_range
+        
+    def set_scanning_wavelength ( self,
+                                  f_wavelength = None ):
+        self.__f_scanning_wavelength = f_wavelength

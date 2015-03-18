@@ -1,3 +1,4 @@
+from data_cube.cube import cube
 from math import floor, sqrt
 import numpy
 from file_format import adhoc, file_reader, fits
@@ -11,6 +12,7 @@ from .ring_borders import create_ring_borders_map, create_borders_to_center_dist
 from tools.get_pixel_neighbours import get_pixel_neighbours
 from .spectrum import create_continuum_array
 from time import time
+from tools.wavelength.wavelength_calibration import wavelength_calibration
 from zeromq.zmq_client import zmq_client
 
 class high_resolution ( object ):
@@ -23,10 +25,13 @@ class high_resolution ( object ):
                    f_airy_min_distance = None,
                    array = numpy.ndarray,
                    bad_neighbours_threshold = 7, 
+                   f_calibration_wavelength = None,
                    il_channel_subset = None,
                    channel_threshold = 1, 
+                   f_free_spectral_range = None,
                    log = None, 
                    noise_mask_radius = 0,
+                   f_scanning_wavelength = None,
                    wrapped_phase_map_algorithm = None, 
                    *args, 
                    **kwargs ):
@@ -53,6 +58,10 @@ class high_resolution ( object ):
         if array.ndim != 3:
             self.log ( "warning: Image does not have 3 dimensions, aborting." )
             return
+
+        self.__f_calibration_wavelength = f_calibration_wavelength
+        self.__f_free_spectral_range = f_free_spectral_range
+        self.__f_scanning_wavelength = f_scanning_wavelength
 
         if il_channel_subset != None:
             self.log ( "info: Using a subset of channels: %s" % str ( il_channel_subset ) )
@@ -112,6 +121,17 @@ class high_resolution ( object ):
                                        log = self.log,
                                        a_filtered = self.filtered_array )
 
+        # Wavelength calibration
+        self.__o_unwrapped = cube ( log = self.log,
+                                    tan_data = self.unwrapped_phase_map,
+                                    f_calibration_wavelength = self.__f_calibration_wavelength,
+                                    f_free_spectral_range = self.__f_free_spectral_range,
+                                    f_scanning_wavelength = self.__f_scanning_wavelength )
+
+        self.__o_wavelength_calibrated = wavelength_calibration ( log = self.log,
+                                                                  i_channel_width = self.__array.shape [ 0 ],
+                                                                  o_unwrapped_phase_map = self.__o_unwrapped )
+
     def create_unwrapped_phase_map_array ( self ):
         """
         Unwraps the phase map according using the order array constructed.
@@ -168,6 +188,9 @@ class high_resolution ( object ):
 
     def get_parabolic_Polynomial2D_coefficients ( self ):
         return self.__parabolic_coefficients
+
+    def get_wavelength_calibrated ( self ):
+        return self.__o_wavelength_calibrated.get_array ( )
 
     def get_wrapped_phase_map_array ( self ):
         """
