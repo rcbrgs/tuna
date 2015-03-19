@@ -21,7 +21,7 @@ def compare_barycenter ( ):
             a_comparison [ i_row ] [ i_col ] = ( a_barycenter_gold [ i_row ] [ i_col ] - 
                                                  a_barycenter [ i_row ] [ i_col ] )
 
-    tuna.io.write ( file_name   = '6_wrapped_residue.fits',
+    tuna.io.write ( file_name   = '2_wrapped_residue.fits',
                     array       = a_comparison,
                     file_format = 'fits' )
     
