@@ -4,14 +4,13 @@
 import tuna
 
 # Start the backend processes, such as the 0MQ proxy and the log server:
-tuna_daemons = tuna.console.backend ( ) 
-tuna_daemons.start ( )
+tuna.init ( )
 
 # User-specific code would go here.
 def compare_ADHOC_computeeverything ( ):
-    o_compever_file = tuna.io.read ( file_name = 'sample_data/g094_compever_bru.ad2' )
+    o_compever_file = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/g094_compever_bru.ad2' )
     a_compever      = o_compever_file.get_array ( )
-    o_ADHOC_file    = tuna.io.read ( file_name = 'sample_data/g094_adhoc_bru.fits' )
+    o_ADHOC_file    = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/g094_adhoc_bru.fits' )
     a_adhoc         = o_ADHOC_file.get_array ( )
 
     import numpy
@@ -26,9 +25,9 @@ def compare_ADHOC_computeeverything ( ):
                     file_format = 'fits' )
 
 def compare_tuna_computeeverything ( ):
-    o_compever_file = tuna.io.read ( file_name = 'sample_data/g094_compever_bru.ad2' )
+    o_compever_file = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/g094_compever_bru.ad2' )
     a_compever      = o_compever_file.get_array ( )
-    o_tuna_file     = tuna.io.read ( file_name = 'sample_data/g094_tuna_wrapped.fits' )
+    o_tuna_file     = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/g094_tuna_wrapped.fits' )
     a_tuna          = o_tuna_file.get_array ( )
 
     import numpy
@@ -43,9 +42,9 @@ def compare_tuna_computeeverything ( ):
                     file_format = 'fits' )
 
 def compare_tuna_ADHOC ( ):
-    o_ADHOC_file = tuna.io.read ( file_name = 'sample_data/g094_adhoc_bru.fits' )
+    o_ADHOC_file = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/g094_adhoc_bru.fits' )
     a_ADHOC      = o_ADHOC_file.get_array ( )
-    o_tuna_file  = tuna.io.read ( file_name = 'sample_data/g094_tuna_wrapped.fits' )
+    o_tuna_file  = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/g094_tuna_wrapped.fits' )
     a_tuna       = o_tuna_file.get_array ( )
 
     import numpy
@@ -64,4 +63,4 @@ compare_tuna_computeeverything ( )
 compare_tuna_ADHOC ( )
 
 # This call is required to close the daemons gracefully:
-tuna_daemons.finish ( )
+tuna.finish ( )
