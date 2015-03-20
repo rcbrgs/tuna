@@ -8,18 +8,20 @@ import numpy
 from time import time
 
 class image_center_by_symmetry ( object ):
-    def __init__ ( self, ia_array = numpy.ndarray ):
+    def __init__ ( self, 
+                   ia_array = numpy.ndarray,
+                   log = print ):
         super ( image_center_by_symmetry, self ).__init__ ( )
         self.__ia_input_array = None
+        self.log = log
         if ia_array.ndim == 2:
             self.__ia_input_array = ia_array
         elif ia_array.ndim == 3:
             self.__ia_input_array = ia_array[0,:,:]
         else:
-            print ( "Incorrect ndims for input array." )
+            self.log ( "Incorrect ndims for input array." )
         self.__i_center_row = None
         self.__i_center_col = None
-        
 
     def get_center ( self ):
         """
@@ -67,15 +69,16 @@ class image_center_by_symmetry ( object ):
 
         #print ( "Center near ( %d, %d )." % ( self.__i_center_row, self.__i_center_col ) )
         
-def find_image_center_by_symmetry ( ia_data = numpy.ndarray ):
+def find_image_center_by_symmetry ( ia_data = numpy.ndarray,
+                                    log = print ):
     """
     Try to find the center of the rings.
     """
     i_start = time ( )
-    print ( "find_image_center_by_symmetry", end='' )
 
-    o_finder = image_center_by_symmetry ( ia_array = ia_data )
+    o_finder = image_center_by_symmetry ( ia_array = ia_data,
+                                          log = log )
     iit_center = o_finder.get_center ( )
 
-    print ( " %ds." % ( time ( ) - i_start ) )
+    log ( "info: find_image_center_by_symmetry() took %ds." % ( time ( ) - i_start ) )
     return iit_center
