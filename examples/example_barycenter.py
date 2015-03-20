@@ -4,14 +4,13 @@
 import tuna
 
 # Start the backend processes, such as the 0MQ proxy and the log server:
-tuna_daemons = tuna.console.backend ( ) 
-tuna_daemons.start ( )
+tuna.init ( )
 
 # User-specific code would go here.
 def compare_barycenter ( ):
     o_barycenter_file      = tuna.io.read ( file_name = '2_wrapped.fits' )
     a_barycenter           = o_barycenter_file.get_array ( )
-    o_barycenter_gold_file = tuna.io.read ( file_name = 'sample_data/g094_compever_bru.ad2' )
+    o_barycenter_gold_file = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/g094_compever_bru.ad2' )
     a_barycenter_gold      = o_barycenter_gold_file.get_array ( )
 
     import numpy
@@ -26,7 +25,7 @@ def compare_barycenter ( ):
                     file_format = 'fits' )
     
 def unwrap_phase_map ( ):
-    o_raw_file = tuna.io.read ( file_name = 'sample_data/G092.AD3' )
+    o_raw_file = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G092.AD3' )
     a_raw      = o_raw_file.get_array ( )
     o_high_res = tuna.tools.phase_map.high_resolution ( array = a_raw,
                                                         wrapped_phase_map_algorithm = tuna.tools.phase_map.create_barycenter_array, 
@@ -74,4 +73,4 @@ unwrap_phase_map ( )
 compare_barycenter ( )
 
 # This call is required to close the daemons gracefully:
-tuna_daemons.finish ( )
+tuna.finish ( )
