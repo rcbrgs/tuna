@@ -1,4 +1,4 @@
-from data_cube.cube import cube
+from tuna.data_cube.cube import cube
 import numpy
 from time import time
 

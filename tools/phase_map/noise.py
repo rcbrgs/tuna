@@ -1,6 +1,6 @@
 from math import ceil, sqrt
 import numpy
-from tools.get_pixel_neighbours import get_pixel_neighbours
+from tuna.tools.get_pixel_neighbours import get_pixel_neighbours
 from time import time
 
 def create_noise_array ( array = None, 

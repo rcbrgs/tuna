@@ -5,7 +5,7 @@ Module fsr is responsible for computing the relative number of FSRs from the axi
 from math import sqrt
 import numpy
 from time import time
-from tools.get_pixel_neighbours import get_pixel_neighbours
+from tuna.tools.get_pixel_neighbours import get_pixel_neighbours
 
 class fsr ( object ):
     """

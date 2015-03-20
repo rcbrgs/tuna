@@ -1,5 +1,5 @@
 import threading
-from ....zeromq import zmq_proxy
+from tuna.zeromq import zmq_proxy
 
 class threaded_bus ( threading.Thread ):
     def __init__ ( self ):

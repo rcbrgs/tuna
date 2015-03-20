@@ -1,7 +1,7 @@
 from math import sqrt
 import numpy
 from time import time
-from tools.get_pixel_neighbours import get_pixel_neighbours
+from tuna.tools.get_pixel_neighbours import get_pixel_neighbours
 
 class ring_borders ( object ):
     def __init__ ( self, array = None, iit_center = ( int, int ), log = print, noise_array = None ):

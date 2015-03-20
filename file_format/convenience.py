@@ -1,6 +1,6 @@
 from .can import can
 from .fits import fits
-from zeromq.zmq_client import zmq_client
+from tuna.zeromq.zmq_client import zmq_client
 
 def read ( file_name = None ):
     o_zmq_bus = zmq_client ( )

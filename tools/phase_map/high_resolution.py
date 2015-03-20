@@ -1,19 +1,19 @@
-from data_cube.cube import cube
+from tuna.data_cube.cube import cube
 from math import floor, sqrt
 import numpy
-from file_format import adhoc, file_reader, fits
+from tuna.file_format import adhoc, file_reader, fits
 from .find_image_center_by_arc_segmentation import find_image_center_by_arc_segmentation
 from .find_image_center_by_symmetry import find_image_center_by_symmetry
 from .fsr import create_fsr_map
 from .noise import create_noise_array
-from tools.models.airy     import fit_Airy
-from tools.models.parabola import fit_parabolic_model_by_Polynomial2D
+from tuna.tools.models.airy     import fit_Airy
+from tuna.tools.models.parabola import fit_parabolic_model_by_Polynomial2D
 from .ring_borders import create_ring_borders_map, create_borders_to_center_distances
-from tools.get_pixel_neighbours import get_pixel_neighbours
+from tuna.tools.get_pixel_neighbours import get_pixel_neighbours
 from .spectrum import create_continuum_array
 from time import time
-from tools.wavelength.wavelength_calibration import wavelength_calibration
-from zeromq.zmq_client import zmq_client
+from tuna.tools.wavelength.wavelength_calibration import wavelength_calibration
+from tuna.zeromq.zmq_client import zmq_client
 
 class high_resolution ( object ):
     """
@@ -55,8 +55,18 @@ class high_resolution ( object ):
 
         self.log ( "info: Starting high_resolution pipeline." )
 
-        if array.ndim != 3:
-            self.log ( "warning: Image does not have 3 dimensions, aborting." )
+        try:
+            array
+        except NameError as e:
+            self.log ( "warning: High resolution pipeline requires a valid numpy.ndarray, aborting." )
+            return
+
+        try:
+            if array.ndim != 3:
+                self.log ( "warning: Image does not have 3 dimensions, aborting." )
+                return
+        except AttributeError as e:
+            self.log ( "warning: %s, aborting." % str ( e ) )
             return
 
         self.__f_calibration_wavelength = f_calibration_wavelength
@@ -122,15 +132,19 @@ class high_resolution ( object ):
                                        a_filtered = self.filtered_array )
 
         # Wavelength calibration
-        self.__o_unwrapped = cube ( log = self.log,
-                                    tan_data = self.unwrapped_phase_map,
-                                    f_calibration_wavelength = self.__f_calibration_wavelength,
-                                    f_free_spectral_range = self.__f_free_spectral_range,
-                                    f_scanning_wavelength = self.__f_scanning_wavelength )
+        try:
+            if self.__f_calibration_wavelength is not None:
+                self.__o_unwrapped = cube ( log = self.log,
+                                            tan_data = self.unwrapped_phase_map,
+                                            f_calibration_wavelength = self.__f_calibration_wavelength,
+                                            f_free_spectral_range = self.__f_free_spectral_range,
+                                            f_scanning_wavelength = self.__f_scanning_wavelength )
 
-        self.__o_wavelength_calibrated = wavelength_calibration ( log = self.log,
-                                                                  i_channel_width = self.__array.shape [ 0 ],
-                                                                  o_unwrapped_phase_map = self.__o_unwrapped )
+                self.__o_wavelength_calibrated = wavelength_calibration ( log = self.log,
+                                                                          i_channel_width = self.__array.shape [ 0 ],
+                                                                          o_unwrapped_phase_map = self.__o_unwrapped )
+        except NameError as e:
+            self.log ( "debug: f_calibration_wavelength == None." )
 
     def create_unwrapped_phase_map_array ( self ):
         """
@@ -168,17 +182,45 @@ class high_resolution ( object ):
         """
         return self.__array
 
+    def get_binary_noise_array ( self ):
+        """
+        Returns the binary noise.
+        """
+        try:
+            return self.binary_noise_array
+        except AttributeError as e:
+            self.log ( "warning: %s, aborting." % str ( e ) )
+            return None
+
     def get_borders_to_center_distances ( self ):
         """
         Returns the array containing the distances from each border pixel to the tuned center of the array.
         """
-        return self.__fa_borders_to_center_distances
+        try:
+            return self.__fa_borders_to_center_distances
+        except AttributeError as e:
+            self.log ( "warning: %s, aborting." % str ( e ) )
+            return None
 
     def get_continuum_array ( self ):
         """
         Returns the continuum array.
         """
-        return self.continuum_array
+        try:
+            return self.continuum_array
+        except AttributeError as e:
+            self.log ( "warning: %s, aborting." % str ( e ) )
+            return None        
+
+    def get_order_array ( self ):
+        """
+        Return the relative FSR map.
+        """
+        try:
+            return self.order_array
+        except AttributeError as e:
+            self.log ( "warning: %s, aborting." % str ( e ) )
+            return None
 
     def get_parabolic_Polynomial2D_model ( self ):
         """
@@ -189,6 +231,13 @@ class high_resolution ( object ):
     def get_parabolic_Polynomial2D_coefficients ( self ):
         return self.__parabolic_coefficients
 
+    def get_unwrapped_phase_map_array ( self ):
+        try: 
+            return self.unwrapped_phase_map
+        except AttributeError as e:
+            self.log ( "warning: %s, aborting." % str ( e ) )
+            return None
+
     def get_wavelength_calibrated ( self ):
         return self.__o_wavelength_calibrated.get_array ( )
 
@@ -196,28 +245,17 @@ class high_resolution ( object ):
         """
         Returns the phase map.
         """
-        return self.wrapped_phase_map_array
-
-    def get_binary_noise_array ( self ):
-        """
-        Returns the binary noise.
-        """
-        return self.binary_noise_array
+        try:
+            return self.wrapped_phase_map_array
+        except AttributeError as e:
+            self.log ( "warning: %s, aborting." % str ( e ) )
+            return None
 
     def get_ring_borders_array ( self ):
         """
         Returns the ring borders.
         """
         return self.ring_borders_array
-
-    def get_order_array ( self ):
-        """
-        Return the relative FSR map.
-        """
-        return self.order_array
-
-    def get_unwrapped_phase_map_array ( self ):
-        return self.unwrapped_phase_map
 
     def substitute_channel_by_interpolation ( self, 
                                               i_channel = int,

@@ -46,9 +46,9 @@ class zmq_proxy ( ):
             print ( u'Received: "%s" from %s.' % answer.decode("utf-8"), msg_destination )
             print ( u"Expected: 'ACK'" )
 
-    def __call_test ( self, msg ):
+    def __call_print ( self, msg ):
         """
-        Test procedure for zmq_proxy.
+        Print received message.
         """
         print ( "zmq_proxy received the message '%s'." % msg )
 
@@ -80,8 +80,9 @@ class zmq_proxy ( ):
         """
 
         destination_call_table = {
+            'info' : self.__call_print,
             'log'  : self.__call_log,
-            'test' : self.__call_test }
+            'test' : self.__call_print, }
 
         while self.__lock == True:
             zmq_buffer = dict ( self.__zmq_poller.poll ( 5000 ) )

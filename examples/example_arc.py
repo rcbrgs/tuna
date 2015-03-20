@@ -4,12 +4,11 @@
 import tuna
 
 # Start the backend processes, such as the 0MQ proxy and the log server:
-tuna_daemons = tuna.console.backend ( ) 
-tuna_daemons.start ( )
+tuna.init ( )
 
 # User-specific code would go here.
 def unwrap_phase_map ( ):
-    o_file = tuna.io.read ( file_name = 'sample_data/g092_second_ring_1_ROI.fits' )
+    o_file = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/g092_second_ring_1_ROI.fits' )
     a_raw = o_file.get_array ( )
     o_high_res = tuna.tools.phase_map.high_resolution ( array = a_raw,
                                                         bad_neighbours_threshold = 7,                                                         
@@ -45,4 +44,4 @@ def unwrap_phase_map ( ):
 unwrap_phase_map ( )
 
 # This call is required to close the daemons gracefully:
-tuna_daemons.finish ( )
+tuna.finish ( )
