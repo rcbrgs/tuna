@@ -4,12 +4,11 @@
 import tuna
 
 # Start the backend processes, such as the 0MQ proxy and the log server:
-tuna_daemons = tuna.console.backend ( ) 
-tuna_daemons.start ( )
+tuna.init ( )
 
 def metadata ( ):
 
-    o_file = tuna.io.read ( file_name = 'sample_data/G093/G093.ADT' )
+    o_file = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G093/G093.ADT' )
     tuna.io.write ( file_name   = 'g093.fits',
 	            array       = o_file.get_array ( ), 
 		    metadata    = o_file.get_metadata ( ),
@@ -20,4 +19,4 @@ def metadata ( ):
 metadata ( )
 
 # This call is required to close the daemons gracefully:
-tuna_daemons.finish ( )
+tuna.finish ( )
