@@ -4,12 +4,11 @@
 import tuna
 
 # Start the backend processes, such as the 0MQ proxy and the log server:
-tuna_daemons = tuna.console.backend ( ) 
-tuna_daemons.start ( )
+tuna.init ( )
 
 # User-specific code would go here.
 def channel_subset ( ):
-    o_file = tuna.io.read ( file_name = 'sample_data/G094.AD3' )
+    o_file = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G094.AD3' )
     a_raw  = o_file.get_array ( )
 
     o_high_res = tuna.tools.phase_map.high_resolution ( array = a_raw, 
@@ -59,7 +58,7 @@ def compare_barycenter ( ):
     a_barycenter = o_file.get_array ( )
     a_cube       = tuna.data_cube.cube ( tan_data = a_barycenter )
 
-    o_gold_file         = tuna.io.read ( file_name = 'sample_data/g094_tuna_unwrapped.fits' )
+    o_gold_file         = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/g094_tuna_unwrapped.fits' )
     a_gold              = o_gold_file.get_array ( )
     a_gold_cube         = tuna.data_cube.cube ( tan_data = a_gold )
     a_gold_flipped_cube = tuna.data_cube.flip ( s_axis = 'rows', o_cube = a_gold_cube )
@@ -80,4 +79,4 @@ channel_subset ( )
 compare_barycenter ( )
 
 # This call is required to close the daemons gracefully:
-tuna_daemons.finish ( )
+tuna.finish ( )
