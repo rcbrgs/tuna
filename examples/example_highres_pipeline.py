@@ -4,14 +4,13 @@
 import tuna
 
 # Start the backend processes, such as the 0MQ proxy and the log server:
-tuna_daemons = tuna.console.backend ( ) 
-tuna_daemons.start ( )
+tuna.init ( )
 
 # User-specific code would go here.
 def compare_barycenter ( ):
     o_barycenter_file      = tuna.io.read ( file_name = '2_wrapped.fits' )
     a_barycenter           = o_barycenter_file.get_array ( )
-    o_barycenter_gold_file = tuna.io.read ( file_name = 'sample_data/g094_compever_bru.ad2' )
+    o_barycenter_gold_file = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/g094_compever_bru.ad2' )
     a_barycenter_gold      = o_barycenter_gold_file.get_array ( )
 
     import numpy
@@ -26,7 +25,7 @@ def compare_barycenter ( ):
                     file_format = 'fits' )
     
 def unwrap_phase_map ( ):
-    o_raw_file = tuna.io.read ( file_name = 'sample_data/G094.AD3' )
+    o_raw_file = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G094.AD3' )
     a_raw      = o_raw_file.get_array ( )
     o_high_res = tuna.tools.phase_map.high_resolution ( f_airy_max_distance = 1904.325,
                                                         f_airy_min_distance = 1904,
@@ -98,7 +97,7 @@ def wavelength_residue ( ):
                     file_format = 'fits' )
     
 def compile_raw_data_from_ADAs ( ):
-    o_file = tuna.io.read ( file_name = 'sample_data/G093/G093.ADT' )
+    o_file = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G093/G093.ADT' )
     a_raw = o_file.get_array ( )
 
     tuna.io.write ( file_name   = 'raw.fits',
@@ -113,4 +112,4 @@ unwrap_phase_map ( )
 wavelength_residue ( )
 
 # This call is required to close the daemons gracefully:
-tuna_daemons.finish ( )
+tuna.finish ( )
