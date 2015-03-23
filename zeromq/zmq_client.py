@@ -3,6 +3,7 @@ Tuna's ZeroMQ client module.
 
 Classes:
 zmq_client -- zmq client that uses (stub) proxy for communication.
+Utilizing the lazy pirate pattern from 0MQ documentation.
 """
 
 import zmq
@@ -17,21 +18,49 @@ class zmq_client ( ):
 
     def __init__ ( self ):
         self.zmq_context = zmq.Context ( )
-        self.zmq_socket_req = self.zmq_context.socket ( zmq.REQ )
-        self.zmq_socket_req.connect ( "tcp://127.0.0.1:5000" )
         
+    def close_socket ( self ):
+        self.zmq_socket_req.setsockopt ( zmq.LINGER, 0 )
+        self.zmq_socket_req.close ( )
+        self.o_poller.unregister ( self.zmq_socket_req )
+
     def log ( self, msg ):
         """
         Sends (byte string) message to log_server through the (stub) proxy.
         """
+        self.open_socket ( )
+        self.register_poller ( )
 
         prefixed_msg = "log: " + msg
+
         self.zmq_socket_req.send_unicode ( prefixed_msg )
-        answer = self.zmq_socket_req.recv ( )
-        if answer.decode("utf-8") != 'ACK':
-            print ( u'Something is fishy!' )
-            print ( u'Received: "%s".' % answer.decode("utf-8") )
-            print ( u"Expected: 'ACK'" )
+        
+        b_unanswered = True
+        while b_unanswered:
+            o_answer = dict ( self.o_poller.poll ( 10 ) )
+            if o_answer.get ( self.zmq_socket_req ) == zmq.POLLIN:
+                answer = self.zmq_socket_req.recv ( )
+                if answer.decode("utf-8") != 'ACK':
+                    print ( u'Something is fishy!' )
+                    print ( u'Received: "%s".' % answer.decode("utf-8") )
+                    print ( u"Expected: 'ACK'" )
+                b_unanswered = False
+            else:
+                self.open_socket ( )
+                self.register_poller ( )
+                self.zmq_socket_req.send_unicode ( prefixed_msg )
+
+        self.close_socket ( )
+
+    def open_socket ( self ):
+        self.zmq_socket_req = self.zmq_context.socket ( zmq.REQ )
+        self.zmq_socket_req.connect ( "tcp://127.0.0.1:5000" )
+
+    def register_poller ( self ):
+        self.o_poller = zmq.Poller ( )
+        self.o_poller.register ( self.zmq_socket_req,
+                                 zmq.POLLIN )
+
 
 def main ( ):
     pass

@@ -10,22 +10,30 @@ from PyQt4.QtGui import QAction, QMainWindow
 import PyQt4.QtCore
 from PyQt4.QtCore import Qt
 import sys
-from zeromq import zmq_client
-from gui import widget_viewer_2d
-from file_format import adhoc, fits
-from tools.phase_map_creation import high_resolution_Fabry_Perot_phase_map_creation
+import threading
+from tuna.zeromq import zmq_client
+from tuna.gui import widget_viewer_2d
+from tuna.file_format import adhoc, fits
+#from tuna.tools.phase_map.high_resolution import high_resolution
 
-class window_2d_viewer ( object ):
-    def __init__ ( self, ndarray_object = numpy.ndarray, log = None ):
+class window_2d_viewer ( threading.Thread ):
+    def __init__ ( self, 
+                   ndarray_object = numpy.ndarray, 
+                   log = print ):
         super ( window_2d_viewer, self ).__init__ ( )
-        if log == None:
-            self.log = print
-        else:
-            self.log = log
+        self.log = log
 
-        app = PyQt4.QtGui.QApplication ( sys.argv )
-        main_widget = window_2d_viewer_gui ( log = log, desktop_widget = app.desktop ( ), ndarray_object = ndarray_object )
-        sys.exit ( app.exec_ ( ) )
+        self.app = PyQt4.QtGui.QApplication ( sys.argv )
+        self.main_widget = window_2d_viewer_gui ( log = log, 
+                                                  desktop_widget = self.app.desktop ( ), 
+                                                  ndarray_object = ndarray_object )
+
+    def run ( self ):
+        sys.exit ( self.app.exec_ ( ) )
+
+    def update ( self,
+                 o_data = numpy.ndarray ):
+        self.main_widget.update_data ( o_data = o_data )
         
 class window_2d_viewer_gui ( QMainWindow ):
     def __init__ ( self, desktop_widget = None, ndarray_object = numpy.ndarray, log = None ):
@@ -41,19 +49,20 @@ class window_2d_viewer_gui ( QMainWindow ):
         self.open_images_list = [ ]
         self.init_gui ( )
 
-        image_viewer = widget_viewer_2d.widget_viewer_2d ( log = self.log )
-        image_viewer.set_image_ndarray ( ndarray_object )
-        image_viewer.select_slice ( 0 )
+        self.image_viewer = widget_viewer_2d.widget_viewer_2d ( log = self.log )
+        self.image_viewer.set_image_ndarray ( ndarray_object )
+        self.image_viewer.select_slice ( 0 )
         file_name = ""
-        image_viewer.set_title ( file_name )
-        image_viewer.display ( )
-        self.addDockWidget ( Qt.LeftDockWidgetArea, image_viewer )
+        self.image_viewer.set_title ( file_name )
+        self.image_viewer.display ( )
+        self.addDockWidget ( Qt.LeftDockWidgetArea, 
+                             self.image_viewer )
 
     def init_gui ( self ):
         """
         Create initial GUI elements and display them.
         """
-        self.log ( 'Creating GUI elements.' )
+        self.log ( 'debug: Creating GUI elements.' )
         # Actions
         action_exit = PyQt4.QtGui.QAction ('&Exit', self )
         action_exit.setShortcut ( 'Ctrl+Q' )
@@ -73,12 +82,12 @@ class window_2d_viewer_gui ( QMainWindow ):
         self.toolbar.addAction ( action_exit )
         self.toolbar.addAction ( action_open_file )
         # Main window
-        self.log ( 'Configuring main window.')
+        self.log ( 'debug: Configuring main window.')
         self.background = PyQt4.QtGui.QLabel ( )
         self.setCentralWidget ( self.background )
         desktop_rect = self.desktop_widget.availableGeometry ( )
-        self.log ( 'Desktop height = ' + str ( desktop_rect.height ( ) ) )
-        self.log ( 'Desktop width  = ' + str ( desktop_rect.width ( ) ) )
+        self.log ( 'debug: Desktop height = ' + str ( desktop_rect.height ( ) ) )
+        self.log ( 'debug: Desktop width  = ' + str ( desktop_rect.width ( ) ) )
         self.setGeometry ( 300, 300, 250,150 )
         self.setWindowTitle ( 'Tuna' )
         self.statusBar ( ).showMessage ( 'Waiting for command.' )
@@ -89,9 +98,9 @@ class window_2d_viewer_gui ( QMainWindow ):
         self.logger ( bytes ( msg, 'utf-8' ) )
 
     def open_file ( self ):
-        self.log ( "Opening getOpenFileName dialog." )
+        self.log ( "debug: Opening getOpenFileName dialog." )
         file_name = PyQt4.QtGui.QFileDialog.getOpenFileName ( self, 'Open file ...', '.', 'All known types (*.fits *.FITS *.ad2 *.AD2 *.ad3 *.AD3);;FITS files (*.fits *.FITS);;ADHOC files (*.ad2 *.AD2 *.ad3 *.AD3)' )
-        self.log ( "File selected: %s." % file_name )
+        self.log ( "info: File selected: %s." % file_name )
 
         fits_file = fits.fits ( file_name = file_name, log = self.log )
         fits_file.read ( )
@@ -103,7 +112,7 @@ class window_2d_viewer_gui ( QMainWindow ):
             if adhoc_file.is_readable ( ):
                 image_ndarray = adhoc_file.get_image_ndarray ( )
             else:
-                self.log ( "Unable to open file %s." % file_name )
+                self.log ( "warning: Unable to open file %s." % file_name )
                 return
 
         image_viewer = widget_viewer_2d.widget_viewer_2d ( log = self.log )
@@ -115,18 +124,18 @@ class window_2d_viewer_gui ( QMainWindow ):
 
     def register_image_widget ( self, cache_key_string ):
         self.open_images_list.append ( cache_key_string )
-        self.log ( "Image opened. Current list of QPixmap.cacheKey's:" )
-        self.log ( str ( self.open_images_list ) )
+        self.log ( "debug: Image opened. Current list of QPixmap.cacheKey's:" )
+        self.log ( "debug: %s" % str ( self.open_images_list ) )
 
     def deregister_image_widget ( self, cache_key_string ):
         self.open_images_list.remove ( cache_key_string )
-        self.log ( "Image opened. Current list of QPixmap.cacheKey's:" )
-        self.log ( str ( self.open_images_list ) )
+        self.log ( "debug: Image opened. Current list of QPixmap.cacheKey's:" )
+        self.log ( "debug: %s" % str ( self.open_images_list ) )
 
     def create_phase_map ( self ):
-        self.log ( "Opening getOpenFileName dialog." )
+        self.log ( "debug: Opening getOpenFileName dialog." )
         file_name = PyQt4.QtGui.QFileDialog.getOpenFileName ( self, 'Open file ...', '.', 'All known types (*.fits *.FITS *.ad2 *.AD2 *.ad3 *.AD3);;FITS files (*.fits *.FITS);;ADHOC files (*.ad2 *.AD2 *.ad3 *.AD3)' )
-        self.log ( "File selected: %s." % file_name )
+        self.log ( "info: File selected: %s." % file_name )
         self.phase_map_tool = high_resolution_Fabry_Perot_phase_map_creation.high_resolution_Fabry_Perot_phase_map_creation ( file_name = file_name, log = self.log )
         self.phase_map = self.phase_map_tool.get_image_ndarray ( )
         #self.image_viewer = widget_viewer_2d.widget_viewer_2d ( log = self.log )
@@ -138,3 +147,7 @@ class window_2d_viewer_gui ( QMainWindow ):
         self.image_viewer.set_title ( file_name )
         self.image_viewer.display ( )
         self.addDockWidget ( Qt.LeftDockWidgetArea, self.image_viewer )
+
+    def update_data ( self,
+                      o_data = numpy.ndarray ):
+        self.image_viewer.set_image_ndarray ( o_data )

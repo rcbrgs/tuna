@@ -109,7 +109,7 @@ def compile_raw_data_from_ADAs ( ):
 #compile_raw_data_from_ADAs ( )
 unwrap_phase_map ( )
 #compare_barycenter ( )
-wavelength_residue ( )
+#wavelength_residue ( )
 
 # This call is required to close the daemons gracefully:
 tuna.finish ( )

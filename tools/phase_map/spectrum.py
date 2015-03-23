@@ -1,3 +1,4 @@
+from tuna.gui.window_2d_viewer import window_2d_viewer
 from math import floor
 import numpy
 from time import time
@@ -23,19 +24,29 @@ def average_of_lowest_channels ( array = numpy.ndarray, number_of_channels = 3 )
 
 def create_continuum_array ( array = numpy.ndarray,
                              f_continuum_to_FSR_ratio = float,
+                             b_display = False,
                              log = print ):
     """
     Returns a 2D numpy ndarray where each pixel has the value of the continuum level of the input 3D array.
     """
     i_start = time ( )
-    
 
-    continuum_array = numpy.ndarray ( shape = ( array.shape[1], array.shape[2] ) )
+    continuum_array = numpy.zeros ( shape = ( array.shape[1], array.shape[2] ) )
+
+    if b_display:
+        o_viewer = window_2d_viewer ( log = log,
+                                      ndarray_object = continuum_array )
+        o_viewer.start ( )
+
     for row in range ( array.shape[1] ):
+        log ( "debug: row %d" % row )
         for col in range ( array.shape[2] ):
+            #print ( "col: %d" % col )
             #continuum_array[row][col] = average_of_lowest_channels ( array = array[:,row,col], 
-            continuum_array[row][col] = median_of_lowest_channels ( a_spectrum = array [ :, row, col ], 
-                                                                    f_continuum_to_FSR_ratio = f_continuum_to_FSR_ratio )
+            continuum_array [ row ] [ col ] = median_of_lowest_channels ( a_spectrum = array [ :, row, col ], 
+                                                                          f_continuum_to_FSR_ratio = f_continuum_to_FSR_ratio )
+            #if b_display:
+            #    o_viewer.update ( o_data = continuum_array )
 
     log ( "info: create_continuum_array() took %ds." % ( time ( ) - i_start ) )
     return continuum_array
