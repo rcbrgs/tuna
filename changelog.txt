@@ -1,3 +1,9 @@
+Tuna 0.7:
+- Channel subset now interpolates values from neighbouring channels.
+- Converting from ADA files now produces a photon table that is written to a FITS table.
+- Airy function can now be fitted manually.
+- Simplified Tuna API.
+
 Tuna 0.6:
 - Added tool to flip cubes along a dimension.
 - Added tool to calculate difference between two cubes.
