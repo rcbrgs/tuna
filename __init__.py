@@ -7,17 +7,16 @@ This program provides access to Tuna's libraries' namespaces.
 
 from .console     import console
 from .data_cube   import data_cube
-#from .file_format import file_format
 from .file_format import file_format as io
-#from gui         import gui
+from .gui         import gui
 from .log         import log
 from .tools       import tools
 from .zeromq      import zeromq
 
-tuna_daemons = console.backend ( )
+class daemons ( object ):
+    def __init__ ( self ):
+        super ( daemons, self ).__init__ ( )
+        self.tuna_daemons = console.backend ( )
+        self.tuna_daemons.start ( )
 
-def init ( ):
-    tuna_daemons.start ( )
-
-def finish ( ):
-    tuna_daemons.finish ( )
+o_daemons = daemons ( )

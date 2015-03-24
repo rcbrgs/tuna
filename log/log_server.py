@@ -75,7 +75,7 @@ class log_server ( object ):
                 self.parse ( msg )
                 self.__zmq_socket_rep.send ( b'ACK' )
 
-    def close ( self ):
+    def __del__ ( self ):
         self._keep_running = False
 
 def main ( ):

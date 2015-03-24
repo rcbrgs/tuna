@@ -63,7 +63,7 @@ class zmq_proxy ( ):
             print ( u'Received: "%s" from %s.' % answer.decode("utf-8"), msg_destination )
             print ( u"Expected: 'ACK'" )
 
-    def close ( self ):
+    def __del__ ( self ):
         """
         Gracefully shutdown this process.
         """
