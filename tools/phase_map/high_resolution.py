@@ -84,6 +84,7 @@ class high_resolution ( object ):
 
         self.continuum_array = create_continuum_array ( array = self.__array, 
                                                         f_continuum_to_FSR_ratio = 0.25,
+                                                        b_display = True,
                                                         log = self.log )
 
         self.filtered_array = numpy.ndarray ( shape = self.__array.shape )

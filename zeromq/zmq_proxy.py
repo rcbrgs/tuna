@@ -19,8 +19,8 @@ class zmq_proxy ( ):
 
     def __init__ ( self ):
         self.__zmq_context = zmq.Context ( )
-        self.__zmq_socket_req = self.__zmq_context.socket ( zmq.REQ )
         self.__zmq_socket_rep = self.__zmq_context.socket ( zmq.REP )
+        #self.__zmq_socket_rep.setsockopt ( zmq.LINGER, 0 )
         try: 
             self.__zmq_socket_rep.bind ( "tcp://127.0.0.1:5000" )
         except zmq.ZMQError as error_message:
@@ -37,14 +37,18 @@ class zmq_proxy ( ):
         """
         Dispatch msg to log server.
         """
-
+        self.__zmq_socket_req = self.__zmq_context.socket ( zmq.REQ )
+        self.__zmq_socket_req.setsockopt ( zmq.LINGER, 0 )
         self.__zmq_socket_req.connect ( "tcp://127.0.0.1:5001" )
+
         self.__zmq_socket_req.send ( msg.encode("utf-8") )
         answer = self.__zmq_socket_req.recv ( ) 
         if answer.decode ( "utf-8" ) != 'ACK':
             print ( u'Something is fishy!' )
             print ( u'Received: "%s" from %s.' % answer.decode("utf-8"), msg_destination )
             print ( u"Expected: 'ACK'" )
+
+        self.__zmq_socket_req.close ( )
 
     def __call_print ( self, msg ):
         """
@@ -65,10 +69,16 @@ class zmq_proxy ( ):
         """
 
         self.__lock = False
+
+        self.__zmq_socket_req = self.__zmq_context.socket ( zmq.REQ )
+        self.__zmq_socket_req.setsockopt ( zmq.LINGER, 0 )
         self.__zmq_socket_req.connect ( "tcp://127.0.0.1:5000" )
+
         self.__zmq_socket_req.send ( b'info: Shutting down zmq_proxy.' )
         answer = self.__zmq_socket_req.recv ( )
         self.check_ACK ( answer )
+
+        self.__zmq_socket_req.close ( )
 
     def run ( self ):
         """
