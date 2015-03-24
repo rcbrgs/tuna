@@ -106,9 +106,9 @@ def compile_raw_data_from_ADAs ( ):
                     file_format = 'fits',
                     d_photons   = o_file.get_photons ( ) )
 
-#compile_raw_data_from_ADAs ( )
+compile_raw_data_from_ADAs ( )
 unwrap_phase_map ( )
-#compare_barycenter ( )
+compare_barycenter ( )
 wavelength_residue ( )
 
 # This call is required to close the daemons gracefully:
