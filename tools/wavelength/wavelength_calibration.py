@@ -26,8 +26,9 @@ class calibration ( object ):
         f_calibration_wavelength = self.__o_unwrapped_phase_map.get_calibration_wavelength ( )
         f_free_spectral_range    = self.__o_unwrapped_phase_map.get_free_spectral_range ( )
         f_scanning_wavelength    = self.__o_unwrapped_phase_map.get_scanning_wavelength ( )
-        f_decalage = self.__i_channel_width * ( 0.5 - ( f_scanning_wavelength - 
-                                                        f_calibration_wavelength ** 2 / ( f_scanning_wavelength * f_free_spectral_range ) ) )
+        #f_decalage = self.__i_channel_width * ( 0.5 - ( f_scanning_wavelength - 
+        #                                                f_calibration_wavelength ** 2 / ( f_scanning_wavelength * f_free_spectral_range ) ) )
+        f_decalage = 0
         self.log ( "info: f_decalage = %f" % f_decalage )
         f_offset = 0
         self.log ( "info: f_offset = %f" % f_offset )
