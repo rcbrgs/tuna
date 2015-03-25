@@ -9,11 +9,17 @@ class calibration ( object ):
     def __init__ ( self,
                    log = print,
                    i_channel_width = None,
+                   i_interference_order = None,
+                   f_interference_reference_wavelength = None,
                    o_unwrapped_phase_map = None ):
         super ( calibration, self ).__init__ ( )
         self.__o_calibrated = None
+        self.__f_calibration_wavelength = o_unwrapped_phase_map.get_calibration_wavelength ( )
         self.__i_channel_width = i_channel_width
+        self.__i_interference_order = i_interference_order
+        self.__f_interference_reference_wavelength = f_interference_reference_wavelength
         self.log = log
+        self.__f_scanning_wavelength = o_unwrapped_phase_map.get_scanning_wavelength ( )
         self.__o_unwrapped_phase_map = o_unwrapped_phase_map
 
     def calibrate ( self ):
@@ -26,9 +32,10 @@ class calibration ( object ):
         f_calibration_wavelength = self.__o_unwrapped_phase_map.get_calibration_wavelength ( )
         f_free_spectral_range    = self.__o_unwrapped_phase_map.get_free_spectral_range ( )
         f_scanning_wavelength    = self.__o_unwrapped_phase_map.get_scanning_wavelength ( )
-        #f_decalage = self.__i_channel_width * ( 0.5 - ( f_scanning_wavelength - 
-        #                                                f_calibration_wavelength ** 2 / ( f_scanning_wavelength * f_free_spectral_range ) ) )
-        f_decalage = 0
+        i_order_calibration = int ( self.__i_interference_order * self.__f_interference_reference_wavelength / self.__f_calibration_wavelength )
+        i_order_scanning = int ( self.__i_interference_order * self.__f_interference_reference_wavelength / self.__f_scanning_wavelength )
+        f_decalage = self.__i_channel_width * ( 0.5 - ( self.__f_scanning_wavelength - 
+                                                        self.__f_calibration_wavelength * ( i_order_calibration / i_order_scanning ) / f_free_spectral_range ) )
         self.log ( "info: f_decalage = %f" % f_decalage )
         f_offset = 0
         self.log ( "info: f_offset = %f" % f_offset )
@@ -46,10 +53,14 @@ class calibration ( object ):
 
 def wavelength_calibration ( log = print,
                              i_channel_width = None,
+                             i_interference_order = None,
+                             f_interference_reference_wavelength = None,
                              o_unwrapped_phase_map = None ):
     i_start = time ( )
     o_calibration_tool = calibration ( log = log,
                                        i_channel_width = i_channel_width,
+                                       i_interference_order = i_interference_order,
+                                       f_interference_reference_wavelength = f_interference_reference_wavelength,
                                        o_unwrapped_phase_map = o_unwrapped_phase_map )
     o_calibration_tool.calibrate ( )
     log ( "info: wavelength_calibration() took %ds." % ( time ( ) - i_start ) )

@@ -8,11 +8,15 @@ import numpy
 class can ( file_reader ):
     def __init__ ( self, 
                    file_name = None,
+                   i_interference_order = None,
+                   f_interference_reference_wavelength = None,
                    log = print ):
         super ( can, self ).__init__ ( )
         self.array = None
         self.o_cube = None
         self.__file_name = file_name
+        self.i_interference_order = i_interference_order
+        self.f_interference_reference_wavelength = f_interference_reference_wavelength
         self.log = log
         self.metadata = { }
 
@@ -24,6 +28,14 @@ class can ( file_reader ):
         o_result.o_cube = self.o_cube + o_can.o_cube
         o_result.array = o_result.o_cube.get_array ( )
 
+        return o_result
+
+    def __sub__ ( self,
+                  o_can ):
+        o_result = can ( log = self.log )
+        o_result.o_cube = self.o_cube - o_can.o_cube
+        o_result.array = o_result.o_cube.get_array ( )
+        
         return o_result
 
     def get_file_name ( self ):

@@ -1,7 +1,10 @@
-#!/bin/env ipython3
+#!/bin/env python3
 
 # Import all modules and classes relevant to a user:
 import tuna
+
+# Start the backend processes, such as the 0MQ proxy and the log server:
+tuna.init ( )
 
 # User-specific code would go here.
 def compare_barycenter ( ):
@@ -21,16 +24,14 @@ def compare_barycenter ( ):
                     array       = a_comparison,
                     file_format = 'fits' )
     
-def produce_phase_map ( file_name = str ):
-    o_raw = tuna.read ( file_name )
-    a_raw = o_raw.array
+def unwrap_phase_map ( ):
+    o_raw_file = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G094.AD3' )
+    a_raw      = o_raw_file.get_array ( )
     o_high_res = tuna.tools.phase_map.high_resolution ( f_airy_max_distance = 1904.325,
                                                         f_airy_min_distance = 1904,
                                                         array = a_raw,
                                                         f_calibration_wavelength = 6598.950,
                                                         f_free_spectral_range = 1,
-                                                        i_interference_order = 798,
-                                                        f_interference_reference_wavelength = 6562.7797852,
                                                         wrapped_phase_map_algorithm = tuna.tools.phase_map.create_barycenter_array, 
                                                         channel_threshold = 1, 
                                                         bad_neighbours_threshold = 7, 
@@ -46,54 +47,54 @@ def produce_phase_map ( file_name = str ):
     a_parabolic_model        = o_high_res.get_parabolic_Polynomial2D_model ( )
     a_airy                   = o_high_res.get_airy ( )
     a_wavelength             = o_high_res.get_wavelength_calibrated ( )
-    print ( a_wavelength.ndim ) 
 
-    tuna.io.write ( file_name   = file_name + '_0_raw.fits',
+    tuna.io.write ( file_name   = '0_raw.fits',
                     array       = a_raw,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_1_continuum.fits',
+    tuna.io.write ( file_name   = '1_continuum.fits',
                     array       = a_continuum,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_2_wrapped.fits',
+    tuna.io.write ( file_name   = '2_wrapped.fits',
                     array       = a_wrapped,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_3_noise.fits',
+    tuna.io.write ( file_name   = '3_noise.fits',
                     array       = a_noise,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_4_distances.fits',
+    tuna.io.write ( file_name   = '4_distances.fits',
                     array       = a_distances,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_5_FSRs.fits',
+    tuna.io.write ( file_name   = '5_FSRs.fits',
                     array       = a_FSRs,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_6_unwrapped.fits',
+    tuna.io.write ( file_name   = '6_unwrapped.fits',
                     array       = a_unwrapped,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_7_parabolic_model.fits',
+    tuna.io.write ( file_name   = '7_parabolic_model.fits',
                     array       = a_parabolic_model,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_8_airy_model.fits',
+    tuna.io.write ( file_name   = '8_airy_model.fits',
                     array       = a_airy,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_9_wavelength_calibrated.fits',
+    tuna.io.write ( file_name   = '9_wavelength_calibrated.fits',
                     array       = a_wavelength,
                     file_format = 'fits' )    
 
-def wavelength_residue ( file_name ):
-    o_wavelength = tuna.read ( file_name + '_9_wavelength_calibrated.fits' )
-    o_unwrapped  = tuna.read ( file_name + '_6_unwrapped.fits' )
-    #a_wavelength = o_wavelength.array
-    #a_unwrapped  = o_unwrapped .array
+    #t_parabolic_coefficients = o_high_res.get_parabolic_Polynomial2D_coefficients ( )
+    #print ( "Parabolic model coefficients = %s" % str ( t_parabolic_coefficients ) )
 
-    #import numpy
-    #a_comparison = numpy.ndarray ( shape = a_unwrapped.shape )
-    print ( o_wavelength.array.ndim )
-    print ( o_unwrapped.array.ndim )
-    o_comparison = o_unwrapped - o_wavelength
+def wavelength_residue ( ):
+    o_wavelength = tuna.io.read ( file_name = '9_wavelength_calibrated.fits' )
+    o_unwrapped  = tuna.io.read ( file_name = '6_unwrapped.fits' )
+    a_wavelength = o_wavelength.get_array ( )
+    a_unwrapped  = o_unwrapped .get_array ( )
 
-    tuna.write ( file_name   = file_name + '_9_wavelength_calibrated_residue.fits',
-                 array       = o_comparison.array,
-                 file_format = 'fits' )
+    import numpy
+    a_comparison = numpy.ndarray ( shape = a_unwrapped.shape )
+    a_comparison = a_unwrapped - a_wavelength
+
+    tuna.io.write ( file_name   = '9_wavelength_calibrated_residue.fits',
+                    array       = a_comparison,
+                    file_format = 'fits' )
     
 def compile_raw_data_from_ADAs ( ):
     o_file = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G093/G093.ADT' )
@@ -105,13 +106,10 @@ def compile_raw_data_from_ADAs ( ):
                     file_format = 'fits',
                     d_photons   = o_file.get_photons ( ) )
 
+compile_raw_data_from_ADAs ( )
+unwrap_phase_map ( )
+compare_barycenter ( )
+wavelength_residue ( )
 
-produce_phase_map ( file_name = "/home/nix/sync/tuna/sample_data/G092.AD3" )
-wavelength_residue ( file_name = "/home/nix/sync/tuna/sample_data/G092.AD3" )
-
-#produce_phase_map ( file_name = "/home/nix/sync/tuna/sample_data/G094.AD3" )
-
-#compile_raw_data_from_ADAs ( )
-#unwrap_phase_map ( )
-#compare_barycenter ( )
-
+# This call is required to close the daemons gracefully:
+tuna.finish ( )

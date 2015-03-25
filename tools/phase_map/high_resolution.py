@@ -29,12 +29,13 @@ class high_resolution ( object ):
                    il_channel_subset = None,
                    channel_threshold = 1, 
                    f_free_spectral_range = None,
+                   i_interference_order = int,
+                   f_interference_reference_wavelength = None,
                    log = None, 
                    noise_mask_radius = 0,
                    f_scanning_wavelength = None,
-                   wrapped_phase_map_algorithm = None, 
-                   *args, 
-                   **kwargs ):
+                   wrapped_phase_map_algorithm = None ):
+
         """
         Creates the phase map from raw data obtained with a Fabry-Perot instrument.
 
@@ -46,7 +47,7 @@ class high_resolution ( object ):
         - noise_mas_radius : the distance from a noise pixel that will be marked as noise also (size of a circle around each noise pixel).
         - wrapped_phase_map_algorithm : name of the function to be used to compute the wrapped phase map.
         """
-        super ( high_resolution, self ).__init__ ( *args, **kwargs )
+        super ( high_resolution, self ).__init__ ( )
         if log == None:
             o_zmq_client = zmq_client ( )
             self.log = o_zmq_client.log
@@ -84,7 +85,7 @@ class high_resolution ( object ):
 
         self.continuum_array = create_continuum_array ( array = self.__array, 
                                                         f_continuum_to_FSR_ratio = 0.25,
-                                                        b_display = True,
+                                                        b_display = False,
                                                         log = self.log )
 
         self.filtered_array = numpy.ndarray ( shape = self.__array.shape )
@@ -133,19 +134,19 @@ class high_resolution ( object ):
                                        a_filtered = self.filtered_array )
 
         # Wavelength calibration
-        try:
-            if self.__f_calibration_wavelength is not None:
-                self.__o_unwrapped = cube ( log = self.log,
-                                            tan_data = self.unwrapped_phase_map,
-                                            f_calibration_wavelength = self.__f_calibration_wavelength,
-                                            f_free_spectral_range = self.__f_free_spectral_range,
-                                            f_scanning_wavelength = self.__f_scanning_wavelength )
-
-                self.__o_wavelength_calibrated = wavelength_calibration ( log = self.log,
-                                                                          i_channel_width = self.__array.shape [ 0 ],
-                                                                          o_unwrapped_phase_map = self.__o_unwrapped )
-        except NameError as e:
-            self.log ( "debug: f_calibration_wavelength == None." )
+        self.log ( "debug: self.__f_calibration_wavelength == %s" % str ( self.__f_calibration_wavelength ) )
+        self.__o_wavelength_calibrated = None
+        self.__o_unwrapped = cube ( log = self.log,
+                                    tan_data = self.unwrapped_phase_map,
+                                    f_calibration_wavelength = self.__f_calibration_wavelength,
+                                    f_free_spectral_range = self.__f_free_spectral_range,
+                                    f_scanning_wavelength = self.__f_scanning_wavelength )
+            
+        self.__o_wavelength_calibrated = wavelength_calibration ( log = self.log,
+                                                                  i_channel_width = self.__array.shape [ 0 ],
+                                                                  i_interference_order = i_interference_order,
+                                                                  f_interference_reference_wavelength = f_interference_reference_wavelength,
+                                                                  o_unwrapped_phase_map = self.__o_unwrapped )
 
     def create_unwrapped_phase_map_array ( self ):
         """
@@ -240,7 +241,12 @@ class high_resolution ( object ):
             return None
 
     def get_wavelength_calibrated ( self ):
-        return self.__o_wavelength_calibrated.get_array ( )
+        #return self.__o_wavelength_calibrated.get_array ( )
+        if self.__o_wavelength_calibrated != None:
+            return self.__o_wavelength_calibrated.get_array ( )
+        else:
+            self.log ( "warning: self.__o_wavelength_calibrated == None." )
+            return None
 
     def get_wrapped_phase_map_array ( self ):
         """

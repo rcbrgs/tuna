@@ -33,13 +33,13 @@ def create_continuum_array ( array = numpy.ndarray,
 
     continuum_array = numpy.zeros ( shape = ( array.shape[1], array.shape[2] ) )
 
-    if b_display:
+    if b_display == True:
         o_viewer = window_2d_viewer ( log = log,
                                       ndarray_object = continuum_array )
         o_viewer.start ( )
 
     for row in range ( array.shape[1] ):
-        log ( "debug: row %d" % row )
+        #log ( "debug: row %d" % row )
         for col in range ( array.shape[2] ):
             #print ( "col: %d" % col )
             #continuum_array[row][col] = average_of_lowest_channels ( array = array[:,row,col], 
