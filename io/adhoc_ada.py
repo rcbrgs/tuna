@@ -38,11 +38,6 @@ class ada ( file_reader ):
         """
         return self.__metadata
 
-    def get_metadata_parameter ( self, parameter = str ):
-        for entry in self.__metadata:
-            if entry['key'] == parameter:
-                return entry['value']
-
     def get_photons ( self ):
         return self.__d_photons
 
@@ -67,7 +62,7 @@ class ada ( file_reader ):
 
         adt = open ( self.__file_name, "r" )
                
-        number_of_channels = int ( self.get_metadata_parameter ( parameter = 'Number of channels' ) )
+        number_of_channels = int ( self.__metadata [ 'Number of channels' ] [ 1 ] )
         self.log ( "debug: number_of_channels = %s." % ( number_of_channels ) )
 
         for line in adt:
@@ -171,34 +166,30 @@ class ada ( file_reader ):
                 break
             adt_notes_lines.append ( line )
 
-        adt_parameters = [ ]
+        adt_parameters = { }
         for line in adt_header_lines:
             pair_regex = re.search ( "=", line )
             if pair_regex != None:
                 pair = line.split ( "=" )
                 key = pair[0].replace ( "\n", "" ).strip ( )
                 value = pair[1].replace ( "\n", "" ).strip ( )
-                adt_parameters_dict = { }
-                adt_parameters_dict['key'] = key.replace ( "\t", " " )
-                adt_parameters_dict['value'] = value
-                adt_parameters_dict['comment'] = ""
-                adt_parameters.append ( adt_parameters_dict )
+                adt_parameters [ key ] = [ key, value, "" ]
             else:
                 adt_parameters_dict = { }
-                adt_parameters_dict['key'] = line.strip ( ).replace ( "\t", " " )
-                adt_parameters_dict['value'] = None
-                adt_parameters_dict['comment'] = ""
-                adt_parameters.append ( adt_parameters_dict )
+                key = line.strip ( ).replace ( "\t", " " )
+                value = ""
+                comment = ""
+                adt_parameters [ key ] = [ key, value, comment ]
 
         adt_notes = ""
         for line in adt_notes_lines:
             adt_notes += line.strip ( ).replace ( "\n", "" )
 
         adt_parameters_dict = { }
-        adt_parameters_dict['key'] = "ADT notes"
-        adt_parameters_dict['value'] = adt_notes
-        adt_parameters_dict['comment'] = ""
-        adt_parameters.append ( adt_parameters_dict )
+        key = "ADT notes"
+        value = adt_notes
+        comment = ""
+        adt_parameters [ key ] = [ key, value, comment ]
 
         cycle_parameters = { }
         adt.seek ( 0 )
@@ -248,42 +239,44 @@ class ada ( file_reader ):
                 cycle = int ( acquisition_cycle.strip ( ) )
                 if cycle in cycle_parameters.keys ( ):
                     old_parameters_dict = cycle_parameters [ cycle ]
+                    #self.log ( "debug: old_parameters_dict == %s" % str ( old_parameters_dict ) )
                     adt_parameters_dict = { }
                     adt_parameters_dict["cycle"]              = cycle
-                    adt_parameters_dict["channel"]            = old_parameters_dict["channel"] + "," + acquisition_channel.strip ( )
-                    adt_parameters_dict["start time"]         = old_parameters_dict["start time"] + "," + acquisition_start_time.strip ( )
-                    adt_parameters_dict["end time"]           = old_parameters_dict["end time"] + "," + acquisition_end_time.strip ( )
-                    adt_parameters_dict["Queensgate value"]   = old_parameters_dict["Queensgate value"] + "," + acquisition_queensgate_value.strip ( )
-                    adt_parameters_dict["photon count"]       = old_parameters_dict["photon count"] + "," + acquisition_photon_count.strip ( )
-                    adt_parameters_dict["fr"]                 = old_parameters_dict["fr"] + "," + acquisition_fr.strip ( )
-                    adt_parameters_dict["cumulated exposure"] = old_parameters_dict["cumulated exposure"] + "," + acquisition_cumulated_exposure.strip ( )
-                    adt_parameters_dict["cumulated photons"]  = old_parameters_dict["cumulated photons"] + "," + acquisition_cumulated_photons.strip ( )
-                    adt_parameters_dict["efficiency"]         = old_parameters_dict["efficiency"] + "," + acquisition_efficiency.strip ( )
-                    adt_parameters_dict["disk usage"]         = old_parameters_dict["disk usage"] + "," + acquisition_disk_usage.strip ( )
-                    adt_parameters_dict["THT"]                = old_parameters_dict["THT"] + "," + acquisition_THT.strip ( )
-                    adt_parameters_dict["shutter"]            = old_parameters_dict["shutter"] + "," + acquisition_shutter.strip ( )
-                    adt_parameters_dict["discri"]             = old_parameters_dict["discri"] + "," + acquisition_discri.strip ( )
-                    adt_parameters_dict["blacklevel"]         = old_parameters_dict["blacklevel"] + "," + acquisition_blacklevel.strip ( )
-                    adt_parameters_dict["whitelevel"]         = old_parameters_dict["whitelevel"] + "," + acquisition_whitelevel.strip ( )
+                    adt_parameters_dict["channel"]            = old_parameters_dict["channel"] + [ acquisition_channel.strip ( ) ]
+                    adt_parameters_dict["start time"]         = old_parameters_dict["start time"] + [ acquisition_start_time.strip ( ) ]
+                    adt_parameters_dict["end time"]           = old_parameters_dict["end time"] + [ acquisition_end_time.strip ( ) ]
+                    adt_parameters_dict["Queensgate value"]   = old_parameters_dict["Queensgate value"] + [ acquisition_queensgate_value.strip ( ) ]
+                    adt_parameters_dict["photon count"]       = old_parameters_dict["photon count"] + [ acquisition_photon_count.strip ( ) ]
+                    adt_parameters_dict["fr"]                 = old_parameters_dict["fr"] + [ acquisition_fr.strip ( ) ]
+                    adt_parameters_dict["cumulated exposure"] = old_parameters_dict["cumulated exposure"] + [ acquisition_cumulated_exposure.strip ( ) ]
+                    adt_parameters_dict["cumulated photons"]  = old_parameters_dict["cumulated photons"] + [ acquisition_cumulated_photons.strip ( ) ]
+                    adt_parameters_dict["efficiency"]         = old_parameters_dict["efficiency"] + [ acquisition_efficiency.strip ( ) ]
+                    adt_parameters_dict["disk usage"]         = old_parameters_dict["disk usage"] + [ acquisition_disk_usage.strip ( ) ]
+                    adt_parameters_dict["THT"]                = old_parameters_dict["THT"] + [ acquisition_THT.strip ( ) ]
+                    adt_parameters_dict["shutter"]            = old_parameters_dict["shutter"] + [ acquisition_shutter.strip ( ) ]
+                    adt_parameters_dict["discri"]             = old_parameters_dict["discri"] + [ acquisition_discri.strip ( ) ]
+                    adt_parameters_dict["blacklevel"]         = old_parameters_dict["blacklevel"] + [ acquisition_blacklevel.strip ( ) ]
+                    adt_parameters_dict["whitelevel"]         = old_parameters_dict["whitelevel"] + [ acquisition_whitelevel.strip ( ) ]
+                    #self.log ( "debug: adt_parameters_dict == %s" % str ( adt_parameters_dict ) )
                     cycle_parameters [ cycle ] = adt_parameters_dict
                 else:
                     adt_parameters_dict = { }
                     adt_parameters_dict["cycle"]              = cycle
-                    adt_parameters_dict["channel"]            = acquisition_channel.strip ( )
-                    adt_parameters_dict["start time"]         = acquisition_start_time.strip ( )
-                    adt_parameters_dict["end time"]           = acquisition_end_time.strip ( )
-                    adt_parameters_dict["Queensgate value"]   = acquisition_queensgate_value.strip ( )
-                    adt_parameters_dict["photon count"]       = acquisition_photon_count.strip ( )
-                    adt_parameters_dict["fr"]                 = acquisition_fr.strip ( )
-                    adt_parameters_dict["cumulated exposure"] = acquisition_cumulated_exposure.strip ( )
-                    adt_parameters_dict["cumulated photons"]  = acquisition_cumulated_photons.strip ( )
-                    adt_parameters_dict["efficiency"]         = acquisition_efficiency.strip ( )
-                    adt_parameters_dict["disk usage"]         = acquisition_disk_usage.strip ( )
-                    adt_parameters_dict["THT"]                = acquisition_THT.strip ( )
-                    adt_parameters_dict["shutter"]            = acquisition_shutter.strip ( )
-                    adt_parameters_dict["discri"]             = acquisition_discri.strip ( )
-                    adt_parameters_dict["blacklevel"]         = acquisition_blacklevel.strip ( )
-                    adt_parameters_dict["whitelevel"]         = acquisition_whitelevel.strip ( )
+                    adt_parameters_dict["channel"]            = [ acquisition_channel.strip ( ) ]
+                    adt_parameters_dict["start time"]         = [ acquisition_start_time.strip ( ) ]
+                    adt_parameters_dict["end time"]           = [ acquisition_end_time.strip ( ) ]
+                    adt_parameters_dict["Queensgate value"]   = [ acquisition_queensgate_value.strip ( ) ]
+                    adt_parameters_dict["photon count"]       = [ acquisition_photon_count.strip ( ) ]
+                    adt_parameters_dict["fr"]                 = [ acquisition_fr.strip ( ) ]
+                    adt_parameters_dict["cumulated exposure"] = [ acquisition_cumulated_exposure.strip ( ) ]
+                    adt_parameters_dict["cumulated photons"]  = [ acquisition_cumulated_photons.strip ( ) ]
+                    adt_parameters_dict["efficiency"]         = [ acquisition_efficiency.strip ( ) ]
+                    adt_parameters_dict["disk usage"]         = [ acquisition_disk_usage.strip ( ) ]
+                    adt_parameters_dict["THT"]                = [ acquisition_THT.strip ( ) ]
+                    adt_parameters_dict["shutter"]            = [ acquisition_shutter.strip ( ) ]
+                    adt_parameters_dict["discri"]             = [ acquisition_discri.strip ( ) ]
+                    adt_parameters_dict["blacklevel"]         = [ acquisition_blacklevel.strip ( ) ]
+                    adt_parameters_dict["whitelevel"]         = [ acquisition_whitelevel.strip ( ) ]
                     cycle_parameters[cycle] = adt_parameters_dict
 
         parameters = [ "channel",
@@ -303,15 +296,13 @@ class ada ( file_reader ):
                        "whitelevel" ]
 
         for parameter in parameters:
-            parameter_ordered_list = ""
+            parameter_ordered_list = [ ]
             for cycle in cycle_parameters.keys ( ):
-                if parameter_ordered_list != "":
-                    parameter_ordered_list += ","
-                parameter_ordered_list += cycle_parameters[cycle][parameter]
+                #if parameter_ordered_list != "":
+                #    parameter_ordered_list += ","
+                parameter_ordered_list += cycle_parameters [ cycle ] [ parameter ]
             adt_parameters_dict = { }
-            adt_parameters_dict['key'] = parameter
-            adt_parameters_dict['value'] = parameter_ordered_list
-            adt_parameters_dict['comment'] = ""
-            adt_parameters.append ( adt_parameters_dict )
+            l_elements = [ parameter, parameter_ordered_list, "" ]
+            adt_parameters [ parameter ] = l_elements
 
         self.__metadata = adt_parameters
