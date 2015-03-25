@@ -14,7 +14,7 @@ import astropy.io.fits
 
 from zeromq import zmq_client
 from gui import widget_viewer_2d, widget_viewer_3d
-from file_format import adhoc, fits
+from tuna.io import adhoc, fits
 from tools.phase_map_creation import high_resolution_Fabry_Perot_phase_map_creation
 
 class simple_gui ( QMainWindow ):

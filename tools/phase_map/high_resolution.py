@@ -1,7 +1,7 @@
 from tuna.data_cube.cube import cube
 from math import floor, sqrt
 import numpy
-from tuna.file_format import adhoc, file_reader, fits
+from tuna.io import adhoc, file_reader, fits
 from .find_image_center_by_arc_segmentation import find_image_center_by_arc_segmentation
 from .find_image_center_by_symmetry import find_image_center_by_symmetry
 from .fsr import create_fsr_map
