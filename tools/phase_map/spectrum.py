@@ -51,7 +51,7 @@ def create_continuum_array ( array = numpy.ndarray,
     log ( "info: create_continuum_array() took %ds." % ( time ( ) - i_start ) )
     return continuum_array
 
-def median_of_lowest_channels ( f_continuum_to_FSR_ratio = 0.5,
+def median_of_lowest_channels ( f_continuum_to_FSR_ratio = 0.25,
                                 a_spectrum = numpy.ndarray ):
     """
     Returns the median of the three lowest channels of the input profile.
@@ -65,6 +65,6 @@ def median_of_lowest_channels ( f_continuum_to_FSR_ratio = 0.5,
     l_lowest.sort ( )
 
     if ( i_channels % 2 == 0 ):
-        return ( l_lowest [ i_channels / 2 ] + l_lowest [ i_channels / 2 - 1 ] ) / 2
+        return ( l_lowest [ int ( i_channels / 2 ) ] + l_lowest [ int ( i_channels / 2 ) - 1 ] ) / 2
     else:
         return l_lowest [ floor ( i_channels / 2 ) ]
