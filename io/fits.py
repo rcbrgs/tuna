@@ -42,6 +42,7 @@ class fits ( file_reader ):
             self.log ( "info: File %s opened as a FITS file." % self.__file_name )
             self.__array = hdu_list[0].data
             self.log ( "debug: Assigned data section of first HDU as the image ndarray." )
+            self.log ( "debug: self.__array.ndim == %d" % self.__array.ndim )
             metadata = [ ]
             for key in hdu_list[0].header.keys ( ):
                 metadata_dict = { }

@@ -39,9 +39,11 @@ class calibration ( object ):
         self.log ( "info: f_decalage = %f" % f_decalage )
         f_offset = 0
         self.log ( "info: f_offset = %f" % f_offset )
+        self.log ( "debug: self.__o_unwrapped_phase_map.get_array().ndim == %d" % self.__o_unwrapped_phase_map.get_array().ndim )
         a_calibrated = numpy.copy ( self.__o_unwrapped_phase_map.get_array ( ) )
         a_calibrated -= f_decalage
         a_calibrated += f_offset
+        self.log ( "debug: a_calibrated.ndim == %d" % a_calibrated.ndim )
 
         self.__o_calibrated = cube ( log = self.log,
                                      tan_data = a_calibrated )

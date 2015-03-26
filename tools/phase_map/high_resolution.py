@@ -136,6 +136,7 @@ class high_resolution ( object ):
         # Wavelength calibration
         self.log ( "debug: self.__f_calibration_wavelength == %s" % str ( self.__f_calibration_wavelength ) )
         self.__o_wavelength_calibrated = None
+        self.log ( "debug: self.unwrapped_phase_map.ndim == %d" % self.unwrapped_phase_map.ndim )
         self.__o_unwrapped = cube ( log = self.log,
                                     tan_data = self.unwrapped_phase_map,
                                     f_calibration_wavelength = self.__f_calibration_wavelength,
@@ -162,6 +163,7 @@ class high_resolution ( object ):
         #self.log ( "min_channel = %d" % min_channel )
 
         self.unwrapped_phase_map = numpy.zeros ( shape = self.wrapped_phase_map_array.shape )
+        self.log ( "self.unwrapped_phase_map.ndim == %d" % self.unwrapped_phase_map.ndim )
 
         for x in range ( max_x ):
             for y in range ( max_y ):

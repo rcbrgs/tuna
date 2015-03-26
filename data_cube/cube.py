@@ -29,15 +29,17 @@ class cube ( object ):
                 self.__i_rows   = self.tan_data.shape [ 1 ]
                 self.__i_cols   = self.tan_data.shape [ 2 ]
             elif self.ndim == 2:
-                self.tan_data = numpy.ndarray ( shape = ( 1, tan_data.shape [ 0 ], tan_data.shape [ 1 ] ) )
+                #self.tan_data = numpy.ndarray ( shape = ( 1, tan_data.shape [ 0 ], tan_data.shape [ 1 ] ) )
+                self.tan_data = numpy.copy ( tan_data )
                 self.__i_planes = 1
-                self.__i_rows   = self.tan_data.shape [ 1 ]
-                self.__i_cols   = self.tan_data.shape [ 2 ]
-                for i_row in self.get_rows_range ( ):
-                    for i_col in self.get_cols_range ( ):
-                        self.tan_data [ 0 ] [ i_row ] [ i_col ] = tan_data [ i_row ] [ i_col ]
+                self.__i_rows   = self.tan_data.shape [ 0 ]
+                self.__i_cols   = self.tan_data.shape [ 1 ]
+                #for i_row in self.get_rows_range ( ):
+                #    for i_col in self.get_cols_range ( ):
+                #        self.tan_data [ 0 ] [ i_row ] [ i_col ] = tan_data [ i_row ] [ i_col ]
             else:
-                self.log ( "Data has dimentionality different from [2, 3] dimensions." )
+                self.log ( "warning: Data has dimentionality different from [2, 3] dimensions." )
+        self.log ( "debug: self.tan_data.ndim == %d, self.ndim == %d." % ( self.tan_data.ndim, self.ndim ) )
 
     def __add__ ( self,
                   o_cube ):
@@ -82,7 +84,7 @@ class cube ( object ):
             self.log ( "debug: self.log is not o_cube.log" )
 
         if self.ndim != o_cube.ndim:
-            self.log ( "warning: trying to subtract cubes of different dimensionalities (self.ndim == %d and o_cube.ndim == %d). Returning 'None' as the sum." % ( self.ndim, o_cube.ndim ) )
+            self.log ( "warning: Trying to subtract cubes of different dimensionalities (self.ndim == %d and o_cube.ndim == %d). Returning 'None' as the sum." % ( self.ndim, o_cube.ndim ) )
             o_result_array = None
         else:
             o_result_array = self.tan_data - o_cube.tan_data

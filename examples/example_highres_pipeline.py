@@ -46,7 +46,6 @@ def produce_phase_map ( file_name = str ):
     a_parabolic_model        = o_high_res.get_parabolic_Polynomial2D_model ( )
     a_airy                   = o_high_res.get_airy ( )
     a_wavelength             = o_high_res.get_wavelength_calibrated ( )
-    print ( a_wavelength.ndim ) 
 
     tuna.io.write ( file_name   = file_name + '_0_raw.fits',
                     array       = a_raw,
@@ -82,13 +81,7 @@ def produce_phase_map ( file_name = str ):
 def wavelength_residue ( file_name ):
     o_wavelength = tuna.read ( file_name + '_9_wavelength_calibrated.fits' )
     o_unwrapped  = tuna.read ( file_name + '_6_unwrapped.fits' )
-    #a_wavelength = o_wavelength.array
-    #a_unwrapped  = o_unwrapped .array
 
-    #import numpy
-    #a_comparison = numpy.ndarray ( shape = a_unwrapped.shape )
-    print ( o_wavelength.array.ndim )
-    print ( o_unwrapped.array.ndim )
     o_comparison = o_unwrapped - o_wavelength
 
     tuna.write ( file_name   = file_name + '_9_wavelength_calibrated_residue.fits',
@@ -109,7 +102,8 @@ def compile_raw_data_from_ADAs ( ):
 produce_phase_map ( file_name = "/home/nix/sync/tuna/sample_data/G092.AD3" )
 wavelength_residue ( file_name = "/home/nix/sync/tuna/sample_data/G092.AD3" )
 
-#produce_phase_map ( file_name = "/home/nix/sync/tuna/sample_data/G094.AD3" )
+produce_phase_map ( file_name = "/home/nix/sync/tuna/sample_data/G094.AD3" )
+wavelength_residue ( file_name = "/home/nix/sync/tuna/sample_data/G094.AD3" )
 
 #compile_raw_data_from_ADAs ( )
 #unwrap_phase_map ( )
