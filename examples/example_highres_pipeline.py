@@ -102,10 +102,9 @@ def compile_raw_data_from_ADAs ( ):
 produce_phase_map ( file_name = "/home/nix/sync/tuna/sample_data/G092.AD3" )
 wavelength_residue ( file_name = "/home/nix/sync/tuna/sample_data/G092.AD3" )
 
-produce_phase_map ( file_name = "/home/nix/sync/tuna/sample_data/G094.AD3" )
-wavelength_residue ( file_name = "/home/nix/sync/tuna/sample_data/G094.AD3" )
+#produce_phase_map ( file_name = "/home/nix/sync/tuna/sample_data/G094.AD3" )
+#wavelength_residue ( file_name = "/home/nix/sync/tuna/sample_data/G094.AD3" )
 
 #compile_raw_data_from_ADAs ( )
 #unwrap_phase_map ( )
 #compare_barycenter ( )
-

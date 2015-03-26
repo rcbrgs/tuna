@@ -7,7 +7,7 @@ This program provides access to Tuna's libraries' namespaces.
 
 from .console        import console
 from .data_cube      import data_cube
-from .io             import io
+#from .io             import *
 from .io.convenience import read, write
 from .gui            import gui
 from .log            import log
