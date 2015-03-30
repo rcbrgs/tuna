@@ -1,91 +1,84 @@
+from astropy.modeling import ( FittableModel,
+                               Parameter,
+                               format_input )
+#from astropy.modeling.fitting import NonLinearLSQFitter as LevMarLSQFitter
+from astropy.modeling.fitting import LevMarLSQFitter
 from math import sqrt
 import numpy
 from time import time
 
-class airy ( object ):
+class airy_model ( FittableModel ):
     """
-    Responsible for generating parabolic models and the fitting of models to data.
-    """
-    def __init__ ( self, 
-                   t_center = ( int, int ), 
-                   log = print,
-                   a_filtered = numpy.ndarray ):
-        super ( airy, self ).__init__ ( )
-        self.__t_center = t_center
-        self.__a_fit = None
-        self.log = log
-        self.__a_filtered = numpy.copy ( a_filtered )
-
-    def fit ( self,
-              f_beam         = 1., 
-              f_finesse      = 15, 
-              f_focal_length = 0.1, 
-              f_min_distance = None,
-              f_max_distance = None,
-              f_pixel_size   = 9.,
-              f_reflectivity = 0.99, 
-              f_wavelength   = 0.6563 ):
-        """
-        Airy function in order to compute a ring
-        Originally written by Benoît Epinat.
-        
-        Parameters
-        ----------
-        
-        f_beam         = 1.     : intensity
-        f_wavelength   = 0.6563 : wavelength (micron)
-        f_finesse      = 15     : finesse
-        f_reflectivity = 1      : reflexion index
-        f_focal_length = 0.1    : focal length of the camera (meter)
-        f_pixel_size   = 9.     : pixel size (micron)
-        """
-
-        i_deps = self.__a_filtered.shape [ 0 ]
-        i_rows = self.__a_filtered.shape [ 1 ]
-        i_cols = self.__a_filtered.shape [ 2 ]
+    Airy model for Astropy. Produces a 2D slice from parameters that should correspond to an 
+    idealized Fabry-Perot interferometer spectrograph.
+    Originally written by Benoît Epinat.
     
-        # task: find the f_min_distance that produces the correct number of rings
-        # task: find the f_min_distance that has the innermost ring with the same distance as the raw data
-        #f_min_distance = 1904
-        # task: find the f_max_distance
-        #f_max_distance = 1904.325
+    Parameters
+    ----------
+    
+    beam     : intensity of light
+    distance : microns between the étalons
+    finesse  :
+    """
 
-        #a_fit = numpy.zeros ( shape = ( 22, self.__a_filtered.shape [ 1 ], self.__a_filtered.shape [ 2 ] ) )
-        a_fit = numpy.zeros ( shape = self.__a_filtered.shape )
+    beam = Parameter ( )
+    gap = Parameter ( )
+    finesse = Parameter ( )
+    
+    def __init__ ( self,
+                   log = print,
+                   center = ( int, int ), 
+                   discontinuum = numpy.ndarray,
+                   beam     = 1., 
+                   gap = 0,
+                   finesse  = 15,
+                   **kwargs ):
 
-        l_spacings = [ ]
-        #for i_dep in range ( a_fit.shape [ 0 ] ):
-        for i_dep in range ( i_deps ):
-            #a_image = numpy.zeros ( shape = ( i_rows, i_cols ) )
-            # we need the indices of the pixels in image
-            a_indices = numpy.indices ( ( i_rows, i_cols ) )
-            # we use numpy sqrt function because we compute on arrays
-            a_distances = numpy.sqrt ( ( a_indices [ 0 ] - self.__t_center [ 0 ] ) ** 2 +
-                                       ( a_indices [ 1 ] - self.__t_center [ 1 ] ) ** 2 )
-            # radius unit = meter
-            a_grid = a_distances * f_pixel_size * ( 1.e-6 )
-            a_theta = numpy.arctan ( a_grid / f_focal_length )
+        super ( airy_model, self ).__init__ ( beam = beam,
+                                              gap = gap,
+                                              finesse = finesse,
+                                              **kwargs )
+        self.log = log
+        
+        self.__center = center
+        self.__discontinuum = numpy.copy ( discontinuum )
+        self.__deps = self.__discontinuum.shape [ 0 ]
+        self.__rows = self.__discontinuum.shape [ 1 ]
+        self.__cols = self.__discontinuum.shape [ 2 ]
+        
+        self.__focal_length = 0.1
+        self.__pixel_size = 9
+        self.__reflectivity = 0.99
 
-            # spacing between the two FP plates (micron)
-            #f_spacing = float ( f_min_distance + 
-            #                    float ( i_dep / ( i_deps - 1 ) ) * ( f_max_distance - f_min_distance ) )
-            f_spacing = float ( f_min_distance + ( i_dep / ( i_deps - 1 ) ) * ( f_max_distance - f_min_distance ) )
-            l_spacings.append ( f_spacing )
-            # function of Airy I
-            f_airy_I = 4.0 * ( ( f_finesse ** 2 ) ) / ( numpy.pi ** 2 ) 
-            f_phase = 4.0 * numpy.pi * f_reflectivity * f_spacing * numpy.cos ( a_theta ) / f_wavelength 
-            f_intensity = f_beam / ( 1. + f_airy_I * ( numpy.sin ( f_phase / 2.0 ) ) ** 2 )
-            # append to cube
-            a_fit [ i_dep ] = f_intensity
-        self.log ( "debug: l_spacings = %s" % str ( l_spacings ) )
+        self.__fit = None
 
-        self.__a_fit = a_fit
+        indices = numpy.indices ( ( self.__rows, self.__cols ) )
+        distances = numpy.sqrt ( ( indices [ 0 ] - self.__center [ 0 ] ) ** 2 +
+                                 ( indices [ 1 ] - self.__center [ 1 ] ) ** 2 )
+        grid = distances * self.__pixel_size * ( 1.e-6 )
+        self.__theta = numpy.arctan ( grid / self.__focal_length )
+        
 
-    def get_fit ( self ):
-        if self.__a_fit == None:
-            self.fit ( )
-        return self.__a_fit
+    def eval ( x,
+               beam,
+               gap,
+               finesse ):
 
+        rows = self.__a_filtered.shape [ 1 ]
+        cols = self.__a_filtered.shape [ 2 ]
+        
+        result = numpy.zeros ( shape = ( rows, cols ) )
+        # function of Airy I
+        airy_function = 4.0 * ( ( finesse ** 2 ) ) / ( numpy.pi ** 2 ) 
+        phase = 4.0 * numpy.pi * self.__reflectivity * gap * numpy.cos ( self.__theta ) / self.__wavelength 
+        intensity = beam / ( 1. + airy_function * ( numpy.sin ( phase / 2.0 ) ) ** 2 )
+
+        return intensity
+
+    @format_input
+    def __call__ ( self, x ):
+        return self.eval ( x, *self.param_sets )
+    
 def fit_Airy ( t_center = ( int, int ), 
                f_max_distance = None,
                f_min_distance = None,
@@ -96,11 +89,22 @@ def fit_Airy ( t_center = ( int, int ),
     """
     start = time ( )
 
-    o_model = airy ( t_center = t_center, 
-                     log = log, 
-                     a_filtered = a_filtered )
-    o_model.fit ( f_max_distance = f_max_distance,
-                  f_min_distance = f_min_distance )
+    airy_custom_model = airy_model ( center = t_center, 
+                                     log = log, 
+                                     discontinuum = a_filtered )
+    LevMarLSQFitter_fit = LevMarLSQFitter ( )
+    
+    y, x = numpy.mgrid [ : a_filtered.shape [ 1 ], : a_filtered.shape [ 0 ] ]
+    
+    result = numpy.zeros ( shape = a_filtered.shape )
+        
+    for dep in range ( a_filtered.shape [ 0 ] ):
+        #with warnings.catch_warnings ( ):
+        #    warnings.simplefilter ( 'ignore' )
+        data = a_filtered [ dep ]
+        airy_model_fit = LevMarLSQFitter_fit ( airy_custom_model, x, y, data )
+        result [ dep ] = airy_model_fit ( x, y )
+        log ( "debug: For plane %d, Airy fit parameters are: %s" % ( dep, str ( airy_model_fit.parameters ) ) )
 
-    log ( "info: Airy o_model() took %ds." % ( time ( ) - start ) )
-    return o_model.get_fit ( )
+    log ( "info: Airy fit took %ds." % ( time ( ) - start ) )
+    return result
