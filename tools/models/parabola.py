@@ -1,6 +1,6 @@
 from astropy.modeling import models
-#from astropy.modeling.fitting import NonLinearLSQFitter as LevMarLSQFitter
-from astropy.modeling.fitting import LevMarLSQFitter
+from astropy.modeling.fitting import NonLinearLSQFitter as LevMarLSQFitter
+#from astropy.modeling.fitting import LevMarLSQFitter
 from math import sqrt
 import numpy
 from time import time

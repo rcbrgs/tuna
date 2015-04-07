@@ -22,6 +22,8 @@ def compare_barycenter ( ):
                     file_format = 'fits' )
     
 def produce_phase_map ( file_name = str ):
+    file_name_unpathed = file_name.split ( "/" ) [ -1 ]
+
     o_raw = tuna.read ( file_name )
     a_raw = o_raw.array
     o_high_res = tuna.tools.phase_map.high_resolution ( f_airy_max_distance = 1904.325,
@@ -47,44 +49,46 @@ def produce_phase_map ( file_name = str ):
     a_airy                   = o_high_res.get_airy ( )
     a_wavelength             = o_high_res.get_wavelength_calibrated ( )
 
-    tuna.io.write ( file_name   = file_name + '_0_raw.fits',
+    tuna.io.write ( file_name   = file_name_unpathed + '_0_raw.fits',
                     array       = a_raw,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_1_continuum.fits',
+    tuna.io.write ( file_name   = file_name_unpathed + '_1_continuum.fits',
                     array       = a_continuum,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_2_wrapped.fits',
+    tuna.io.write ( file_name   = file_name_unpathed + '_2_wrapped.fits',
                     array       = a_wrapped,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_3_noise.fits',
+    tuna.io.write ( file_name   = file_name_unpathed + '_3_noise.fits',
                     array       = a_noise,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_4_distances.fits',
+    tuna.io.write ( file_name   = file_name_unpathed + '_4_distances.fits',
                     array       = a_distances,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_5_FSRs.fits',
+    tuna.io.write ( file_name   = file_name_unpathed + '_5_FSRs.fits',
                     array       = a_FSRs,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_6_unwrapped.fits',
+    tuna.io.write ( file_name   = file_name_unpathed + '_6_unwrapped.fits',
                     array       = a_unwrapped,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_7_parabolic_model.fits',
+    tuna.io.write ( file_name   = file_name_unpathed + '_7_parabolic_model.fits',
                     array       = a_parabolic_model,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_8_airy_model.fits',
+    tuna.io.write ( file_name   = file_name_unpathed + '_8_airy_model.fits',
                     array       = a_airy,
                     file_format = 'fits' )    
-    tuna.io.write ( file_name   = file_name + '_9_wavelength_calibrated.fits',
+    tuna.io.write ( file_name   = file_name_unpathed + '_9_wavelength_calibrated.fits',
                     array       = a_wavelength,
                     file_format = 'fits' )    
 
 def wavelength_residue ( file_name ):
-    o_wavelength = tuna.read ( file_name + '_9_wavelength_calibrated.fits' )
-    o_unwrapped  = tuna.read ( file_name + '_6_unwrapped.fits' )
+    file_name_unpathed = file_name.split ( "/" ) [ -1 ]
+
+    o_wavelength = tuna.read ( file_name_unpathed + '_9_wavelength_calibrated.fits' )
+    o_unwrapped  = tuna.read ( file_name_unpathed + '_6_unwrapped.fits' )
 
     o_comparison = o_unwrapped - o_wavelength
 
-    tuna.write ( file_name   = file_name + '_9_wavelength_calibrated_residue.fits',
+    tuna.write ( file_name   = file_name_unpathed + '_9_wavelength_calibrated_residue.fits',
                  array       = o_comparison.array,
                  file_format = 'fits' )
     
@@ -100,7 +104,7 @@ def compile_raw_data_from_ADAs ( ):
 
 
 produce_phase_map ( file_name = "/home/nix/sync/tuna/sample_data/G092.AD3" )
-wavelength_residue ( file_name = "/home/nix/sync/tuna/sample_data/G092.AD3" )
+#wavelength_residue ( file_name = "/home/nix/sync/tuna/sample_data/G092.AD3" )
 
 #produce_phase_map ( file_name = "/home/nix/sync/tuna/sample_data/G094.AD3" )
 #wavelength_residue ( file_name = "/home/nix/sync/tuna/sample_data/G094.AD3" )
