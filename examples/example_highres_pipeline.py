@@ -26,11 +26,13 @@ def produce_phase_map ( file_name = str ):
 
     o_raw = tuna.read ( file_name )
     a_raw = o_raw.array
-    o_high_res = tuna.tools.phase_map.high_resolution ( f_airy_max_distance = 1904.325,
-                                                        f_airy_min_distance = 1904,
-                                                        array = a_raw,
+    o_high_res = tuna.tools.phase_map.high_resolution ( array = a_raw,
+                                                        beam = 450,
                                                         f_calibration_wavelength = 6598.950,
+                                                        finesse = 15.,
+                                                        focal_length = 0.1,
                                                         f_free_spectral_range = 8.36522123894,
+                                                        gap = 1904,
                                                         i_interference_order = 798,
                                                         f_interference_reference_wavelength = 6562.7797852,
                                                         wrapped_phase_map_algorithm = tuna.tools.phase_map.create_barycenter_array, 

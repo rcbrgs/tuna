@@ -17,12 +17,16 @@ class airy_model ( Parametric2DModel ):
     ----------
     
     beam         : intensity of light
+    center_row
+    center_col
     finesse      :
     focal_length :
     gap          : microns between the étalons
     """
 
     beam = Parameter ( 'beam' )
+    center_row = Parameter ( 'center_row' )
+    center_col = Parameter ( 'center_col' )
     finesse = Parameter ( 'finesse' )
     focal_length = Parameter ( 'focal_length' )
     gap = Parameter ( 'gap' )
@@ -30,34 +34,28 @@ class airy_model ( Parametric2DModel ):
     def __init__ ( self,
 #                   log = print,
                    beam = 1.,
+                   center_row = 0,
+                   center_col = 0,
                    finesse = 15,
                    focal_length = 0.1,
                    gap = 1.,
-
-                   center = ( int, int ), 
-                   discontinuum = numpy.ndarray,
                    **constraints ):
 
         super ( airy_model, self ).__init__ ( beam = beam,
+                                              center_row = center_row,
+                                              center_col = center_col,
                                               finesse = finesse,
                                               focal_length = focal_length,
                                               gap = gap,
                                               **constraints )
         self.log = print
-        
-        self.__center = center
-        self.__discontinuum = numpy.copy ( discontinuum )
-        self.__deps = self.__discontinuum.shape [ 0 ]
-        self.__rows = self.__discontinuum.shape [ 1 ]
-        self.__cols = self.__discontinuum.shape [ 2 ]
-        
-        self.__pixel_size = 9
-        self.__reflectivity = 0.99
        
     @staticmethod
     def eval ( x,
                y,
                beam,
+               center_row,
+               center_col,
                finesse,
                focal_length,
                gap ):
@@ -69,7 +67,7 @@ class airy_model ( Parametric2DModel ):
         rows = x.shape [ 0 ]
         cols = y.shape [ 1 ]
         
-        center = ( 218, 253 )
+        center = ( center_row , center_col )
 
         indices = numpy.indices ( ( rows, cols ) )
         distances = numpy.sqrt ( ( indices [ 0 ] - center [ 0 ] ) ** 2 +
@@ -86,50 +84,47 @@ class airy_model ( Parametric2DModel ):
 
         return intensity
 
-def fit_Airy ( t_center = ( int, int ), 
-               f_max_distance = None,
-               f_min_distance = None,
-               log = print, 
-               a_filtered = numpy.ndarray ):
+def fit_Airy ( log = print, 
+               beam = float,
+               center = ( int, int ), 
+               finesse = float,
+               focal_length = float,
+               gap = float,
+               discontinuum = numpy.ndarray ):
     """
     Interface function to fit an Airy model to a given input.
     """
     start = time ( )
 
-    airy_custom_model = airy_model ( center = t_center, 
-#                                     log = log, 
-                                     discontinuum = a_filtered )
+    airy_custom_model = airy_model ( beam = beam,
+                                     center_row = center [ 0 ], 
+                                     center_col = center [ 1 ],
+                                     finesse = finesse,
+                                     focal_length = focal_length,
+                                     gap = gap )
     
-    airy_custom_model.beam = 100.
-    airy_custom_model.beam.fixed = True
-    airy_custom_model.focal_length = 0.1
-    airy_custom_model.focal_length.fixed = True
-    airy_custom_model.finesse = 15
-    airy_custom_model.finesse.fixed = True
-
     LevMarLSQFitter_fit = LevMarLSQFitter ( )
     
-    y, x = numpy.mgrid [ : a_filtered.shape [ 1 ], : a_filtered.shape [ 2 ] ]
-    #log ( "debug: x.shape = %s" % str ( x.shape ) )
-    #log ( "debug: y.shape = %s" % str ( y.shape ) )
-    #log ( "debug: x = %s" % str ( x ) )
-    #log ( "debug: y = %s" % str ( y ) )
-    
-    result = numpy.zeros ( shape = a_filtered.shape )
+    y, x = numpy.mgrid [ : discontinuum.shape [ 1 ], : discontinuum.shape [ 2 ] ]
+    result = numpy.zeros ( shape = discontinuum.shape )
         
-    for dep in range ( a_filtered.shape [ 0 ] ):
+    for dep in range ( discontinuum.shape [ 0 ] ):
         #with warnings.catch_warnings ( ):
         #    warnings.simplefilter ( 'ignore' )
-        data = a_filtered [ dep ]
-        #log ( "debug: data.shape = %s" % str ( data.shape ) )
-        #log ( "debug: data = %s" % str ( data ) )
-        airy_custom_model.gap = 1904 + dep * 0.01
-        #airy_custom_model.gap.fixed = True
+        airy_custom_model.beam = beam
+        airy_custom_model.center_row = center [ 0 ]
+        airy_custom_model.center_row.fixed = True
+        airy_custom_model.center_col = center [ 1 ]
+        airy_custom_model.center_col.fixed = True
+        airy_custom_model.finesse = finesse
+        airy_custom_model.finesse.fixed = True
+        airy_custom_model.focal_length = focal_length
+        airy_custom_model.gap = gap
+
+        data = discontinuum [ dep ]
         airy_model_fit = LevMarLSQFitter_fit ( airy_custom_model, x, y, data )
-        #log ( "debug: airy_model_fit [ 'message' ] = %s" % str ( airy_model_fit [ 'message' ] ) )
         result [ dep ] = airy_model_fit ( x, y )
-        #log ( "debug: result [ dep ] = %s" % str ( result [ dep ] ) )
-        log ( "debug: For plane %d, Airy fit parameters are: beam = %s, finesse = %s, focal_length = %s, gap = %s" % ( dep, str ( airy_model_fit.parameters [ 0 ] ), str ( airy_model_fit.parameters [ 1 ] ), str ( airy_model_fit.parameters [ 2 ] ), str ( airy_model_fit.parameters [ 3 ] ) ) )
+        log ( "debug: For plane %d, Airy fit parameters are: beam = %s, center_row = %s, center_col = %s, finesse = %s, focal_length = %s, gap = %s" % ( dep, str ( airy_model_fit.parameters [ 0 ] ), str ( airy_model_fit.parameters [ 1 ] ), str ( airy_model_fit.parameters [ 2 ] ), str ( airy_model_fit.parameters [ 3 ] ), str ( airy_model_fit.parameters [ 4 ] ), str ( airy_model_fit.parameters [ 5 ] ) ) )
 
     log ( "info: Airy fit took %ds." % ( time ( ) - start ) )
     return result

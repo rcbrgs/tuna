@@ -21,14 +21,16 @@ class high_resolution ( object ):
     Intermediary products are the binary noise, the ring borders, the regions and orders maps.
     """
     def __init__ ( self, 
-                   f_airy_max_distance = None,
-                   f_airy_min_distance = None,
                    array = numpy.ndarray,
                    bad_neighbours_threshold = 7, 
+                   beam = float,
                    f_calibration_wavelength = None,
                    il_channel_subset = None,
                    channel_threshold = 1, 
+                   finesse = float,
+                   focal_length = float,
                    f_free_spectral_range = None,
+                   gap = float,
                    i_interference_order = int,
                    f_interference_reference_wavelength = None,
                    log = None, 
@@ -125,13 +127,14 @@ class high_resolution ( object ):
 
         self.verify_parabolic_model ( )
 
-        if ( f_airy_max_distance != None and
-             f_airy_min_distance != None ):
-            self.__a_airy = fit_Airy ( t_center = self.__iit_center,
-                                       f_max_distance = f_airy_max_distance,
-                                       f_min_distance = f_airy_min_distance,
-                                       log = self.log,
-                                       a_filtered = self.filtered_array )
+        # Airy
+        self.__a_airy = fit_Airy ( log = self.log,
+                                   beam = beam,
+                                   center = self.__iit_center,
+                                   discontinuum = self.filtered_array,
+                                   finesse = finesse,
+                                   focal_length = focal_length,
+                                   gap = gap )
 
         # Wavelength calibration
         self.log ( "debug: self.__f_calibration_wavelength == %s" % str ( self.__f_calibration_wavelength ) )
