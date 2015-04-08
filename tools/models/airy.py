@@ -16,9 +16,10 @@ class airy_model ( Parametric2DModel ):
     Parameters
     ----------
     
-    beam     : intensity of light
-    distance : microns between the étalons
-    finesse  :
+    beam         : intensity of light
+    finesse      :
+    focal_length :
+    gap          : microns between the étalons
     """
 
     beam = Parameter ( 'beam' )
@@ -31,7 +32,7 @@ class airy_model ( Parametric2DModel ):
                    beam = 1.,
                    finesse = 15,
                    focal_length = 0.1,
-                   gap = 0.,
+                   gap = 1.,
 
                    center = ( int, int ), 
                    discontinuum = numpy.ndarray,
@@ -63,7 +64,7 @@ class airy_model ( Parametric2DModel ):
 
         pixel_size = 9
         reflectivity = 0.99
-        wavelength = 6562.7797852
+        wavelength = 0.6563
 
         rows = x.shape [ 0 ]
         cols = y.shape [ 1 ]
@@ -99,6 +100,8 @@ def fit_Airy ( t_center = ( int, int ),
 #                                     log = log, 
                                      discontinuum = a_filtered )
     
+    airy_custom_model.beam = 100.
+    airy_custom_model.beam.fixed = True
     airy_custom_model.focal_length = 0.1
     airy_custom_model.focal_length.fixed = True
     airy_custom_model.finesse = 15
@@ -120,8 +123,8 @@ def fit_Airy ( t_center = ( int, int ),
         data = a_filtered [ dep ]
         #log ( "debug: data.shape = %s" % str ( data.shape ) )
         #log ( "debug: data = %s" % str ( data ) )
-        airy_custom_model.gap = 1200 + dep
-        airy_custom_model.gap.fixed = True
+        airy_custom_model.gap = 1904 + dep * 0.01
+        #airy_custom_model.gap.fixed = True
         airy_model_fit = LevMarLSQFitter_fit ( airy_custom_model, x, y, data )
         #log ( "debug: airy_model_fit [ 'message' ] = %s" % str ( airy_model_fit [ 'message' ] ) )
         result [ dep ] = airy_model_fit ( x, y )

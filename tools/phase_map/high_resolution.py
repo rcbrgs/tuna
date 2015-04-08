@@ -216,6 +216,9 @@ class high_resolution ( object ):
             self.log ( "warning: %s, aborting." % str ( e ) )
             return None        
 
+    def get_filtered ( self ):
+        return self.filtered_array
+
     def get_order_array ( self ):
         """
         Return the relative FSR map.
