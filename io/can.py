@@ -58,7 +58,10 @@ class can ( file_reader ):
                     photon [ 'channel' ] = plane + 1
                     photon [ 'row'     ] = row
                     photon [ 'col'     ] = col
-                    photon [ 'photons' ] = self.array [ plane ] [ row ] [ col ]
+                    if self.ndim == 3:
+                        photon [ 'photons' ] = self.array [ plane ] [ row ] [ col ]
+                    elif self.ndim == 2:
+                        photon [ 'photons' ] = self.array [ row ] [ col ]
                     photons.append ( photon )
 
         self.photons = photons
