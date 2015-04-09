@@ -209,14 +209,14 @@ class image_center_by_arc_segmentation ( object ):
                 if ( abs ( f_result ) < 100 ):
                     self.__iia_ring_borders [ i_row ] [ i_col ] = i_color
 
-def find_image_center_by_arc_segmentation ( ffa_unwrapped = numpy.ndarray,
+def find_image_center_by_arc_segmentation ( wrapped = numpy.ndarray,
                                             log = print ):
     """
     Try to find the center of the rings.
     """
     i_start = time ( )
 
-    o_finder = image_center_by_arc_segmentation ( ffa_unwrapped = ffa_unwrapped,
+    o_finder = image_center_by_arc_segmentation ( ffa_unwrapped = wrapped,
                                                   log = log )
     iit_center = o_finder.get_center ( )
     log ( "info: Center detected at %s ." % str ( iit_center ) )

@@ -6,7 +6,7 @@ from .find_image_center_by_arc_segmentation import find_image_center_by_arc_segm
 from .find_image_center_by_symmetry import find_image_center_by_symmetry
 from .fsr import create_fsr_map
 from .noise import create_noise_array
-from tuna.tools.models.airy     import fit_Airy
+from tuna.tools.models.airy     import fit_airy
 from tuna.tools.models.parabola import fit_parabolic_model_by_Polynomial2D
 from .ring_borders import create_ring_borders_map, create_borders_to_center_distances
 from tuna.tools.get_pixel_neighbours import get_pixel_neighbours
@@ -97,7 +97,7 @@ class high_resolution ( object ):
         self.wrapped_phase_map_array = wrapped_phase_map_algorithm ( array = self.filtered_array,
                                                                      log = self.log )
 
-        self.__iit_center = find_image_center_by_arc_segmentation ( ffa_unwrapped = self.wrapped_phase_map_array,
+        self.__iit_center = find_image_center_by_arc_segmentation ( wrapped = self.wrapped_phase_map_array,
                                                                     log = self.log )
 
         self.binary_noise_array = create_noise_array ( array = self.wrapped_phase_map_array, 
@@ -128,7 +128,7 @@ class high_resolution ( object ):
         self.verify_parabolic_model ( )
 
         # Airy
-        self.__a_airy = fit_Airy ( log = self.log,
+        self.__a_airy = fit_airy ( log = self.log,
                                    beam = beam,
                                    center = self.__iit_center,
                                    discontinuum = self.filtered_array,

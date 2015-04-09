@@ -11,3 +11,5 @@ from .high_resolution                       import high_resolution
 from .noise                                 import create_noise_array
 from .ring_borders                          import ( create_ring_borders_map, 
                                                      create_borders_to_center_distances )
+from .spectrum                              import ( create_continuum_array,
+                                                     suppress_channel )

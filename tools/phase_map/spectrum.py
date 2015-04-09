@@ -23,7 +23,7 @@ def average_of_lowest_channels ( array = numpy.ndarray, number_of_channels = 3 )
     return minimum_sum / number_of_channels
 
 def create_continuum_array ( array = numpy.ndarray,
-                             f_continuum_to_FSR_ratio = float,
+                             f_continuum_to_FSR_ratio = 0.25,
                              b_display = False,
                              log = print ):
     """
@@ -68,3 +68,11 @@ def median_of_lowest_channels ( f_continuum_to_FSR_ratio = 0.25,
         return ( l_lowest [ int ( i_channels / 2 ) ] + l_lowest [ int ( i_channels / 2 ) - 1 ] ) / 2
     else:
         return l_lowest [ floor ( i_channels / 2 ) ]
+
+def suppress_channel ( array = numpy.ndarray,
+                       channels = list,
+                       replacement = numpy.ndarray ):
+    result = numpy.copy ( array )
+    for channel in channels:
+        result [ channel ] = numpy.copy ( replacement [ channel ] )
+    return result

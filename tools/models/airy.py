@@ -7,7 +7,7 @@ from math import sqrt
 import numpy
 from time import time
 
-class airy_model ( Parametric2DModel ):
+class airy ( Parametric2DModel ):
     """
     Airy model for Astropy. Produces a 2D slice from parameters that should correspond to an 
     idealized Fabry-Perot interferometer spectrograph.
@@ -41,7 +41,7 @@ class airy_model ( Parametric2DModel ):
                    gap = 1.,
                    **constraints ):
 
-        super ( airy_model, self ).__init__ ( beam = beam,
+        super ( airy, self ).__init__ ( beam = beam,
                                               center_row = center_row,
                                               center_col = center_col,
                                               finesse = finesse,
@@ -84,7 +84,7 @@ class airy_model ( Parametric2DModel ):
 
         return intensity
 
-def fit_Airy ( log = print, 
+def fit_airy ( log = print, 
                beam = float,
                center = ( int, int ), 
                finesse = float,
@@ -96,12 +96,12 @@ def fit_Airy ( log = print,
     """
     start = time ( )
 
-    airy_custom_model = airy_model ( beam = beam,
-                                     center_row = center [ 0 ], 
-                                     center_col = center [ 1 ],
-                                     finesse = finesse,
-                                     focal_length = focal_length,
-                                     gap = gap )
+    airy_custom_model = airy ( beam = beam,
+                               center_row = center [ 0 ], 
+                               center_col = center [ 1 ],
+                               finesse = finesse,
+                               focal_length = focal_length,
+                               gap = gap )
     
     LevMarLSQFitter_fit = LevMarLSQFitter ( )
     
