@@ -5,9 +5,18 @@ import tuna
 o_file = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G092.AD3_second_ring_ROI.fits' )
 a_raw = o_file.array
 o_high_res = tuna.tools.phase_map.high_resolution ( array = a_raw,
+                                                    beam = 450,
                                                     bad_neighbours_threshold = 7,
+                                                    f_calibration_wavelength = 6598.950,
                                                     channel_threshold = 1, 
+                                                    finesse = 15,
+                                                    focal_length = 0.1,
+                                                    f_free_spectral_range = 8.36522123894,
+                                                    gap = 1904,
+                                                    i_interference_order = 798,
+                                                    f_interference_reference_wavelength = 6562.7797852,
                                                     noise_mask_radius = 7,
+                                                    f_scanning_wavelength = 6616.895,
                                                     wrapped_phase_map_algorithm = tuna.tools.phase_map.create_barycenter_array )
 a_continuum = o_high_res.get_continuum_array ( )
 a_wrapped   = o_high_res.get_wrapped_phase_map_array ( )
