@@ -50,7 +50,15 @@ class image_center_by_arc_segmentation ( object ):
             #self.log ( "o_chord_bisector_0 = %s, slope = %s" % ( str ( o_chord_bisector_0.equation ( ) ), str ( float ( o_chord_bisector_0.slope.evalf ( ) ) ) ) )
             #self.log ( "o_chord_bisector_1 = %s, slope = %s" % ( str ( o_chord_bisector_1.equation ( ) ), str ( float ( o_chord_bisector_1.slope.evalf ( ) ) ) ) )
             l_bisections.append ( ( o_chord_bisector_0, o_chord_bisector_1, i_convergence_tries * 10 ) )
-            ol_intersection = sympy.geometry.intersection ( o_chord_bisector_0, o_chord_bisector_1 )
+
+            # sometimes intesection fails because one of the bisectors ain't a GeometryEntity.
+            try:
+                ol_intersection = sympy.geometry.intersection ( o_chord_bisector_0, o_chord_bisector_1 )
+            except ValueError as e:
+                self.log ( "warning: ValueError %s. Ignoring this intersection." % ( e ) )
+                i_convergence_tries += 1
+                continue
+
             if ( len ( ol_intersection ) != 0 ):
                 o_point_center = ol_intersection [ 0 ]
                 i_intersect_row = int ( o_point_center.x.evalf ( ) )
