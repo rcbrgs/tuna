@@ -33,20 +33,20 @@ class can ( file_reader ):
         self.update ( )
 
     def __add__ ( self,
-                  o_can ):
-        o_result = can ( log = self.log )
-        o_result.o_cube = self.o_cube + o_can.o_cube
-        o_result.array = o_result.o_cube.get_array ( )
+                  can ):
+        result = can ( log = self.log )
+        result.cube = self.cube + can.cube
+        result.array = result.cube.get_array ( )
 
-        return o_result
+        return result
 
     def __sub__ ( self,
-                  o_can ):
-        o_result = can ( log = self.log )
-        o_result.o_cube = self.o_cube - o_can.o_cube
-        o_result.array = o_result.o_cube.get_array ( )
+                  can ):
+        result = can ( log = self.log )
+        result.cube = self.cube - can.cube
+        result.array = result.cube.get_array ( )
         
-        return o_result
+        return result
 
     def convert_ndarray_into_table ( self ):
         photons = [ ]
@@ -95,8 +95,8 @@ class can ( file_reader ):
                                    log = self.log )
                 ada_object.read ( )
                 self.array = ada_object.get_array ( )
-                self.o_cube = cube ( log = self.log,
-                                     tan_data = self.array )
+                self.cube = cube ( log = self.log,
+                                     data = self.array )
                 self.metadata = ada_object.get_metadata ( )
                 self.__d_photons = ada_object.get_photons ( )
             elif ( self.file_name.startswith ( ".fits", -5 ) or
@@ -105,8 +105,8 @@ class can ( file_reader ):
                                      log = self.log )
                 fits_object.read ( )
                 self.array = fits_object.get_array ( )
-                self.o_cube = cube ( log = self.log,
-                                     tan_data = self.array )
+                self.cube = cube ( log = self.log,
+                                     data = self.array )
                 self.metadata = fits_object.get_metadata ( )
                 self.update ( )
             elif ( self.file_name.startswith ( ".ad2", -4 ) or
@@ -117,8 +117,8 @@ class can ( file_reader ):
                                        log = self.log )
                 adhoc_object.read ( )
                 self.array = adhoc_object.get_array ( )
-                self.o_cube = cube ( log = self.log,
-                                     tan_data = self.array )
+                self.cube = cube ( log = self.log,
+                                     data = self.array )
 
 
     def update ( self ):

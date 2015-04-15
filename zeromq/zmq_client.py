@@ -22,7 +22,7 @@ class zmq_client ( ):
     def close_socket ( self ):
         self.zmq_socket_req.setsockopt ( zmq.LINGER, 0 )
         self.zmq_socket_req.close ( )
-        self.o_poller.unregister ( self.zmq_socket_req )
+        self.poller.unregister ( self.zmq_socket_req )
 
     def log ( self, msg ):
         """
@@ -35,16 +35,16 @@ class zmq_client ( ):
 
         self.zmq_socket_req.send_unicode ( prefixed_msg )
         
-        b_unanswered = True
-        while b_unanswered:
-            o_answer = dict ( self.o_poller.poll ( 10 ) )
-            if o_answer.get ( self.zmq_socket_req ) == zmq.POLLIN:
+        unanswered = True
+        while unanswered:
+            answer = dict ( self.poller.poll ( 10 ) )
+            if answer.get ( self.zmq_socket_req ) == zmq.POLLIN:
                 answer = self.zmq_socket_req.recv ( )
                 if answer.decode("utf-8") != 'ACK':
                     print ( u'Something is fishy!' )
                     print ( u'Received: "%s".' % answer.decode("utf-8") )
                     print ( u"Expected: 'ACK'" )
-                b_unanswered = False
+                unanswered = False
             else:
                 self.open_socket ( )
                 self.register_poller ( )
@@ -57,9 +57,9 @@ class zmq_client ( ):
         self.zmq_socket_req.connect ( "tcp://127.0.0.1:5000" )
 
     def register_poller ( self ):
-        self.o_poller = zmq.Poller ( )
-        self.o_poller.register ( self.zmq_socket_req,
-                                 zmq.POLLIN )
+        self.poller = zmq.Poller ( )
+        self.poller.register ( self.zmq_socket_req,
+                               zmq.POLLIN )
 
 
 def main ( ):

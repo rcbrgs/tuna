@@ -23,7 +23,7 @@ class ada ( file_reader ):
         self.__file_name = file_name
         self.__array = array
         self.__metadata = { }
-        self.__d_photons = { }
+        self.__photons = { }
         self.log = log
 
     def get_array ( self ):
@@ -44,7 +44,7 @@ class ada ( file_reader ):
                 return entry['value']
 
     def get_photons ( self ):
-        return self.__d_photons
+        return self.__photons
 
     def read ( self ):
         """
@@ -72,9 +72,9 @@ class ada ( file_reader ):
 
         for line in adt:
             if line.startswith ( "X and Y dimensions : 00512 00512" ):
-                dimensions_string = line.split ( " : " )[1]
-                dimensions = [ int ( dimensions_string.split ( " " )[0] ),
-                               int ( dimensions_string.split ( " " )[1] ) ]
+                dimensions_string = line.split ( " : " ) [ 1 ]
+                dimensions = [ int ( dimensions_string.split ( " " ) [ 0 ] ),
+                               int ( dimensions_string.split ( " " ) [ 1 ] ) ]
                 break
         self.log ( "debug: dimensions = %s." % ( dimensions ) )
        
@@ -85,7 +85,7 @@ class ada ( file_reader ):
                 data_files += 1
         self.log ( "debug: data_files = %d." % ( data_files ) )
 
-        photon_files = []
+        photon_files = [ ]
         file_list = listdir ( self.__file_path )
         for file_name in file_list:
             if isfile ( join ( self.__file_path, file_name ) ):
@@ -98,12 +98,12 @@ class ada ( file_reader ):
 
         
         self.__array = numpy.zeros ( shape = ( number_of_channels,
-                                                       dimensions[0], 
-                                                       dimensions[1] ) )
+                                                       dimensions [ 0 ], 
+                                                       dimensions [ 1 ] ) )
         files_processed = 0
         last_printed = 0
         for element in range ( len ( photon_files ) ):
-            file_name_entry = photon_files[element]
+            file_name_entry = photon_files [ element ]
             channel = element % number_of_channels
             percentage_done = int ( 10 * files_processed / len ( photon_files ) )
             if last_printed < percentage_done:
@@ -133,21 +133,21 @@ class ada ( file_reader ):
         # We know the file is organized with y,x,y,x,y,x... 
         # So the file will have size / 2 photons.
         photon_hits = photon_positions.reshape ( photon_positions.size / 2, 2 )
-        for photon in range ( photon_hits.shape[0] ):
-            x = photon_hits[photon][0]
-            y = photon_hits[photon][1]
-            self.__array[channel][x][y] += 1                
+        for photon in range ( photon_hits.shape [ 0 ] ):
+            x = photon_hits [ photon ] [ 0 ]
+            y = photon_hits [ photon ] [ 1 ]
+            self.__array [ channel ] [ x ] [ y ] += 1                
             # photons table:
-            s_key = str ( channel ) + ":" + str ( x ) + ":" + str ( y )
-            if s_key not in self.__d_photons.keys ( ):
-                d_photon = { }
-                d_photon [ 'channel' ] = channel
-                d_photon [ 'x'       ] = x
-                d_photon [ 'y'       ] = y
-                d_photon [ 'photons' ] = 1
-                self.__d_photons [ s_key ] = d_photon
+            key = str ( channel ) + ":" + str ( x ) + ":" + str ( y )
+            if key not in self.__photons.keys ( ):
+                photon_info = { }
+                photon_info [ 'channel' ] = channel
+                photon_info [ 'x'       ] = x
+                photon_info [ 'y'       ] = y
+                photon_info [ 'photons' ] = 1
+                self.__photons [ key ] = photon_info
             else:
-                self.__d_photons [ s_key ] [ 'photons' ] += 1
+                self.__photons [ key ] [ 'photons' ] += 1
                 
         #it seems that the first frame is duplicated
         #it would be nice to be able to display the creation of the image photon by photon
@@ -227,7 +227,7 @@ class ada ( file_reader ):
                 split_2 = split_1[1].split ( "  phot=" )
                 acquisition_cumulated_exposure = split_2[0]
                 split_3 = split_2[1].split ( " efficiency=" )
-                acquisition_cumulated_photons = split_3[0]
+                acquisition_cumulatephotons = split_3[0]
                 split_4 = split_3[1].split ( " %  disk=" )
                 acquisition_efficiency = split_4[0]
                 split_5 = split_4[1].split ( " Mb" )
@@ -257,7 +257,7 @@ class ada ( file_reader ):
                     adt_parameters_dict["photon count"]       = old_parameters_dict["photon count"] + "," + acquisition_photon_count.strip ( )
                     adt_parameters_dict["fr"]                 = old_parameters_dict["fr"] + "," + acquisition_fr.strip ( )
                     adt_parameters_dict["cumulated exposure"] = old_parameters_dict["cumulated exposure"] + "," + acquisition_cumulated_exposure.strip ( )
-                    adt_parameters_dict["cumulated photons"]  = old_parameters_dict["cumulated photons"] + "," + acquisition_cumulated_photons.strip ( )
+                    adt_parameters_dict["cumulated photons"]  = old_parameters_dict["cumulated photons"] + "," + acquisition_cumulatephotons.strip ( )
                     adt_parameters_dict["efficiency"]         = old_parameters_dict["efficiency"] + "," + acquisition_efficiency.strip ( )
                     adt_parameters_dict["disk usage"]         = old_parameters_dict["disk usage"] + "," + acquisition_disk_usage.strip ( )
                     adt_parameters_dict["THT"]                = old_parameters_dict["THT"] + "," + acquisition_THT.strip ( )
@@ -276,7 +276,7 @@ class ada ( file_reader ):
                     adt_parameters_dict["photon count"]       = acquisition_photon_count.strip ( )
                     adt_parameters_dict["fr"]                 = acquisition_fr.strip ( )
                     adt_parameters_dict["cumulated exposure"] = acquisition_cumulated_exposure.strip ( )
-                    adt_parameters_dict["cumulated photons"]  = acquisition_cumulated_photons.strip ( )
+                    adt_parameters_dict["cumulated photons"]  = acquisition_cumulatephotons.strip ( )
                     adt_parameters_dict["efficiency"]         = acquisition_efficiency.strip ( )
                     adt_parameters_dict["disk usage"]         = acquisition_disk_usage.strip ( )
                     adt_parameters_dict["THT"]                = acquisition_THT.strip ( )

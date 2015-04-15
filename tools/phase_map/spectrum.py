@@ -23,51 +23,51 @@ def average_of_lowest_channels ( array = numpy.ndarray, number_of_channels = 3 )
     return minimum_sum / number_of_channels
 
 def create_continuum_array ( array = numpy.ndarray,
-                             f_continuum_to_FSR_ratio = 0.25,
-                             b_display = False,
+                             continuum_to_FSR_ratio = 0.25,
+                             display = False,
                              log = print ):
     """
     Returns a 2D numpy ndarray where each pixel has the value of the continuum level of the input 3D array.
     """
-    i_start = time ( )
+    start = time ( )
 
     continuum_array = numpy.zeros ( shape = ( array.shape[1], array.shape[2] ) )
 
-    if b_display == True:
-        o_viewer = window_2d_viewer ( log = log,
-                                      ndarray_object = continuum_array )
-        o_viewer.start ( )
+    if display == True:
+        viewer = window_2d_viewer ( log = log,
+                                    ndarray_object = continuum_array )
+        viewer.start ( )
 
     for row in range ( array.shape[1] ):
         #log ( "debug: row %d" % row )
         for col in range ( array.shape[2] ):
             #print ( "col: %d" % col )
             #continuum_array[row][col] = average_of_lowest_channels ( array = array[:,row,col], 
-            continuum_array [ row ] [ col ] = median_of_lowest_channels ( a_spectrum = array [ :, row, col ], 
-                                                                          f_continuum_to_FSR_ratio = f_continuum_to_FSR_ratio )
-            #if b_display:
-            #    o_viewer.update ( o_data = continuum_array )
+            continuum_array [ row ] [ col ] = median_of_lowest_channels ( spectrum = array [ :, row, col ], 
+                                                                          continuum_to_FSR_ratio = continuum_to_FSR_ratio )
+            #if display:
+            #    viewer.update ( data = continuum_array )
 
-    log ( "info: create_continuum_array() took %ds." % ( time ( ) - i_start ) )
+    log ( "info: create_continuum_array() took %ds." % ( time ( ) - start ) )
     return continuum_array
 
-def median_of_lowest_channels ( f_continuum_to_FSR_ratio = 0.25,
-                                a_spectrum = numpy.ndarray ):
+def median_of_lowest_channels ( continuum_to_FSR_ratio = 0.25,
+                                spectrum = numpy.ndarray ):
     """
     Returns the median of the three lowest channels of the input profile.
     """
-    a_auxiliary = numpy.copy ( a_spectrum )
-    i_channels = int ( f_continuum_to_FSR_ratio * a_spectrum.shape [ 0 ] )
-    l_lowest = [ ]
-    for i_channel in range ( i_channels ):
-        l_lowest.append ( numpy.amin ( a_auxiliary ) )
-        a_auxiliary = numpy.delete ( a_auxiliary, numpy.argmin ( a_auxiliary ) )
-    l_lowest.sort ( )
+    auxiliary = numpy.copy ( spectrum )
+    channels = int ( continuum_to_FSR_ratio * spectrum.shape [ 0 ] )
+    lowest = [ ]
+    for channel in range ( channels ):
+        lowest.append ( numpy.amin ( auxiliary ) )
+        auxiliary = numpy.delete ( auxiliary, numpy.argmin ( auxiliary ) )
+    lowest.sort ( )
 
-    if ( i_channels % 2 == 0 ):
-        return ( l_lowest [ int ( i_channels / 2 ) ] + l_lowest [ int ( i_channels / 2 ) - 1 ] ) / 2
+    if ( channels % 2 == 0 ):
+        return ( lowest [ int ( channels / 2 ) ] + lowest [ int ( channels / 2 ) - 1 ] ) / 2
     else:
-        return l_lowest [ floor ( i_channels / 2 ) ]
+        return lowest [ floor ( channels / 2 ) ]
 
 def suppress_channel ( array = numpy.ndarray,
                        channels = list,

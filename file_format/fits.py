@@ -15,13 +15,13 @@ class fits ( file_reader ):
                    file_name = None, 
                    log = print, 
                    metadata = [ ],
-                   d_photons = None ):
+                   photons = None ):
         super ( fits, self ).__init__ ( )
         self.log = log
         self.__file_name = file_name
         self.__array = array
         self.__metadata = metadata
-        self.__d_photons = d_photons
+        self.__photons = photons
 
     def get_array ( self ):
         return self.__array
@@ -105,70 +105,70 @@ class fits ( file_reader ):
                 value = entry['value']
                 key = entry['key']
                 if value != None:
-                    d_metadata [ key ] = value
-        #self.log ( "d_metadata = %s" % str ( d_metadata ) )
+                    metadata [ key ] = value
+        #self.log ( "metadata = %s" % str ( metadata ) )
 
-        d_splitted = { }
-        for s_key in d_metadata.keys ( ):
-            sl_values = d_metadata [ s_key ].split ( "," )
-            d_splitted [ s_key ] = sl_values
+        splitted = { }
+        for key in metadata.keys ( ):
+            values = metadata [ key ].split ( "," )
+            splitted [ key ] = values
 
-        d_columns = { }
-        for s_key in d_splitted.keys ( ):
-            sl_values = d_splitted [ s_key ]
-            ss_distinct_values = set ( sl_values )
-            if ( len ( ss_distinct_values ) > 2 ):
-                s_format = "A21"
-                d_columns [ s_key ] = ( sl_values, s_format )
-        #self.log ( "d_columns = %s" % str ( d_columns ) )
-        #self.log ( "d_columns.keys ( ) = %s" % str ( d_columns.keys ( ) ) )
+        columns = { }
+        for key in splitted.keys ( ):
+            values = splitted [ key ]
+            distinct_values = set ( values )
+            if ( len ( distinct_values ) > 2 ):
+                format_string = "A21"
+                columns [ key ] = ( values, format_string )
+        #self.log ( "columns = %s" % str ( columns ) )
+        #self.log ( "columns.keys ( ) = %s" % str ( columns.keys ( ) ) )
 
         fits_columns = [ ]
-        for s_key in d_columns.keys ( ):
-            #self.log ( "Appending column %s." % s_key )
-            fits_columns . append ( astrofits . Column ( name = s_key, 
-                                                         array  = d_columns [ s_key ] [ 0 ], 
-                                                         format = d_columns [ s_key ] [ 1 ] ) )
+        for key in columns.keys ( ):
+            #self.log ( "Appending column %s." % key )
+            fits_columns . append ( astrofits . Column ( name = key, 
+                                                         array  = columns [ key ] [ 0 ], 
+                                                         format = columns [ key ] [ 1 ] ) )
 
         fits_columns_definition = astrofits . ColDefs ( fits_columns )
         # The new_table method will be deprecated, when it is, use the commented line below.
         fits_table_hdu = astrofits . new_table ( fits_columns_definition )                
         #fits_table_hdu = astrofits . BinTableHDU . from_columns ( fits_columns_definition )
-        o_primary_hdu = astrofits.PrimaryHDU ( )
-        hdu_list = astrofits.HDUList ( [ o_primary_hdu, fits_table_hdu ] )
+        primary_hdu = astrofits.PrimaryHDU ( )
+        hdu_list = astrofits.HDUList ( [ primary_hdu, fits_table_hdu ] )
         hdu_list.writeto ( "metadata_" + self.__file_name )
 
     def write_photons_table ( self ):
-        if self.__d_photons == None:
+        if self.__photons == None:
             return
 
-        d_columns = { }
-        d_columns [ 'channel' ] = [ [ ], "I2" ]
-        d_columns [ 'x' ]       = [ [ ], "I3" ]
-        d_columns [ 'y' ]       = [ [ ], "I3" ]
-        d_columns [ 'photons' ] = [ [ ], "I5" ]
+        columns = { }
+        columns [ 'channel' ] = [ [ ], "I2" ]
+        columns [ 'x' ]       = [ [ ], "I3" ]
+        columns [ 'y' ]       = [ [ ], "I3" ]
+        columns [ 'photons' ] = [ [ ], "I5" ]
 
-        for d_entry in self.__d_photons:
-            #self.log ( "debug: d_columns = %s" % str ( d_columns ) )
-            #self.log ( "debug: d_columns [ 'channel' ] = %s" % str ( d_columns [ 'channel' ] ) )
-            #self.log ( "debug: d_columns [ 'channel' ] [ 0 ] = %s" % str ( d_columns [ 'channel' ] [ 0 ] ) ) 
-            d_columns [ 'channel' ] [ 0 ] .append ( self.__d_photons [ d_entry ] [ 'channel' ] )
-            d_columns [ 'x' ]       [ 0 ] .append ( self.__d_photons [ d_entry ] [ 'x'       ] )
-            d_columns [ 'y' ]       [ 0 ] .append ( self.__d_photons [ d_entry ] [ 'y'       ] )
-            d_columns [ 'photons' ] [ 0 ] .append ( self.__d_photons [ d_entry ] [ 'photons' ] )
+        for d_entry in self.__photons:
+            #self.log ( "debug: columns = %s" % str ( columns ) )
+            #self.log ( "debug: columns [ 'channel' ] = %s" % str ( columns [ 'channel' ] ) )
+            #self.log ( "debug: columns [ 'channel' ] [ 0 ] = %s" % str ( columns [ 'channel' ] [ 0 ] ) ) 
+            columns [ 'channel' ] [ 0 ].append ( self.__photons [ d_entry ] [ 'channel' ] )
+            columns [ 'x' ]       [ 0 ].append ( self.__photons [ d_entry ] [ 'x'       ] )
+            columns [ 'y' ]       [ 0 ].append ( self.__photons [ d_entry ] [ 'y'       ] )
+            columns [ 'photons' ] [ 0 ].append ( self.__photons [ d_entry ] [ 'photons' ] )
 
         
         fits_columns = [ ]
-        for s_key in d_columns.keys ( ):
-            #self.log ( "Appending column %s." % s_key )
-            fits_columns . append ( astrofits . Column ( name = s_key, 
-                                                         array  = d_columns [ s_key ] [ 0 ], 
-                                                         format = d_columns [ s_key ] [ 1 ] ) )
+        for key in columns.keys ( ):
+            #self.log ( "Appending column %s." % key )
+            fits_columns . append ( astrofits . Column ( name = key, 
+                                                         array  = columns [ key ] [ 0 ], 
+                                                         format = columns [ key ] [ 1 ] ) )
 
         fits_columns_definition = astrofits . ColDefs ( fits_columns )
         # The new_table method will be deprecated, when it is, use the commented line below.
         fits_table_hdu = astrofits . new_table ( fits_columns_definition )                
         #fits_table_hdu = astrofits . BinTableHDU . from_columns ( fits_columns_definition )
-        o_primary_hdu = astrofits.PrimaryHDU ( )
-        hdu_list = astrofits.HDUList ( [ o_primary_hdu, fits_table_hdu ] )
+        primary_hdu = astrofits.PrimaryHDU ( )
+        hdu_list = astrofits.HDUList ( [ primary_hdu, fits_table_hdu ] )
         hdu_list.writeto ( "photons_" + self.__file_name )

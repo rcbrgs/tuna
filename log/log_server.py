@@ -18,9 +18,9 @@ class log_server ( object ):
         super ( log_server, self ).__init__ ( )
         # config logging module
         log_file_name = expanduser ( "~/tuna.log" )
-        s_format = "%(asctime)-15s %(message)s"
+        format_string = "%(asctime)-15s %(message)s"
         logging.basicConfig ( filename = log_file_name, 
-                              format = s_format, 
+                              format = format_string, 
                               level = logging.DEBUG )
         logging.debug ( "Tuna (debug): Logging module started." )
         logging.info  ( "Tuna  (info): Logging threshold: logging DEBUG or higher." )
@@ -39,33 +39,33 @@ class log_server ( object ):
         self._keep_running = True
 
     def parse ( self, 
-                s_msg = str ):
-        s_decoded = s_msg.decode ( "utf-8" )
-        l_split = s_decoded.partition ( ": " )
-        if len ( l_split [2] ) == 0:
-            s_type = "?"
-            s_contents = l_split [ 0 ]
+                msg = str ):
+        decoded = msg.decode ( "utf-8" )
+        split = decoded.partition ( ": " )
+        if len ( split [2] ) == 0:
+            type = "?"
+            contents = split [ 0 ]
         else:
-            s_type = l_split [ 0 ].lower ( )
-            s_contents = l_split [ 2 ]
+            type = split [ 0 ].lower ( )
+            contents = split [ 2 ]
         # logging levels are:
         # CRITICAL 50
         # ERROR    40
         # WARNING  30
         # INFO     20
         # DEBUG    10
-        if ( s_type == "debug" ): 
-            logging.debug   ( "Tuna (debug): " + s_contents )
-        elif ( s_type == "info" ):
-            logging.info    ( "Tuna  (info): " + s_contents )
-        elif ( s_type == "warning" ):
-            logging.warning ( "Tuna  (warn): " + s_contents )
-        elif ( s_type == "error" ):
-            logging.warning ( "Tuna (error): " + s_contents )
-        elif ( s_type == "critical" ):
-            logging.warning ( "Tuna  (crit): " + s_contents )
+        if ( type == "debug" ): 
+            logging.debug   ( "Tuna (debug): " + contents )
+        elif ( type == "info" ):
+            logging.info    ( "Tuna  (info): " + contents )
+        elif ( type == "warning" ):
+            logging.warning ( "Tuna  (warn): " + contents )
+        elif ( type == "error" ):
+            logging.warning ( "Tuna (error): " + contents )
+        elif ( type == "critical" ):
+            logging.warning ( "Tuna  (crit): " + contents )
         else:
-            logging.debug   ( "Tuna     (?): " + s_contents )
+            logging.debug   ( "Tuna     (?): " + contents )
         
     def run ( self ):
         while self._keep_running == True:

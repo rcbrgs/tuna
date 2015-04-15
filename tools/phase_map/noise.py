@@ -24,7 +24,7 @@ def create_noise_array ( array = None,
     - channel_threshold is the channel distance that will be tolerated. 
     It defaults to 1.
     """
-    i_start = time ( )
+    start = time ( )
 
     noise_map = numpy.zeros ( shape = array.shape, dtype = numpy.int16 )
     max_channel = numpy.amax ( array )
@@ -36,8 +36,8 @@ def create_noise_array ( array = None,
             neighbours = get_pixel_neighbours ( ( x, y ), array )
             # Since pixels in the borders of the canvas have less neighbours,
             # they start with those non-existing neighbours marked as bad.
-            number_of_neighbours = len ( neighbours )
-            bad_results = 8 - number_of_neighbours
+            number_oneighbours = len ( neighbours )
+            bad_results = 8 - number_oneighbours
             for neighbour in neighbours:
                 distance = abs ( array [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] - this_channel ) % max_channel
                 if distance > channel_threshold:
@@ -46,7 +46,7 @@ def create_noise_array ( array = None,
                 include_noise_circle ( position = ( x, y ), radius = noise_mask_radius, array = noise_map )
                 continue
 
-    log ( "info: create_noise_array() took %ds" % ( time ( ) - i_start ) )
+    log ( "info: create_noise_array() took %ds" % ( time ( ) - start ) )
     return noise_map
 
 def include_noise_circle ( position = ( int, int ), radius = int, array = numpy.array ):
