@@ -7,6 +7,7 @@ Classes:
 zmq_bus -- (stub) zmq proxy
 """
 
+import time
 import zmq
 
 class zmq_proxy ( ):
@@ -20,15 +21,8 @@ class zmq_proxy ( ):
     def __init__ ( self ):
         self.__zmq_context = zmq.Context ( )
         self.__zmq_socket_rep = self.__zmq_context.socket ( zmq.REP )
-        #self.__zmq_socket_rep.setsockopt ( zmq.LINGER, 0 )
-        try: 
-            self.__zmq_socket_rep.bind ( "tcp://127.0.0.1:5000" )
-        except zmq.ZMQError as error_message:
-            print ( 'ZMQError: %s' % error_message )
-            import sys
-            sys.exit ( 'Could not bind to port.' )
-        self.__lock = True
 
+        self.__lock = False
         self.__zmq_poller = zmq.Poller ( )
         self.__zmq_poller.register ( self.__zmq_socket_rep, zmq.POLLIN )
 
@@ -88,6 +82,21 @@ class zmq_proxy ( ):
 
         destination_call_table is a dictionary associating target strings with the functions to be run. The services responsible for a given target can be changed here without changing the clients.
         """
+
+        started = False
+        first_try = True
+        while ( not started ):
+            try: 
+                started = True
+                self.__zmq_socket_rep.bind ( "tcp://127.0.0.1:5000" )
+            except zmq.ZMQError as error_message:
+                if ( first_try ):
+                    print ( 'ZMQError: %s' % error_message )
+                    print ( "Is zmq_proxy already running? Will silently retry every 10 seconds." )
+                    first_try = False
+                time.sleep ( 10 )
+                started = False
+        self.__lock = True
 
         destination_call_table = {
             'info' : self.__call_print,

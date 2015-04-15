@@ -37,7 +37,7 @@ class zmq_client ( ):
         
         unanswered = True
         while unanswered:
-            answer = dict ( self.poller.poll ( 10 ) )
+            answer = dict ( self.poller.poll ( 1000 ) )
             if answer.get ( self.zmq_socket_req ) == zmq.POLLIN:
                 answer = self.zmq_socket_req.recv ( )
                 if answer.decode("utf-8") != 'ACK':

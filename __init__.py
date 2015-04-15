@@ -5,14 +5,13 @@ Tuna
 This program provides access to Tuna's libraries' namespaces.
 """
 
-from .console        import console
-from .data_cube      import data_cube
-#from .io             import *
-from .io.convenience import read, write
-from .gui            import gui
-from .log            import log
-from .tools          import tools
-from .zeromq         import zeromq
+import tuna.console
+import tuna.data_cube
+import tuna.io
+import tuna.gui
+import tuna.log
+import tuna.tools
+import tuna.zeromq
 
 class daemons ( object ):
     def __init__ ( self ):

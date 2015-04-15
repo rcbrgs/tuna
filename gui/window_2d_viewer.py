@@ -13,7 +13,7 @@ import sys
 import threading
 from tuna.zeromq import zmq_client
 from tuna.gui import widget_viewer_2d
-from tuna.file_format import adhoc, fits
+from tuna.io import adhoc, fits
 #from tuna.tools.phase_map.high_resolution import high_resolution
 
 class window_2d_viewer ( threading.Thread ):

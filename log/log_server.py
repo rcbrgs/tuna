@@ -7,6 +7,7 @@ log_server -- Daemon that saves to file messages received through ZeroMQ.
 
 import logging
 from os.path import expanduser
+import time
 import zmq
 
 class log_server ( object ):
@@ -27,12 +28,6 @@ class log_server ( object ):
         # instantiate a REP node 
         self.__zmq_context = zmq.Context ( )
         self.__zmq_socket_rep = self.__zmq_context.socket ( zmq.REP )
-        try: 
-            self.__zmq_socket_rep.bind ( "tcp://127.0.0.1:5001" )
-        except zmq.ZMQError as error_message:
-            print ( "ZMQError: %e." % error_message )
-            import sys
-            sys.exit ( 'Tuna log server error: Could not bind to port.' )
         self.__zmq_poller = zmq.Poller ( )
         self.__zmq_poller.register ( self.__zmq_socket_rep, zmq.POLLIN )
 
@@ -68,6 +63,20 @@ class log_server ( object ):
             logging.debug   ( "Tuna     (?): " + contents )
         
     def run ( self ):
+        started = False
+        first_try = True
+        while ( not started ):
+            try: 
+                started = True
+                self.__zmq_socket_rep.bind ( "tcp://127.0.0.1:5001" )
+            except zmq.ZMQError as error_message:
+                if ( first_try ):
+                    print ( "ZMQError: %s." % str ( error_message ) )
+                    print ( "Is log_server already running? Will silently retry every 10 seconds." )
+                    first_try = False
+                started = False
+                time.sleep ( 10 )
+
         while self._keep_running == True:
             zmq_buffer = dict ( self.__zmq_poller.poll ( 5000 ) )
             if self.__zmq_socket_rep in zmq_buffer and zmq_buffer [ self.__zmq_socket_rep ] == zmq.POLLIN:

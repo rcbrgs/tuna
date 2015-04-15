@@ -7,11 +7,12 @@ This program is a wrapper, meant to allow Tuna to be used in the Python interpre
 import sys
 import threading
 import tuna
+from tuna.zeromq.zmq_proxy import zmq_proxy
 
 class zmq_daemon ( threading.Thread ):
     def __init__ ( self ):
         super ( zmq_daemon, self ).__init__ ( daemon = True )
-        self.zmq_proxy_instance = tuna.zeromq.zmq_proxy ( )
+        self.zmq_proxy_instance = zmq_proxy ( )
 
     def run ( self ):
         self.zmq_proxy_instance.run ( )

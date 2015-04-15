@@ -144,6 +144,7 @@ class can ( file_reader ):
 
         self.ndim = self.array.ndim
         self.shape = self.array.shape
+        self.log ( "debug: self.array.ndim == %d, self.ndim == %d." % ( self.array.ndim, self.ndim ) )
         if self.ndim == 3:
             self.planes = self.array.shape [ 0 ]
             self.rows   = self.array.shape [ 1 ]
@@ -152,7 +153,8 @@ class can ( file_reader ):
             self.planes = 1
             self.rows   = self.array.shape [ 0 ]
             self.cols   = self.array.shape [ 1 ]
-        else:
+        if ( self.ndim < 2 or
+             self.ndim > 3 ):
             self.log ( "warning: ndarray has either less than 2 or more than 3 dimensions." )
-            self.log ( "debug: self.array.ndim == %d, self.ndim == %d." % ( self.array.ndim, self.ndim ) )
+
         self.convert_ndarray_into_table ( )
