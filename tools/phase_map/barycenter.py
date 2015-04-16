@@ -198,7 +198,7 @@ def create_barycenter_array ( array = None,
     start = time ( )
 
     barycenter_object = barycenter ( array = array )
-    barycenter = barycenter_object.create_barycenter_using_peak ( )
+    result = barycenter_object.create_barycenter_using_peak ( )
 
     log ( "info: create_barycenter_array() took %ds." % ( time ( ) - start ) )
-    return barycenter
+    return result

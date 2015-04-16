@@ -51,8 +51,8 @@ class high_resolution ( object ):
         """
         super ( high_resolution, self ).__init__ ( )
         if log == None:
-            zmq_client = zmq_client ( )
-            self.log = zmq_client.log
+            zmq_client_instance = zmq_client ( )
+            self.log = zmq_client_instance.log
         else:
             self.log = log
 
@@ -86,7 +86,7 @@ class high_resolution ( object ):
             self.__array = array
 
         self.continuum_array = create_continuum_array ( array = self.__array, 
-                                                        continuum_tFSR_ratio = 0.25,
+                                                        continuum_to_FSR_ratio = 0.25,
                                                         display = False,
                                                         log = self.log )
 

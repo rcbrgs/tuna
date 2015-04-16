@@ -56,12 +56,12 @@ class fsr ( object ):
                 fsr_result = len ( ordered_rings )
                 distance = sqrt ( ( self.__center [ 0 ] - row ) ** 2 +
                                   ( self.__center [ 1 ] - col ) ** 2 )
-                for fsr in range ( len ( ordered_rings ) ):
-                    if ( distance <= ordered_rings [ fsr ] + ring_thickness_threshold ):
-                        fsr_result = fsr
-                        if ( distance >= ordered_rings [ fsr ] - ring_thickness_threshold ):
+                for fsr_range in range ( len ( ordered_rings ) ):
+                    if ( distance <= ordered_rings [ fsr_range ] + ring_thickness_threshold ):
+                        fsr_result = fsr_range
+                        if ( distance >= ordered_rings [ fsr_range ] - ring_thickness_threshold ):
                             if self.__wrapped [ row ] [ col ] < median_channel:
-                                fsr_result = fsr + 1
+                                fsr_result = fsr_range + 1
                         break
                 fsr [ row ] [ col ] = fsr_result
 
@@ -94,8 +94,8 @@ class fsr ( object ):
             return 0
 
         thicknesses = [ ranges [ 0 ] [ 0 ] ]
-        for range in range ( 1, len ( ranges ) ):
-            thicknesses.append ( ranges [ range ] [ 0 ] - ranges [ range - 1 ] [ -1 ] )
+        for thickness in range ( 1, len ( ranges ) ):
+            thicknesses.append ( ranges [ thickness ] [ 0 ] - ranges [ thickness - 1 ] [ -1 ] )
         self.log ( "debug: thicknesses = %s" % str ( thicknesses ) )
 
         return int ( max ( min ( thicknesses ) * 0.25, 20 ) )
