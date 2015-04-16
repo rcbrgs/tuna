@@ -59,26 +59,38 @@ class fits ( file_reader ):
         if self.__file_name:
             hdu = astrofits.PrimaryHDU ( self.__array )
             if self.__metadata:
+                #self.log ( "debug: self.__metadata = %s" % ( str ( self.__metadata ) ) )
                 columns = { }
                 key_list = [ ]
                 with warnings.catch_warnings ( ):
                     warnings.simplefilter ( "ignore" )
-                    for entry in self.__metadata:
-                        comment = entry['comment']
-                        value = entry['value']
-                        key = entry['key']
+                    for key in self.__metadata.keys ( ):
+                        #self.log ( "debug: self.__metadata [ %s ] = %s" % ( str ( key ), str ( self.__metadata [ key ] ) ) )
+                        comment  = self.__metadata [ key ] [ 2 ]
+                        #value    = self.__metadata [ key ] [ 1 ]
+                        value = ""
+                        for metadata_value in self.__metadata [ key ] [ 1 ]:
+                            if ( value == "" ):
+                                value += str ( metadata_value )
+                            else:
+                                value += ", " + str ( metadata_value )
+                        fits_key = self.__metadata [ key ] [ 0 ]
 
-                        if len ( key ) > 8:
-                            comment += "Original key = " + key + ". "
-                            key = key[:7]
+                        #self.log ( "debug: comment = %s" % str ( comment ) )
+                        #self.log ( "debug: value = %s" % str ( value ) )
+                        #self.log ( "debug: fits_key = %s" % str ( fits_key ) )
+
+                        if len ( fits_key ) > 8:
+                            comment += "Original key = " + fits_key + ". "
+                            fits_key = fits_key[:7]
 
                         # check for repeated keys
                         repeat = 1
-                        while key in key_list:
+                        while fits_key in key_list:
                             repeat += 1
-                            key = str ( repeat ) + key[: - len ( str ( repeat ) )]
+                            fits_key = str ( repeat ) + fits_key [ : - len ( str ( repeat ) ) ]
 
-                        key_list.append ( key )
+                        key_list.append ( fits_key )
 
                         if value == None:
                             value = ""
@@ -87,12 +99,12 @@ class fits ( file_reader ):
                             value = value [:59]
 
                         try:
-                            hdu.header [key] = ( value, comment )
+                            hdu.header [ fits_key ] = ( value, comment )
                         except ValueError as error_message:
                             self.log ( "error: ValueError: %s." % ( error_message ) )                
-                            self.log ( "error: key = value, len ( value ) + len ( key ): %s = %s, %d" % ( key, value, len ( value ) + len ( key ) ) )
+                            self.log ( "error: fits_key = value, len ( value ) + len ( fits_key ): %s = %s, %d" % ( fits_key, value, len ( value ) + len ( fits_key ) ) )
                         
-            hdu_list = astrofits.HDUList ( [hdu] )
+            hdu_list = astrofits.HDUList ( [ hdu ] )
             hdu_list.writeto ( self.__file_name )
 
     def write_metadata_table ( self ):
@@ -102,31 +114,25 @@ class fits ( file_reader ):
         metadata = { }
         with warnings.catch_warnings ( ):
             warnings.simplefilter ( "ignore" )
-            for entry in self.__metadata:
-                value = entry['value']
-                key = entry['key']
-                if value != None:
-                    metadata [ key ] = value
-        #self.log ( "metadata = %s" % str ( metadata ) )
+            for key in self.__metadata.keys ( ):
+                fits_key = self.__metadata [ key ] [ 0 ]
+                value    = self.__metadata [ key ] [ 1 ]
+                comment  = self.__metadata [ key ] [ 2 ]
 
-        splitted = { }
-        for key in metadata.keys ( ):
-            values = metadata [ key ].split ( "," )
-            splitted [ key ] = values
+                metadata [ fits_key ] = ( value, comment )
 
         columns = { }
-        for key in splitted.keys ( ):
-            values = splitted [ key ]
+        for key in metadata.keys ( ):
+            values = metadata [ key ] [ 0 ]
             distinct_values = set ( values )
             if ( len ( distinct_values ) > 2 ):
                 format_string = "A21"
                 columns [ key ] = ( values, format_string )
-        #self.log ( "columns = %s" % str ( columns ) )
-        #self.log ( "columns.keys ( ) = %s" % str ( columns.keys ( ) ) )
+        self.log ( "debug: columns.keys ( ) = %s" % str ( columns.keys ( ) ) )
 
         fits_columns = [ ]
         for key in columns.keys ( ):
-            #self.log ( "Appending column %s." % key )
+            self.log ( "debug: appending column %s with array %s and format %s." % ( key, columns [ key ] [ 0 ], columns [ key ] [ 1 ] ) )
             fits_columns . append ( astrofits . Column ( name = key, 
                                                          array  = columns [ key ] [ 0 ], 
                                                          format = columns [ key ] [ 1 ] ) )

@@ -91,8 +91,8 @@ class zmq_proxy ( ):
                 self.__zmq_socket_rep.bind ( "tcp://127.0.0.1:5000" )
             except zmq.ZMQError as error_message:
                 if ( first_try ):
-                    print ( 'ZMQError: %s' % error_message )
-                    print ( "Is zmq_proxy already running? Will silently retry every 10 seconds." )
+                    #print ( 'ZMQError: %s' % error_message )
+                    #print ( "Is zmq_proxy already running? Will silently retry every 10 seconds." )
                     first_try = False
                 time.sleep ( 10 )
                 started = False

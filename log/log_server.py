@@ -71,8 +71,8 @@ class log_server ( object ):
                 self.__zmq_socket_rep.bind ( "tcp://127.0.0.1:5001" )
             except zmq.ZMQError as error_message:
                 if ( first_try ):
-                    print ( "ZMQError: %s." % str ( error_message ) )
-                    print ( "Is log_server already running? Will silently retry every 10 seconds." )
+                    #print ( "ZMQError: %s." % str ( error_message ) )
+                    #print ( "Is log_server already running? Will silently retry every 10 seconds." )
                     first_try = False
                 started = False
                 time.sleep ( 10 )

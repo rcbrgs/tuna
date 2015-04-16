@@ -30,53 +30,30 @@ def generate_data ( channels ):
     for channel in channels:
         channel_string += str ( channel ) + "_"
 
-    #tuna.io.write ( file_name   = 'G094.AD3_channel_suppressed_' + channel_string + '04_suppressed.fits',
-    #                array       = suppressed,
-    #                file_format = 'fits' )    
-
     file_name = "G094.AD3_channel_suppressed_" + channel_string + '04_suppressed.fits'
     file_name_unpathed = file_name.split ( "/" ) [ -1 ]
 
-    #o_raw = tuna.read ( file_name )
-    #a_raw = suppressed
-    o_high_res = tuna.tools.phase_map.high_resolution ( array = suppressed,
-                                                        beam = 450,
-                                                        f_calibration_wavelength = 6598.950,
-                                                        finesse = 15.,
-                                                        focal_length = 0.1,
-                                                        f_free_spectral_range = 8.36522123894,
-                                                        gap = 1904,
-                                                        i_interference_order = 798,
-                                                        f_interference_reference_wavelength = 6562.7797852,
-                                                        wrapped_phase_map_algorithm = tuna.tools.phase_map.create_barycenter_array, 
-                                                        channel_threshold = 1, 
-                                                        bad_neighbours_threshold = 7, 
-                                                        noise_mask_radius = 7,
-                                                        f_scanning_wavelength = 6616.895 )
+    high_res = tuna.tools.phase_map.high_resolution ( array = suppressed,
+                                                      beam = 450,
+                                                      calibration_wavelength = 6598.950,
+                                                      finesse = 15.,
+                                                      focal_length = 0.1,
+                                                      free_spectral_range = 8.36522123894,
+                                                      gap = 1904,
+                                                      interference_order = 798,
+                                                      interference_reference_wavelength = 6562.7797852,
+                                                      wrapped_phase_map_algorithm = tuna.tools.phase_map.create_barycenter_array, 
+                                                      channel_threshold = 1, 
+                                                      bad_neighbours_threshold = 7, 
+                                                      noise_mask_radius = 7,
+                                                      scanning_wavelength = 6616.895 )
 
-    #a_continuum              = o_high_res.get_continuum_array ( )
-    #a_filtered               = o_high_res.get_filtered ( )
-    #a_wrapped                = o_high_res.get_wrapped_phase_map_array ( )
-    #a_noise                  = o_high_res.get_binary_noise_array ( )
-    #a_distances              = o_high_res.get_borders_to_center_distances ( )
-    #a_FSRs                   = o_high_res.get_order_array ( )
     unwrapped              = o_high_res.get_unwrapped_phase_map_array ( )
-    #a_parabolic_model        = o_high_res.get_parabolic_Polynomial2D_model ( )
-    #a_airy                   = o_high_res.get_airy ( )
-    #a_wavelength             = o_high_res.get_wavelength_calibrated ( )
-
-    #tuna.io.write ( file_name   = file_name_unpathed + '_07_unwrapped.fits',
-    #                array       = a_unwrapped,
-    #                file_format = 'fits' )    
 
     import numpy
     compare_one = unwrapped
     compare_two = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G094.AD3_07_unwrapped.fits' )
-
     comparison = compare_one - compare_two.array
-    #tuna.io.write ( file_name   = file_name_unpathed + '_11_comparison.fits',
-    #                array       = comparison,
-    #                file_format = 'fits' )
 
     return numpy.sum ( numpy.square ( comparison ) )
 

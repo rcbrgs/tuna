@@ -19,12 +19,12 @@ high_res = tuna.tools.phase_map.high_resolution ( array = raw,
                                                   scanning_wavelength = 6616.895,
                                                   wrapped_phase_map_algorithm = tuna.tools.phase_map.create_barycenter_array )
 
-continuum = o_high_res.get_continuum_array ( )
-wrapped   = o_high_res.get_wrapped_phase_map_array ( )
-noise     = o_high_res.get_binary_noise_array ( )
-distances = o_high_res.get_borders_to_center_distances ( )
-FSRs      = o_high_res.get_order_array ( )
-unwrapped = o_high_res.get_unwrapped_phase_map_array ( )
+continuum = high_res.get_continuum_array ( )
+wrapped   = high_res.get_wrapped_phase_map_array ( )
+noise     = high_res.get_binary_noise_array ( )
+distances = high_res.get_borders_to_center_distances ( )
+FSRs      = high_res.get_order_array ( )
+unwrapped = high_res.get_unwrapped_phase_map_array ( )
 
 tuna.io.write ( file_name   = '1_g092_continuum.fits',
                 array       = continuum,
