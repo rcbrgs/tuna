@@ -98,6 +98,7 @@ class can ( file_reader ):
                 self.cube = cube ( log = self.log,
                                      data = self.array )
                 self.metadata = ada_object.get_metadata ( )
+                #self.log ( "debug: self.metadata = %s" % ( str ( self.metadata ) ) )
                 self.__d_photons = ada_object.get_photons ( )
             elif ( self.file_name.startswith ( ".fits", -5 ) or
                    self.file_name.startswith ( ".FITS", -5 ) ):

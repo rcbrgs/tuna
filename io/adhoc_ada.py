@@ -61,8 +61,14 @@ class ada ( file_reader ):
         self.read_adt_metadata ( )
 
         adt = open ( self.__file_name, "r" )
-               
-        number_of_channels = int ( self.__metadata [ 'Number of channels' ] [ 1 ] )
+
+        #number_of_channels = 0
+        #known_channels = [ ]        
+        #for channel in self.__metadata [ 'channel' ] [ 0 ]:
+        #    if channel not in known_channels:
+        #        known_channels.append ( channel )
+        #        number_of_channels += 1
+        number_of_channels = len ( set ( self.__metadata [ 'channel' ] [ 0 ] ) )
         self.log ( "debug: number_of_channels = %s." % ( number_of_channels ) )
 
         for line in adt:
@@ -305,4 +311,7 @@ class ada ( file_reader ):
             l_elements = [ parameter, parameter_ordered_list, "" ]
             adt_parameters [ parameter ] = l_elements
 
-        self.__metadata = adt_parameters
+            self.__metadata [ parameter ] = ( parameter_ordered_list, "" )
+            #self.log ( "debug: self.__metadata = %s" % ( str ( self.__metadata ) ) )
+
+        #self.__metadata = adt_parameters

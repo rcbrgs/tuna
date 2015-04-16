@@ -14,7 +14,7 @@ class fits ( file_reader ):
                    array = None, 
                    file_name = None, 
                    log = print, 
-                   metadata = [ ],
+                   metadata = { },
                    photons = None ):
         super ( fits, self ).__init__ ( )
         self.log = log
@@ -31,7 +31,7 @@ class fits ( file_reader ):
 
     def read ( self ):
         if self.__file_name == None:
-            self.log ( "No file_name for FITS read." )
+            self.log ( "debug: No file_name for FITS read." )
             self._is_readable = False
 
         self.log ( "debug: Trying to read file %s as FITS file." % self.__file_name )
@@ -43,16 +43,16 @@ class fits ( file_reader ):
             self.__array = hdu_list[0].data
             self.log ( "debug: Assigned data section of first HDU as the image ndarray." )
             self.log ( "debug: self.__array.ndim == %d" % self.__array.ndim )
-            metadata = [ ]
-            for key in hdu_list[0].header.keys ( ):
-                metadata_dict = { }
-                metadata_dict['key'] = key
-                metadata_dict['value'] = hdu_list[0].header[key]
-                metadata_dict['comment'] = hdu_list[0].header.comments[key]
-                self.__metadata.append ( metadata_dict )
+            metadata = { }
+            for key in hdu_list [ 0 ].header.keys ( ):
+                metadata_value   = hdu_list [ 0 ].header [ key ]
+                metadata_comment = hdu_list [ 0 ].header.comments [ key ]
+                self.__metadata [ key ] = ( metadata_value, metadata_comment )
+            self.log ( "debug: metadata = %s" % ( str ( self.__metadata ) )  )
+                
             self._is_readable = True
         except OSError as e:
-            self.log ( "OSError: %s." % e )
+            self.log ( "debug: OSError: %s." % e )
             self._is_readable = False
 
     def write ( self, file_name = None ):
@@ -66,23 +66,24 @@ class fits ( file_reader ):
                     warnings.simplefilter ( "ignore" )
                     for key in self.__metadata.keys ( ):
                         #self.log ( "debug: self.__metadata [ %s ] = %s" % ( str ( key ), str ( self.__metadata [ key ] ) ) )
-                        comment  = self.__metadata [ key ] [ 2 ]
-                        #value    = self.__metadata [ key ] [ 1 ]
+                        comment  = self.__metadata [ key ] [ 1 ]
+                        #value    = self.__metadata [ key ] [ 0 ]
                         value = ""
-                        for metadata_value in self.__metadata [ key ] [ 1 ]:
+                        for metadata_value in self.__metadata [ key ] [ 0 ]:
                             if ( value == "" ):
                                 value += str ( metadata_value )
                             else:
                                 value += ", " + str ( metadata_value )
-                        fits_key = self.__metadata [ key ] [ 0 ]
+                        #fits_key = self.__metadata [ key ] [ 0 ]
 
                         #self.log ( "debug: comment = %s" % str ( comment ) )
                         #self.log ( "debug: value = %s" % str ( value ) )
                         #self.log ( "debug: fits_key = %s" % str ( fits_key ) )
 
+                        fits_key = key
                         if len ( fits_key ) > 8:
-                            comment += "Original key = " + fits_key + ". "
-                            fits_key = fits_key[:7]
+                            comment += "Original key = " + key + ". "
+                            fits_key = key[:7]
 
                         # check for repeated keys
                         repeat = 1
@@ -111,28 +112,21 @@ class fits ( file_reader ):
         if not self.__metadata:
             return
 
-        metadata = { }
-        with warnings.catch_warnings ( ):
-            warnings.simplefilter ( "ignore" )
-            for key in self.__metadata.keys ( ):
-                fits_key = self.__metadata [ key ] [ 0 ]
-                value    = self.__metadata [ key ] [ 1 ]
-                comment  = self.__metadata [ key ] [ 2 ]
-
-                metadata [ fits_key ] = ( value, comment )
-
         columns = { }
-        for key in metadata.keys ( ):
-            values = metadata [ key ] [ 0 ]
+        for key in self.__metadata.keys ( ):
+            values = self.__metadata [ key ] [ 0 ]
             distinct_values = set ( values )
             if ( len ( distinct_values ) > 2 ):
+                #self.log ( "debug: more than 2 distinct values: %s." % str ( distinct_values ) )
                 format_string = "A21"
                 columns [ key ] = ( values, format_string )
-        self.log ( "debug: columns.keys ( ) = %s" % str ( columns.keys ( ) ) )
+        #self.log ( "debug: columns.keys ( ) = %s" % str ( columns.keys ( ) ) )
 
         fits_columns = [ ]
         for key in columns.keys ( ):
-            self.log ( "debug: appending column %s with array %s and format %s." % ( key, columns [ key ] [ 0 ], columns [ key ] [ 1 ] ) )
+            #self.log ( "debug: appending column %s with array %s and format %s." % ( key, 
+            #                                                                         columns [ key ] [ 0 ], 
+            #                                                                         columns [ key ] [ 1 ] ) )
             fits_columns . append ( astrofits . Column ( name = key, 
                                                          array  = columns [ key ] [ 0 ], 
                                                          format = columns [ key ] [ 1 ] ) )

@@ -9,4 +9,5 @@ tuna.io.write ( file_name   = 'g093.fits',
                 metadata    = can.metadata,
                 file_format = 'fits' )
 can_fits = tuna.io.read ( file_name = ( 'g093.fits' ) )
-print ( can_fits.get_metadata_parameter ( parameter = 'EXPOSUR' ) )
+print ( can_fits.metadata )
+print ( can_fits.metadata [ 'QUEENSG' ] )
