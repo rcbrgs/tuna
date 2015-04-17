@@ -48,7 +48,7 @@ class fits ( file_reader ):
                 metadata_value   = hdu_list [ 0 ].header [ key ]
                 metadata_comment = hdu_list [ 0 ].header.comments [ key ]
                 self.__metadata [ key ] = ( metadata_value, metadata_comment )
-            self.log ( "debug: metadata = %s" % ( str ( self.__metadata ) )  )
+            #self.log ( "debug: metadata = %s" % ( str ( self.__metadata ) )  )
                 
             self._is_readable = True
         except OSError as e:

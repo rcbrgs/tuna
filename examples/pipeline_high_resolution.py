@@ -6,7 +6,7 @@ import tuna
 file_name = "/home/nix/sync/tuna/sample_data/G094.AD3"
 file_name_unpathed = file_name.split ( "/" ) [ -1 ]
 
-can = tuna.read ( file_name )
+can = tuna.io.read ( file_name )
 raw = can.array
 high_res = tuna.tools.phase_map.high_resolution ( array = raw,
                                                   beam = 450,
