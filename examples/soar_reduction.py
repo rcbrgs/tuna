@@ -6,6 +6,10 @@ import tuna
 file_name = "/home/nix/sync/tuna/sample_data/soar_025_3D.fits"
 file_name_unpathed = file_name.split ( "/" ) [ -1 ]
 can = tuna.io.read ( file_name )
+
+import sys
+sys.exit ( 0 )
+
 raw = can.array
 high_res = tuna.tools.phase_map.high_resolution ( array = raw,
                                                   beam = 450,
@@ -68,6 +72,6 @@ unwrapped  = tuna.io.read ( file_name_unpathed + '_06_unwrapped.fits' )
 
 comparison = unwrapped - wavelength
 
-tuna.write ( file_name   = file_name_unpathed + '_10_wavelength_calibrated_residue.fits',
-             array       = comparison.array,
-             file_format = 'fits' )
+tuna.io.write ( file_name   = file_name_unpathed + '_10_wavelength_calibrated_residue.fits',
+                array       = comparison.array,
+                file_format = 'fits' )

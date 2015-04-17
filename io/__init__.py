@@ -8,5 +8,6 @@ from .can             import can
 from .convenience import ( read,
                            write )
 from .fits            import fits
+from tuna.io.system   import status
 from .metadata_parser import ( metadata_parser, 
                                get_metadata )

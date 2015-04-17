@@ -4,6 +4,8 @@ from tuna.data_cube.cube import cube
 from .file_reader import file_reader
 from .fits import fits
 import numpy
+import time
+import tuna
 
 class can ( file_reader ):
     def __init__ ( self, 
@@ -32,26 +34,31 @@ class can ( file_reader ):
         self.metadata = None
         self.update ( )
 
-    def __add__ ( self,
-                  can ):
+    def __add__ ( self, summand ):
         result = can ( log = self.log )
-        result.cube = self.cube + can.cube
+        result.cube = self.cube + summand.cube
         result.array = result.cube.get_array ( )
 
         return result
 
-    def __sub__ ( self,
-                  can ):
+    def __sub__ ( self, subtrahend ):
         result = can ( log = self.log )
-        result.cube = self.cube - can.cube
+        result.cube = self.cube - subtrahend.cube
         result.array = result.cube.get_array ( )
         
         return result
 
     def convert_ndarray_into_table ( self ):
+        start = time.time ( )
+
         photons = [ ]
-    
+        self.log ( "info: parsing image into photon table 0% done." )
+        last_percentage_logged = 0
         for plane in range ( self.planes ):
+            percentage = 10 * int ( plane / self.planes * 10 )
+            if percentage > last_percentage_logged:
+                self.log ( "info: parsing image into photon table %d%% done." % ( percentage ) )
+                last_percentage_logged = percentage
             for row in range ( self.rows ):
                 for col in range ( self.cols ):
                     photon = { }
@@ -63,8 +70,10 @@ class can ( file_reader ):
                     elif self.ndim == 2:
                         photon [ 'photons' ] = self.array [ row ] [ col ]
                     photons.append ( photon )
+        self.log ( "info: parsing image into photon table 100% done." )
 
         self.photons = photons
+        self.log ( "info: convert_ndarray_into_table() took %ds." % ( time.time ( ) - start ) )
 
     def convert_table_into_ndarray ( self ):
         planes = 0
@@ -88,6 +97,7 @@ class can ( file_reader ):
         self.array = array
 
     def read ( self ):
+        self.log ( "debug: before attempting to read file, " + tuna.io.system.status ( ) )
         if self.file_name:
             if ( self.file_name.startswith ( ".ADT", -4 ) or
                  self.file_name.startswith ( ".adt", -4 ) ):
@@ -120,6 +130,7 @@ class can ( file_reader ):
                 self.array = adhoc_object.get_array ( )
                 self.cube = cube ( log = self.log,
                                      data = self.array )
+        self.log ( "debug: after attempting to read file, " + tuna.io.system.status ( ) )
 
 
     def update ( self ):
@@ -145,7 +156,7 @@ class can ( file_reader ):
 
         self.ndim = self.array.ndim
         self.shape = self.array.shape
-        self.log ( "debug: self.array.ndim == %d, self.ndim == %d." % ( self.array.ndim, self.ndim ) )
+        self.log ( "debug: can.update: self.array.ndim == %d, self.ndim == %d." % ( self.array.ndim, self.ndim ) )
         if self.ndim == 3:
             self.planes = self.array.shape [ 0 ]
             self.rows   = self.array.shape [ 1 ]

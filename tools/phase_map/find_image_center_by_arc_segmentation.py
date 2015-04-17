@@ -224,6 +224,8 @@ def find_image_center_by_arc_segmentation ( wrapped = numpy.ndarray,
     """
     start = time ( )
 
+    log ( "info: trying to find_image_center_by_arc_segmentation()." )
+
     finder = image_center_by_arc_segmentation ( unwrapped = wrapped,
                                                   log = log )
     center = finder.get_center ( )

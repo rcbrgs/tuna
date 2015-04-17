@@ -30,21 +30,33 @@ def create_noise_array ( array = None,
     max_channel = numpy.amax ( array )
     if ( max_channel == 0 ):
         return noise_map
-    for x in range ( array.shape[0] ):
-        for y in range ( array.shape[1] ):
-            this_channel = array[x][y]
+
+    log ( "info: noise array 0% created." )
+    last_percentage_logged = 0
+    for x in range ( array.shape [ 0 ] ):
+        percentage = 10 * int ( x / array.shape [ 0 ] * 10 )
+        if ( percentage > last_percentage_logged ):
+            log ( "info: noise array %d%% created." % ( percentage ) )
+            last_percentage_logged = percentage
+
+        for y in range ( array.shape [ 1 ] ):
+            this_channel = array [ x ] [ y ]
+            if ( this_channel != 0 ):
+                continue
+
             neighbours = get_pixel_neighbours ( ( x, y ), array )
             # Since pixels in the borders of the canvas have less neighbours,
             # they start with those non-existing neighbours marked as bad.
-            number_oneighbours = len ( neighbours )
-            bad_results = 8 - number_oneighbours
+            number_of_neighbours = len ( neighbours )
+            bad_results = 8 - number_of_neighbours
             for neighbour in neighbours:
-                distance = abs ( array [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] - this_channel ) % max_channel
+                distance = abs ( array [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] - this_channel )
                 if distance > channel_threshold:
                     bad_results += 1
             if ( bad_results > bad_neighbours_threshold ):
                 include_noise_circle ( position = ( x, y ), radius = noise_mask_radius, array = noise_map )
                 continue
+    log ( "info: noise array 100% created." )
 
     log ( "info: create_noise_array() took %ds" % ( time ( ) - start ) )
     return noise_map

@@ -68,8 +68,14 @@ class barycenter ( object ):
         # The "shoulder_mask" gets the integer 1 at every index between the leftmost and rightmost channels in the spectral ROI.
         # The weighted-by-distance mass value is the profile times the multipliers array;
         # The total mass value is the profile times the shoulder_mask.
+        
+        self.log ( "info: creating barycenter 0% done." )
+        last_percentage_logged = 0
         for row in range ( self.cube.max_row ):
-            #self.log ( "debug: row = %d" % row )
+            percentage = 10 * int ( row / self.cube.max_row * 10 )
+            if percentage > last_percentage_logged:
+                self.log ( "info: creating barycenter %d%% done." % ( percentage ) )
+                last_percentage_logged = percentage
             for col in range ( self.cube.max_col ):
                 profile = self.__array[:,row,col]
                 shoulder = self.get_fwhh ( profile = profile )
@@ -102,6 +108,7 @@ class barycenter ( object ):
                     ordered_shifted_center_of_mass = shifted_center_of_mass % ( self.cube.max_dep )
                 
                 barycenter_array[row][col] = ordered_shifted_center_of_mass
+        self.log ( "info: creating barycenter 100% done." )
 
         return barycenter_array
 
@@ -197,7 +204,7 @@ def create_barycenter_array ( array = None,
     """
     start = time ( )
 
-    barycenter_object = barycenter ( array = array )
+    barycenter_object = barycenter ( array = array, log = log )
     result = barycenter_object.create_barycenter_using_peak ( )
 
     log ( "info: create_barycenter_array() took %ds." % ( time ( ) - start ) )

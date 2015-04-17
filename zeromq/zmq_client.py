@@ -35,6 +35,7 @@ class zmq_client ( ):
 
         self.zmq_socket_req.send_unicode ( prefixed_msg )
         
+        retries = 0
         unanswered = True
         while unanswered:
             answer = dict ( self.poller.poll ( 1000 ) )
@@ -46,9 +47,11 @@ class zmq_client ( ):
                     print ( u"Expected: 'ACK'" )
                 unanswered = False
             else:
+                retries += 1
                 self.open_socket ( )
                 self.register_poller ( )
-                self.zmq_socket_req.send_unicode ( prefixed_msg )
+                suffixed_message = prefixed_msg + " (message resent " + str ( retries ) + " times)" 
+                self.zmq_socket_req.send_unicode ( suffixed_message )
 
         self.close_socket ( )
 

@@ -11,6 +11,7 @@ from tuna.tools.models.parabola import fit_parabolic_model_by_Polynomial2D
 from .ring_borders import create_ring_borders_map, create_borders_to_center_distances
 from tuna.tools.get_pixel_neighbours import get_pixel_neighbours
 from .spectrum import create_continuum_array
+from tuna.io.system import status
 from time import time
 from tuna.tools.wavelength.wavelength_calibration import wavelength_calibration
 from tuna.zeromq.zmq_client import zmq_client
@@ -57,6 +58,7 @@ class high_resolution ( object ):
             self.log = log
 
         self.log ( "info: Starting high_resolution pipeline." )
+        self.log ( "debug: %s" % ( status ( ) ) )
 
         try:
             array
@@ -85,46 +87,58 @@ class high_resolution ( object ):
         else:
             self.__array = array
 
+        self.log ( "debug: %s" % ( status ( ) ) )
         self.continuum_array = create_continuum_array ( array = self.__array, 
                                                         continuum_to_FSR_ratio = 0.25,
                                                         display = False,
                                                         log = self.log )
+        self.log ( "debug: %s" % ( status ( ) ) )
 
         self.filtered_array = numpy.ndarray ( shape = self.__array.shape )
         for dep in range ( self.__array.shape[0] ):
             self.filtered_array[dep,:,:] = self.__array[dep,:,:] - self.continuum_array
 
+        self.log ( "debug: %s" % ( status ( ) ) )
         self.wrapped_phase_map_array = wrapped_phase_map_algorithm ( array = self.filtered_array,
                                                                      log = self.log )
 
+        self.log ( "debug: %s" % ( status ( ) ) )
         self.__center = find_image_center_by_arc_segmentation ( wrapped = self.wrapped_phase_map_array,
                                                                     log = self.log )
 
+        self.log ( "debug: %s" % ( status ( ) ) )
         self.binary_noise_array = create_noise_array ( array = self.wrapped_phase_map_array, 
                                                        bad_neighbours_threshold = bad_neighbours_threshold, 
                                                        channel_threshold = channel_threshold, 
                                                        log = self.log,
                                                        noise_mask_radius = noise_mask_radius )
 
+        self.log ( "debug: %s" % ( status ( ) ) )
         self.__borders_to_center_distances = create_borders_to_center_distances ( log = self.log, 
                                                                                   array = self.wrapped_phase_map_array,
                                                                                   center = self.__center,
                                                                                   noise_array = self.binary_noise_array )
 
+        self.log ( "debug: %s" % ( status ( ) ) )
         self.__fsr = create_fsr_map ( distances = self.__borders_to_center_distances,
                                       center = self.__center,
                                       log = self.log,
                                       wrapped = self.wrapped_phase_map_array )
 
+        self.log ( "debug: %s" % ( status ( ) ) )
         self.order_array = self.__fsr.astype ( dtype = numpy.float64 )
 
+        self.log ( "debug: %s" % ( status ( ) ) )
         self.create_unwrapped_phase_map_array ( )
 
+        self.log ( "debug: %s" % ( status ( ) ) )
         self.__parabolic_coefficients, self.__parabolic_model_Polynomial2D = fit_parabolic_model_by_Polynomial2D ( center = self.__center, log = self.log, noise = self.binary_noise_array, unwrapped = self.unwrapped_phase_map )
 
+        self.log ( "debug: %s" % ( status ( ) ) )
         self.verify_parabolic_model ( )
 
         # Airy
+        self.log ( "debug: %s" % ( status ( ) ) )
         self.__airy = fit_airy ( log = self.log,
                                    beam = beam,
                                    center = self.__center,
@@ -134,6 +148,7 @@ class high_resolution ( object ):
                                    gap = gap )
 
         # Wavelength calibration
+        self.log ( "debug: %s" % ( status ( ) ) )
         self.log ( "debug: self.__calibration_wavelength == %s" % str ( self.__calibration_wavelength ) )
         self.__wavelength_calibrated = None
         self.log ( "debug: self.unwrapped_phase_map.ndim == %d" % self.unwrapped_phase_map.ndim )
@@ -143,11 +158,13 @@ class high_resolution ( object ):
                                   free_spectral_range = self.__free_spectral_range,
                                   scanning_wavelength = self.__scanning_wavelength )
             
+        self.log ( "debug: %s" % ( status ( ) ) )
         self.__wavelength_calibrated = wavelength_calibration ( log = self.log,
                                                                 channel_width = self.__array.shape [ 0 ],
                                                                 interference_order = interference_order,
                                                                 interference_reference_wavelength = interference_reference_wavelength,
                                                                 unwrapped_phase_map = self.__unwrapped )
+        self.log ( "debug: %s" % ( status ( ) ) )
         
     def create_unwrapped_phase_map_array ( self ):
         """
@@ -165,10 +182,17 @@ class high_resolution ( object ):
         self.unwrapped_phase_map = numpy.zeros ( shape = self.wrapped_phase_map_array.shape )
         self.log ( "debug: self.unwrapped_phase_map.ndim == %d" % self.unwrapped_phase_map.ndim )
 
+        self.log ( "info: phase map 0% unwrapped." )
+        last_percentage_logged = 0
         for x in range ( max_x ):
+            percentage = 10 * int ( x / max_x * 10 )
+            if percentage > last_percentage_logged:
+                last_percentage_logged = percentage
+                self.log ( "info: phase map %d%% unwrapped." % percentage )
             for y in range ( max_y ):
                 self.unwrapped_phase_map[x][y] = self.wrapped_phase_map_array[x][y] + max_channel * float ( self.order_array[x][y] )
-                    
+        self.log ( "info: phase map 100%% unwrapped." )
+
         max_channel = numpy.amax ( self.unwrapped_phase_map )
         min_channel = numpy.amin ( self.unwrapped_phase_map )
         #self.log ( "After unwrapping:" )

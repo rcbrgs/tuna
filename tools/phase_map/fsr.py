@@ -32,7 +32,13 @@ class fsr ( object ):
         self.log ( "debug: ring_thickness_threshold = %f" % ring_thickness_threshold )
         # find how many rings are there
         rings = [ ]
+        self.log ( "info: fsr array 0% created." )
+        last_percentage_logged = 0
         for row in range ( self.__max_rows ):
+            percentage = 10 * int ( row / self.__max_rows * 10 )
+            if percentage > last_percentage_logged:
+                last_percentage_logged = percentage
+                self.log ( "info: fsr array %d%% created." % percentage )
             for col in range ( self.__max_cols ):
                 if self.__distances [ row ] [ col ] > 0:
                     possible_new_ring = True
@@ -42,6 +48,7 @@ class fsr ( object ):
                             possible_new_ring = False
                     if possible_new_ring:
                         rings.append ( self.__distances [ row ] [ col ] )
+        self.log ( "info: fsr array 100%% created." )
         #self.log ( "fl_rings = %s" % str ( rings ) )
 
         # order rings by distance

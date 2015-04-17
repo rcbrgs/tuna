@@ -18,11 +18,19 @@ class ring_borders ( object ):
         Supposing there is an array for the borders, and the center has been found, produce an array with the distances from each border pixel to the center.
         """
         borders_to_center_distances = self.__ring_borders_map - self.__noise_array
+        self.log ( "info: distances array 0% created." )
+        last_percentage_logged = 0
         for row in range ( borders_to_center_distances.shape[0] ):
+            percentage = 10 * int ( row / borders_to_center_distances.shape [ 0 ] * 10 )
+            if percentage > last_percentage_logged:
+                self.log ( "info: distances array %d%% created." % percentage )
+                last_percentage_logged = percentage
             for col in range ( borders_to_center_distances.shape[1] ):
                 if borders_to_center_distances[row][col] == 1:
                     borders_to_center_distances[row][col] = sqrt ( ( row - self.__center[0] ) ** 2 +
                                                                    ( col - self.__center[1] ) ** 2 )
+        self.log ( "info: distances array 100%% created." )
+
         self.__borders_to_center_distances = borders_to_center_distances
 
     def create_map_from_barycenter_array ( self ):

@@ -38,15 +38,22 @@ def create_continuum_array ( array = numpy.ndarray,
                                     ndarray_object = continuum_array )
         viewer.start ( )
 
-    for row in range ( array.shape[1] ):
-        #log ( "debug: row %d" % row )
-        for col in range ( array.shape[2] ):
+    log ( "info: continuum array 0% created." )
+    last_percentage_logged = 0
+    for row in range ( array.shape [ 1 ] ):
+        percentage = 10 * int ( row / array.shape [ 1 ] * 10 )
+        if ( percentage > last_percentage_logged ):
+            last_percentage_logged = percentage
+            log ( "info: continuum array %d%% created." % ( percentage ) )
+        for col in range ( array.shape [ 2 ] ):
             #print ( "col: %d" % col )
             #continuum_array[row][col] = average_of_lowest_channels ( array = array[:,row,col], 
             continuum_array [ row ] [ col ] = median_of_lowest_channels ( spectrum = array [ :, row, col ], 
                                                                           continuum_to_FSR_ratio = continuum_to_FSR_ratio )
             #if display:
             #    viewer.update ( data = continuum_array )
+        
+    log ( "info: continuum array 100%% created." )
 
     log ( "info: create_continuum_array() took %ds." % ( time ( ) - start ) )
     return continuum_array
@@ -56,12 +63,14 @@ def median_of_lowest_channels ( continuum_to_FSR_ratio = 0.25,
     """
     Returns the median of the three lowest channels of the input profile.
     """
-    auxiliary = numpy.copy ( spectrum )
     channels = int ( continuum_to_FSR_ratio * spectrum.shape [ 0 ] )
+
     lowest = [ ]
+    auxiliary = spectrum
     for channel in range ( channels ):
-        lowest.append ( numpy.amin ( auxiliary ) )
-        auxiliary = numpy.delete ( auxiliary, numpy.argmin ( auxiliary ) )
+        min_index = numpy.argmin ( auxiliary )
+        lowest.append ( auxiliary [ min_index ] )
+        auxiliary = numpy.delete ( auxiliary, min_index )
     lowest.sort ( )
 
     if ( channels % 2 == 0 ):
