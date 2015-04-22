@@ -14,7 +14,6 @@ import threading
 from tuna.zeromq import zmq_client
 from tuna.gui import widget_viewer_2d
 from tuna.io import adhoc, fits
-#from tuna.tools.phase_map.high_resolution import high_resolution
 import tuna
 
 class window_2d_viewer ( threading.Thread ):
@@ -29,7 +28,7 @@ class window_2d_viewer ( threading.Thread ):
         self.app = PyQt4.QtGui.QApplication ( sys.argv )
         self.main_widget = window_2d_viewer_gui ( log = self.log, 
                                                   desktop_widget = self.app.desktop ( ), 
-                                                  ndarray_object = self.array )
+                                                  array = self.array )
         sys.exit ( self.app.exec_ ( ) )
 
     def update ( self,
@@ -39,13 +38,15 @@ class window_2d_viewer ( threading.Thread ):
 class window_2d_viewer_gui ( QMainWindow ):
     def __init__ ( self, 
                    desktop_widget = None, 
-                   ndarray_object = numpy.ndarray, 
+                   array = numpy.ndarray, 
                    log = None ):
         super ( window_2d_viewer_gui, self ).__init__ ( )
         if log == None:
             self.log = print
         else:
             self.log = log
+
+        self.array = array
 
         self.__gui_zmq_client = tuna.zeromq.zmq_client ( )
         self.logger = self.__gui_zmq_client.log
@@ -54,7 +55,7 @@ class window_2d_viewer_gui ( QMainWindow ):
         self.init_gui ( )
 
         self.image_viewer = widget_viewer_2d.widget_viewer_2d ( log = self.log )
-        self.image_viewer.set_image_ndarray ( ndarray_object )
+        self.image_viewer.set_image_ndarray ( array )
         self.image_viewer.select_slice ( 0 )
         file_name = ""
         self.image_viewer.set_title ( file_name )
@@ -92,7 +93,9 @@ class window_2d_viewer_gui ( QMainWindow ):
         desktop_rect = self.desktop_widget.availableGeometry ( )
         self.log ( 'debug: Desktop height = ' + str ( desktop_rect.height ( ) ) )
         self.log ( 'debug: Desktop width  = ' + str ( desktop_rect.width ( ) ) )
-        self.setGeometry ( 300, 300, 250,150 )
+        self.log ( "debug: Image width = %d" % self.array.shape [ 1 ] )
+        self.log ( "debug: Image height = %d" % self.array.shape [ 0 ] )
+        self.setGeometry ( 300, 300, self.array.shape [ 1 ] + 100, self.array.shape [ 0 ] + 150 )
         self.setWindowTitle ( 'Tuna' )
         self.statusBar ( ).showMessage ( 'Waiting for command.' )
         self.show ( )
