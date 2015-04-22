@@ -197,8 +197,8 @@ class barycenter ( object ):
         else:
             return channel + 1
 
-def create_barycenter_array ( array = None,
-                              log = print ):
+def detect_barycenters ( array = None,
+                         log = print ):
     """
     Create a wrapped phase map using the barycenter of each spectrum as the pixel value.
     """

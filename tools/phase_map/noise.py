@@ -3,11 +3,11 @@ import numpy
 from tuna.tools.get_pixel_neighbours import get_pixel_neighbours
 from time import time
 
-def create_noise_array ( array = None, 
-                         bad_neighbours_threshold = 7, 
-                         channel_threshold = 1, 
-                         log = print, 
-                         noise_mask_radius = 0 ):
+def detect_noise ( array = None, 
+                   bad_neighbours_threshold = 7, 
+                   channel_threshold = 1, 
+                   log = print, 
+                   noise_mask_radius = 0 ):
     """
     This method will be applied to each pixel; it is at channel C.
     All neighbours should have their valye in the interval [C - epsilon, C + epsilon], or, if C = 0 or C = max, the neighbours could be wrapped to the previous/next order. 

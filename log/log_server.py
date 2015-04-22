@@ -59,7 +59,7 @@ class log_server ( object ):
             logging.debug   ( time_string + "Tuna (debug): " + contents )
         elif ( type == "info" ):
             logging.info    ( time_string + "Tuna  (info): " + contents )
-            print ( contents )
+            #print ( contents )
         elif ( type == "warning" ):
             logging.warning ( time_string + "Tuna  (warn): " + contents )
             print ( "(warn): " + contents )

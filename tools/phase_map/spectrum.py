@@ -22,10 +22,10 @@ def average_of_lowest_channels ( array = numpy.ndarray, number_of_channels = 3 )
 
     return minimum_sum / number_of_channels
 
-def create_continuum_array ( array = numpy.ndarray,
-                             continuum_to_FSR_ratio = 0.25,
-                             display = False,
-                             log = print ):
+def detect_continuum ( array = numpy.ndarray,
+                       continuum_to_FSR_ratio = 0.25,
+                       display = False,
+                       log = print ):
     """
     Returns a 2D numpy ndarray where each pixel has the value of the continuum level of the input 3D array.
     """
