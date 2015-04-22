@@ -59,15 +59,20 @@ class log_server ( object ):
             logging.debug   ( time_string + "Tuna (debug): " + contents )
         elif ( type == "info" ):
             logging.info    ( time_string + "Tuna  (info): " + contents )
+            print ( contents )
         elif ( type == "warning" ):
             logging.warning ( time_string + "Tuna  (warn): " + contents )
+            print ( "(warn): " + contents )
         elif ( type == "error" ):
             logging.warning ( time_string + "Tuna (error): " + contents )
+            print ( "(error): " + contents )
         elif ( type == "critical" ):
             logging.warning ( time_string + "Tuna  (crit): " + contents )
+            print ( "(critical): " + contents )
         else:
             logging.debug   ( time_string + "Tuna     (?): " + contents )
-        
+            print 
+
     def run ( self ):
         started = False
         first_try = True

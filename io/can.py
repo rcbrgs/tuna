@@ -136,7 +136,7 @@ class can ( file_reader ):
     def update ( self ):
         if ( self.array == None and
              self.photons == None ):
-            self.log ( "warning: Empty Tuna can." )
+            self.log ( "debug: Empty Tuna can." )
             self.metadata = None
             self.ndim = None
             self.shape = None
