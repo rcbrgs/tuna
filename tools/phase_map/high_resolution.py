@@ -87,18 +87,8 @@ class high_resolution ( threading.Thread ):
         self.wrapped_phase_map = None
 
     def run ( self ):
-        #if self.channel_subset != None:
-        #    self.log ( "info: Substituting channels: %s" % str ( self.channel_subset ) )
-        #    for channel in range ( self.tuna_can.planes ):
-        #        if channel in self.channel_subset:
-        #            self.substituted_channels = self.substitute_channel_by_interpolation ( self.tuna_can.array,
-        #                                                                                   channel = channel )
-        #else:
-        #    self.substituted_channels = numpy.copy ( self.tuna_can.array )
-        self.substituted_channels = numpy.copy ( self.tuna_can.array )
-
         self.continuum = tuna.tools.phase_map.detect_continuum ( log = self.log,
-                                                                 array = self.substituted_channels, 
+                                                                 array = self.tuna_can.array, 
                                                                  continuum_to_FSR_ratio = self.continuum_to_FSR_ratio )
 
         self.discontinuum = numpy.ndarray ( shape = self.tuna_can.shape )
@@ -144,6 +134,13 @@ class high_resolution ( threading.Thread ):
                                                      finesse = self.finesse,
                                                      focal_length = self.focal_length,
                                                      gap = self.gap )
+        
+        if self.channel_subset != [ ]:            
+            self.log ( "info: Substituting channels: %s" % str ( self.channel_subset ) )
+            self.substituted_channels = numpy.copy ( self.tuna_can )
+            for channel in range ( self.tuna_can.planes ):
+                if channel in self.channel_subset:
+                    self.substituted_channels [ plane ] = numpy.copy ( self.airy_fit [ plane ] )
 
         #self.wavelength_calibrated = tuna.tools.wavelength.calibration ( log = self.log,
         #                                                                 channel_width = self.tuna_can.planes,
