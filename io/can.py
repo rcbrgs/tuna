@@ -73,7 +73,7 @@ class can ( file_reader ):
         self.log ( "info: parsing image into photon table 100% done." )
 
         self.photons = photons
-        self.log ( "info: convert_ndarray_into_table() took %ds." % ( time.time ( ) - start ) )
+        self.log ( "debug: convert_ndarray_into_table() took %ds." % ( time.time ( ) - start ) )
 
     def convert_table_into_ndarray ( self ):
         planes = 0
@@ -95,6 +95,16 @@ class can ( file_reader ):
             array [ photon [ 'channel ' ] - 1 ] [ photon [ 'row' ] ] [ photon [ 'col' ] ] = photon [ 'photons' ]
         
         self.array = array
+
+    def info ( self ):
+        self.log ( "info: file_name = %s" % self.file_name )
+        self.log ( "info: shape = %s" % str ( self.shape ) )
+        self.log ( "info: ndim = %d" % self.ndim )
+        self.log ( "info: planes = %d" % self.planes )
+        self.log ( "info: rows = %d" % self.rows )
+        self.log ( "info: cols = %d" % self.cols )
+        self.log ( "info: interference_order = %s" % str ( self.interference_order ) )
+        self.log ( "info: interference_reference_wavelength = %s" % str ( self.interference_reference_wavelength ) )
 
     def read ( self ):
         self.log ( "debug: before attempting to read file, " + tuna.io.system.status ( ) )
@@ -129,9 +139,21 @@ class can ( file_reader ):
                 adhoc_object.read ( )
                 self.array = adhoc_object.get_array ( )
                 self.cube = cube ( log = self.log,
-                                     data = self.array )
+                                   data = self.array )
+                #self.metadata = adhoc_object.__trailer
+                self.update ( )
         self.log ( "debug: after attempting to read file, " + tuna.io.system.status ( ) )
 
+    def show ( self,
+               plane = 0 ):
+        if self.ndim == 3:
+            window = tuna.gui.window_2d_viewer ( log = self.log,
+                                                 array = self.array [ plane ] )
+            window.start ( )
+        else:
+            tuna.gui.window_2d_viewer ( log = self.log,
+                                        array = self.array )
+            window.start ( )
 
     def update ( self ):
         if ( self.array == None and
