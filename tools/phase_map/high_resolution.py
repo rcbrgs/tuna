@@ -72,6 +72,7 @@ class high_resolution ( threading.Thread ):
         self.tuna_can = tuna_can
 
         """outputs:"""
+        self.airy_fit = None
         self.borders_to_center_distances = None
         self.continuum = None
         self.discontinuum = None
