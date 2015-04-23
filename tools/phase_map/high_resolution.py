@@ -94,7 +94,7 @@ class high_resolution ( threading.Thread ):
 
         self.discontinuum = numpy.ndarray ( shape = self.tuna_can.shape )
         for plane in range ( self.tuna_can.planes ):
-            self.discontinuum [ plane, : , : ] = self.tuna_can.array [ plane, : , : ] - self.continuum
+            self.discontinuum [ plane, : , : ] = self.tuna_can.array [ plane, : , : ] - self.continuum.array
 
         self.wrapped_phase_map = tuna.tools.phase_map.detect_barycenters ( log = self.log,
                                                                            array = self.discontinuum )

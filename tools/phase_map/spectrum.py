@@ -1,7 +1,8 @@
-from tuna.gui.window_2d_viewer import window_2d_viewer
+#from tuna.gui.window_2d_viewer import window_2d_viewer
 from math import floor
 import numpy
 from time import time
+import tuna
 
 def average_of_lowest_channels ( array = numpy.ndarray, number_of_channels = 3 ):
     """
@@ -27,7 +28,7 @@ def detect_continuum ( array = numpy.ndarray,
                        display = False,
                        log = print ):
     """
-    Returns a 2D numpy ndarray where each pixel has the value of the continuum level of the input 3D array.
+    Returns a can where each pixel has the value of the continuum level of the input 3D array.
     """
     start = time ( )
 
@@ -53,10 +54,13 @@ def detect_continuum ( array = numpy.ndarray,
             #if display:
             #    viewer.update ( data = continuum_array )
         
-    log ( "info: continuum array 100%% created." )
+    log ( "info: continuum array 100% created." )
 
-    log ( "info: create_continuum_array() took %ds." % ( time ( ) - start ) )
-    return continuum_array
+    can = tuna.io.can ( log = log, 
+                        array = continuum_array )
+
+    log ( "info: detect_continuum() took %ds." % ( time ( ) - start ) )
+    return can
 
 def median_of_lowest_channels ( continuum_to_FSR_ratio = 0.25,
                                 spectrum = numpy.ndarray ):
