@@ -6,7 +6,6 @@ This program provides access to Tuna's libraries' namespaces.
 """
 
 import tuna.console
-import tuna.data_cube
 import tuna.io
 from tuna.io.convenience import ( read,
                                   write )

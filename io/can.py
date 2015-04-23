@@ -1,6 +1,5 @@
 from .adhoc import adhoc
 from .adhoc_ada import ada
-from tuna.data_cube.cube import cube
 from .file_reader import file_reader
 from .fits import fits
 import numpy
@@ -11,7 +10,6 @@ class can ( file_reader ):
     def __init__ ( self, 
                    log = print,
                    array = None,
-                   cube = None,
                    file_name = None,
                    interference_order = None,
                    interference_reference_wavelength = None,
@@ -20,7 +18,6 @@ class can ( file_reader ):
         self.log = log
 
         self.array = array
-        self.cube = cube
         self.file_name = file_name
         self.interference_order = interference_order
         self.interference_reference_wavelength = interference_reference_wavelength
@@ -35,17 +32,15 @@ class can ( file_reader ):
         self.update ( )
 
     def __add__ ( self, summand ):
-        result = can ( log = self.log )
-        result.cube = self.cube + summand.cube
-        result.array = result.cube.get_array ( )
-
+        sum_array = self.array + summand.array
+        result = can ( log = self.log,
+                       array = sum_array )
         return result
 
     def __sub__ ( self, subtrahend ):
-        result = can ( log = self.log )
-        result.cube = self.cube - subtrahend.cube
-        result.array = result.cube.get_array ( )
-        
+        subtraction_array = self.array - subtrahend.array
+        result = can ( log = self.log,
+                       array = subtraction_array )
         return result
 
     def convert_ndarray_into_table ( self ):
@@ -115,10 +110,7 @@ class can ( file_reader ):
                                    log = self.log )
                 ada_object.read ( )
                 self.array = ada_object.get_array ( )
-                self.cube = cube ( log = self.log,
-                                     data = self.array )
                 self.metadata = ada_object.get_metadata ( )
-                #self.log ( "debug: self.metadata = %s" % ( str ( self.metadata ) ) )
                 self.__d_photons = ada_object.get_photons ( )
             elif ( self.file_name.startswith ( ".fits", -5 ) or
                    self.file_name.startswith ( ".FITS", -5 ) ):
@@ -126,8 +118,6 @@ class can ( file_reader ):
                                      log = self.log )
                 fits_object.read ( )
                 self.array = fits_object.get_array ( )
-                self.cube = cube ( log = self.log,
-                                     data = self.array )
                 self.metadata = fits_object.get_metadata ( )
                 self.update ( )
             elif ( self.file_name.startswith ( ".ad2", -4 ) or
@@ -138,8 +128,6 @@ class can ( file_reader ):
                                        log = self.log )
                 adhoc_object.read ( )
                 self.array = adhoc_object.get_array ( )
-                self.cube = cube ( log = self.log,
-                                   data = self.array )
                 #self.metadata = adhoc_object.__trailer
                 self.update ( )
         self.log ( "debug: after attempting to read file, " + tuna.io.system.status ( ) )
