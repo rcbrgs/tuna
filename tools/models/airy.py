@@ -6,6 +6,7 @@ from astropy.modeling.fitting import NonLinearLSQFitter as LevMarLSQFitter
 from math import sqrt
 import numpy
 from time import time
+import tuna
 
 class airy ( Parametric2DModel ):
     """
@@ -127,4 +128,6 @@ def fit_airy ( log = print,
         log ( "debug: For plane %d, Airy fit parameters are: beam = %s, center_row = %s, center_col = %s, finesse = %s, focal_length = %s, gap = %s" % ( dep, str ( airy_model_fit.parameters [ 0 ] ), str ( airy_model_fit.parameters [ 1 ] ), str ( airy_model_fit.parameters [ 2 ] ), str ( airy_model_fit.parameters [ 3 ] ), str ( airy_model_fit.parameters [ 4 ] ), str ( airy_model_fit.parameters [ 5 ] ) ) )
 
     log ( "info: Airy fit took %ds." % ( time ( ) - start ) )
-    return result
+    return tuna.io.can ( log = log,
+                         array = result )
+

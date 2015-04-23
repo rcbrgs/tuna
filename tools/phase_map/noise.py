@@ -1,7 +1,8 @@
 from math import ceil, sqrt
 import numpy
-from tuna.tools.get_pixel_neighbours import get_pixel_neighbours
+#from tuna.tools.get_pixel_neighbours import get_pixel_neighbours
 from time import time
+import tuna
 
 def detect_noise ( array = None, 
                    bad_neighbours_threshold = 7, 
@@ -44,7 +45,7 @@ def detect_noise ( array = None,
             if ( this_channel != 0 ):
                 continue
 
-            neighbours = get_pixel_neighbours ( ( x, y ), array )
+            neighbours = tuna.tools.get_pixel_neighbours ( ( x, y ), array )
             # Since pixels in the borders of the canvas have less neighbours,
             # they start with those non-existing neighbours marked as bad.
             number_of_neighbours = len ( neighbours )
@@ -58,8 +59,11 @@ def detect_noise ( array = None,
                 continue
     log ( "info: noise array 100% created." )
 
+    result = tuna.io.can ( log = log,
+                           array = noise_map )
+
     log ( "info: create_noise_array() took %ds" % ( time ( ) - start ) )
-    return noise_map
+    return result
 
 def include_noise_circle ( position = ( int, int ), radius = int, array = numpy.array ):
     for x in range ( position[0] - ceil ( radius ), position[0] + ceil ( radius ) + 1 ):

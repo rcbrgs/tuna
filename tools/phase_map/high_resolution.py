@@ -92,62 +92,67 @@ class high_resolution ( threading.Thread ):
                                                                  array = self.tuna_can.array, 
                                                                  continuum_to_FSR_ratio = self.continuum_to_FSR_ratio )
 
-        self.discontinuum = numpy.ndarray ( shape = self.tuna_can.shape )
+        self.discontinuum = tuna.io.can ( log = self.log,
+                                          array = numpy.ndarray ( shape = self.tuna_can.shape ) )
         for plane in range ( self.tuna_can.planes ):
-            self.discontinuum [ plane, : , : ] = self.tuna_can.array [ plane, : , : ] - self.continuum.array
+            self.discontinuum.array [ plane, : , : ] = self.tuna_can.array [ plane, : , : ] - self.continuum.array
 
         self.wrapped_phase_map = tuna.tools.phase_map.detect_barycenters ( log = self.log,
-                                                                           array = self.discontinuum )
+                                                                           array = self.discontinuum.array )
 
         self.rings_center = tuna.tools.phase_map.find_image_center_by_arc_segmentation ( log = self.log,
-                                                                                         wrapped = self.wrapped_phase_map )
+                                                                                         wrapped = self.wrapped_phase_map.array )
 
         self.noise = tuna.tools.phase_map.detect_noise ( log = self.log,
-                                                         array = self.wrapped_phase_map, 
+                                                         array = self.wrapped_phase_map.array, 
                                                          bad_neighbours_threshold = self.bad_neighbours_threshold, 
                                                          channel_threshold = self.channel_threshold, 
                                                          noise_mask_radius = self.noise_mask_radius )
 
         self.borders_to_center_distances = tuna.tools.phase_map.create_borders_to_center_distances ( log = self.log, 
-                                                                                                     array = self.wrapped_phase_map,
+                                                                                                     array = self.wrapped_phase_map.array,
                                                                                                      center = self.rings_center,
-                                                                                                     noise_array = self.noise )
+                                                                                                     noise_array = self.noise.array )
 
         self.fsr_map = tuna.tools.phase_map.create_fsr_map ( log = self.log,
-                                                             distances = self.borders_to_center_distances,
+                                                             distances = self.borders_to_center_distances.array,
                                                              center = self.rings_center,
-                                                             wrapped = self.wrapped_phase_map )
+                                                             wrapped = self.wrapped_phase_map.array )
 
-        self.order_map = self.fsr_map.astype ( dtype = numpy.float64 )
+        self.order_map = tuna.io.can ( log = self.log,
+                                       array = self.fsr_map.astype ( dtype = numpy.float64 ) )
 
         self.create_unwrapped_phase_map ( )
 
         self.parabolic_model, self.parabolic_fit = tuna.tools.models.fit_parabolic_model_by_Polynomial2D ( log = self.log, 
                                                                                                            center = self.rings_center, 
-                                                                                                           noise = self.noise, 
-                                                                                                           unwrapped = self.unwrapped_phase_map )
+                                                                                                           noise = self.noise.array, 
+                                                                                                           unwrapped = self.unwrapped_phase_map.array )
         self.verify_parabolic_model ( )
 
         self.airy_fit = tuna.tools.models.fit_airy ( log = self.log,
                                                      beam = self.beam,
                                                      center = self.rings_center,
-                                                     discontinuum = self.discontinuum,
+                                                     discontinuum = self.discontinuum.array,
                                                      finesse = self.finesse,
                                                      focal_length = self.focal_length,
                                                      gap = self.gap )
-        
-        if self.channel_subset != [ ]:            
-            self.log ( "info: Substituting channels: %s" % str ( self.channel_subset ) )
-            self.substituted_channels = numpy.copy ( self.tuna_can )
-            for channel in range ( self.tuna_can.planes ):
-                if channel in self.channel_subset:
-                    self.substituted_channels [ plane ] = numpy.copy ( self.airy_fit [ plane ] )
 
-        #self.wavelength_calibrated = tuna.tools.wavelength.calibration ( log = self.log,
-        #                                                                 channel_width = self.tuna_can.planes,
-        #                                                                 interference_order = self.interference_order,
-        #                                                                 interference_reference_wavelength = self.interference_reference_wavelength,
-        #                                                                 unwrapped_phase_map = self.unwrapped_phase_map )
+        substituted_channels = numpy.copy ( self.tuna_can.array )
+        for channel in range ( self.tuna_can.planes ):
+            if channel in self.channel_subset:
+                substituted_channels [ plane ] = numpy.copy ( self.airy_fit.array [ plane ] )
+        self.substituted_channels = tuna.io.can ( log = self.log,
+                                                  array = substituted_channels )
+
+        self.wavelength_calibrated = tuna.tools.wavelength.calibration ( log = self.log,
+                                                                         calibration_wavelength = self.calibration_wavelength,
+                                                                         free_spectral_range = self.free_spectral_range,
+                                                                         interference_order = self.interference_order,
+                                                                         interference_reference_wavelength = self.interference_reference_wavelength,
+                                                                         scanning_wavelength = self.scanning_wavelength,
+                                                                         unwrapped_phase_map = self.unwrapped_phase_map )
+        self.log ( "debug: self.wavelength_calibrated = %s" % ( str ( self.wavelength_calibrated ) ) )
         
     def create_unwrapped_phase_map ( self ):
         """
@@ -155,15 +160,13 @@ class high_resolution ( threading.Thread ):
         """
         start = time.time ( )
 
-        max_x = self.wrapped_phase_map.shape[0]
-        max_y = self.wrapped_phase_map.shape[1]
-        max_channel = numpy.amax ( self.wrapped_phase_map )
-        min_channel = numpy.amin ( self.wrapped_phase_map )
-        #self.log ( "max_channel = %d" % max_channel )
-        #self.log ( "min_channel = %d" % min_channel )
+        max_x = self.wrapped_phase_map.array.shape[0]
+        max_y = self.wrapped_phase_map.array.shape[1]
+        max_channel = numpy.amax ( self.wrapped_phase_map.array )
+        min_channel = numpy.amin ( self.wrapped_phase_map.array )
 
-        self.unwrapped_phase_map = numpy.zeros ( shape = self.wrapped_phase_map.shape )
-        self.log ( "debug: self.unwrapped_phase_map.ndim == %d" % self.unwrapped_phase_map.ndim )
+        unwrapped_phase_map = numpy.zeros ( shape = self.wrapped_phase_map.shape )
+        self.log ( "debug: unwrapped_phase_map.ndim == %d" % unwrapped_phase_map.ndim )
 
         self.log ( "info: phase map 0% unwrapped." )
         last_percentage_logged = 0
@@ -173,11 +176,12 @@ class high_resolution ( threading.Thread ):
                 last_percentage_logged = percentage
                 self.log ( "info: phase map %d%% unwrapped." % percentage )
             for y in range ( max_y ):
-                self.unwrapped_phase_map[x][y] = self.wrapped_phase_map[x][y] + max_channel * float ( self.order_map [ x ] [ y ] )
+                unwrapped_phase_map [ x ] [ y ] = self.wrapped_phase_map.array [ x ] [ y ] + \
+                                                  max_channel * float ( self.order_map.array [ x ] [ y ] )
         self.log ( "info: phase map 100% unwrapped." )
 
-        max_channel = numpy.amax ( self.unwrapped_phase_map )
-        min_channel = numpy.amin ( self.unwrapped_phase_map )
+        self.unwrapped_phase_map = tuna.io.can ( log = self.log,
+                                                 array = unwrapped_phase_map )
 
         self.log ( "info: create_unwrapped_phase_map() took %ds." % ( time.time ( ) - start ) )
 

@@ -4,6 +4,7 @@ from astropy.modeling.fitting import NonLinearLSQFitter as LevMarLSQFitter
 from math import sqrt
 import numpy
 from time import time
+import tuna
 import warnings
 
 class parabola ( object ):
@@ -68,6 +69,9 @@ def fit_parabolic_model_by_Polynomial2D ( center = ( int, int ),
     parabolic_model = parabola ( center = center, log = log, noise = noise, unwrapped = unwrapped )
     parabolic_model.create_model_map_by_Polynomial2D ( )
     log ( "info: parabolic_model.get_center() = %s" % str ( parabolic_model.get_center ( ) ) )
+    coefficients = parabolic_model.get_coefficients ( )
+    model = tuna.io.can ( log = log,
+                          array = parabolic_model.get_model_map ( ) )
 
-    log ( "info: fit_parabolic_model_by_Polynomial2D() took %ds." % ( time ( ) - start ) )
-    return parabolic_model.get_coefficients ( ), parabolic_model.get_model_map ( )
+    log ( "debug: fit_parabolic_model_by_Polynomial2D() took %ds." % ( time ( ) - start ) )  
+    return ( coefficients, model )

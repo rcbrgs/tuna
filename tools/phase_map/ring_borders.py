@@ -1,7 +1,8 @@
 from math import sqrt
 import numpy
 from time import time
-from tuna.tools.get_pixel_neighbours import get_pixel_neighbours
+#from tuna.tools.get_pixel_neighbours import get_pixel_neighbours
+import tuna
 
 class ring_borders ( object ):
     def __init__ ( self, array = None, center = ( int, int ), log = print, noise_array = None ):
@@ -45,7 +46,7 @@ class ring_borders ( object ):
                 if self.__noise_array[x][y] == 1:
                     ring_borders_map[x][y] = 1
                     continue
-                neighbours = get_pixel_neighbours ( ( x, y ), ring_borders_map )
+                neighbours = tuna.tools.get_pixel_neighbours ( ( x, y ), ring_borders_map )
                 for neighbour in neighbours:
                     if self.__noise_array[neighbour[0]][neighbour[1]] == 0:
                         distance = self.__array[x][y] - self.__array[neighbour[0]][neighbour[1]]
@@ -65,7 +66,7 @@ class ring_borders ( object ):
             for y in range ( max_y ):
                 if self.__noise_array[x][y] == 0:
                     if self.__array[x][y] == 0.0:
-                        neighbours = get_pixel_neighbours ( ( x, y ), ring_borders_map )
+                        neighbours = tuna.tools.get_pixel_neighbours ( ( x, y ), ring_borders_map )
                         for neighbour in neighbours:
                             if self.__array[neighbour[0]][neighbour[1]] == max_channel:
                                 ring_borders_map[x][y] = 1.0
@@ -135,7 +136,9 @@ def create_borders_to_center_distances ( log = print, array = None, center = ( i
     ring_borders_object = ring_borders ( log = log, array = array, center = center, noise_array = noise_array )
     ring_borders_object.create_map_from_barycenter_array ( )
     result = ring_borders_object.get_borders_to_center_distances ( )
+    result_can = tuna.io.can ( log = log,
+                               array = result )
 
     log ( "info: create_borders_to_center_distances() took %ds." % ( time ( ) - start ) )
-    return result
+    return result_can
 

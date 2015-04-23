@@ -1,6 +1,7 @@
 from math import floor
 import numpy
 from time import time
+import tuna
 
 class spectrum_cube ( object ):
     """
@@ -206,6 +207,8 @@ def detect_barycenters ( array = None,
 
     barycenter_object = barycenter ( array = array, log = log )
     result = barycenter_object.create_barycenter_using_peak ( )
+    result_can = tuna.io.can ( log = log,
+                               array = result )
 
     log ( "info: create_barycenter_array() took %ds." % ( time ( ) - start ) )
-    return result
+    return result_can
