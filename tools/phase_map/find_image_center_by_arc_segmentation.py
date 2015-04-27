@@ -4,12 +4,13 @@ This tool tries to find the center of an image by finding the intersection of ra
 If a cube is received, it will use the first plane as its input.
 """
 
-from ..get_pixel_neighbours import get_pixel_neighbours
+#from ..get_pixel_neighbours import get_pixel_neighbours
 from math import acos, sqrt
 import numpy
 import random
 import sympy
 from time import time
+import tuna
 
 class image_center_by_arc_segmentation ( object ):
     def __init__ ( self, 
@@ -104,7 +105,7 @@ class image_center_by_arc_segmentation ( object ):
 
         for row in range ( max_rows ):
             for col in range ( max_cols ):
-                neighbours = get_pixel_neighbours ( ( row, col ), ring_borders_map )
+                neighbours = tuna.tools.get_pixel_neighbours ( ( row, col ), ring_borders_map )
                 distances = [ ]
                 for neighbour in neighbours:
                     distances.append ( int ( abs ( self.wrapped.array [ row ] [ col ] - 
@@ -128,7 +129,7 @@ class image_center_by_arc_segmentation ( object ):
                     while ( borderhood != [ ] ):
                         #self.log ( "l_borderhood = %s" % str ( borderhood ) )
                         tocolor_pixel = borderhood.pop ( )
-                        neighbours = get_pixel_neighbours ( ( tocolor_pixel [ 0 ], tocolor_pixel [ 1 ] ), ring_borders_map )
+                        neighbours = tuna.tools.get_pixel_neighbours ( ( tocolor_pixel [ 0 ], tocolor_pixel [ 1 ] ), ring_borders_map )
                         for neighbour in neighbours:
                             if neighbour not in borderhood:
                                 if ring_borders_map [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] == 1:
@@ -227,6 +228,10 @@ def find_image_center_by_arc_segmentation ( wrapped,
     start = time ( )
 
     log ( "info: trying to find_image_center_by_arc_segmentation()." )
+
+    if not isinstance ( wrapped, tuna.io.can ):
+        log ( "error: unexpected value for parameter." )
+        return None
 
     finder = image_center_by_arc_segmentation ( wrapped = wrapped,
                                                 log = log )

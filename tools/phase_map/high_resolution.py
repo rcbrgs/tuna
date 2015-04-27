@@ -101,7 +101,7 @@ class high_resolution ( threading.Thread ):
                                                                            array = self.discontinuum.array )
 
         self.rings_center = tuna.tools.phase_map.find_image_center_by_arc_segmentation ( log = self.log,
-                                                                                         wrapped = self.wrapped_phase_map.array )
+                                                                                         wrapped = self.wrapped_phase_map )
 
         self.noise = tuna.tools.phase_map.detect_noise ( log = self.log,
                                                          array = self.wrapped_phase_map.array, 
@@ -133,7 +133,7 @@ class high_resolution ( threading.Thread ):
         self.airy_fit = tuna.tools.models.fit_airy ( log = self.log,
                                                      beam = self.beam,
                                                      center = self.rings_center,
-                                                     discontinuum = self.discontinuum.array,
+                                                     discontinuum = self.discontinuum,
                                                      finesse = self.finesse,
                                                      focal_length = self.focal_length,
                                                      gap = self.gap )
