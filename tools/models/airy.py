@@ -85,13 +85,13 @@ class airy ( Parametric2DModel ):
 
         return intensity
 
-def fit_airy ( log = print, 
+def fit_airy ( discontinuum,
                beam = float,
                center = ( int, int ), 
                finesse = float,
                focal_length = float,
                gap = float,
-               discontinuum = numpy.ndarray ):
+               log = print ):
     """
     Interface function to fit an Airy model to a given input.
     """
@@ -122,7 +122,7 @@ def fit_airy ( log = print,
         airy_custom_model.focal_length = focal_length
         airy_custom_model.gap = gap
 
-        data = discontinuum [ dep ]
+        data = discontinuum.array [ dep ]
         airy_model_fit = LevMarLSQFitter_fit ( airy_custom_model, x, y, data )
         result [ dep ] = airy_model_fit ( x, y )
         log ( "debug: For plane %d, Airy fit parameters are: beam = %s, center_row = %s, center_col = %s, finesse = %s, focal_length = %s, gap = %s" % ( dep, str ( airy_model_fit.parameters [ 0 ] ), str ( airy_model_fit.parameters [ 1 ] ), str ( airy_model_fit.parameters [ 2 ] ), str ( airy_model_fit.parameters [ 3 ] ), str ( airy_model_fit.parameters [ 4 ] ), str ( airy_model_fit.parameters [ 5 ] ) ) )

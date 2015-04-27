@@ -3,9 +3,7 @@
 import tuna
 
 can = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G092.AD3_second_ring_ROI.fits' )
-raw = can.array
-high_res = tuna.tools.phase_map.high_resolution ( array = raw,
-                                                  beam = 450,
+high_res = tuna.tools.phase_map.high_resolution ( beam = 450,
                                                   bad_neighbours_threshold = 7,
                                                   calibration_wavelength = 6598.950,
                                                   channel_threshold = 1, 
@@ -17,14 +15,14 @@ high_res = tuna.tools.phase_map.high_resolution ( array = raw,
                                                   interference_reference_wavelength = 6562.7797852,
                                                   noise_mask_radius = 7,
                                                   scanning_wavelength = 6616.895,
-                                                  wrapped_phase_map_algorithm = tuna.tools.phase_map.create_barycenter_array )
+                                                  tuna_can = can )
 
-continuum = high_res.get_continuum_array ( )
-wrapped   = high_res.get_wrapped_phase_map_array ( )
-noise     = high_res.get_binary_noise_array ( )
-distances = high_res.get_borders_to_center_distances ( )
-FSRs      = high_res.get_order_array ( )
-unwrapped = high_res.get_unwrapped_phase_map_array ( )
+continuum = high_res.continuum
+wrapped   = high_res.wrapped_phase_map
+noise     = high_res.noise
+distances = high_res.borders_to_center_distances
+FSRs      = high_res.order_map
+unwrapped = high_res.unwrapped_phase_map
 
 tuna.io.write ( file_name   = '1_g092_continuum.fits',
                 array       = continuum,

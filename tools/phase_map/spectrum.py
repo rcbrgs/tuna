@@ -82,10 +82,10 @@ def median_of_lowest_channels ( continuum_to_FSR_ratio = 0.25,
     else:
         return lowest [ floor ( channels / 2 ) ]
 
-def suppress_channel ( array = numpy.ndarray,
-                       channels = list,
-                       replacement = numpy.ndarray ):
+def suppress_channel ( replacement,
+                       array = numpy.ndarray,
+                       channels = list ):
     result = numpy.copy ( array )
     for channel in channels:
-        result [ channel ] = numpy.copy ( replacement [ channel ] )
+        result [ channel ] = numpy.copy ( replacement.array [ channel ] )
     return result

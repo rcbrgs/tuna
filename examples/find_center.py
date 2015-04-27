@@ -9,6 +9,6 @@ ring_center = tuna.tools.phase_map.find_image_center_by_symmetry ( data = raw )
 print ( "Center found by symmetry: %s" % str ( ring_center ) )
 
 # find_center_by_arcs:
-barycenter = tuna.tools.phase_map.create_barycenter_array ( array = raw )
+barycenter = tuna.tools.phase_map.detect_barycenters ( array = raw )
 ring_center = tuna.tools.phase_map.find_image_center_by_arc_segmentation ( wrapped = barycenter )
 print ( "Center found by arc segmentation: %s" % str ( ring_center ) )

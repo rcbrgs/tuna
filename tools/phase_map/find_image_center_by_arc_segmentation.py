@@ -12,12 +12,14 @@ import sympy
 from time import time
 
 class image_center_by_arc_segmentation ( object ):
-    def __init__ ( self, log = print, unwrapped = numpy.ndarray ):
+    def __init__ ( self, 
+                   wrapped,
+                   log = print ):
         super ( image_center_by_arc_segmentation, self ).__init__ ( )
         self.__center_row = None
         self.__center_col = None
         self.log = log
-        self.__unwrapped = unwrapped
+        self.wrapped = wrapped
         random.seed ( )
 
     def get_center ( self ):
@@ -94,10 +96,10 @@ class image_center_by_arc_segmentation ( object ):
         """
         Detect borders, and select only the first connected set of pixels in this border.
         """
-        ring_borders_map = numpy.zeros ( shape = self.__unwrapped.shape, dtype = numpy.int16 )
-        max_rows = self.__unwrapped.shape[0]
-        max_cols = self.__unwrapped.shape[1]
-        max_channel = numpy.amax ( self.__unwrapped )
+        ring_borders_map = numpy.zeros ( shape = self.wrapped.shape, dtype = numpy.int16 )
+        max_rows = self.wrapped.shape[0]
+        max_cols = self.wrapped.shape[1]
+        max_channel = numpy.amax ( self.wrapped.array )
         channel_threshold = max_channel - 1
 
         for row in range ( max_rows ):
@@ -105,11 +107,11 @@ class image_center_by_arc_segmentation ( object ):
                 neighbours = get_pixel_neighbours ( ( row, col ), ring_borders_map )
                 distances = [ ]
                 for neighbour in neighbours:
-                    distances.append ( int ( abs ( self.__unwrapped [ row ] [ col ] - 
-                                                     self.__unwrapped [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] ) ) )
+                    distances.append ( int ( abs ( self.wrapped.array [ row ] [ col ] - 
+                                                   self.wrapped.array [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] ) ) )
                 max_distance = max ( distances )
                 if ( max_distance > channel_threshold and
-                     int ( self.__unwrapped [ row ] [ col ] ) == 0 ):
+                     int ( self.wrapped.array [ row ] [ col ] ) == 0 ):
                     ring_borders_map [ row ] [ col ] = 1
         if ( numpy.sum ( ring_borders_map ) == 0 ):
             self.log ( "warning: No borders detected." )
@@ -193,12 +195,12 @@ class image_center_by_arc_segmentation ( object ):
         return chord_segment.perpendicular_bisector ( )
 
     def get_random_point_in_border ( self ):
-        random_row = random.randint ( 0, self.__unwrapped.shape [ 0 ] - 1 )
-        random_col = random.randint ( 0, self.__unwrapped.shape [ 1 ] - 1 )
+        random_row = random.randint ( 0, self.wrapped.shape [ 0 ] - 1 )
+        random_col = random.randint ( 0, self.wrapped.shape [ 1 ] - 1 )
         random_color = self.__ring_borders [ random_row ] [ random_col ]
         while ( random_color == 0 ):
-            random_row = random.randint ( 0, self.__unwrapped.shape [ 0 ] - 1 )
-            random_col = random.randint ( 0, self.__unwrapped.shape [ 1 ] - 1 )
+            random_row = random.randint ( 0, self.wrapped.shape [ 0 ] - 1 )
+            random_col = random.randint ( 0, self.wrapped.shape [ 1 ] - 1 )
             random_color = self.__ring_borders [ random_row ] [ random_col ]
         return ( random_row, random_col )
 
@@ -217,7 +219,7 @@ class image_center_by_arc_segmentation ( object ):
                 if ( abs ( result ) < 100 ):
                     self.__ring_borders [ row ] [ col ] = color
 
-def find_image_center_by_arc_segmentation ( wrapped = numpy.ndarray,
+def find_image_center_by_arc_segmentation ( wrapped,
                                             log = print ):
     """
     Try to find the center of the rings.
@@ -226,8 +228,8 @@ def find_image_center_by_arc_segmentation ( wrapped = numpy.ndarray,
 
     log ( "info: trying to find_image_center_by_arc_segmentation()." )
 
-    finder = image_center_by_arc_segmentation ( unwrapped = wrapped,
-                                                  log = log )
+    finder = image_center_by_arc_segmentation ( wrapped = wrapped,
+                                                log = log )
     center = finder.get_center ( )
     log ( "info: Center detected at %s ." % str ( center ) )
 
