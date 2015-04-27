@@ -42,18 +42,6 @@ class high_resolution ( threading.Thread ):
 
         self.log ( "info: Starting high_resolution pipeline." )
 
-        if not isinstance ( tuna_can, tuna.io.can ):
-            self.log ( "info: array must be a numpy.ndarray or derivative object." )
-            return
-
-        try:
-            if tuna_can.ndim != 3:
-                self.log ( "warning: Image does not have 3 dimensions, aborting." )
-                return
-        except AttributeError as e:
-            self.log ( "warning: %s, aborting." % str ( e ) )
-            return
-
         """inputs:"""
         self.bad_neighbours_threshold = bad_neighbours_threshold
         self.beam = beam
@@ -152,7 +140,7 @@ class high_resolution ( threading.Thread ):
                                                                          interference_reference_wavelength = self.interference_reference_wavelength,
                                                                          scanning_wavelength = self.scanning_wavelength,
                                                                          unwrapped_phase_map = self.unwrapped_phase_map )
-        self.log ( "debug: self.wavelength_calibrated = %s" % ( str ( self.wavelength_calibrated ) ) )
+        #self.log ( "debug: self.wavelength_calibrated = %s" % ( str ( self.wavelength_calibrated ) ) )
         
     def create_unwrapped_phase_map ( self ):
         """
@@ -188,3 +176,51 @@ class high_resolution ( threading.Thread ):
     def verify_parabolic_model ( self ):
         self.log ( "info: Ratio between 2nd degree coefficients is: %f" % ( self.parabolic_model [ 'x2y0' ] / 
                                                                             self.parabolic_model [ 'x0y2' ] ) )
+
+def high_resolution_pipeline ( beam,
+                               calibration_wavelength,
+                               finesse,
+                               focal_length,
+                               free_spectral_range,
+                               gap,
+                               interference_order,
+                               interference_reference_wavelength,
+                               scanning_wavelength,
+                               tuna_can,
+                               bad_neighbours_threshold = 7, 
+                               channel_subset = [ ],
+                               channel_threshold = 1, 
+                               continuum_to_FSR_ratio = 0.125,
+                               noise_mask_radius = 1,
+                               log = print ):
+    
+    if not isinstance ( tuna_can, tuna.io.can ):
+        log ( "info: array must be a numpy.ndarray or derivative object." )
+        return
+    try:
+        if tuna_can.ndim != 3:
+            self.log ( "warning: Image does not have 3 dimensions, aborting." )
+            return
+    except AttributeError as e:
+        self.log ( "warning: %s, aborting." % str ( e ) )
+        return
+
+    high_resolution_pipeline = high_resolution ( beam,
+                                                 calibration_wavelength,
+                                                 finesse,
+                                                 focal_length,
+                                                 free_spectral_range,
+                                                 gap,
+                                                 interference_order,
+                                                 interference_reference_wavelength,
+                                                 scanning_wavelength,
+                                                 tuna_can,
+                                                 bad_neighbours_threshold, 
+                                                 channel_subset,
+                                                 channel_threshold, 
+                                                 continuum_to_FSR_ratio,
+                                                 noise_mask_radius )
+    high_resolution_pipeline.start ( )
+    high_resolution_pipeline.join ( )
+
+    return high_resolution_pipeline

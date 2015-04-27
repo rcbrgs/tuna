@@ -27,11 +27,14 @@ def detect_noise ( array = None,
     """
     start = time ( )
 
+    log ( "debug: bad_neighbours_threshold = %d" % bad_neighbours_threshold )
+
     noise_map = numpy.zeros ( shape = array.shape, dtype = numpy.int16 )
     max_channel = numpy.amax ( array )
     if ( max_channel == 0 ):
         return noise_map
 
+    noisy_pixels = 0
     log ( "info: noise array 0% created." )
     last_percentage_logged = 0
     for x in range ( array.shape [ 0 ] ):
@@ -42,7 +45,7 @@ def detect_noise ( array = None,
 
         for y in range ( array.shape [ 1 ] ):
             this_channel = array [ x ] [ y ]
-            if ( this_channel != 0 ):
+            if ( this_channel == 0 ):
                 continue
 
             neighbours = tuna.tools.get_pixel_neighbours ( ( x, y ), array )
@@ -55,9 +58,11 @@ def detect_noise ( array = None,
                 if distance > channel_threshold:
                     bad_results += 1
             if ( bad_results > bad_neighbours_threshold ):
+                noisy_pixels += 1
                 include_noise_circle ( position = ( x, y ), radius = noise_mask_radius, array = noise_map )
                 continue
     log ( "info: noise array 100% created." )
+    log ( "info: %d pixels were marked noisy." % noisy_pixels )
 
     result = tuna.io.can ( log = log,
                            array = noise_map )
