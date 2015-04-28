@@ -155,10 +155,10 @@ class can ( file_reader ):
             self.cols = None
             return
 
-        if ( self.array != None and
-             self.photons != None ):
-            self.log ( "error: Both self.array and self.photons are populated in update(). Please set one of them to None before calling this method. (Aborting method call)." )
-            return
+        #if ( self.array != None and
+        #     self.photons != None ):
+        #    self.log ( "error: Both self.array and self.photons are populated in update(). Please set one of them to None before calling this method. (Aborting method call)." )
+        #    return
 
         if ( self.array == None ):
             self.convert_table_into_ndarray ( )
@@ -179,4 +179,4 @@ class can ( file_reader ):
              self.ndim > 3 ):
             self.log ( "warning: ndarray has either less than 2 or more than 3 dimensions." )
 
-        self.convert_ndarray_into_table ( )
+        #self.convert_ndarray_into_table ( )
