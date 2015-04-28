@@ -61,6 +61,7 @@ class high_resolution ( threading.Thread ):
 
         """outputs:"""
         self.airy_fit = None
+        self.airy_fit_residue = None
         self.borders_to_center_distances = None
         self.continuum = None
         self.discontinuum = None
@@ -125,6 +126,10 @@ class high_resolution ( threading.Thread ):
                                                      finesse = self.finesse,
                                                      focal_length = self.focal_length,
                                                      gap = self.gap )
+
+        airy_fit_residue = numpy.abs ( self.tuna_can.array - self.airy_fit.array )
+        self.airy_fit_residue = tuna.io.can ( log = self.log,
+                                              array = airy_fit_residue )
 
         substituted_channels = numpy.copy ( self.tuna_can.array )
         for channel in range ( self.tuna_can.planes ):
