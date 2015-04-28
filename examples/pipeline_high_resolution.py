@@ -9,17 +9,17 @@ file_name_prefix = file_name_unpathed.split ( "." ) [ 0 ]
 
 can = tuna.io.read ( file_name )
 high_res = tuna.tools.phase_map.high_resolution_pipeline ( beam = 450,
-                                                           calibration_wavelength = 6598.950,
+                                                           calibration_wavelength = 6598.953125,
                                                            finesse = 15.,
                                                            focal_length = 0.1,
                                                            free_spectral_range = 8.36522123894,
                                                            gap = 1904,
-                                                           interference_order = 798,
+                                                           interference_order = 791,
                                                            interference_reference_wavelength = 6562.7797852,
                                                            channel_threshold = 1, 
                                                            bad_neighbours_threshold = 7, 
                                                            noise_mask_radius = 10,
-                                                           scanning_wavelength = 6616.895,
+                                                           scanning_wavelength = 6616.89,
                                                            tuna_can = can )
 
 tuna.write ( file_name   = file_name_prefix + '_00_original.fits',
