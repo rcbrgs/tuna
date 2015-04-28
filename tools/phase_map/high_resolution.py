@@ -133,7 +133,8 @@ class high_resolution ( threading.Thread ):
         self.substituted_channels = tuna.io.can ( log = self.log,
                                                   array = substituted_channels )
 
-        self.wavelength_calibrated = tuna.tools.wavelength.calibration ( log = self.log,
+        self.wavelength_calibrated = tuna.tools.wavelength.calibration ( self.rings_center,
+                                                                         log = self.log,
                                                                          calibration_wavelength = self.calibration_wavelength,
                                                                          free_spectral_range = self.free_spectral_range,
                                                                          interference_order = self.interference_order,
