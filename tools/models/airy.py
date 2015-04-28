@@ -125,13 +125,12 @@ def fit_airy ( discontinuum,
         data = discontinuum.array [ dep ]
         airy_model_fit = LevMarLSQFitter_fit ( airy_custom_model, x, y, data )
         result [ dep ] = airy_model_fit ( x, y )
-        #log ( "debug: For plane %d, Airy fit parameters are: beam = %s, center_row = %s, center_col = %s, finesse = %s, focal_length = %s, gap = %s" % ( dep, str ( airy_model_fit.parameters [ 0 ] ), str ( airy_model_fit.parameters [ 1 ] ), str ( airy_model_fit.parameters [ 2 ] ), str ( airy_model_fit.parameters [ 3 ] ), str ( airy_model_fit.parameters [ 4 ] ), str ( airy_model_fit.parameters [ 5 ] ) ) )
-        msg = "debug: plane %d, beam = %s, finesse = %s, focal_length = %s, gap = %s"
+        msg = "debug: plane %d, beam = %.1f, finesse = %.1f, focal_length = %.3f, gap = %.1f"
         log ( msg % ( dep, 
-                      str ( airy_model_fit.parameters [ 0 ] ), 
-                      str ( airy_model_fit.parameters [ 3 ] ), 
-                      str ( airy_model_fit.parameters [ 4 ] ), 
-                      str ( airy_model_fit.parameters [ 5 ] ) ) )
+                      airy_model_fit.parameters [ 0 ], 
+                      airy_model_fit.parameters [ 3 ],
+                      airy_model_fit.parameters [ 4 ], 
+                      airy_model_fit.parameters [ 5 ] ) )
 
     log ( "info: Airy fit took %ds." % ( time ( ) - start ) )
     return tuna.io.can ( log = log,
