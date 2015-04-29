@@ -65,7 +65,7 @@ class fits ( file_reader ):
                 with warnings.catch_warnings ( ):
                     warnings.simplefilter ( "ignore" )
                     for key in self.__metadata.keys ( ):
-                        #self.log ( "debug: self.__metadata [ %s ] = %s" % ( str ( key ), str ( self.__metadata [ key ] ) ) )
+                        self.log ( "debug: self.__metadata [ %s ] = %s" % ( str ( key ), str ( self.__metadata [ key ] ) ) )
                         comment  = self.__metadata [ key ] [ 1 ]
                         #value    = self.__metadata [ key ] [ 0 ]
                         value = ""
@@ -74,6 +74,13 @@ class fits ( file_reader ):
                                 value += str ( metadata_value )
                             else:
                                 value += ", " + str ( metadata_value )
+
+                        if value == None:
+                            value = ""
+
+                        #if len ( value ) > 59:
+                        #    comment += ' Original values: ' + value
+
                         #fits_key = self.__metadata [ key ] [ 0 ]
 
                         #self.log ( "debug: comment = %s" % str ( comment ) )
@@ -82,7 +89,7 @@ class fits ( file_reader ):
 
                         fits_key = key
                         if len ( fits_key ) > 8:
-                            comment += "Original key = " + key + ". "
+                            comment += " Original key = " + key + ". "
                             fits_key = key[:7]
 
                         # check for repeated keys
@@ -92,12 +99,6 @@ class fits ( file_reader ):
                             fits_key = str ( repeat ) + fits_key [ : - len ( str ( repeat ) ) ]
 
                         key_list.append ( fits_key )
-
-                        if value == None:
-                            value = ""
-                        elif len ( value ) > 60:
-                            comment += "Original value = " + value + ". "
-                            value = value [:59]
 
                         try:
                             hdu.header [ fits_key ] = ( value, comment )
