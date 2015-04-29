@@ -248,41 +248,56 @@ class ada ( file_reader ):
                     #self.log ( "debug: old_parameters_dict == %s" % str ( old_parameters_dict ) )
                     adt_parameters_dict = { }
                     adt_parameters_dict["cycle"]              = cycle
-                    adt_parameters_dict["channel"]            = old_parameters_dict["channel"] + [ acquisition_channel.strip ( ) ]
-                    adt_parameters_dict["start time"]         = old_parameters_dict["start time"] + [ acquisition_start_time.strip ( ) ]
-                    adt_parameters_dict["end time"]           = old_parameters_dict["end time"] + [ acquisition_end_time.strip ( ) ]
-                    adt_parameters_dict["Queensgate value"]   = old_parameters_dict["Queensgate value"] + [ acquisition_queensgate_value.strip ( ) ]
-                    adt_parameters_dict["photon count"]       = old_parameters_dict["photon count"] + [ acquisition_photon_count.strip ( ) ]
-                    adt_parameters_dict["fr"]                 = old_parameters_dict["fr"] + [ acquisition_fr.strip ( ) ]
-                    adt_parameters_dict["cumulated exposure"] = old_parameters_dict["cumulated exposure"] + [ acquisition_cumulated_exposure.strip ( ) ]
-                    adt_parameters_dict["cumulated photons"]  = old_parameters_dict["cumulated photons"] + [ acquisition_cumulated_photons.strip ( ) ]
-                    adt_parameters_dict["efficiency"]         = old_parameters_dict["efficiency"] + [ acquisition_efficiency.strip ( ) ]
-                    adt_parameters_dict["disk usage"]         = old_parameters_dict["disk usage"] + [ acquisition_disk_usage.strip ( ) ]
-                    adt_parameters_dict["THT"]                = old_parameters_dict["THT"] + [ acquisition_THT.strip ( ) ]
-                    adt_parameters_dict["shutter"]            = old_parameters_dict["shutter"] + [ acquisition_shutter.strip ( ) ]
-                    adt_parameters_dict["discri"]             = old_parameters_dict["discri"] + [ acquisition_discri.strip ( ) ]
-                    adt_parameters_dict["blacklevel"]         = old_parameters_dict["blacklevel"] + [ acquisition_blacklevel.strip ( ) ]
-                    adt_parameters_dict["whitelevel"]         = old_parameters_dict["whitelevel"] + [ acquisition_whitelevel.strip ( ) ]
+                    adt_parameters_dict["channel"]            = old_parameters_dict["channel"] + \
+                                                                [ int ( acquisition_channel.strip ( ) ) ]
+                    adt_parameters_dict["start time"]         = old_parameters_dict["start time"] + \
+                                                                [ acquisition_start_time.strip ( ) ]
+                    adt_parameters_dict["end time"]           = old_parameters_dict["end time"] + \
+                                                                [ acquisition_end_time.strip ( ) ]
+                    adt_parameters_dict["Queensgate value"]   = old_parameters_dict["Queensgate value"] + \
+                                                                [ int ( acquisition_queensgate_value.strip ( ) ) ]
+                    adt_parameters_dict["photon count"]       = old_parameters_dict["photon count"] + \
+                                                                [ int ( acquisition_photon_count.strip ( ) ) ]
+                    adt_parameters_dict["fr"]                 = old_parameters_dict["fr"] + \
+                                                                [ int ( acquisition_fr.strip ( ) ) ]
+                    adt_parameters_dict["cumulated exposure"] = old_parameters_dict["cumulated exposure"] + \
+                                                                [ acquisition_cumulated_exposure.strip ( ) ]
+                    adt_parameters_dict["cumulated photons"]  = old_parameters_dict["cumulated photons"] + \
+                                                                [ int ( acquisition_cumulated_photons.strip ( ) ) ]
+                    adt_parameters_dict["efficiency"]         = old_parameters_dict [ "efficiency" ] +\
+                                                                [ int ( acquisition_efficiency.strip ( ) ) ]
+                    adt_parameters_dict["disk usage"]         = old_parameters_dict["disk usage"] + \
+                                                                [ acquisition_disk_usage.strip ( ) ]
+                    adt_parameters_dict["THT"]                = old_parameters_dict["THT"] + \
+                                                                [ int ( acquisition_THT.strip ( ) ) ]
+                    adt_parameters_dict["shutter"]            = old_parameters_dict["shutter"] + \
+                                                                [ acquisition_shutter.strip ( ) ]
+                    adt_parameters_dict["discri"]             = old_parameters_dict["discri"] + \
+                                                                [ int ( acquisition_discri.strip ( ) ) ]
+                    adt_parameters_dict["blacklevel"]         = old_parameters_dict["blacklevel"] + \
+                                                                [ int ( acquisition_blacklevel.strip ( ) ) ]
+                    adt_parameters_dict["whitelevel"]         = old_parameters_dict["whitelevel"] + \
+                                                                [ int ( acquisition_whitelevel.strip ( ) ) ]
                     #self.log ( "debug: adt_parameters_dict == %s" % str ( adt_parameters_dict ) )
                     cycle_parameters [ cycle ] = adt_parameters_dict
                 else:
                     adt_parameters_dict = { }
                     adt_parameters_dict["cycle"]              = cycle
-                    adt_parameters_dict["channel"]            = [ acquisition_channel.strip ( ) ]
+                    adt_parameters_dict["channel"]            = [ int ( acquisition_channel.strip ( ) ) ]
                     adt_parameters_dict["start time"]         = [ acquisition_start_time.strip ( ) ]
                     adt_parameters_dict["end time"]           = [ acquisition_end_time.strip ( ) ]
-                    adt_parameters_dict["Queensgate value"]   = [ acquisition_queensgate_value.strip ( ) ]
-                    adt_parameters_dict["photon count"]       = [ acquisition_photon_count.strip ( ) ]
-                    adt_parameters_dict["fr"]                 = [ acquisition_fr.strip ( ) ]
+                    adt_parameters_dict["Queensgate value"]   = [ int ( acquisition_queensgate_value.strip ( ) ) ]
+                    adt_parameters_dict["photon count"]       = [ int ( acquisition_photon_count.strip ( ) ) ]
+                    adt_parameters_dict["fr"]                 = [ int ( acquisition_fr.strip ( ) ) ] 
                     adt_parameters_dict["cumulated exposure"] = [ acquisition_cumulated_exposure.strip ( ) ]
-                    adt_parameters_dict["cumulated photons"]  = [ acquisition_cumulated_photons.strip ( ) ]
-                    adt_parameters_dict["efficiency"]         = [ acquisition_efficiency.strip ( ) ]
+                    adt_parameters_dict["cumulated photons"]  = [ int ( acquisition_cumulated_photons.strip ( ) ) ]
+                    adt_parameters_dict["efficiency"]         = [ int ( acquisition_efficiency.strip ( ) ) ]
                     adt_parameters_dict["disk usage"]         = [ acquisition_disk_usage.strip ( ) ]
-                    adt_parameters_dict["THT"]                = [ acquisition_THT.strip ( ) ]
+                    adt_parameters_dict["THT"]                = [ int ( acquisition_THT.strip ( ) ) ]
                     adt_parameters_dict["shutter"]            = [ acquisition_shutter.strip ( ) ]
-                    adt_parameters_dict["discri"]             = [ acquisition_discri.strip ( ) ]
-                    adt_parameters_dict["blacklevel"]         = [ acquisition_blacklevel.strip ( ) ]
-                    adt_parameters_dict["whitelevel"]         = [ acquisition_whitelevel.strip ( ) ]
+                    adt_parameters_dict["discri"]             = [ int ( acquisition_discri.strip ( ) ) ]
+                    adt_parameters_dict["blacklevel"]         = [ int ( acquisition_blacklevel.strip ( ) ) ]
+                    adt_parameters_dict["whitelevel"]         = [ int ( acquisition_whitelevel.strip ( ) ) ]
                     cycle_parameters[cycle] = adt_parameters_dict
 
         parameters = [ "channel",
