@@ -6,8 +6,9 @@ log_server -- Daemon that saves to file messages received through ZeroMQ.
 """
 
 import logging
-from os.path import expanduser
+import os
 import time
+import tuna
 import zmq
 
 class log_server ( object ):
@@ -17,13 +18,16 @@ class log_server ( object ):
 
     def __init__ ( self ):
         super ( log_server, self ).__init__ ( )
-        # config logging module
-        log_file_name = expanduser ( "~/tuna.log" )
-        #format_string = "%(asctime)-15s %(message)s"
-        format_string = "%(message)s"
-        logging.basicConfig ( filename = log_file_name, 
-                              format = format_string, 
-                              level = logging.DEBUG )
+        self.logger = logging.getLogger ( "tuna_logger" )
+        self.logger.setLevel ( logging.DEBUG )
+        self.logger_handler = None
+        self.logger_formatter = None
+
+        log_path = "."
+        if 'TUNA_PATH' in os.environ.keys ( ):
+            log_path = os.environ [ 'TUNA_PATH' ]
+        self.set_path ( log_path + "/tuna.log" )
+
         time_string = time.strftime ( "%Y-%m-%d %H:%M:%S " )
         logging.debug ( time_string + "Tuna (debug): Logging module started." )
         time_string = time.strftime ( "%Y-%m-%d %H:%M:%S " )
@@ -56,21 +60,21 @@ class log_server ( object ):
         # INFO     20
         # DEBUG    10
         if ( type == "debug" ): 
-            logging.debug   ( time_string + "Tuna (debug): " + contents )
+            self.logger.debug   ( time_string + "Tuna (debug): " + contents )
         elif ( type == "info" ):
-            logging.info    ( time_string + "Tuna  (info): " + contents )
+            self.logger.info    ( time_string + "Tuna  (info): " + contents )
             #print ( contents )
         elif ( type == "warning" ):
-            logging.warning ( time_string + "Tuna  (warn): " + contents )
+            self.logger.warning ( time_string + "Tuna  (warn): " + contents )
             print ( "(warn): " + contents )
         elif ( type == "error" ):
-            logging.warning ( time_string + "Tuna (error): " + contents )
+            self.logger.warning ( time_string + "Tuna (error): " + contents )
             print ( "(error): " + contents )
         elif ( type == "critical" ):
-            logging.warning ( time_string + "Tuna  (crit): " + contents )
+            self.logger.warning ( time_string + "Tuna  (crit): " + contents )
             print ( "(critical): " + contents )
         else:
-            logging.debug   ( time_string + "Tuna     (?): " + contents )
+            self.logger.debug   ( time_string + "Tuna     (?): " + contents )
             print 
 
     def run ( self ):
@@ -95,6 +99,22 @@ class log_server ( object ):
                 self.parse ( msg )
                 self.__zmq_socket_rep.send ( b'ACK' )
 
+    def set_path ( self,
+                   log_file_name ):
+        #format_string = "%(asctime)-15s %(message)s"
+        format_string = "%(message)s"
+        #print ( "Setting up log on file %s" % str ( log_file_name ) )
+        if self.logger.hasHandlers ( ):
+            for handler in self.logger.handlers:
+                self.logger.removeHandler ( handler )
+        self.logger_handler = logging.FileHandler ( log_file_name )
+        #logging.basicConfig ( filename = log_file_name, 
+        #                      format = format_string, 
+        #                      level = logging.DEBUG )
+        self.logger_formatter = logging.Formatter ( )
+        self.logger_handler.setFormatter ( self.logger_formatter )
+        self.logger.addHandler ( self.logger_handler )
+
     def __del__ ( self ):
         self._keep_running = False
 
@@ -104,3 +124,7 @@ def main ( ):
     
 if __name__ == "__main__":
     main ( )
+
+def set_path ( log_file_path ):
+    #global o_daemons
+    tuna.o_daemons.tuna_daemons.log_server_instance.log_server_instance.set_path ( log_file_path )

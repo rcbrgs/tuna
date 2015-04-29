@@ -65,7 +65,7 @@ class fits ( file_reader ):
                 with warnings.catch_warnings ( ):
                     warnings.simplefilter ( "ignore" )
                     for key in self.__metadata.keys ( ):
-                        self.log ( "debug: self.__metadata [ %s ] = %s" % ( str ( key ), str ( self.__metadata [ key ] ) ) )
+                        #self.log ( "debug: self.__metadata [ %s ] = %s" % ( str ( key ), str ( self.__metadata [ key ] ) ) )
                         comment  = self.__metadata [ key ] [ 1 ]
                         #value    = self.__metadata [ key ] [ 0 ]
                         value = ""
@@ -78,8 +78,10 @@ class fits ( file_reader ):
                         if value == None:
                             value = ""
 
-                        #if len ( value ) > 59:
-                        #    comment += ' Original values: ' + value
+                        max_fits_parameter_value = 6000
+                        if len ( value ) > max_fits_parameter_value:
+                            comment += ' Original values: ' + value
+                            value = value [ : max_fits_parameter_value - 1 ]
 
                         #fits_key = self.__metadata [ key ] [ 0 ]
 
@@ -104,7 +106,7 @@ class fits ( file_reader ):
                             hdu.header [ fits_key ] = ( value, comment )
                         except ValueError as error_message:
                             self.log ( "error: ValueError: %s." % ( error_message ) )                
-                            self.log ( "error: fits_key = value, len ( value ) + len ( fits_key ): %s = %s, %d" % ( fits_key, value, len ( value ) + len ( fits_key ) ) )
+                            self.log ( "error: fits_key = %s, len ( value ) = %d" % ( fits_key, len ( value ) ) )
                         
             hdu_list = astrofits.HDUList ( [ hdu ] )
             hdu_list.writeto ( self.__file_name )

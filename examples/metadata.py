@@ -3,6 +3,8 @@
 # Import all modules and classes relevant to a user:
 import tuna
 
+#tuna.log.set_path ( "test.log" )
+
 can = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G093/G093.ADT' )
 #for entry in can.metadata.keys ( ):
 #    print ( "metadata [ %s ] = %s" % ( entry, 
@@ -12,6 +14,6 @@ tuna.io.write ( file_name   = 'g093.fits',
                 metadata    = can.metadata,
                 file_format = 'fits' )
 can_fits = tuna.io.read ( file_name = ( 'g093.fits' ) )
-for entry in can_fits.metadata.keys ( ):
-    print ( "metadata [ %s ] = %s" % ( entry, 
-                                       can_fits.metadata [ entry ] ) )
+#for entry in can_fits.metadata.keys ( ):
+#    print ( "metadata [ %s ] = %s" % ( entry, 
+#                                       can_fits.metadata [ entry ] ) )
