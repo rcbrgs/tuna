@@ -84,7 +84,7 @@ class high_resolution ( threading.Thread ):
         self.discontinuum = tuna.io.can ( log = self.log,
                                           array = numpy.ndarray ( shape = self.tuna_can.shape ) )
         for plane in range ( self.tuna_can.planes ):
-            self.discontinuum.array [ plane, : , : ] = self.tuna_can.array [ plane, : , : ] - self.continuum.array
+            self.discontinuum.array [ plane, : , : ] = numpy.abs ( self.tuna_can.array [ plane, : , : ] - self.continuum.array )
 
         self.wrapped_phase_map = tuna.tools.phase_map.detect_barycenters ( log = self.log,
                                                                            array = self.discontinuum.array )
@@ -230,3 +230,17 @@ def high_resolution_pipeline ( beam,
     high_resolution_pipeline.join ( )
 
     return high_resolution_pipeline
+
+def profile_processing_history ( high_resolution, pixel ):
+    profile = { }
+
+    profile [ 0 ] = ( 'Original data', high_resolution.tuna_can.array [ :, pixel [ 0 ], pixel [ 1 ] ] )
+    profile [ 1 ] = ( 'Discontinuum', high_resolution.discontinuum.array [ :, pixel [ 0 ], pixel [ 1 ] ] )
+    profile [ 2 ] = ( 'Wrapped phase map', high_resolution.wrapped_phase_map.array [ pixel [ 0 ] ] [ pixel [ 1 ] ] )
+    profile [ 3 ] = ( 'Order map', high_resolution.order_map.array [ pixel [ 0 ] ] [ pixel [ 1 ] ] )
+    profile [ 4 ] = ( 'Unwrapped phase map', high_resolution.unwrapped_phase_map.array [ pixel [ 0 ] ] [ pixel [ 1 ] ] )
+    profile [ 5 ] = ( 'Parabolic fit', high_resolution.parabolic_fit.array [ pixel [ 0 ] ] [ pixel [ 1 ] ] )
+    profile [ 6 ] = ( 'Airy fit', high_resolution.airy_fit.array [ :, pixel [ 0 ], pixel [ 1 ] ] )
+    profile [ 7 ] = ( 'Wavelength', high_resolution.wavelength_calibrated.array [ pixel [ 0 ] ] [ pixel [ 1 ] ] )
+
+    return profile

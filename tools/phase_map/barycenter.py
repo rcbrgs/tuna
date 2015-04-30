@@ -87,11 +87,13 @@ class barycenter ( object ):
                 multiplier = 1
                 multipliers[cursor] = multiplier
                 shoulder_mask[cursor] = 1
-                while ( cursor != shoulder['i_right_shoulder'] ):
-                    cursor = self.get_right_channel ( channel = cursor, profile = profile )
+                cursor = self.get_right_channel ( channel = cursor, profile = profile )
+                while ( cursor != self.get_right_channel ( channel = shoulder [ 'i_right_shoulder' ], 
+                                                           profile = profile ) ):
                     multiplier += 1
                     multipliers[cursor] = multiplier
                     shoulder_mask[cursor] = 1
+                    cursor = self.get_right_channel ( channel = cursor, profile = profile )
                 
                 weighted_photon_count = multipliers * profile
                 weighted_sum = numpy.sum ( weighted_photon_count )
@@ -99,6 +101,8 @@ class barycenter ( object ):
                 shoulder_photon_count_sum = numpy.sum ( shoulder_photon_count )
 
                 if shoulder_photon_count_sum == 0:
+                    self.log ( "debug: at ( %d, %d ), shoulder_photon_count_sum == 0" % ( row, col ) )
+                    self.print_fwhh ( shoulder )
                     center_of_mass = 0
                 else:
                     center_of_mass = weighted_sum / shoulder_photon_count_sum
@@ -149,17 +153,17 @@ class barycenter ( object ):
         # Using only the FWHH channels causes pixelation of the phase map,
         # therefore the whole peak is used, starting with the FWHH.
 
-        left_shoulder = self.get_left_channel ( leftmost_hh )
-        while ( ( profile [ left_shoulder ] - profile [ self.get_right_channel ( left_shoulder ) ] <= 0 ) and
-                ( left_shoulder != max_height_index ) ):
+        left_shoulder = leftmost_hh
+        while ( ( profile [ self.get_left_channel ( left_shoulder ) ] - \
+                  profile [ left_shoulder ] <= 0 ) and
+                ( self.get_left_channel ( left_shoulder ) != rightmost_hh ) ):
             left_shoulder = self.get_left_channel ( left_shoulder )
-        left_shoulder = self.get_right_channel ( left_shoulder )
 
-        right_shoulder = self.get_right_channel ( rightmost_hh )
-        while ( ( profile [ right_shoulder ] - profile [ self.get_left_channel ( right_shoulder ) ] <= 0 ) and
-                ( right_shoulder != max_height_index ) ):
+        right_shoulder = rightmost_hh
+        while ( ( profile [ self.get_right_channel ( right_shoulder ) ] - \
+                  profile [ right_shoulder ] <= 0 ) and
+                ( self.get_right_channel ( right_shoulder ) != left_shoulder ) ):
             right_shoulder = self.get_right_channel ( right_shoulder )
-        right_shoulder = self.get_left_channel ( right_shoulder )
             
         shoulder_indices = [ left_shoulder ]
         cursor = left_shoulder
@@ -197,6 +201,17 @@ class barycenter ( object ):
             return 0
         else:
             return channel + 1
+
+    def print_fwhh ( self, fwhh_dict ):
+        self.log ( "debug: max_height = %d" % fwhh_dict['max_height'] )
+        self.log ( "debug: half_height = %d" % fwhh_dict['half_height'] )
+        self.log ( "debug: max_height_index = %d" % fwhh_dict['max_height_index'] )
+        self.log ( "debug: leftmost_hh = %d" % fwhh_dict['leftmost_hh'] )
+        self.log ( "debug: rightmost_hh = %d" % fwhh_dict['rightmost_hh'] )
+        self.log ( "debug: profile_indices = %s" % str ( fwhh_dict['profile_indices'] ) )
+        self.log ( "debug: i_left_shoulder = %d" % fwhh_dict['i_left_shoulder'] )
+        self.log ( "debug: i_right_shoulder = %d" % fwhh_dict['i_right_shoulder'] )
+        self.log ( "debug: il_shoulder_indices = %s" % str ( fwhh_dict['il_shoulder_indices'] ) )
 
 def detect_barycenters ( array = None,
                          log = print ):

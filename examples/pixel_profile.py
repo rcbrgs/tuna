@@ -3,25 +3,23 @@
 # Import all modules and classes relevant to a user:
 import tuna
 
-tuna.log.set_path ( "soar_025.log" )
-
-file_name = "/home/nix/sync/tuna/sample_data/soar_015_3D.fits"
+file_name = "/home/nix/sync/tuna/sample_data/G094.AD3"
 file_name_unpathed = file_name.split ( "/" ) [ -1 ]
 file_name_prefix = file_name_unpathed.split ( "." ) [ 0 ]
-can = tuna.io.read ( file_name )
 
-high_res = tuna.tools.phase_map.high_resolution_pipeline ( beam = 2000,
-                                                           calibration_wavelength = 6598.9529,
-                                                           finesse = 18.79,
+can = tuna.io.read ( file_name )
+high_res = tuna.tools.phase_map.high_resolution_pipeline ( beam = 450,
+                                                           calibration_wavelength = 6598.953125,
+                                                           finesse = 15.,
                                                            focal_length = 0.1,
-                                                           free_spectral_range = 10.886574473319262,
-                                                           gap = 2000,
-                                                           interference_order = 606.156773751181,
-                                                           interference_reference_wavelength = 6598.9529,
+                                                           free_spectral_range = 8.36522123894,
+                                                           gap = 1904,
+                                                           interference_order = 791,
+                                                           interference_reference_wavelength = 6562.7797852,
                                                            channel_threshold = 1, 
-                                                           bad_neighbours_threshold = 6, 
-                                                           noise_mask_radius = 9,
-                                                           scanning_wavelength = 6598.9529,
+                                                           bad_neighbours_threshold = 7, 
+                                                           noise_mask_radius = 10,
+                                                           scanning_wavelength = 6616.89,
                                                            tuna_can = can )
 
 tuna.write ( file_name   = file_name_prefix + '_00_original.fits',
@@ -64,11 +62,7 @@ tuna.write ( file_name   = file_name_prefix + '_11_wavelength_calibrated.fits',
              array       = high_res.wavelength_calibrated.array,
              file_format = 'fits' )    
 
-interesting_pixels = [ #( 548, 488 ),
-    #( 473, 561 ) ]
-]
-for pixel in interesting_pixels:
-    print ( "Profile for pixel %d, %d:" % ( pixel [ 0 ], pixel [ 1 ] ) )
-    profile = tuna.tools.phase_map.profile_processing_history ( high_res, ( pixel [ 0 ], pixel [ 1 ] ) )
-    for key in profile.keys ( ):
-        print ( "step %2d: %s" % ( key, str ( profile [ key ] ) ) )
+print ( "Profile for pixel 200, 200:" )
+profile = tuna.tools.phase_map.profile_processing_history ( high_res, ( 200, 200 ) )
+for key in profile.keys ( ):
+    print ( "step %2d: %s" % ( key, str ( profile [ key ] ) ) )

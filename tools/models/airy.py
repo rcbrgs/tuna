@@ -125,7 +125,7 @@ def fit_airy ( discontinuum,
         data = discontinuum.array [ dep ]
         airy_model_fit = LevMarLSQFitter_fit ( airy_custom_model, x, y, data )
         result [ dep ] = airy_model_fit ( x, y )
-        msg = "debug: plane %d, beam = %.1f, finesse = %.1f, focal_length = %.3f, gap = %.1f"
+        msg = "debug: plane %d, beam = %.1f, finesse = %.1f, focal_length = %.3f, gap = %.2f"
         log ( msg % ( dep, 
                       airy_model_fit.parameters [ 0 ], 
                       airy_model_fit.parameters [ 3 ],

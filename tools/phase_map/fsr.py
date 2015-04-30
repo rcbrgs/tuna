@@ -48,7 +48,7 @@ class fsr ( object ):
                             possible_new_ring = False
                     if possible_new_ring:
                         rings.append ( self.__distances [ row ] [ col ] )
-        self.log ( "info: fsr array 100%% created." )
+        self.log ( "info: fsr array 100% created." )
         #self.log ( "fl_rings = %s" % str ( rings ) )
 
         # order rings by distance
