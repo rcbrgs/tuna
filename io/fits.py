@@ -78,7 +78,7 @@ class fits ( file_reader ):
                         if value == None:
                             value = ""
 
-                        max_fits_parameter_value = 6000
+                        max_fits_parameter_value = 60
                         if len ( value ) > max_fits_parameter_value:
                             comment += ' Original values: ' + value
                             value = value [ : max_fits_parameter_value - 1 ]
