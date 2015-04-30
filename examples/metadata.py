@@ -3,7 +3,7 @@
 # Import all modules and classes relevant to a user:
 import tuna
 
-#tuna.log.set_path ( "test.log" )
+tuna.log.set_path ( "metadata_example.log" )
 
 can = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G093/G093.ADT' )
 #for entry in can.metadata.keys ( ):

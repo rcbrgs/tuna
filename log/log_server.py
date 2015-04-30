@@ -29,9 +29,9 @@ class log_server ( object ):
         self.set_path ( log_path + "/tuna.log" )
 
         time_string = time.strftime ( "%Y-%m-%d %H:%M:%S " )
-        logging.debug ( time_string + "Tuna (debug): Logging module started." )
+        self.logger.debug ( time_string + "Tuna (debug): Logging module started." )
         time_string = time.strftime ( "%Y-%m-%d %H:%M:%S " )
-        logging.info  ( time_string + "Tuna  (info): Logging threshold: logging DEBUG or higher." )
+        self.logger.info  ( time_string + "Tuna  (info): Logging threshold: logging DEBUG or higher." )
         # instantiate a REP node 
         self.__zmq_context = zmq.Context ( )
         self.__zmq_socket_rep = self.__zmq_context.socket ( zmq.REP )
@@ -63,19 +63,14 @@ class log_server ( object ):
             self.logger.debug   ( time_string + "Tuna (debug): " + contents )
         elif ( type == "info" ):
             self.logger.info    ( time_string + "Tuna  (info): " + contents )
-            #print ( contents )
         elif ( type == "warning" ):
             self.logger.warning ( time_string + "Tuna  (warn): " + contents )
-            print ( "(warn): " + contents )
         elif ( type == "error" ):
-            self.logger.warning ( time_string + "Tuna (error): " + contents )
-            print ( "(error): " + contents )
+            self.logger.error ( time_string + "Tuna (error): " + contents )
         elif ( type == "critical" ):
-            self.logger.warning ( time_string + "Tuna  (crit): " + contents )
-            print ( "(critical): " + contents )
+            self.logger.critical ( time_string + "Tuna  (crit): " + contents )
         else:
             self.logger.debug   ( time_string + "Tuna     (?): " + contents )
-            print 
 
     def run ( self ):
         started = False
@@ -101,16 +96,11 @@ class log_server ( object ):
 
     def set_path ( self,
                    log_file_name ):
-        #format_string = "%(asctime)-15s %(message)s"
         format_string = "%(message)s"
-        #print ( "Setting up log on file %s" % str ( log_file_name ) )
         if self.logger.hasHandlers ( ):
             for handler in self.logger.handlers:
                 self.logger.removeHandler ( handler )
         self.logger_handler = logging.FileHandler ( log_file_name )
-        #logging.basicConfig ( filename = log_file_name, 
-        #                      format = format_string, 
-        #                      level = logging.DEBUG )
         self.logger_formatter = logging.Formatter ( )
         self.logger_handler.setFormatter ( self.logger_formatter )
         self.logger.addHandler ( self.logger_handler )
@@ -125,6 +115,8 @@ def main ( ):
 if __name__ == "__main__":
     main ( )
 
+def get_logger ( ):
+    return tuna.o_daemons.tuna_daemons.log_server_instance.log_server_instance
+
 def set_path ( log_file_path ):
-    #global o_daemons
     tuna.o_daemons.tuna_daemons.log_server_instance.log_server_instance.set_path ( log_file_path )
