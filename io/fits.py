@@ -1,3 +1,4 @@
+import copy
 import numpy
 from .file_reader import file_reader
 import astropy.io.fits as astrofits
@@ -65,9 +66,7 @@ class fits ( file_reader ):
                 with warnings.catch_warnings ( ):
                     warnings.simplefilter ( "ignore" )
                     for key in self.__metadata.keys ( ):
-                        #self.log ( "debug: self.__metadata [ %s ] = %s" % ( str ( key ), str ( self.__metadata [ key ] ) ) )
                         comment  = self.__metadata [ key ] [ 1 ]
-                        #value    = self.__metadata [ key ] [ 0 ]
                         value = ""
                         for metadata_value in self.__metadata [ key ] [ 0 ]:
                             if ( value == "" ):
@@ -75,30 +74,26 @@ class fits ( file_reader ):
                             else:
                                 value += ", " + str ( metadata_value )
 
-                        if value == None:
-                            value = ""
+                        #max_fits_parameter_value = 60
+                        #if len ( value ) > max_fits_parameter_value:
+                        #    comment = self.__metadata [ key ] [ 1 ] + ' Original values: ' + copy.copy ( value )
+                        #    value = value [ : max_fits_parameter_value - 1 ]
 
-                        max_fits_parameter_value = 60
-                        if len ( value ) > max_fits_parameter_value:
-                            comment += ' Original values: ' + value
-                            value = value [ : max_fits_parameter_value - 1 ]
-
-                        #fits_key = self.__metadata [ key ] [ 0 ]
-
-                        #self.log ( "debug: comment = %s" % str ( comment ) )
-                        #self.log ( "debug: value = %s" % str ( value ) )
-                        #self.log ( "debug: fits_key = %s" % str ( fits_key ) )
 
                         fits_key = key
-                        if len ( fits_key ) > 8:
-                            comment += " Original key = " + key + ". "
-                            fits_key = key[:7]
+                        #if len ( fits_key ) > 8:
+                        #    comment += " Original key = " + key + ". "
+                        #    fits_key = key[:7]
 
                         # check for repeated keys
                         repeat = 1
                         while fits_key in key_list:
                             repeat += 1
                             fits_key = str ( repeat ) + fits_key [ : - len ( str ( repeat ) ) ]
+
+                        #self.log ( "debug: comment = %s" % str ( comment ) )
+                        #self.log ( "debug: value = %s" % str ( value ) )
+                        #self.log ( "debug: fits_key = %s" % str ( fits_key ) )
 
                         key_list.append ( fits_key )
 

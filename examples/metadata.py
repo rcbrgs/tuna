@@ -14,6 +14,6 @@ tuna.io.write ( file_name   = 'g093.fits',
                 metadata    = can.metadata,
                 file_format = 'fits' )
 can_fits = tuna.io.read ( file_name = ( 'g093.fits' ) )
-#for entry in can_fits.metadata.keys ( ):
-#    print ( "metadata [ %s ] = %s" % ( entry, 
-#                                       can_fits.metadata [ entry ] ) )
+for entry in can_fits.metadata.keys ( ):
+    print ( "metadata [ %s ] = %s" % ( entry, 
+                                       can_fits.metadata [ entry ] ) )
