@@ -2,20 +2,22 @@ from .adhoc import adhoc
 from .adhoc_ada import ada
 from .file_reader import file_reader
 from .fits import fits
+
+import logging
 import numpy
+import sys
 import time
 import tuna
 
 class can ( file_reader ):
     def __init__ ( self, 
-                   log = print,
                    array = None,
                    file_name = None,
                    interference_order = None,
                    interference_reference_wavelength = None,
                    photons = None ):
         super ( can, self ).__init__ ( )
-        self.log = log
+        self.log = logging.getLogger ( __name__ )
 
         self.array = array
         self.file_name = file_name
@@ -32,27 +34,36 @@ class can ( file_reader ):
         self.update ( )
 
     def __add__ ( self, summand ):
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
+
         sum_array = self.array + summand.array
         result = can ( log = self.log,
                        array = sum_array )
         return result
 
     def __sub__ ( self, subtrahend ):
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
+
         subtraction_array = self.array - subtrahend.array
         result = can ( log = self.log,
                        array = subtraction_array )
         return result
 
     def convert_ndarray_into_table ( self ):
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
+
         start = time.time ( )
 
         photons = [ ]
-        self.log ( "info: parsing image into photon table 0% done." )
+        self.log.debug ( "info: parsing image into photon table 0% done." )
         last_percentage_logged = 0
         for plane in range ( self.planes ):
             percentage = 10 * int ( plane / self.planes * 10 )
             if percentage > last_percentage_logged:
-                self.log ( "info: parsing image into photon table %d%% done." % ( percentage ) )
+                self.log.debug ( "info: parsing image into photon table %d%% done." % ( percentage ) )
                 last_percentage_logged = percentage
             for row in range ( self.rows ):
                 for col in range ( self.cols ):
@@ -65,12 +76,15 @@ class can ( file_reader ):
                     elif self.ndim == 2:
                         photon [ 'photons' ] = self.array [ row ] [ col ]
                     photons.append ( photon )
-        self.log ( "info: parsing image into photon table 100% done." )
+        self.log.debug ( "info: parsing image into photon table 100% done." )
 
         self.photons = photons
-        self.log ( "debug: convert_ndarray_into_table() took %ds." % ( time.time ( ) - start ) )
+        self.log.debug ( "debug: convert_ndarray_into_table() took %ds." % ( time.time ( ) - start ) )
 
     def convert_table_into_ndarray ( self ):
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
+
         planes = 0
         rows = 0
         cols = 0
@@ -92,30 +106,34 @@ class can ( file_reader ):
         self.array = array
 
     def info ( self ):
-        self.log ( "info: file_name = %s" % self.file_name )
-        self.log ( "info: shape = %s" % str ( self.shape ) )
-        self.log ( "info: ndim = %d" % self.ndim )
-        self.log ( "info: planes = %d" % self.planes )
-        self.log ( "info: rows = %d" % self.rows )
-        self.log ( "info: cols = %d" % self.cols )
-        self.log ( "info: interference_order = %s" % str ( self.interference_order ) )
-        self.log ( "info: interference_reference_wavelength = %s" % str ( self.interference_reference_wavelength ) )
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
+
+        self.log.debug ( "info: file_name = %s" % self.file_name )
+        self.log.debug ( "info: shape = %s" % str ( self.shape ) )
+        self.log.debug ( "info: ndim = %d" % self.ndim )
+        self.log.debug ( "info: planes = %d" % self.planes )
+        self.log.debug ( "info: rows = %d" % self.rows )
+        self.log.debug ( "info: cols = %d" % self.cols )
+        self.log.debug ( "info: interference_order = %s" % str ( self.interference_order ) )
+        self.log.debug ( "info: interference_reference_wavelength = %s" % str ( self.interference_reference_wavelength ) )
 
     def read ( self ):
-        self.log ( "debug: before attempting to read file, " + tuna.io.system.status ( ) )
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
+
+        self.log.debug ( "debug: before attempting to read file, " + tuna.io.system.status ( ) )
         if self.file_name:
             if ( self.file_name.startswith ( ".ADT", -4 ) or
                  self.file_name.startswith ( ".adt", -4 ) ):
-                ada_object = ada ( file_name = self.file_name,
-                                   log = self.log )
+                ada_object = ada ( file_name = self.file_name )
                 ada_object.read ( )
                 self.array = ada_object.get_array ( )
                 self.metadata = ada_object.get_metadata ( )
                 self.__d_photons = ada_object.get_photons ( )
             elif ( self.file_name.startswith ( ".fits", -5 ) or
                    self.file_name.startswith ( ".FITS", -5 ) ):
-                fits_object = fits ( file_name = self.file_name,
-                                     log = self.log )
+                fits_object = fits ( file_name = self.file_name )
                 fits_object.read ( )
                 self.array = fits_object.get_array ( )
                 self.metadata = fits_object.get_metadata ( )
@@ -124,16 +142,18 @@ class can ( file_reader ):
                    self.file_name.startswith ( ".AD2", -4 ) or
                    self.file_name.startswith ( ".ad3", -4 ) or
                    self.file_name.startswith ( ".AD3", -4 ) ):
-                adhoc_object = adhoc ( file_name = self.file_name,
-                                       log = self.log )
+                adhoc_object = adhoc ( file_name = self.file_name )
                 adhoc_object.read ( )
                 self.array = adhoc_object.get_array ( )
                 #self.metadata = adhoc_object.__trailer
                 self.update ( )
-        self.log ( "debug: after attempting to read file, " + tuna.io.system.status ( ) )
+        self.log.debug ( "debug: after attempting to read file, " + tuna.io.system.status ( ) )
 
     def show ( self,
                plane = 0 ):
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
+
         if self.ndim == 3:
             window = tuna.gui.window_2d_viewer ( log = self.log,
                                                  array = self.array [ plane ] )
@@ -144,9 +164,12 @@ class can ( file_reader ):
             window.start ( )
 
     def update ( self ):
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
+
         if ( self.array == None and
              self.photons == None ):
-            self.log ( "debug: Empty Tuna can." )
+            self.log.debug ( "debug: Empty Tuna can." )
             self.metadata = None
             self.ndim = None
             self.shape = None
@@ -157,7 +180,7 @@ class can ( file_reader ):
 
         #if ( self.array != None and
         #     self.photons != None ):
-        #    self.log ( "error: Both self.array and self.photons are populated in update(). Please set one of them to None before calling this method. (Aborting method call)." )
+        #    self.log.debug ( "error: Both self.array and self.photons are populated in update(). Please set one of them to None before calling this method. (Aborting method call)." )
         #    return
 
         if ( self.array == None ):
@@ -166,7 +189,7 @@ class can ( file_reader ):
 
         self.ndim = self.array.ndim
         self.shape = self.array.shape
-        self.log ( "debug: can.update: self.array.ndim == %d, self.ndim == %d." % ( self.array.ndim, self.ndim ) )
+        self.log.debug ( "debug: can.update: self.array.ndim == %d, self.ndim == %d." % ( self.array.ndim, self.ndim ) )
         if self.ndim == 3:
             self.planes = self.array.shape [ 0 ]
             self.rows   = self.array.shape [ 1 ]
@@ -177,6 +200,6 @@ class can ( file_reader ):
             self.cols   = self.array.shape [ 1 ]
         if ( self.ndim < 2 or
              self.ndim > 3 ):
-            self.log ( "warning: ndarray has either less than 2 or more than 3 dimensions." )
+            self.log.debug ( "warning: ndarray has either less than 2 or more than 3 dimensions." )
 
         #self.convert_ndarray_into_table ( )

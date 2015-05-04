@@ -1,4 +1,6 @@
 from .file_reader import file_reader
+
+import logging
 import numpy
 from os import listdir
 from os.path import dirname, isfile, join
@@ -14,17 +16,18 @@ class ada ( file_reader ):
 
     def __init__ ( self, 
                    array = None, 
-                   log = print, 
                    file_name = None ):
         """
         Create ada object.
         """
         super ( ada, self ).__init__ ( )
+        self.log = logging.getLogger ( __name__ )
+
         self.__file_name = file_name
         self.__array = array
         self.__metadata = { }
         self.__photons = { }
-        self.log = log
+        self.log.debug = log
 
     def get_array ( self ):
         """
@@ -45,18 +48,24 @@ class ada ( file_reader ):
         """
         Validates input and starts the reading procedure.
         """
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
+
         if self.__file_name != None:
             if ( self.__file_name.lower ( ).startswith ( ".adt", -4 ) ):
                 self.read_adt ( )
         else:
-            self.log ( "warning: File name %s does not have .ADT or .adt suffix, aborting." % ( self.__file_name ) )
+            self.log.debug ( "warning: File name %s does not have .ADT or .adt suffix, aborting." % ( self.__file_name ) )
 
     def read_adt ( self ):
         """
         Reads a file as an ADT file.
         """
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
+
         self.__file_path = dirname ( self.__file_name )
-        self.log ( "debug: self.__file_path = %s." % ( self.__file_path ) )
+        self.log.debug ( "debug: self.__file_path = %s." % ( self.__file_path ) )
         
         self.read_adt_metadata ( )
 
@@ -69,7 +78,7 @@ class ada ( file_reader ):
         #        known_channels.append ( channel )
         #        number_of_channels += 1
         number_of_channels = len ( set ( self.__metadata [ 'channel' ] [ 0 ] ) )
-        self.log ( "debug: number_of_channels = %s." % ( number_of_channels ) )
+        self.log.debug ( "debug: number_of_channels = %s." % ( number_of_channels ) )
 
         for line in adt:
             if line.startswith ( "X and Y dimensions : 00512 00512" ):
@@ -77,14 +86,14 @@ class ada ( file_reader ):
                 dimensions = [ int ( dimensions_string.split ( " " )[0] ),
                                int ( dimensions_string.split ( " " )[1] ) ]
                 break
-        self.log ( "debug: dimensions = %s." % ( dimensions ) )
+        self.log.debug ( "debug: dimensions = %s." % ( dimensions ) )
        
         data_files = 0
         adt.seek ( 0 )
         for line in adt:
             if line.startswith ( "==>" ):
                 data_files += 1
-        self.log ( "debug: data_files = %d." % ( data_files ) )
+        self.log.debug ( "debug: data_files = %d." % ( data_files ) )
 
         photon_files = []
         file_list = listdir ( self.__file_path )
@@ -95,7 +104,7 @@ class ada ( file_reader ):
                     photon_files.append ( file_name )
 
         photon_files.sort ( )
-        self.log ( "debug: len ( photon_files ) = %d." % ( len ( photon_files ) ) )
+        self.log.debug ( "debug: len ( photon_files ) = %d." % ( len ( photon_files ) ) )
 
         
         self.__array = numpy.zeros ( shape = ( number_of_channels,
@@ -108,7 +117,7 @@ class ada ( file_reader ):
             channel = element % number_of_channels
             percentage_done = int ( 10 * files_processed / len ( photon_files ) )
             if last_printed < percentage_done:
-                self.log ( "info: Adding photon counts into numpy array: %3d" % ( percentage_done * 10 ) + '%')
+                self.log.debug ( "info: Adding photon counts into numpy array: %3d" % ( percentage_done * 10 ) + '%')
                 last_printed = percentage_done
 
             file_result = self.read_ada ( file_name = file_name_entry, channel = channel )
@@ -122,6 +131,8 @@ class ada ( file_reader ):
 
         Originally developed by Benoît Epinat, modified by Renato Borges.
         """
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
         
         if channel == -1:
             return
@@ -158,6 +169,9 @@ class ada ( file_reader ):
         """
         Extracts metadata from an ADT file.
         """
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
+
         adt = open ( self.__file_name, "r" )
 
         adt_header_lines = []
@@ -245,7 +259,7 @@ class ada ( file_reader ):
                 cycle = int ( acquisition_cycle.strip ( ) )
                 if cycle in cycle_parameters.keys ( ):
                     old_parameters_dict = cycle_parameters [ cycle ]
-                    #self.log ( "debug: old_parameters_dict == %s" % str ( old_parameters_dict ) )
+                    #self.log.debug ( "debug: old_parameters_dict == %s" % str ( old_parameters_dict ) )
                     adt_parameters_dict = { }
                     adt_parameters_dict["cycle"]              = cycle
                     adt_parameters_dict["channel"]            = old_parameters_dict["channel"] + \
@@ -278,7 +292,7 @@ class ada ( file_reader ):
                                                                 [ int ( acquisition_blacklevel.strip ( ) ) ]
                     adt_parameters_dict["whitelevel"]         = old_parameters_dict["whitelevel"] + \
                                                                 [ int ( acquisition_whitelevel.strip ( ) ) ]
-                    #self.log ( "debug: adt_parameters_dict == %s" % str ( adt_parameters_dict ) )
+                    #self.log.debug ( "debug: adt_parameters_dict == %s" % str ( adt_parameters_dict ) )
                     cycle_parameters [ cycle ] = adt_parameters_dict
                 else:
                     adt_parameters_dict = { }
@@ -327,6 +341,6 @@ class ada ( file_reader ):
             adt_parameters [ parameter ] = l_elements
 
             self.__metadata [ parameter ] = ( parameter_ordered_list, "" )
-            #self.log ( "debug: self.__metadata = %s" % ( str ( self.__metadata ) ) )
+            #self.log.debug ( "debug: self.__metadata = %s" % ( str ( self.__metadata ) ) )
 
         #self.__metadata = adt_parameters

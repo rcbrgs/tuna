@@ -1,4 +1,5 @@
 import copy
+import logging
 import numpy
 from .file_reader import file_reader
 import astropy.io.fits as astrofits
@@ -18,7 +19,7 @@ class fits ( file_reader ):
                    metadata = { },
                    photons = None ):
         super ( fits, self ).__init__ ( )
-        self.log = log
+        self.log = logging.getLogger ( __name__ )
         self.__file_name = file_name
         self.__array = array
         self.__metadata = metadata
@@ -31,36 +32,42 @@ class fits ( file_reader ):
         return self.__metadata
 
     def read ( self ):
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
+
         if self.__file_name == None:
-            self.log ( "debug: No file_name for FITS read." )
+            self.log.debug ( "debug: No file_name for FITS read." )
             self._is_readable = False
 
-        self.log ( "debug: Trying to read file %s as FITS file." % self.__file_name )
+        self.log.debug ( "debug: Trying to read file %s as FITS file." % self.__file_name )
         try:
             with warnings.catch_warnings ( ):
                 warnings.simplefilter ( "ignore" )
                 hdu_list = astrofits.open ( self.__file_name )
-            self.log ( "info: File %s opened as a FITS file." % self.__file_name )
+            self.log.debug ( "info: File %s opened as a FITS file." % self.__file_name )
             self.__array = hdu_list[0].data
-            self.log ( "debug: Assigned data section of first HDU as the image ndarray." )
-            self.log ( "debug: self.__array.ndim == %d" % self.__array.ndim )
+            self.log.debug ( "debug: Assigned data section of first HDU as the image ndarray." )
+            self.log.debug ( "debug: self.__array.ndim == %d" % self.__array.ndim )
             metadata = { }
             for key in hdu_list [ 0 ].header.keys ( ):
                 metadata_value   = hdu_list [ 0 ].header [ key ]
                 metadata_comment = hdu_list [ 0 ].header.comments [ key ]
                 self.__metadata [ key ] = ( metadata_value, metadata_comment )
-            #self.log ( "debug: metadata = %s" % ( str ( self.__metadata ) )  )
+            #self.log.debug ( "debug: metadata = %s" % ( str ( self.__metadata ) )  )
                 
             self._is_readable = True
         except OSError as e:
-            self.log ( "debug: OSError: %s." % e )
+            self.log.debug ( "debug: OSError: %s." % e )
             self._is_readable = False
 
     def write ( self, file_name = None ):
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
+
         if self.__file_name:
             hdu = astrofits.PrimaryHDU ( self.__array )
             if self.__metadata:
-                #self.log ( "debug: self.__metadata = %s" % ( str ( self.__metadata ) ) )
+                #self.log.debug ( "debug: self.__metadata = %s" % ( str ( self.__metadata ) ) )
                 columns = { }
                 key_list = [ ]
                 with warnings.catch_warnings ( ):
@@ -91,22 +98,25 @@ class fits ( file_reader ):
                             repeat += 1
                             fits_key = str ( repeat ) + fits_key [ : - len ( str ( repeat ) ) ]
 
-                        #self.log ( "debug: comment = %s" % str ( comment ) )
-                        #self.log ( "debug: value = %s" % str ( value ) )
-                        #self.log ( "debug: fits_key = %s" % str ( fits_key ) )
+                        #self.log.debug ( "debug: comment = %s" % str ( comment ) )
+                        #self.log.debug ( "debug: value = %s" % str ( value ) )
+                        #self.log.debug ( "debug: fits_key = %s" % str ( fits_key ) )
 
                         key_list.append ( fits_key )
 
                         try:
                             hdu.header [ fits_key ] = ( value, comment )
                         except ValueError as error_message:
-                            self.log ( "error: ValueError: %s." % ( error_message ) )                
-                            self.log ( "error: fits_key = %s, len ( value ) = %d" % ( fits_key, len ( value ) ) )
+                            self.log.debug ( "error: ValueError: %s." % ( error_message ) )                
+                            self.log.debug ( "error: fits_key = %s, len ( value ) = %d" % ( fits_key, len ( value ) ) )
                         
             hdu_list = astrofits.HDUList ( [ hdu ] )
             hdu_list.writeto ( self.__file_name )
 
     def write_metadata_table ( self ):
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
+
         if not self.__metadata:
             return
 
@@ -115,14 +125,14 @@ class fits ( file_reader ):
             values = self.__metadata [ key ] [ 0 ]
             distinct_values = set ( values )
             if ( len ( distinct_values ) > 2 ):
-                #self.log ( "debug: more than 2 distinct values: %s." % str ( distinct_values ) )
+                #self.log.debug ( "debug: more than 2 distinct values: %s." % str ( distinct_values ) )
                 format_string = "A21"
                 columns [ key ] = ( values, format_string )
-        #self.log ( "debug: columns.keys ( ) = %s" % str ( columns.keys ( ) ) )
+        #self.log.debug ( "debug: columns.keys ( ) = %s" % str ( columns.keys ( ) ) )
 
         fits_columns = [ ]
         for key in columns.keys ( ):
-            #self.log ( "debug: appending column %s with array %s and format %s." % ( key, 
+            #self.log.debug ( "debug: appending column %s with array %s and format %s." % ( key, 
             #                                                                         columns [ key ] [ 0 ], 
             #                                                                         columns [ key ] [ 1 ] ) )
             fits_columns . append ( astrofits . Column ( name = key, 
@@ -138,6 +148,9 @@ class fits ( file_reader ):
         hdu_list.writeto ( "metadata_" + self.__file_name )
 
     def write_photons_table ( self ):
+        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
+                                     sys._getframe ( ).f_code.co_varnames ) )
+
         if self.__photons == None:
             return
 
@@ -148,9 +161,9 @@ class fits ( file_reader ):
         columns [ 'photons' ] = [ [ ], "I5" ]
 
         for entry in self.__photons:
-            #self.log ( "debug: columns = %s" % str ( columns ) )
-            #self.log ( "debug: columns [ 'channel' ] = %s" % str ( columns [ 'channel' ] ) )
-            #self.log ( "debug: columns [ 'channel' ] [ 0 ] = %s" % str ( columns [ 'channel' ] [ 0 ] ) ) 
+            #self.log.debug ( "debug: columns = %s" % str ( columns ) )
+            #self.log.debug ( "debug: columns [ 'channel' ] = %s" % str ( columns [ 'channel' ] ) )
+            #self.log.debug ( "debug: columns [ 'channel' ] [ 0 ] = %s" % str ( columns [ 'channel' ] [ 0 ] ) ) 
             columns [ 'channel' ] [ 0 ] .append ( self.__photons [ entry ] [ 'channel' ] )
             columns [ 'x' ]       [ 0 ] .append ( self.__photons [ entry ] [ 'x'       ] )
             columns [ 'y' ]       [ 0 ] .append ( self.__photons [ entry ] [ 'y'       ] )
@@ -159,7 +172,7 @@ class fits ( file_reader ):
         
         fits_columns = [ ]
         for key in columns.keys ( ):
-            #self.log ( "Appending column %s." % key )
+            #self.log.debug ( "Appending column %s." % key )
             fits_columns . append ( astrofits . Column ( name = key, 
                                                          array  = columns [ key ] [ 0 ], 
                                                          format = columns [ key ] [ 1 ] ) )
