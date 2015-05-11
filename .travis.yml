@@ -3,6 +3,29 @@ python:
   - "3.3"
 # command to install dependencies
 install:
-  - "pip install --allow-external PyQt4 -r pip_packages.txt"
+  - "sudo apt-get -y install gcc-gfortran"
+  - "mkdir ~/src/"
+  - "cd ~/src"
+  - "wget http://www.netlib.org/blas/blas.tgz"
+  - "tar xzf blas.tgz"
+  - "cd BLAS"
+  - "gfortran -O3 -std=legacy -m64 -fno-second-underscore -fPIC -c *.f"
+  - "ar r libfblas.a *.o"
+  - "ranlib libfblas.a"
+  - "rm -rf *.o"
+  - "export BLAS=~/src/BLAS/libfblas.a"
+  - "cd ~/src"
+  - "wget http://www.netlib.org/lapack/lapack.tgz"
+  - "tar xzf lapack.tgz"
+  - "cd lapack-*/"
+  - "cp INSTALL/make.inc.gfortran make.inc"
+  - "sed s/^\(OPTS *= -O2 -frecursive\)/\1 -fPIC/ make.inc new.inc"
+  - "sed s/^\(NOOPT *= -O0 -frecursive\)/\1 -fPIC/ new.inc make.inc"
+  - "make lapacklib"
+  - "make clean"
+  - "export LAPACK=~/src/lapack-*/libflapack.a"
+  - "cd ~/rcbrgs/tuna"
+  - "pip install -r pip_packages.txt"
 # command to run tests
 script: nosetests
+sudo: required
