@@ -1,6 +1,7 @@
 from astropy.modeling import models
 from astropy.modeling.fitting import NonLinearLSQFitter as LevMarLSQFitter
 #from astropy.modeling.fitting import LevMarLSQFitter
+import logging
 from math import sqrt
 import numpy
 from time import time
@@ -14,11 +15,11 @@ class parabola ( object ):
     def __init__ ( self, 
                    noise = numpy.ndarray, 
                    unwrapped = numpy.ndarray,
-                   center = ( int, int ), 
-                   log = print ):
+                   center = ( int, int ) ):
+        self.log = logging.getLogger ( __name__ )
+        self.log.setLevel ( logging.INFO )
         super ( parabola, self ).__init__ ( )
         self.__center = center
-        self.log = log
         self.__model = None
         self.__noise = noise
         self.__unwrapped = unwrapped
@@ -65,13 +66,13 @@ def fit_parabolic_model_by_Polynomial2D ( center = ( int, int ),
     Interface function to fit a parabolic model to a given input.
     """
     start = time ( )
+    log = logging.getLogger ( __name__ )
 
-    parabolic_model = parabola ( center = center, log = log, noise = noise, unwrapped = unwrapped )
+    parabolic_model = parabola ( center = center, noise = noise, unwrapped = unwrapped )
     parabolic_model.create_model_map_by_Polynomial2D ( )
-    log ( "info: parabolic_model.get_center() = %s" % str ( parabolic_model.get_center ( ) ) )
+    log.info ( "parabolic_model.get_center() = %s" % str ( parabolic_model.get_center ( ) ) )
     coefficients = parabolic_model.get_coefficients ( )
-    model = tuna.io.can ( log = log,
-                          array = parabolic_model.get_model_map ( ) )
+    model = tuna.io.can ( array = parabolic_model.get_model_map ( ) )
 
-    log ( "debug: fit_parabolic_model_by_Polynomial2D() took %ds." % ( time ( ) - start ) )  
+    log.debug ( "fit_parabolic_model_by_Polynomial2D() took %ds." % ( time ( ) - start ) )  
     return ( coefficients, model )
