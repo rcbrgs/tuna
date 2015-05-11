@@ -10,6 +10,7 @@ from time import sleep
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from .file_reader import file_reader
+import tuna
 
 #verifier l'organisation des cubes fits si on les ouvre en python
 #faire un programme readad qui voit l'extension pour savoir comment ouvir (soit ad2, ad3, ad1...)
@@ -32,6 +33,7 @@ class adhoc ( file_reader ):
                    array = None ):
         super ( adhoc, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
+        self.log.setLevel ( logging.DEBUG )
 
         self.__adhoc_type = adhoc_type
         self.__adhoc_trailer = adhoc_trailer
@@ -40,8 +42,7 @@ class adhoc ( file_reader ):
         self.__file_object = None
 
     def discover_adhoc_type ( self ):
-        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
-                                     sys._getframe ( ).f_code.co_varnames ) )
+        self.log.debug ( tuna.log.function_header ( ) )
 
         if self.__file_name:
             if self.__file_object:
@@ -57,7 +58,7 @@ class adhoc ( file_reader ):
                                                   ( 'parameters', numpy.int8, 252 ) ] ) ] )
             adhoc_file = numpy.fromfile ( self.__file_name, dtype = adhoc_file_type )
             if adhoc_file['trailer']['number_of_dimensions'] not in ( [2], [3], [-3] ):
-                self.log.debug ( "warning: Unrecognized number of dimensions in file %s." % str ( self.__file_name ) )
+                self.log.warning ( "Unrecognized number of dimensions in file %s." % str ( self.__file_name ) )
                 return
             self.__adhoc_type = adhoc_file['trailer']['number_of_dimensions'][0]            
 
@@ -65,8 +66,7 @@ class adhoc ( file_reader ):
         return self.__array
 
     def read ( self ):
-        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
-                                     sys._getframe ( ).f_code.co_varnames ) )
+        self.log.debug ( tuna.log.function_header ( ) )
 
         if self.__file_name == None:
             return
@@ -97,8 +97,7 @@ class adhoc ( file_reader ):
         Attempts to read the contents of __file_object as a 2D ADHOC file.
 
         """
-        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
-                                     sys._getframe ( ).f_code.co_varnames ) )
+        self.log.debug ( tuna.log.function_header ( ) )
 
         adhoc_2d_file_type = numpy.dtype ( [ ( 'data', np.float32, self.__array_size ), 
                                              ( 'trailer', 
@@ -150,7 +149,7 @@ class adhoc ( file_reader ):
         self.__array[numpy.where ( numpy_data == -3.1E38 )] = numpy.nan
         self.__adhoc_trailer = numpy_data['trailer']
 
-        self.log.debug ( "info: Successfully read adhoc 2d object from file %s." % str ( self.__file_name ) )
+        self.log.info ( "Successfully read adhoc 2d object from file %s." % str ( self.__file_name ) )
 
     def read_adhoc_3d ( self, xyz = True ):
         """
@@ -161,8 +160,7 @@ class adhoc ( file_reader ):
               False to return data in standard zxy adhoc format
               True  to return data in xyz format (default)
         """
-        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
-                                     sys._getframe ( ).f_code.co_varnames ) )
+        self.log.debug ( tuna.log.function_header ( ) )
 
         data = self.__file_object
         data.seek ( 0, 2 )
@@ -229,7 +227,7 @@ class adhoc ( file_reader ):
         #ad3 = dtu(data, ad3['trailer'][0], filename)
         self.__array = data
         self.__trailer = ad3['trailer'][0]
-        self.log.debug ( "info: Successfully read adhoc 3d object from file %s." % str ( self.__file_name ) )
+        self.log.info ( "Successfully read adhoc 3d object from file %s." % str ( self.__file_name ) )
 
     def get_trailer ( self ):
         return self.__trailer
