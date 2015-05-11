@@ -1,3 +1,5 @@
+import logging
+
 from .can import can
 from .fits import fits
 from tuna.zeromq.zmq_client import zmq_client
@@ -13,6 +15,9 @@ def write ( array       = None,
             file_name   = None, 
             metadata    = None,
             photons   = None ):
+    log = loggging.getLogger ( __name__ )
+    log.setLevel ( logging.DEBUG )
+
     if ( file_format == 'fits' or
          file_format == 'FITS' ):
         fits_io_object = fits ( file_name = file_name, 
@@ -22,4 +27,4 @@ def write ( array       = None,
         fits_io_object.write ( )
         fits_io_object.write_metadata_table ( )
         fits_io_object.write_photons_table ( )
-        log ( "info: FITS file written at %s." % str ( file_name ) )
+        log.info ( "FITS file written at %s." % str ( file_name ) )
