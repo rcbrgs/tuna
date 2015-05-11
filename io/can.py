@@ -18,6 +18,7 @@ class can ( file_reader ):
                    photons = None ):
         super ( can, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
+        self.log.setLevel ( logging.DEBUG )
 
         self.array = array
         self.file_name = file_name
@@ -119,10 +120,11 @@ class can ( file_reader ):
         self.log.debug ( "info: interference_reference_wavelength = %s" % str ( self.interference_reference_wavelength ) )
 
     def read ( self ):
-        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
-                                     sys._getframe ( ).f_code.co_varnames ) )
+        self.log.debug ( tuna.log.function_header ( ) )
 
-        self.log.debug ( "debug: before attempting to read file, " + tuna.io.system.status ( ) )
+        self.log.debug ( "line %d, before attempting to read file, %s" % ( tuna.log.line_number ( ),
+                                                                           tuna.io.system.status ( ) ) )
+
         if self.file_name:
             if ( self.file_name.startswith ( ".ADT", -4 ) or
                  self.file_name.startswith ( ".adt", -4 ) ):

@@ -12,6 +12,7 @@ import tuna.io
 from tuna.io.convenience import ( read,
                                   write )
 import tuna.gui
+import tuna.log
 import tuna.tools
 import tuna.zeromq
 
@@ -21,7 +22,7 @@ class daemons ( object ):
         self.tuna_daemons = console.backend ( )
         self.tuna_daemons.start ( )
 
-__tuna_logger = logging.getLogger ( __name__ )
-__tuna_logger.setLevel ( logging.DEBUG )
+_log = logging.getLogger ( __name__ )
+_log.setLevel ( logging.DEBUG )
 
 __daemons = daemons ( )
