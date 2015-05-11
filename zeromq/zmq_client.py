@@ -6,6 +6,7 @@ zmq_client -- zmq client that uses (stub) proxy for communication.
 Utilizing the lazy pirate pattern from 0MQ documentation.
 """
 
+import logging
 import zmq
 
 class zmq_client ( ):
@@ -17,6 +18,9 @@ class zmq_client ( ):
     """
 
     def __init__ ( self ):
+        self.logg = logging.getLogger ( )
+        self.logg.setLevel ( logging.DEBUG )
+
         self.zmq_context = zmq.Context ( )
         
     def close_socket ( self ):
@@ -27,7 +31,12 @@ class zmq_client ( ):
     def log ( self, msg ):
         """
         Sends (byte string) message to log_server through the (stub) proxy.
+        DEPRECATED.
         """
+        self.logg.error ( "Someone tried to send a log using the deprecated API." )
+        self.logg.error ( "msg = %s" % ( msg ) )
+        return
+
         self.open_socket ( )
         self.register_poller ( )
 

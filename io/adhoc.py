@@ -33,7 +33,7 @@ class adhoc ( file_reader ):
                    array = None ):
         super ( adhoc, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.DEBUG )
+        self.log.setLevel ( logging.INFO )
 
         self.__adhoc_type = adhoc_type
         self.__adhoc_trailer = adhoc_trailer
