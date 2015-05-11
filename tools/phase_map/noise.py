@@ -28,6 +28,7 @@ def detect_noise ( array = None,
     start = time ( )
 
     log = logging.getLogger ( __name__ )
+    log.setLevel ( logging.INFO )
 
     log.debug ( "bad_neighbours_threshold = %d" % bad_neighbours_threshold )
 

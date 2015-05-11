@@ -38,7 +38,7 @@ class high_resolution ( threading.Thread ):
         - noise_mas_radius : the distance from a noise pixel that will be marked as noise also (size of a circle around each noise pixel).
         """
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.DEBUG )
+        self.log.setLevel ( logging.INFO )
 
         super ( high_resolution, self ).__init__ ( )
         self.zmq_client = tuna.zeromq.zmq_client ( )
@@ -153,28 +153,27 @@ class high_resolution ( threading.Thread ):
         min_channel = numpy.amin ( self.wrapped_phase_map.array )
 
         unwrapped_phase_map = numpy.zeros ( shape = self.wrapped_phase_map.shape )
-        self.log ( "debug: unwrapped_phase_map.ndim == %d" % unwrapped_phase_map.ndim )
+        self.log.debug ( "unwrapped_phase_map.ndim == %d" % unwrapped_phase_map.ndim )
 
-        self.log ( "info: phase map 0% unwrapped." )
+        self.log.info ( "Phase map 0% unwrapped." )
         last_percentage_logged = 0
         for x in range ( max_x ):
             percentage = 10 * int ( x / max_x * 10 )
             if percentage > last_percentage_logged:
                 last_percentage_logged = percentage
-                self.log ( "info: phase map %d%% unwrapped." % percentage )
+                self.log.info ( "Phase map %d%% unwrapped." % percentage )
             for y in range ( max_y ):
                 unwrapped_phase_map [ x ] [ y ] = self.wrapped_phase_map.array [ x ] [ y ] + \
                                                   max_channel * float ( self.order_map.array [ x ] [ y ] )
-        self.log ( "info: phase map 100% unwrapped." )
+        self.log.info ( "Phase map 100% unwrapped." )
 
-        self.unwrapped_phase_map = tuna.io.can ( log = self.log,
-                                                 array = unwrapped_phase_map )
+        self.unwrapped_phase_map = tuna.io.can ( array = unwrapped_phase_map )
 
-        self.log ( "info: create_unwrapped_phase_map() took %ds." % ( time.time ( ) - start ) )
+        self.log.info ( "create_unwrapped_phase_map() took %ds." % ( time.time ( ) - start ) )
 
     def verify_parabolic_model ( self ):
-        self.log ( "info: Ratio between 2nd degree coefficients is: %f" % ( self.parabolic_model [ 'x2y0' ] / 
-                                                                            self.parabolic_model [ 'x0y2' ] ) )
+        self.log.info ( "Ratio between 2nd degree coefficients is: %f" % ( self.parabolic_model [ 'x2y0' ] / 
+                                                                           self.parabolic_model [ 'x0y2' ] ) )
 
 def high_resolution_pipeline ( beam,
                                calibration_wavelength,
@@ -190,18 +189,19 @@ def high_resolution_pipeline ( beam,
                                channel_subset = [ ],
                                channel_threshold = 1, 
                                continuum_to_FSR_ratio = 0.125,
-                               noise_mask_radius = 1,
-                               log = print ):
-    
+                               noise_mask_radius = 1 ):
+
+    log = logging.getLogger ( __name__ )
+
     if not isinstance ( tuna_can, tuna.io.can ):
-        log ( "info: array must be a numpy.ndarray or derivative object." )
+        log.info ( "array must be a numpy.ndarray or derivative object." )
         return
     try:
         if tuna_can.ndim != 3:
-            self.log ( "warning: Image does not have 3 dimensions, aborting." )
+            log.warning ( "Image does not have 3 dimensions, aborting." )
             return
     except AttributeError as e:
-        self.log ( "warning: %s, aborting." % str ( e ) )
+        log.warning ( "%s, aborting." % str ( e ) )
         return
 
     high_resolution_pipeline = high_resolution ( beam,
