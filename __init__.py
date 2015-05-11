@@ -10,7 +10,7 @@ import logging
 import tuna.console
 import tuna.io
 from tuna.io.convenience import ( read,
-                              write )
+                                  write )
 import tuna.gui
 import tuna.tools
 import tuna.zeromq
@@ -25,4 +25,3 @@ __tuna_logger = logging.getLogger ( __name__ )
 __tuna_logger.setLevel ( logging.DEBUG )
 
 __daemons = daemons ( )
-
