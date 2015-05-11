@@ -26,7 +26,7 @@ class barycenter ( object ):
     """
     def __init__ ( self, array = None, log = print ):
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.DEBUG )
+        self.log.setLevel ( logging.INFO )
         super ( barycenter, self ).__init__ ( )
 
         self.__array = array

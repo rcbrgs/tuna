@@ -20,7 +20,7 @@ class fits ( file_reader ):
                    metadata = { },
                    photons = None ):
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.DEBUG )
+        self.log.setLevel ( logging.INFO )
         super ( fits, self ).__init__ ( )
 
         self.__file_name = file_name

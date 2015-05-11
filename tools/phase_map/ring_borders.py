@@ -142,8 +142,7 @@ def create_borders_to_center_distances ( array = None, center = ( int, int ), no
     ring_borders_object = ring_borders ( array = array, center = center, noise_array = noise_array )
     ring_borders_object.create_map_from_barycenter_array ( )
     result = ring_borders_object.get_borders_to_center_distances ( )
-    result_can = tuna.io.can ( log = log,
-                               array = result )
+    result_can = tuna.io.can ( array = result )
 
     log.info ( "create_borders_to_center_distances() took %ds." % ( time ( ) - start ) )
     return result_can

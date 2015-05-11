@@ -18,7 +18,7 @@ class can ( file_reader ):
                    photons = None ):
         super ( can, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.DEBUG )
+        self.log.setLevel ( logging.INFO )
 
         self.array = array
         self.file_name = file_name

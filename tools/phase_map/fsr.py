@@ -2,6 +2,7 @@
 Module fsr is responsible for computing the relative number of FSRs from the axis until each pixel.
 """
 
+import logging
 from math import sqrt
 import numpy
 from time import time
@@ -14,12 +15,13 @@ class fsr ( object ):
     def __init__ ( self, 
                    distances = numpy.ndarray, 
                    center = ( int, int ), 
-                   log = print, 
                    wrapped = numpy.ndarray ):
+        self.log = logging.getLogger ( __name__ )
+        self.log.setLevel ( logging.DEBUG )
         super ( fsr, self ).__init__ ( )
+
         self.__distances = distances
         self.__center = center
-        self.log = log
         self.__max_rows = distances.shape [ 0 ]
         self.__max_cols = distances.shape [ 1 ]
         self.__wrapped = wrapped
@@ -29,16 +31,16 @@ class fsr ( object ):
         FSR distance array creation method.
         """
         ring_thickness_threshold = self.estimate_ring_thickness ( )
-        self.log ( "debug: ring_thickness_threshold = %f" % ring_thickness_threshold )
+        self.log.debug ( "ring_thickness_threshold = %f" % ring_thickness_threshold )
         # find how many rings are there
         rings = [ ]
-        self.log ( "info: fsr array 0% created." )
+        self.log.info ( "fsr array 0% created." )
         last_percentage_logged = 0
         for row in range ( self.__max_rows ):
             percentage = 10 * int ( row / self.__max_rows * 10 )
             if percentage > last_percentage_logged:
                 last_percentage_logged = percentage
-                self.log ( "info: fsr array %d%% created." % percentage )
+                self.log.info ( "fsr array %d%% created." % percentage )
             for col in range ( self.__max_cols ):
                 if self.__distances [ row ] [ col ] > 0:
                     possible_new_ring = True
@@ -48,7 +50,7 @@ class fsr ( object ):
                             possible_new_ring = False
                     if possible_new_ring:
                         rings.append ( self.__distances [ row ] [ col ] )
-        self.log ( "info: fsr array 100% created." )
+        self.log.info ( "fsr array 100% created." )
         #self.log ( "fl_rings = %s" % str ( rings ) )
 
         # order rings by distance
@@ -76,7 +78,7 @@ class fsr ( object ):
 
     def estimate_ring_thickness ( self ):
         distances = numpy.unique ( self.__distances.astype ( numpy.int16 ) )
-        self.log ( "debug: distances = %s" % str ( distances ) )
+        self.log.debug ( "distances = %s" % str ( distances ) )
 
         distances_sequences = [ ]
         ranges = [ ]
@@ -95,7 +97,7 @@ class fsr ( object ):
                     distances_sequences = [ this_distance ]
         if distances_sequences not in ranges:
             ranges.append ( distances_sequences )
-        self.log ( "debug: ranges = %s" % str ( ranges ) )
+        self.log.debug ( "ranges = %s" % str ( ranges ) )
 
         if ranges == [ [ ] ]:
             return 0
@@ -103,13 +105,13 @@ class fsr ( object ):
         thicknesses = [ ranges [ 0 ] [ 0 ] ]
         for thickness in range ( 1, len ( ranges ) ):
             thicknesses.append ( ranges [ thickness ] [ 0 ] - ranges [ thickness - 1 ] [ -1 ] )
-        self.log ( "debug: thicknesses = %s" % str ( thicknesses ) )
+        self.log.debug ( "thicknesses = %s" % str ( thicknesses ) )
 
         return int ( max ( min ( thicknesses ) * 0.25, 20 ) )
         
     def estimate_ring_thickness_old ( self ):
         distances = numpy.unique ( self.__distances.astype ( numpy.int16 ) )
-        self.log ( "debug: distances = %s" % str ( distances ) )
+        self.log.debug ( "distances = %s" % str ( distances ) )
 
         distances_sequences = [ ]
         ranges = [ ]
@@ -128,23 +130,22 @@ class fsr ( object ):
                     distances_sequences = [ this_distance ]
         if distances_sequences not in ranges:
             ranges.append ( distances_sequences )
-        self.log ( "debug: ranges = %s" % str ( ranges ) )
+        self.log.debug ( "ranges = %s" % str ( ranges ) )
         thicknesses = [ ]
         for range in ranges:
             thicknesses.append ( len ( range ) )
-        self.log ( "debug: thicknesses = %s" % str ( thicknesses ) )
+        self.log.debug ( "thicknesses = %s" % str ( thicknesses ) )
         return max ( thicknesses )
         
 def create_fsr_map ( distances = numpy.ndarray, 
                      center = ( int, int ), 
-                     log = print, 
                      wrapped = numpy.ndarray ):
     start = time ( )
+    log = logging.getLogger ( __name__ )
     
     fsr_object = fsr ( distances = distances, 
                        center = center, 
-                       log = log, 
                        wrapped = wrapped )
 
-    log ( "info: create_fsr_map() took %ds." % ( time ( ) - start ) )
+    log.info ( "create_fsr_map() took %ds." % ( time ( ) - start ) )
     return fsr_object.create_fsr_map ( )
