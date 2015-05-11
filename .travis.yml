@@ -19,7 +19,7 @@ install:
   - "tar xzf lapack.tgz"
   - "cd lapack-*/"
   - "cp INSTALL/make.inc.gfortran make.inc"
-  - "sed ''s/^\(OPTS *= -O2 -frecursive\)/\1 -fPIC/'' make.inc > new.inc"
+  - 'sed "s/^\(OPTS *= -O2 -frecursive\)/\1 -fPIC/" make.inc > new.inc'
   - "sed ''s/^\(NOOPT *= -O0 -frecursive\)/\1 -fPIC/'' new.inc > make.inc"
   - "make lapacklib"
   - "make clean"
