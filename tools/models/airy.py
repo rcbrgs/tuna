@@ -3,6 +3,7 @@ from astropy.modeling import ( Parametric2DModel,
                                format_input )
 from astropy.modeling.fitting import NonLinearLSQFitter as LevMarLSQFitter
 #from astropy.modeling.fitting import LevMarLSQFitter
+import logging
 from math import sqrt
 import numpy
 from time import time
@@ -33,7 +34,6 @@ class airy ( Parametric2DModel ):
     gap = Parameter ( 'gap' )
     
     def __init__ ( self,
-#                   log = print,
                    beam = 1.,
                    center_row = 0,
                    center_col = 0,
@@ -42,14 +42,15 @@ class airy ( Parametric2DModel ):
                    gap = 1.,
                    **constraints ):
 
+        self.log = logging.getLogger ( __name__ )
+        self.log.setLevel ( logging.INFO )
         super ( airy, self ).__init__ ( beam = beam,
-                                              center_row = center_row,
-                                              center_col = center_col,
-                                              finesse = finesse,
-                                              focal_length = focal_length,
-                                              gap = gap,
-                                              **constraints )
-        self.log = print
+                                        center_row = center_row,
+                                        center_col = center_col,
+                                        finesse = finesse,
+                                        focal_length = focal_length,
+                                        gap = gap,
+                                        **constraints )
        
     @staticmethod
     def eval ( x,
@@ -90,8 +91,7 @@ def fit_airy ( discontinuum,
                center = ( int, int ), 
                finesse = float,
                focal_length = float,
-               gap = float,
-               log = print ):
+               gap = float ):
     """
     Interface function to fit an Airy model to a given input.
     """
@@ -125,14 +125,12 @@ def fit_airy ( discontinuum,
         data = discontinuum.array [ dep ]
         airy_model_fit = LevMarLSQFitter_fit ( airy_custom_model, x, y, data )
         result [ dep ] = airy_model_fit ( x, y )
-        msg = "debug: plane %d, beam = %.1f, finesse = %.1f, focal_length = %.3f, gap = %.2f"
-        log ( msg % ( dep, 
-                      airy_model_fit.parameters [ 0 ], 
-                      airy_model_fit.parameters [ 3 ],
-                      airy_model_fit.parameters [ 4 ], 
-                      airy_model_fit.parameters [ 5 ] ) )
+        msg = "plane %d, beam = %.1f, finesse = %.1f, focal_length = %.3f, gap = %.2f"
+        log.debug ( msg % ( dep, 
+                            airy_model_fit.parameters [ 0 ], 
+                            airy_model_fit.parameters [ 3 ],
+                            airy_model_fit.parameters [ 4 ], 
+                            airy_model_fit.parameters [ 5 ] ) )
 
-    log ( "info: Airy fit took %ds." % ( time ( ) - start ) )
-    return tuna.io.can ( log = log,
-                         array = result )
-
+    log.info ( "Airy fit took %ds." % ( time ( ) - start ) )
+    return tuna.io.can ( array = result )

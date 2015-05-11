@@ -116,15 +116,15 @@ class high_resolution ( threading.Thread ):
                                                                     unwrapped = self.unwrapped_phase_map.array )
         self.verify_parabolic_model ( )
 
-        self.airy_fit = tuna.tools.models.fit_airy ( beam = self.beam,
-                                                     center = self.rings_center,
-                                                     discontinuum = self.discontinuum,
-                                                     finesse = self.finesse,
-                                                     focal_length = self.focal_length,
-                                                     gap = self.gap )
+        #self.airy_fit = tuna.tools.models.fit_airy ( beam = self.beam,
+        #                                             center = self.rings_center,
+        #                                             discontinuum = self.discontinuum,
+        #                                             finesse = self.finesse,
+        #                                             focal_length = self.focal_length,
+        #                                             gap = self.gap )
 
-        airy_fit_residue = numpy.abs ( self.tuna_can.array - self.airy_fit.array )
-        self.airy_fit_residue = tuna.io.can ( array = airy_fit_residue )
+        #airy_fit_residue = numpy.abs ( self.tuna_can.array - self.airy_fit.array )
+        #self.airy_fit_residue = tuna.io.can ( array = airy_fit_residue )
 
         substituted_channels = numpy.copy ( self.tuna_can.array )
         for channel in range ( self.tuna_can.planes ):

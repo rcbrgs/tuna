@@ -1,0 +1,9 @@
+astropy
+matplotlib
+numpy
+psutil
+pyfits
+pyqt4
+scipy
+sympy
+zmq

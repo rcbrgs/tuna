@@ -46,7 +46,7 @@ def script_name ( ):
 
 def set_path ( file_name ):
     log = logging.getLogger ( __name__ )
-    log.setLevel ( logging.DEBUG )
+    log.setLevel ( logging.INFO )
 
     if not isinstance ( file_name, str ):
         log.error ( "Non-string passed as file_name." )
