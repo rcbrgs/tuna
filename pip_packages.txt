@@ -5,4 +5,4 @@ psutil
 pyfits
 scipy
 sympy
-zmq
+pyzmq
