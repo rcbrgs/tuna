@@ -3,7 +3,7 @@ matplotlib
 numpy
 psutil
 pyfits
-pyqt4
+PyQt4
 scipy
 sympy
 zmq
