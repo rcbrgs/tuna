@@ -54,8 +54,7 @@ def detect_continuum ( array = numpy.ndarray,
         
     log.info ( "Continuum array 100% created." )
 
-    can = tuna.io.can ( log = log, 
-                        array = continuum_array )
+    can = tuna.io.can ( array = continuum_array )
 
     log.info ( "detect_continuum() took %ds." % ( time ( ) - start ) )
     return can

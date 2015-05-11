@@ -1,3 +1,4 @@
+import logging
 from math import floor
 import numpy
 from time import time
@@ -7,9 +8,8 @@ class spectrum_cube ( object ):
     """
     Helper class to the barycenter class; contains metadata about the profile.
     """
-    def __init__ ( self, log = print ):
+    def __init__ ( self ):
         super ( spectrum_cube, self ).__init__ ( )
-        self.log = log
         
         self.dep_index = 0
         self.row_index = 1
@@ -25,14 +25,15 @@ class barycenter ( object ):
     Class to generate and store barycenter maps from spectral cubes.
     """
     def __init__ ( self, array = None, log = print ):
+        self.log = logging.getLogger ( __name__ )
+        self.log.setLevel ( logging.DEBUG )
         super ( barycenter, self ).__init__ ( )
-        self.log = log
 
         self.__array = array
         self.__number_of_spectral_regions_array = None
         self.__photon_counts_array = None
         self.__number_spectral_peaks_array = None
-        self.cube = spectrum_cube ( log = self.log )
+        self.cube = spectrum_cube ( )
         self.profile = None
     
     def create_barycenter_using_peak ( self ):
@@ -52,7 +53,7 @@ class barycenter ( object ):
         But we want more signal, so we extend the channel interval until the first channel that would belong to another "peak", so the channels considered for the barycenter are actually the channels 4 to 20, inclusive.
 
         """
-        #self.log ( "Creating barycenter array from peak channels." )
+
         if self.__array.ndim != 3:
             return
             
@@ -70,12 +71,12 @@ class barycenter ( object ):
         # The weighted-by-distance mass value is the profile times the multipliers array;
         # The total mass value is the profile times the shoulder_mask.
         
-        self.log ( "info: creating barycenter 0% done." )
+        self.log.info ( "Creating barycenter 0% done." )
         last_percentage_logged = 0
         for row in range ( self.cube.max_row ):
             percentage = 10 * int ( row / self.cube.max_row * 10 )
             if percentage > last_percentage_logged:
-                self.log ( "info: creating barycenter %d%% done." % ( percentage ) )
+                self.log.info ( "Creating barycenter %d%% done." % ( percentage ) )
                 last_percentage_logged = percentage
             for col in range ( self.cube.max_col ):
                 profile = self.__array[:,row,col]
@@ -101,7 +102,7 @@ class barycenter ( object ):
                 shoulder_photon_count_sum = numpy.sum ( shoulder_photon_count )
 
                 if shoulder_photon_count_sum == 0:
-                    self.log ( "debug: at ( %d, %d ), shoulder_photon_count_sum == 0" % ( row, col ) )
+                    self.log.debug ( "At ( %d, %d ), shoulder_photon_count_sum == 0" % ( row, col ) )
                     self.print_fwhh ( shoulder )
                     center_of_mass = 0
                 else:
@@ -113,7 +114,7 @@ class barycenter ( object ):
                     ordered_shifted_center_of_mass = shifted_center_of_mass % ( self.cube.max_dep )
                 
                 barycenter_array[row][col] = ordered_shifted_center_of_mass
-        self.log ( "info: creating barycenter 100% done." )
+        self.log.info ( "Creating barycenter 100% done." )
 
         return barycenter_array
 
@@ -203,27 +204,28 @@ class barycenter ( object ):
             return channel + 1
 
     def print_fwhh ( self, fwhh_dict ):
-        self.log ( "debug: max_height = %d" % fwhh_dict['max_height'] )
-        self.log ( "debug: half_height = %d" % fwhh_dict['half_height'] )
-        self.log ( "debug: max_height_index = %d" % fwhh_dict['max_height_index'] )
-        self.log ( "debug: leftmost_hh = %d" % fwhh_dict['leftmost_hh'] )
-        self.log ( "debug: rightmost_hh = %d" % fwhh_dict['rightmost_hh'] )
-        self.log ( "debug: profile_indices = %s" % str ( fwhh_dict['profile_indices'] ) )
-        self.log ( "debug: i_left_shoulder = %d" % fwhh_dict['i_left_shoulder'] )
-        self.log ( "debug: i_right_shoulder = %d" % fwhh_dict['i_right_shoulder'] )
-        self.log ( "debug: il_shoulder_indices = %s" % str ( fwhh_dict['il_shoulder_indices'] ) )
+        self.log.debug ( "max_height = %d" % fwhh_dict['max_height'] )
+        self.log.debug ( "half_height = %d" % fwhh_dict['half_height'] )
+        self.log.debug ( "max_height_index = %d" % fwhh_dict['max_height_index'] )
+        self.log.debug ( "leftmost_hh = %d" % fwhh_dict['leftmost_hh'] )
+        self.log.debug ( "rightmost_hh = %d" % fwhh_dict['rightmost_hh'] )
+        self.log.debug ( "profile_indices = %s" % str ( fwhh_dict['profile_indices'] ) )
+        self.log.debug ( "i_left_shoulder = %d" % fwhh_dict['i_left_shoulder'] )
+        self.log.debug ( "i_right_shoulder = %d" % fwhh_dict['i_right_shoulder'] )
+        self.log.debug ( "il_shoulder_indices = %s" % str ( fwhh_dict['il_shoulder_indices'] ) )
 
-def detect_barycenters ( array = None,
-                         log = print ):
+def detect_barycenters ( array = None ):
     """
     Create a wrapped phase map using the barycenter of each spectrum as the pixel value.
     """
     start = time ( )
 
-    barycenter_object = barycenter ( array = array, log = log )
-    result = barycenter_object.create_barycenter_using_peak ( )
-    result_can = tuna.io.can ( log = log,
-                               array = result )
+    log = logging.getLogger ( __name__ )
+    log.setLevel ( logging.DEBUG )
 
-    log ( "info: create_barycenter_array() took %ds." % ( time ( ) - start ) )
+    barycenter_object = barycenter ( array = array )
+    result = barycenter_object.create_barycenter_using_peak ( )
+    result_can = tuna.io.can ( array = result )
+
+    log.info ( "Create_barycenter_array() took %ds." % ( time ( ) - start ) )
     return result_can

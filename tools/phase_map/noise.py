@@ -1,3 +1,4 @@
+import logging
 from math import ceil, sqrt
 import numpy
 #from tuna.tools.get_pixel_neighbours import get_pixel_neighbours
@@ -7,7 +8,6 @@ import tuna
 def detect_noise ( array = None, 
                    bad_neighbours_threshold = 7, 
                    channel_threshold = 1, 
-                   log = print, 
                    noise_mask_radius = 0 ):
     """
     This method will be applied to each pixel; it is at channel C.
@@ -27,7 +27,9 @@ def detect_noise ( array = None,
     """
     start = time ( )
 
-    log ( "debug: bad_neighbours_threshold = %d" % bad_neighbours_threshold )
+    log = logging.getLogger ( __name__ )
+
+    log.debug ( "bad_neighbours_threshold = %d" % bad_neighbours_threshold )
 
     noise_map = numpy.zeros ( shape = array.shape, dtype = numpy.int16 )
     max_channel = numpy.amax ( array )
@@ -35,12 +37,12 @@ def detect_noise ( array = None,
         return noise_map
 
     noisy_pixels = 0
-    log ( "info: noise array 0% created." )
+    log.info ( "noise array 0% created." )
     last_percentage_logged = 0
     for x in range ( array.shape [ 0 ] ):
         percentage = 10 * int ( x / array.shape [ 0 ] * 10 )
         if ( percentage > last_percentage_logged ):
-            log ( "info: noise array %d%% created." % ( percentage ) )
+            log.info ( "noise array %d%% created." % ( percentage ) )
             last_percentage_logged = percentage
 
         for y in range ( array.shape [ 1 ] ):
@@ -61,13 +63,12 @@ def detect_noise ( array = None,
                 noisy_pixels += 1
                 include_noise_circle ( position = ( x, y ), radius = noise_mask_radius, array = noise_map )
                 continue
-    log ( "info: noise array 100% created." )
-    log ( "info: %d pixels were marked noisy." % noisy_pixels )
+    log.info ( "noise array 100% created." )
+    log.info ( "%d pixels were marked noisy." % noisy_pixels )
 
-    result = tuna.io.can ( log = log,
-                           array = noise_map )
+    result = tuna.io.can ( array = noise_map )
 
-    log ( "info: create_noise_array() took %ds" % ( time ( ) - start ) )
+    log.info ( "create_noise_array() took %ds" % ( time ( ) - start ) )
     return result
 
 def include_noise_circle ( position = ( int, int ), radius = int, array = numpy.array ):

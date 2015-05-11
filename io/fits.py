@@ -97,7 +97,12 @@ class fits ( file_reader ):
                             self.log.error ( "fits_key = %s, len ( value ) = %d" % ( fits_key, len ( value ) ) )
                         
             hdu_list = astrofits.HDUList ( [ hdu ] )
-            hdu_list.writeto ( self.__file_name )
+            try:
+                hdu_list.writeto ( self.__file_name )
+            except OSError as e:
+                if e == "File '" + self.__file_name + "' already exists.":
+                    self.log.error ( "File %s already exists." % self.__file_name )
+                    sys.exit ( 1 )
 
     def write_metadata_table ( self ):
         self.log.debug ( tuna.log.function_header ( ) )

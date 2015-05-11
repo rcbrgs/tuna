@@ -4,7 +4,7 @@ This tool tries to find the center of an image by finding the intersection of ra
 If a cube is received, it will use the first plane as its input.
 """
 
-#from ..get_pixel_neighbours import get_pixel_neighbours
+import logging
 from math import acos, sqrt
 import numpy
 import random
@@ -14,12 +14,13 @@ import tuna
 
 class image_center_by_arc_segmentation ( object ):
     def __init__ ( self, 
-                   wrapped,
-                   log = print ):
+                   wrapped ):
+        self.log = logging.getLogger ( __name__ )
+        self.log.setLevel ( logging.DEBUG )
         super ( image_center_by_arc_segmentation, self ).__init__ ( )
+
         self.__center_row = None
         self.__center_col = None
-        self.log = log
         self.wrapped = wrapped
         random.seed ( )
 
@@ -83,7 +84,7 @@ class image_center_by_arc_segmentation ( object ):
                     #self.log ( "t_center converged at %s" % str ( center ) )
                     break
                 if ( convergence_tries > 1000 ):
-                    self.log ( "warning: Reached threshold for center convergence using chord perpendiculars." )
+                    self.log.warning ( "Reached threshold for center convergence using chord perpendiculars." )
                     break
         # plot bisection lines for debug: (very slow)
         #for bisection in range ( len ( bisections ) ):
@@ -115,7 +116,7 @@ class image_center_by_arc_segmentation ( object ):
                      int ( self.wrapped.array [ row ] [ col ] ) == 0 ):
                     ring_borders_map [ row ] [ col ] = 1
         if ( numpy.sum ( ring_borders_map ) == 0 ):
-            self.log ( "warning: No borders detected." )
+            self.log.warning ( "No borders detected." )
             self.__ring_borders = numpy.ones ( shape = ring_borders_map.shape )
             return
 
@@ -150,7 +151,7 @@ class image_center_by_arc_segmentation ( object ):
 
         # filter out everything but the largest arc
         if ( color_counts == { } ):
-            self.log ( "debug: color_counts == { }" )
+            self.log.debug ( "color_counts == { }" )
         else:
             max_arc_count = max ( color_counts.values ( ) )
             for color, count in color_counts.items ( ):
@@ -191,7 +192,7 @@ class image_center_by_arc_segmentation ( object ):
         #self.log ( "debug: point_0, point_1 = %s, %s" % ( str ( point_0 ), str ( point_1 ) ) )
         chord_segment = sympy.Segment ( point_0, point_1 )
         if ( type ( chord_segment ) is sympy.Point ):
-            self.log ( "error: Segmentation created a point." )
+            self.log.error ( "Segmentation created a point." )
             return None
         return chord_segment.perpendicular_bisector ( )
 
@@ -220,23 +221,22 @@ class image_center_by_arc_segmentation ( object ):
                 if ( abs ( result ) < 100 ):
                     self.__ring_borders [ row ] [ col ] = color
 
-def find_image_center_by_arc_segmentation ( wrapped,
-                                            log = print ):
+def find_image_center_by_arc_segmentation ( wrapped ):
     """
     Try to find the center of the rings.
     """
     start = time ( )
 
-    log ( "info: trying to find_image_center_by_arc_segmentation()." )
+    log = logging.getLogger ( __name__ )
+    log.info ( "Trying to find_image_center_by_arc_segmentation()." )
 
     if not isinstance ( wrapped, tuna.io.can ):
-        log ( "error: unexpected value for parameter." )
+        log.error ( "Unexpected value for parameter." )
         return None
 
-    finder = image_center_by_arc_segmentation ( wrapped = wrapped,
-                                                log = log )
+    finder = image_center_by_arc_segmentation ( wrapped = wrapped )
     center = finder.get_center ( )
-    log ( "info: Center detected at %s ." % str ( center ) )
+    log.info ( "Center detected at %s ." % str ( center ) )
 
-    log ( "info: find_image_center_by_arc_segmentation() took %ds." % ( time ( ) - start ) )
+    log.info ( "find_image_center_by_arc_segmentation() took %ds." % ( time ( ) - start ) )
     return center

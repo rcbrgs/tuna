@@ -1,3 +1,4 @@
+import logging
 from math import sqrt
 import numpy
 from time import time
@@ -5,32 +6,34 @@ from time import time
 import tuna
 
 class ring_borders ( object ):
-    def __init__ ( self, array = None, center = ( int, int ), log = print, noise_array = None ):
+    def __init__ ( self, array = None, center = ( int, int ), noise_array = None ):
+        self.log = logging.getLogger ( __name__ )
+        self.log.setLevel ( logging.DEBUG )
         super ( ring_borders, self ).__init__ ( )
+
         self.__array = array
         self.__borders_to_center_distances = None
         self.__center = center
         self.__noise_array = noise_array
         self.__synthetic_borders = None
-        self.log = log
 
     def create_borders_to_center_distances ( self ):
         """
         Supposing there is an array for the borders, and the center has been found, produce an array with the distances from each border pixel to the center.
         """
         borders_to_center_distances = self.__ring_borders_map - self.__noise_array
-        self.log ( "info: distances array 0% created." )
+        self.log.info ( "distances array 0% created." )
         last_percentage_logged = 0
         for row in range ( borders_to_center_distances.shape[0] ):
             percentage = 10 * int ( row / borders_to_center_distances.shape [ 0 ] * 10 )
             if percentage > last_percentage_logged:
-                self.log ( "info: distances array %d%% created." % percentage )
+                self.log.info ( "distances array %d%% created." % percentage )
                 last_percentage_logged = percentage
             for col in range ( borders_to_center_distances.shape[1] ):
                 if borders_to_center_distances[row][col] == 1:
                     borders_to_center_distances[row][col] = sqrt ( ( row - self.__center[0] ) ** 2 +
                                                                    ( col - self.__center[1] ) ** 2 )
-        self.log ( "info: distances array 100%% created." )
+        self.log.info ( "distances array 100%% created." )
 
         self.__borders_to_center_distances = borders_to_center_distances
 
@@ -120,25 +123,27 @@ class ring_borders ( object ):
             self.create_synthetic_borders ( )
         return self.__synthetic_borders
 
-def create_ring_borders_map ( log = print, array = None, center = ( int, int ), noise_array = None ):
+def create_ring_borders_map ( array = None, center = ( int, int ), noise_array = None ):
     start = time ( )
 
-    ring_borders_object = ring_borders ( log = log, array = array, center = center, noise_array = noise_array )
+    log = loggging.getLogger ( __name__ )
+
+    ring_borders_object = ring_borders ( array = array, center = center, noise_array = noise_array )
     ring_borders_object.create_map_from_barycenter_array ( )
     ring_borders_object.create_synthetic_borders ( )
 
-    log ( "create_ring_borders_map() took %ds." % ( time ( ) - start ) )
+    log.info ( "create_ring_borders_map() took %ds." % ( time ( ) - start ) )
     return ring_borders_object.get_synthetic_borders ( )
 
-def create_borders_to_center_distances ( log = print, array = None, center = ( int, int ), noise_array = None ):
+def create_borders_to_center_distances ( array = None, center = ( int, int ), noise_array = None ):
     start = time ( )
 
-    ring_borders_object = ring_borders ( log = log, array = array, center = center, noise_array = noise_array )
+    log = logging.getLogger ( __name__ )
+    ring_borders_object = ring_borders ( array = array, center = center, noise_array = noise_array )
     ring_borders_object.create_map_from_barycenter_array ( )
     result = ring_borders_object.get_borders_to_center_distances ( )
     result_can = tuna.io.can ( log = log,
                                array = result )
 
-    log ( "info: create_borders_to_center_distances() took %ds." % ( time ( ) - start ) )
+    log.info ( "create_borders_to_center_distances() took %ds." % ( time ( ) - start ) )
     return result_can
-

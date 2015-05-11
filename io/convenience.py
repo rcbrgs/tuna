@@ -15,7 +15,7 @@ def write ( array       = None,
             file_name   = None, 
             metadata    = None,
             photons   = None ):
-    log = loggging.getLogger ( __name__ )
+    log = logging.getLogger ( __name__ )
     log.setLevel ( logging.DEBUG )
 
     if ( file_format == 'fits' or
