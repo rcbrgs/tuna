@@ -35,8 +35,7 @@ class can ( file_reader ):
         self.update ( )
 
     def __add__ ( self, summand ):
-        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
-                                     sys._getframe ( ).f_code.co_varnames ) )
+        self.log.debug ( tuna.log.function_header ( ) )
 
         sum_array = self.array + summand.array
         result = can ( log = self.log,
@@ -44,8 +43,7 @@ class can ( file_reader ):
         return result
 
     def __sub__ ( self, subtrahend ):
-        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
-                                     sys._getframe ( ).f_code.co_varnames ) )
+        self.log.debug ( tuna.log.function_header ( ) )
 
         subtraction_array = self.array - subtrahend.array
         result = can ( log = self.log,
@@ -53,18 +51,17 @@ class can ( file_reader ):
         return result
 
     def convert_ndarray_into_table ( self ):
-        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
-                                     sys._getframe ( ).f_code.co_varnames ) )
+        self.log.debug ( tuna.log.function_header ( ) )
 
         start = time.time ( )
 
         photons = [ ]
-        self.log.debug ( "info: parsing image into photon table 0% done." )
+        self.log.debug ( "Parsing image into photon table 0% done." )
         last_percentage_logged = 0
         for plane in range ( self.planes ):
             percentage = 10 * int ( plane / self.planes * 10 )
             if percentage > last_percentage_logged:
-                self.log.debug ( "info: parsing image into photon table %d%% done." % ( percentage ) )
+                self.log.debug ( "Parsing image into photon table %d%% done." % ( percentage ) )
                 last_percentage_logged = percentage
             for row in range ( self.rows ):
                 for col in range ( self.cols ):
@@ -83,8 +80,7 @@ class can ( file_reader ):
         self.log.debug ( "debug: convert_ndarray_into_table() took %ds." % ( time.time ( ) - start ) )
 
     def convert_table_into_ndarray ( self ):
-        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
-                                     sys._getframe ( ).f_code.co_varnames ) )
+        self.log.debug ( tuna.log.function_header ( ) )
 
         planes = 0
         rows = 0
@@ -107,17 +103,16 @@ class can ( file_reader ):
         self.array = array
 
     def info ( self ):
-        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
-                                     sys._getframe ( ).f_code.co_varnames ) )
+        self.log.debug ( tuna.log.function_header ( ) )
 
-        self.log.debug ( "info: file_name = %s" % self.file_name )
-        self.log.debug ( "info: shape = %s" % str ( self.shape ) )
-        self.log.debug ( "info: ndim = %d" % self.ndim )
-        self.log.debug ( "info: planes = %d" % self.planes )
-        self.log.debug ( "info: rows = %d" % self.rows )
-        self.log.debug ( "info: cols = %d" % self.cols )
-        self.log.debug ( "info: interference_order = %s" % str ( self.interference_order ) )
-        self.log.debug ( "info: interference_reference_wavelength = %s" % str ( self.interference_reference_wavelength ) )
+        self.log.info ( "file_name = %s" % self.file_name )
+        self.log.info ( "shape = %s" % str ( self.shape ) )
+        self.log.info ( "ndim = %d" % self.ndim )
+        self.log.info ( "planes = %d" % self.planes )
+        self.log.info ( "rows = %d" % self.rows )
+        self.log.info ( "cols = %d" % self.cols )
+        self.log.info ( "interference_order = %s" % str ( self.interference_order ) )
+        self.log.info ( "interference_reference_wavelength = %s" % str ( self.interference_reference_wavelength ) )
 
     def read ( self ):
         self.log.debug ( tuna.log.function_header ( ) )
@@ -149,12 +144,10 @@ class can ( file_reader ):
                 self.array = adhoc_object.get_array ( )
                 #self.metadata = adhoc_object.__trailer
                 self.update ( )
-        self.log.debug ( "debug: after attempting to read file, " + tuna.io.system.status ( ) )
+        self.log.debug ( "After attempting to read file, " + tuna.io.system.status ( ) )
 
-    def show ( self,
-               plane = 0 ):
-        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
-                                     sys._getframe ( ).f_code.co_varnames ) )
+    def show ( self, plane = 0 ):
+        self.log.debug ( tuna.log.function_header ( ) )
 
         if self.ndim == 3:
             window = tuna.gui.window_2d_viewer ( log = self.log,
@@ -166,12 +159,11 @@ class can ( file_reader ):
             window.start ( )
 
     def update ( self ):
-        self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
-                                     sys._getframe ( ).f_code.co_varnames ) )
+        self.log.debug ( tuna.log.function_header ( ) )
 
         if ( self.array == None and
              self.photons == None ):
-            self.log.debug ( "debug: Empty Tuna can." )
+            self.log.debug ( "Empty Tuna can." )
             self.metadata = None
             self.ndim = None
             self.shape = None
@@ -180,18 +172,13 @@ class can ( file_reader ):
             self.cols = None
             return
 
-        #if ( self.array != None and
-        #     self.photons != None ):
-        #    self.log.debug ( "error: Both self.array and self.photons are populated in update(). Please set one of them to None before calling this method. (Aborting method call)." )
-        #    return
-
         if ( self.array == None ):
             self.convert_table_into_ndarray ( )
             return
 
         self.ndim = self.array.ndim
         self.shape = self.array.shape
-        self.log.debug ( "debug: can.update: self.array.ndim == %d, self.ndim == %d." % ( self.array.ndim, self.ndim ) )
+        self.log.debug ( "can.update: self.array.ndim == %d, self.ndim == %d." % ( self.array.ndim, self.ndim ) )
         if self.ndim == 3:
             self.planes = self.array.shape [ 0 ]
             self.rows   = self.array.shape [ 1 ]
@@ -202,6 +189,4 @@ class can ( file_reader ):
             self.cols   = self.array.shape [ 1 ]
         if ( self.ndim < 2 or
              self.ndim > 3 ):
-            self.log.debug ( "warning: ndarray has either less than 2 or more than 3 dimensions." )
-
-        #self.convert_ndarray_into_table ( )
+            self.log.warning ( "ndarray has either less than 2 or more than 3 dimensions." )

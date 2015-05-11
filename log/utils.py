@@ -1,5 +1,6 @@
 import logging
 import sys
+import tuna
 
 def function_header ( ):
     """
@@ -51,4 +52,9 @@ def set_path ( file_name ):
         log.error ( "Non-string passed as file_name." )
         return
 
-    logging.basicConfig ( filename = file_name )
+    tuna._log_handler   = logging.FileHandler ( file_name )
+    tuna._log_formatter = logging.Formatter ( fmt = "%(asctime)s %(levelname)5s %(message)s", 
+                                              datefmt = '%Y-%m-%d %H:%M:%S' )
+    tuna._log_handler.setFormatter ( tuna._log_formatter )
+    tuna._log.addHandler ( tuna._log_handler )
+

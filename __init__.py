@@ -24,5 +24,7 @@ class daemons ( object ):
 
 _log = logging.getLogger ( __name__ )
 _log.setLevel ( logging.DEBUG )
+_log_handler = None
+_log_formatter = None
 
 __daemons = daemons ( )

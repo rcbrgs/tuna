@@ -3,6 +3,8 @@
 # Import all modules and classes relevant to a user:
 import tuna
 
+tuna.log.set_path ( "pipeline_high_resolution.log" )
+
 file_name = "/home/nix/sync/tuna/sample_data/G094.AD3"
 file_name_unpathed = file_name.split ( "/" ) [ -1 ]
 file_name_prefix = file_name_unpathed.split ( "." ) [ 0 ]
