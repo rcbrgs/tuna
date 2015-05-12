@@ -26,8 +26,9 @@ install:
   - 'head -n 20 make.inc'
   - "make lapacklib"
   - "make clean"
-  - 'sudo ln -s /home/travis/lapack-*/libflapack.a /usr/local/lib/libflapack.a'
-  - "export LAPACK=~/src/lapack-*/libflapack.a"
+# will break when LAPACK updates
+  - 'sudo ln -s /home/travis/lapack-3.5.0/liblapack.a /usr/local/lib/liblapack.a'
+  - "export LAPACK=~/src/lapack-3.5.0/liblapack.a"
   - 'export'
   - "cd $HERE"
   - "pip install -r pip_packages.txt"
