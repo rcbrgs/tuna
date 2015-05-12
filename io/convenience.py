@@ -4,7 +4,10 @@ from .can import can
 from .fits import fits
 from tuna.zeromq.zmq_client import zmq_client
 
-def read ( file_name = None ):
+def read ( file_name ):
+    log = logging.getLogger ( __name__ )
+    log.info ( "Creating a tuna can for file name %s." % file_name )
+
     if file_name:
         tuna_can = can ( file_name = file_name )
         tuna_can.read ( )

@@ -47,7 +47,13 @@ class adhoc ( file_reader ):
         if self.__file_name:
             if self.__file_object:
                 self.__file_object.close ( )
-            self.__file_object = open ( self.__file_name, "rb" )
+
+            try:
+                self.__file_object = open ( self.__file_name, "rb" )
+            except OSError as e:
+                self.log.error ( "OSError: %s" % str ( e ) )
+                raise
+
             self.__file_object.seek ( 0, os.SEEK_END )
             self.__array_size = ( self.__file_object.tell ( ) - 256 ) / 4  
             self.__file_object.close ( )

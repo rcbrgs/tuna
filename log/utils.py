@@ -58,3 +58,4 @@ def set_path ( file_name ):
     tuna._log_handler.setFormatter ( tuna._log_formatter )
     tuna._log.addHandler ( tuna._log_handler )
 
+    log.info ( "Log file set to %s." % file_name )
