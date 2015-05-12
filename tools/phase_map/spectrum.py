@@ -1,5 +1,4 @@
 import logging
-#from tuna.gui.window_2d_viewer import window_2d_viewer
 from math import floor
 import numpy
 from time import time
@@ -36,10 +35,6 @@ def detect_continuum ( array = numpy.ndarray,
     log.setLevel ( logging.DEBUG )
 
     continuum_array = numpy.zeros ( shape = ( array.shape[1], array.shape[2] ) )
-
-    if display == True:
-        viewer = window_2d_viewer ( ndarray_object = continuum_array )
-        viewer.start ( )
 
     log.info ( "Continuum array 0% created." )
     last_percentage_logged = 0

@@ -146,18 +146,6 @@ class can ( file_reader ):
                 self.update ( )
         self.log.debug ( "After attempting to read file, " + tuna.io.system.status ( ) )
 
-    def show ( self, plane = 0 ):
-        self.log.debug ( tuna.log.function_header ( ) )
-
-        if self.ndim == 3:
-            window = tuna.gui.window_2d_viewer ( log = self.log,
-                                                 array = self.array [ plane ] )
-            window.start ( )
-        else:
-            tuna.gui.window_2d_viewer ( log = self.log,
-                                        array = self.array )
-            window.start ( )
-
     def update ( self ):
         self.log.debug ( tuna.log.function_header ( ) )
 
