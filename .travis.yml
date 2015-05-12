@@ -31,7 +31,7 @@ install:
   - "export LAPACK=~/src/lapack-3.5.0/liblapack.a"
   - 'export'
   - "cd $HERE"
-  - travis_wait "pip install scipy"
+  - "travis_wait pip install scipy"
   - "pip install -r pip_packages.txt"
 # command to run tests
 script: nosetests
