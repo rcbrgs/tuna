@@ -14,6 +14,7 @@ install:
   - "ar r libfblas.a *.o"
   - "ranlib libfblas.a"
   - "rm -rf *.o"
+  - 'sudo ln -s /home/travis/BLAS/libfblas.a /usr/local/lib/libfblas.a'
   - "export BLAS=~/src/BLAS/libfblas.a"
   - "cd ~/src"
   - "wget http://www.netlib.org/lapack/lapack.tgz"
@@ -22,9 +23,12 @@ install:
   - "cp INSTALL/make.inc.gfortran make.inc"
   - 'sed "s/^\(OPTS *= -O2 -frecursive\)/\1 -fPIC/" make.inc > new.inc'
   - 'sed "s/^\(NOOPT *= -O0 -frecursive\)/\1 -fPIC/" new.inc > make.inc'
+  - 'head -n 20 make.inc'
   - "make lapacklib"
   - "make clean"
+  - 'sudo ln -s /home/travis/lapack-*/libflapack.a /usr/local/lib/libflapack.a'
   - "export LAPACK=~/src/lapack-*/libflapack.a"
+  - 'export'
   - "cd $HERE"
   - "pip install -r pip_packages.txt"
 # command to run tests
