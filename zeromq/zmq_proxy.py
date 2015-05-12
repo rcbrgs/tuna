@@ -57,6 +57,10 @@ class zmq_proxy ( ):
             print ( u'Received: "%s" from %s.' % answer.decode("utf-8"), msg_destination )
             print ( u"Expected: 'ACK'" )
 
+    def close ( self ):
+        print ( "Shutting down zmq_proxy." )
+        self.__lock = False
+
     def __del__ ( self ):
         """
         Gracefully shutdown this process.
@@ -104,7 +108,7 @@ class zmq_proxy ( ):
             'test' : self.__call_print, }
 
         while self.__lock == True:
-            zmq_buffer = dict ( self.__zmq_poller.poll ( 5000 ) )
+            zmq_buffer = dict ( self.__zmq_poller.poll ( 5 ) )
             if self.__zmq_socket_rep in zmq_buffer and zmq_buffer [ self.__zmq_socket_rep ] == zmq.POLLIN:
                 msg = self.__zmq_socket_rep.recv ( )
                 msg_partition = str ( msg, ( "utf-8" ) ).partition ( ": " )
