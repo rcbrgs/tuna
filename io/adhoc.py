@@ -2,7 +2,7 @@ import logging
 import os
 import numpy
 import numpy as np
-from scipy import constants as cst
+#from scipy import constants as cst
 import pyfits as pf
 from pyfits import Column
 import sys

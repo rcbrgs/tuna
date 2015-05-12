@@ -3,6 +3,5 @@ matplotlib
 numpy
 psutil
 pyfits
-scipy
 sympy
 pyzmq
