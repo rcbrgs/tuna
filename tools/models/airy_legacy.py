@@ -1,5 +1,7 @@
-from astropy.modeling import Fittable2DModel, Parameter
-from astropy.modeling.fitting import LevMarLSQFitter
+from astropy.modeling import ( Parametric2DModel,
+                               Parameter,
+                               format_input )
+from astropy.modeling.fitting import NonLinearLSQFitter as LevMarLSQFitter
 
 import logging
 from math import sqrt
@@ -7,7 +9,7 @@ import numpy
 from time import time
 import tuna
 
-class airy ( Fittable2DModel ):
+class airy ( Parametric2DModel ):
     """
     Airy model for Astropy. Produces a 2D slice from parameters that should correspond to an 
     idealized Fabry-Perot interferometer spectrograph.
@@ -24,12 +26,12 @@ class airy ( Fittable2DModel ):
     gap          : microns between the étalons
     """
 
-    beam = Parameter ( )
-    center_row = Parameter ( )
-    center_col = Parameter ( )
-    finesse = Parameter ( )
-    focal_length = Parameter ( )
-    gap = Parameter ( )
+    beam = Parameter ( 'beam' )
+    center_row = Parameter ( 'center_row' )
+    center_col = Parameter ( 'center_col' )
+    finesse = Parameter ( 'finesse' )
+    focal_length = Parameter ( 'focal_length' )
+    gap = Parameter ( 'gap' )
     
     def __init__ ( self,
                    beam = 1.,
@@ -51,14 +53,14 @@ class airy ( Fittable2DModel ):
                                         **constraints )
        
     @staticmethod
-    def evaluate ( x,
-                   y,
-                   beam,
-                   center_row,
-                   center_col,
-                   finesse,
-                   focal_length,
-                   gap ):
+    def eval ( x,
+               y,
+               beam,
+               center_row,
+               center_col,
+               finesse,
+               focal_length,
+               gap ):
 
         pixel_size = 9
         reflectivity = 0.99

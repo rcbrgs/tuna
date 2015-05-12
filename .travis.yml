@@ -3,7 +3,7 @@ python:
   - "3.3"
 # command to install dependencies
 install:
-  - "sudo apt-get -y install gcc-gfortran"
+  - "sudo apt-get -y install gfortran"
   - "mkdir ~/src/"
   - "cd ~/src"
   - "wget http://www.netlib.org/blas/blas.tgz"
