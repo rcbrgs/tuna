@@ -1,40 +1,11 @@
 language: python
 python:
   - "3.3"
-# command to install dependencies
+
 install:
-#  - "sudo apt-get -y install gfortran"
-#  - "export HERE=`pwd`"
-#  - "mkdir ~/src/"
-#  - "cd ~/src"
-#  - "wget http://www.netlib.org/blas/blas.tgz"
-#  - "tar xzf blas.tgz"
-#  - "cd BLAS"
-#  - "gfortran -O3 -std=legacy -m64 -fno-second-underscore -fPIC -c *.f"
-#  - "ar r libfblas.a *.o"
-#  - "ranlib libfblas.a"
-#  - "rm -rf *.o"
-#  - 'sudo ln -s /home/travis/BLAS/libfblas.a /usr/local/lib/libfblas.a'
-#  - "export BLAS=~/src/BLAS/libfblas.a"
-#  - "cd ~/src"
-#  - "wget http://www.netlib.org/lapack/lapack.tgz"
-#  - "tar xzf lapack.tgz"
-#  - "cd lapack-*/"
-#  - "cp INSTALL/make.inc.gfortran make.inc"
-#  - 'sed "s/^\(OPTS *= -O2 -frecursive\)/\1 -fPIC/" make.inc > new.inc'
-#  - 'sed "s/^\(NOOPT *= -O0 -frecursive\)/\1 -fPIC/" new.inc > make.inc'
-#  - 'head -n 20 make.inc'
-#  - "make lapacklib"
-#  - "make clean"
-# will break when LAPACK updates
-#  - 'sudo ln -s /home/travis/lapack-3.5.0/liblapack.a /usr/local/lib/liblapack.a'
-#  - "export LAPACK=~/src/lapack-3.5.0/liblapack.a"
-#  - 'export'
-#  - "cd $HERE"
-#  - "travis_wait pip install scipy"
-#  - "sudo apt-get install -y libopenblas-dev"
-#  - "sudo apt-get install -y liblapack-dev" 
-  - "pip -v install -r pip_packages.txt"
-# command to run tests
+  - "pip install --upgrade pip"
+  - "pip install -r pip_packages.txt"
+
 script: nosetests
+
 #sudo: required
