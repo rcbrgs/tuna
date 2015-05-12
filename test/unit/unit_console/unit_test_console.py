@@ -1,6 +1,6 @@
 import unittest
 
-class unit_test_tuna_log_server ( unittest.TestCase ):
+class unit_test_tuna_console ( unittest.TestCase ):
     def setUp ( self ):
         pass
 
