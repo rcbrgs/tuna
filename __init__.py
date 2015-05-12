@@ -1,4 +1,3 @@
-
 """
 Tuna
 
@@ -11,7 +10,6 @@ import tuna.console
 import tuna.io
 from tuna.io.convenience import ( read,
                                   write )
-#import tuna.gui
 import tuna.log
 import tuna.tools
 import tuna.zeromq

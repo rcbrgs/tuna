@@ -35,6 +35,3 @@ class backend ( object ):
 
             self.zmq_proxy_instance = zmq_daemon ( )
             self.zmq_proxy_instance.start ( )
-
-    def __del__ ( self ):
-        self.lock = False
