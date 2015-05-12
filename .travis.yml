@@ -4,9 +4,14 @@ python:
 
 install:
   - "pip install --upgrade pip"
+  - "pip install coveralls"
   - "pip install numpy"
   - "pip install -r pip_packages.txt"
 
-script: nosetests
+script:
+  nosetests --with-coverage --cover-package=tuna
+
+after_success:
+  coveralls
 
 #sudo: required
