@@ -29,8 +29,11 @@ class unit_test_io_adhoc ( unittest.TestCase ):
         # Unless a race condition, adhoc_test_file_?.ad2 does not exist.
         self.assertRaises ( OSError, tuna.io.read, file_name )
 
-    def test_valid_file ( self ):
+    def test_valid_2d_file ( self ):
         tuna.io.read ( "test/unit/unit_io/adhoc.ad2" )
+
+    def test_valid_3d_file ( self ):
+        tuna.io.read ( "test/unit/unit_io/adhoc.ad3" )
 
     def test_wrong_dimenson ( self ):
         ad = tuna.io.adhoc ( file_name = "test/unit/unit_io/adhoc.ad3" )
