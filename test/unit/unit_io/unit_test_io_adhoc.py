@@ -6,7 +6,7 @@ class unit_test_io_adhoc ( unittest.TestCase ):
     def setUp ( self ):
         tuna.log.set_path ( "../nose.log" )
 
-    def test_empty_file ( self ):
+    def test_nonexisting_file ( self ):
         flag = False
         nonexisting_file_number = 0       
         file_name = ""
@@ -21,6 +21,9 @@ class unit_test_io_adhoc ( unittest.TestCase ):
         
         # Unless a race condition, adhoc_test_file_?.ad2 does not exist.
         self.assertRaises ( OSError, tuna.io.read, file_name )
+
+    def test_empty_file ( self ):
+        tuna.io.read ( "test/unit/unit_io/fake_adhoc.ad2" )
 
     def test_valid_file ( self ):
         tuna.io.read ( "test/unit/unit_io/adhoc.ad2" )

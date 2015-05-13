@@ -58,10 +58,17 @@ class adhoc ( file_reader ):
             self.__array_size = ( self.__file_object.tell ( ) - 256 ) / 4  
             self.__file_object.close ( )
 
-            adhoc_file_type = numpy.dtype ( [ ( 'image_data', numpy.float32, self.__array_size ),
-                                              ( 'trailer', 
-                                                [ ( 'number_of_dimensions', numpy.int32, 1 ),
-                                                  ( 'parameters', numpy.int8, 252 ) ] ) ] )
+            try: 
+                adhoc_file_type = numpy.dtype ( [ ( 'image_data', numpy.float32, self.__array_size ),
+                                                  ( 'trailer', 
+                                                    [ ( 'number_of_dimensions', numpy.int32, 1 ),
+                                                      ( 'parameters', numpy.int8, 252 ) ] ) ] )
+            except ValueError as e:
+                self.log.error ( "ValueError: %s." % str ( e ) )
+                self.log.warning ( "Impossible to guess adhoc type from file." )
+                self.__adhoc_type = None
+                return
+
             adhoc_file = numpy.fromfile ( self.__file_name, dtype = adhoc_file_type )
             if adhoc_file['trailer']['number_of_dimensions'] not in ( [2], [3], [-3] ):
                 self.log.warning ( "Unrecognized number of dimensions in file %s." % str ( self.__file_name ) )
