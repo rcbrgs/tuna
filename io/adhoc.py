@@ -45,8 +45,6 @@ class adhoc ( file_reader ):
         self.log.debug ( tuna.log.function_header ( ) )
 
         if self.__file_name:
-            if self.__file_object:
-                self.__file_object.close ( )
 
             try:
                 self.__file_object = open ( self.__file_name, "rb" )
@@ -82,6 +80,7 @@ class adhoc ( file_reader ):
         self.log.debug ( tuna.log.function_header ( ) )
 
         if self.__file_name == None:
+            self.log.error ( "No file name selected, aborting read operation." )
             return
 
         if self.__adhoc_type == None:
@@ -155,10 +154,10 @@ class adhoc ( file_reader ):
 
         try:
             self.__array = numpy_data['data'][0].reshape ( numpy_data['trailer']['ly'], 
-                                                                  numpy_data['trailer']['lx'] )
+                                                           numpy_data['trailer']['lx'] )
         except ValueError as e:
-            self.log.debug ( "error: ValueError exception during NumPy reshape() (probably trying to open a 3d object with a 2d method).")
-            raise e
+            self.log.debug ( "%s" % str ( e ) )
+            raise
     
         self.__array[numpy.where ( numpy_data == -3.1E38 )] = numpy.nan
         self.__adhoc_trailer = numpy_data['trailer']

@@ -6,6 +6,13 @@ class unit_test_io_adhoc ( unittest.TestCase ):
     def setUp ( self ):
         tuna.log.set_path ( "../nose.log" )
 
+    def test_empty_file ( self ):
+        tuna.io.read ( "test/unit/unit_io/fake_adhoc.ad2" )
+
+    def test_no_file_name ( self ):
+        ad = tuna.io.adhoc ( )
+        ad.read ( )
+
     def test_nonexisting_file ( self ):
         flag = False
         nonexisting_file_number = 0       
@@ -22,11 +29,13 @@ class unit_test_io_adhoc ( unittest.TestCase ):
         # Unless a race condition, adhoc_test_file_?.ad2 does not exist.
         self.assertRaises ( OSError, tuna.io.read, file_name )
 
-    def test_empty_file ( self ):
-        tuna.io.read ( "test/unit/unit_io/fake_adhoc.ad2" )
-
     def test_valid_file ( self ):
         tuna.io.read ( "test/unit/unit_io/adhoc.ad2" )
+
+    def test_wrong_dimenson ( self ):
+        ad = tuna.io.adhoc ( file_name = "test/unit/unit_io/adhoc.ad3" )
+        ad.discover_adhoc_type ( )
+        self.assertRaises ( ValueError, ad.read_adhoc_2d )
 
     def tearDown ( self ):
         pass
