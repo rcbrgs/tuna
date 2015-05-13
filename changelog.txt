@@ -1,3 +1,24 @@
+Tuna v0.9:
+- Multithreaded pipeline (partially done).
+- Fix FSR calculation on wavelength calibration (done, but check for possible sign inversion).
+- Refactor logging using Python logging module and standard practices for Python libraries.
+- Add function so the user can set the log file name.
+- Refactor metadata extraction from ADA files so that numeric values are treated as integers and floats.
+- Created tool to print a "history" of a pixel, as it goes through the pipeline.
+- Refactor out the datacube class, integrating its functionality in Tuna cans (mostly done).
+- Setup continuous integration with Travis and Coverall. 
+- Increased test coverage of Tuna from 17% to 35%.
+
+Tuna v0.8:
+- Multiple instantiation of tuna now works reliably.
+- Examples were refactored to exemplify tuna as a library.
+- Cans metadata are now a Python dictionary.
+- Arrays and metadata are directly accessible from the can object (no need for get_ functions).
+- Airy fit automated. Refactor Airy fit using astropy fitters / models.
+- Use Airy fit to replace suppressed data channels.
+- Photon tables refactored to allow simpler translations.
+- Wavelength now have only integers as valid values for a channel.
+
 Tuna 0.7:
 - Channel subset now interpolates values from neighbouring channels.
 - Converting from ADA files now produces a photon table that is written to a FITS table.
