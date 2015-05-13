@@ -23,7 +23,7 @@ class ada ( file_reader ):
         """
         super ( ada, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.DEBUG )
+        self.log.setLevel ( logging.INFO )
 
         self.__file_name = file_name
         self.__array = array
@@ -133,9 +133,6 @@ class ada ( file_reader ):
         self.log.debug ( tuna.log.function_header ( ) )
         
         if channel == -1:
-            return
-
-        if file_name == None:
             return
         
         file_path = join ( self.__file_path, file_name )
