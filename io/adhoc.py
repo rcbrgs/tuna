@@ -76,6 +76,7 @@ class adhoc ( file_reader ):
 
         if self.__file_name == None:
             return
+
         if self.__adhoc_type == None:
             self.discover_adhoc_type ( )
             if self.__adhoc_type == None:

@@ -1,3 +1,4 @@
+import logging
 import tuna
 import unittest
 
@@ -20,6 +21,9 @@ class unit_test_io_adhoc ( unittest.TestCase ):
         
         # Unless a race condition, adhoc_test_file_?.ad2 does not exist.
         self.assertRaises ( OSError, tuna.io.read, file_name )
+
+    def test_valid_file ( self ):
+        tuna.io.read ( "test/unit/unit_io/adhoc.ad2" )
 
     def tearDown ( self ):
         pass

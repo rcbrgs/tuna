@@ -149,7 +149,7 @@ class can ( file_reader ):
     def update ( self ):
         self.log.debug ( tuna.log.function_header ( ) )
 
-        if ( self.array == None and
+        if ( ( not isinstance ( self.array, numpy.ndarray ) ) and
              self.photons == None ):
             self.log.debug ( "Empty Tuna can." )
             self.metadata = None
@@ -160,7 +160,7 @@ class can ( file_reader ):
             self.cols = None
             return
 
-        if ( self.array == None ):
+        if ( not isinstance ( self.array, numpy.ndarray ) ):
             self.convert_table_into_ndarray ( )
             return
 

@@ -52,6 +52,9 @@ def set_path ( file_name ):
         log.error ( "Non-string passed as file_name." )
         return
 
+    if tuna._log_handler != None:
+        tuna._log.removeHandler ( tuna._log_handler )
+
     tuna._log_handler   = logging.FileHandler ( file_name )
     tuna._log_formatter = logging.Formatter ( fmt = "%(asctime)s %(levelname)5s %(message)s", 
                                               datefmt = '%Y-%m-%d %H:%M:%S' )
