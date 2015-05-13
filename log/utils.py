@@ -9,6 +9,7 @@ def function_header ( ):
 
     line            = sys._getframe ( ).f_back.f_lineno
 
+    arguments       = sys._getframe ( ).f_back.f_code.co_argcount
     function_name   = sys._getframe ( ).f_back.f_code.co_name
     script_file     = sys._getframe ( ).f_back.f_code.co_filename
     variables       = sys._getframe ( ).f_back.f_code.co_varnames
@@ -16,13 +17,18 @@ def function_header ( ):
     result = ""
     result += script_file.split ( "/" ) [ -1 ]
     result += ", " + str ( line ) + ": " + function_name + " ( "
-    variables_names = ""
-    for variable in variables:
-        if variables_names == "":
-            variables_names += variable
-        else:
-            variables_names += ", " + variable
-    result += variables_names + " )"
+
+    if arguments != 0:
+        for variable_number in range ( arguments ):
+            variable_name = variables [ variable_number ]
+            if variable_number == 0:
+                variables_string = str ( variables [ 0 ] )
+            else:
+                variables_string += ", " + str ( variables [ variable_number ] )
+            variables_string += " = "
+            variables_string += str ( sys._getframe ( ).f_back.f_locals [ variable_name ] )
+
+    result += variables_string + " )"
 
     return result
 

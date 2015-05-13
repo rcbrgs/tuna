@@ -21,7 +21,7 @@ class daemons ( object ):
         self.tuna_daemons.start ( )
 
 _log = logging.getLogger ( __name__ )
-_log.setLevel ( logging.DEBUG )
+_log.setLevel ( logging.INFO )
 _log_handler = None
 _log_formatter = None
 

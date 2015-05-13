@@ -6,6 +6,7 @@ from tuna.zeromq.zmq_client import zmq_client
 
 def read ( file_name ):
     log = logging.getLogger ( __name__ )
+    log.setLevel ( logging.INFO )
     log.info ( "Creating a tuna can for file name %s." % file_name )
 
     if file_name:

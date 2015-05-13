@@ -55,7 +55,7 @@ def generate_data ( channels ):
     compare_two = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G094.AD3_07_unwrapped.fits' )
     comparison = compare_one - compare_two.array
 
-    return numpy.sum ( numpy.square ( comparison ) )
+    return numpy.sum ( numpy.square ( comparison ) ) # divide by num pixels
 
 tabular_data = [ ]
 
