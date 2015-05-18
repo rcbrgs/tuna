@@ -24,31 +24,31 @@ class airy ( Fittable2DModel ):
     gap          : microns between the étalons
     """
 
-    beam = Parameter ( )
-    center_row = Parameter ( )
-    center_col = Parameter ( )
-    finesse = Parameter ( )
-    focal_length = Parameter ( )
-    gap = Parameter ( )
+    beam         = Parameter ( default = 1.0 )
+    center_row   = Parameter ( default = 0 )
+    center_col   = Parameter ( default = 0 )
+    finesse      = Parameter ( default = 15 )
+    focal_length = Parameter ( default = 0.1 )
+    gap          = Parameter ( default = 1.0 )
     
-    def __init__ ( self,
-                   beam = 1.,
-                   center_row = 0,
-                   center_col = 0,
-                   finesse = 15,
-                   focal_length = 0.1,
-                   gap = 1.,
-                   **constraints ):
-
-        self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.INFO )
-        super ( airy, self ).__init__ ( beam = beam,
-                                        center_row = center_row,
-                                        center_col = center_col,
-                                        finesse = finesse,
-                                        focal_length = focal_length,
-                                        gap = gap,
-                                        **constraints )
+    #def __init__ ( self,
+    #               beam = beam.default,
+    #               center_row = center_row.default,
+    #               center_col = center_col.default,
+    #               finesse = finesse.default,
+    #               focal_length = focal_length.default,
+    #               gap = gap.default,
+    #               **constraints ):
+    #
+    #    self.log = logging.getLogger ( __name__ )
+    #    self.log.setLevel ( logging.INFO )
+    #    super ( airy, self ).__init__ ( beam = beam,
+    #                                    center_row = center_row,
+    #                                    center_col = center_col,
+    #                                    finesse = finesse,
+    #                                    focal_length = focal_length,
+    #                                    gap = gap,
+    #                                    **constraints )
        
     @staticmethod
     def evaluate ( x,
@@ -95,6 +95,8 @@ def fit_airy ( discontinuum,
     """
     start = time ( )
 
+    log = logging.getLogger ( __name__ )
+
     airy_custom_model = airy ( beam = beam,
                                center_row = center [ 0 ], 
                                center_col = center [ 1 ],
@@ -106,19 +108,20 @@ def fit_airy ( discontinuum,
     
     y, x = numpy.mgrid [ : discontinuum.shape [ 1 ], : discontinuum.shape [ 2 ] ]
     result = numpy.zeros ( shape = discontinuum.shape )
-        
+       
+    #return tuna.io.can ( array = discontinuum.array )
     for dep in range ( discontinuum.shape [ 0 ] ):
         #with warnings.catch_warnings ( ):
         #    warnings.simplefilter ( 'ignore' )
-        airy_custom_model.beam = beam
-        airy_custom_model.center_row = center [ 0 ]
-        airy_custom_model.center_row.fixed = True
-        airy_custom_model.center_col = center [ 1 ]
-        airy_custom_model.center_col.fixed = True
-        airy_custom_model.finesse = finesse
-        airy_custom_model.finesse.fixed = True
-        airy_custom_model.focal_length = focal_length
-        airy_custom_model.gap = gap
+        #airy_custom_model.beam = beam
+        #airy_custom_model.center_row = center [ 0 ]
+        #airy_custom_model.center_row.fixed = True
+        #airy_custom_model.center_col = center [ 1 ]
+        #airy_custom_model.center_col.fixed = True
+        #airy_custom_model.finesse = finesse
+        #airy_custom_model.finesse.fixed = True
+        #airy_custom_model.focal_length = focal_length
+        #airy_custom_model.gap = gap
 
         data = discontinuum.array [ dep ]
         airy_model_fit = LevMarLSQFitter_fit ( airy_custom_model, x, y, data )
