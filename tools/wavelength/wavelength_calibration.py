@@ -44,14 +44,18 @@ class calibration ( object ):
         self.log.info ( "decalage = %f" % decalage )
         calibrated = numpy.copy ( self.unwrapped_phase_map.array )
         calibrated -= decalage
-        offset = 0
+
         if calibrated [ self.rings_center [ 0 ] ] [ self.rings_center [ 1 ] ] < 0:
-            offset = math.ceil ( - numpy.amin ( calibrated ) / self.unwrapped_phase_map.planes ) * self.unwrapped_phase_map.planes
+            ceiling_offset = math.ceil ( - numpy.amin ( calibrated ) / self.unwrapped_phase_map.planes ) * self.unwrapped_phase_map.planes
+            calibrated += ceiling_offset
+            self.log.info ( "ceiling_offset = %f" % ceiling_offset )
+
         if calibrated [ self.rings_center [ 0 ] ] [ self.rings_center [ 1 ] ] > self.unwrapped_phase_map.planes:
-            offset = - math.floor (  numpy.amin ( calibrated ) / self.unwrapped_phase_map.planes ) * self.unwrapped_phase_map.planes
-        self.log.info ( "offset = %f" % offset )
+            floor_offset = math.floor (  numpy.amin ( calibrated ) / self.unwrapped_phase_map.planes ) * self.unwrapped_phase_map.planes
+            calibrated -= floor_offset
+            self.log.info ( "floor_offset = %f" % floor_offset )
+
         self.log.debug ( "self.unwrapped_phase_map.get_array().ndim == %d" % self.unwrapped_phase_map.ndim )
-        calibrated += offset
         self.log.debug ( "calibrated.ndim == %d" % calibrated.ndim )
 
         self.calibrated = tuna.io.can ( array = calibrated )
