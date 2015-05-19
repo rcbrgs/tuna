@@ -17,8 +17,10 @@ class high_resolution ( threading.Thread ):
                    focal_length,
                    free_spectral_range,
                    gap,
+                   initial_gap,
                    interference_order,
                    interference_reference_wavelength,
+                   pixel_size,
                    scanning_wavelength,
                    tuna_can,
                    bad_neighbours_threshold = 7, 
@@ -56,9 +58,11 @@ class high_resolution ( threading.Thread ):
         self.focal_length = focal_length
         self.free_spectral_range = free_spectral_range
         self.gap = gap
+        self.initial_gap = initial_gap
         self.interference_order = interference_order
         self.interference_reference_wavelength = interference_reference_wavelength
         self.noise_mask_radius = noise_mask_radius
+        self.pixel_size = pixel_size
         self.scanning_wavelength = scanning_wavelength
         self.tuna_can = tuna_can
 
@@ -121,10 +125,14 @@ class high_resolution ( threading.Thread ):
                                                      discontinuum = self.discontinuum,
                                                      finesse = self.finesse,
                                                      focal_length = self.focal_length,
-                                                     gap = self.gap )
+                                                     gap = self.gap,
+                                                     initial_gap = self.initial_gap,
+                                                     pixel_size = self.pixel_size )
 
         airy_fit_residue = numpy.abs ( self.tuna_can.array - self.airy_fit.array )
         self.airy_fit_residue = tuna.io.can ( array = airy_fit_residue )
+        airy_pixels = airy_fit_residue.shape [ 0 ] * airy_fit_residue.shape [ 1 ] * airy_fit_residue.shape [ 2 ] 
+        self.log.info ( "Airy fit residue average error = %s channels / pixel" % str ( numpy.sum ( airy_fit_residue ) / airy_pixels ) )
 
         substituted_channels = numpy.copy ( self.tuna_can.array )
         for channel in range ( self.tuna_can.planes ):
@@ -181,8 +189,10 @@ def high_resolution_pipeline ( beam,
                                focal_length,
                                free_spectral_range,
                                gap,
+                               initial_gap,
                                interference_order,
                                interference_reference_wavelength,
+                               pixel_size,
                                scanning_wavelength,
                                tuna_can,
                                bad_neighbours_threshold = 7, 
@@ -210,8 +220,10 @@ def high_resolution_pipeline ( beam,
                                                  focal_length,
                                                  free_spectral_range,
                                                  gap,
+                                                 initial_gap,
                                                  interference_order,
                                                  interference_reference_wavelength,
+                                                 pixel_size,
                                                  scanning_wavelength,
                                                  tuna_can,
                                                  bad_neighbours_threshold, 

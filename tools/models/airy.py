@@ -1,4 +1,4 @@
-from astropy.modeling import Fittable2DModel, Parameter
+from astropy.modeling.models import custom_model
 from astropy.modeling.fitting import LevMarLSQFitter
 
 import logging
@@ -6,66 +6,37 @@ from math import sqrt
 import numpy
 from time import time
 import tuna
+      
+@custom_model
+def airy ( cube,
+           beam = 1.0,
+           center_row = 0,
+           center_col = 0,
+           finesse = 1.,
+           focal_length = 1.,
+           gap = 1.,
+           initial_gap = 1.,
+           pixel_size = 9. ):
 
-class airy ( Fittable2DModel ):
-    """
-    Airy model for Astropy. Produces a 2D slice from parameters that should correspond to an 
-    idealized Fabry-Perot interferometer spectrograph.
-    Originally written by Benoît Epinat.
-    
-    Parameters
-    ----------
-    
-    beam         : intensity of light
-    center_row
-    center_col
-    finesse      :
-    focal_length :
-    gap          : microns between the étalons
-    """
+        log = logging.getLogger ( __name__ )
+        log.info ( "beam = %f,"
+                   " center_row = %d,"
+                   " center_col = %d,"
+                   " finesse = %f,"
+                   " focal_length = %f,"
+                   " gap = %f,"
+                   " initial_gap = %f,"
+                   " pixel_size = %f." % ( beam, center_row, center_col, finesse, 
+                                           focal_length, gap, initial_gap, pixel_size ) )
 
-    beam         = Parameter ( default = 1.0 )
-    center_row   = Parameter ( default = 0 )
-    center_col   = Parameter ( default = 0 )
-    finesse      = Parameter ( default = 15 )
-    focal_length = Parameter ( default = 0.1 )
-    gap          = Parameter ( default = 1.0 )
-    
-    #def __init__ ( self,
-    #               beam = beam.default,
-    #               center_row = center_row.default,
-    #               center_col = center_col.default,
-    #               finesse = finesse.default,
-    #               focal_length = focal_length.default,
-    #               gap = gap.default,
-    #               **constraints ):
-    #
-    #    self.log = logging.getLogger ( __name__ )
-    #    self.log.setLevel ( logging.INFO )
-    #    super ( airy, self ).__init__ ( beam = beam,
-    #                                    center_row = center_row,
-    #                                    center_col = center_col,
-    #                                    finesse = finesse,
-    #                                    focal_length = focal_length,
-    #                                    gap = gap,
-    #                                    **constraints )
-       
-    @staticmethod
-    def evaluate ( x,
-                   y,
-                   beam,
-                   center_row,
-                   center_col,
-                   finesse,
-                   focal_length,
-                   gap ):
-
-        pixel_size = 9
         reflectivity = 0.99
         wavelength = 0.6563
 
-        rows = x.shape [ 0 ]
-        cols = y.shape [ 1 ]
+        planes = cube.shape [ 0 ]
+        rows   = cube.shape [ 1 ]
+        cols   = cube.shape [ 2 ]
+
+        log.debug ( "planes = %s" % str ( planes ) )
         
         center = ( center_row , center_col )
 
@@ -75,21 +46,27 @@ class airy ( Fittable2DModel ):
         grid = distances * pixel_size * ( 1.e-6 )
         theta = numpy.arctan ( grid / focal_length )
 
-        result = numpy.zeros ( shape = ( rows, cols ) )
+        result = numpy.ndarray ( shape = ( planes, rows, cols ) )
 
-        # function of Airy I
-        airy_function = 4.0 * ( ( finesse ** 2 ) ) / ( numpy.pi ** 2 ) 
-        phase = 4.0 * numpy.pi * reflectivity * gap * numpy.cos ( theta ) / wavelength 
-        intensity = beam / ( 1. + airy_function * ( numpy.sin ( phase / 2.0 ) ) ** 2 )
+        for current_plane in range ( planes ):
+            current_gap = initial_gap + gap * current_plane
+            # function of Airy I
+            airy_function = 4.0 * ( ( finesse ** 2 ) ) / ( numpy.pi ** 2 ) 
+            phase = 4.0 * numpy.pi * reflectivity * current_gap * numpy.cos ( theta ) / wavelength 
+            intensity = beam / ( 1. + airy_function * ( numpy.sin ( phase / 2.0 ) ) ** 2 )
+            
+            result [ current_plane ] = numpy.copy ( intensity )
 
-        return intensity
+        return result
 
 def fit_airy ( discontinuum,
-               beam = float,
-               center = ( int, int ), 
-               finesse = float,
-               focal_length = float,
-               gap = float ):
+               beam,
+               center,
+               finesse,
+               focal_length,
+               gap,
+               initial_gap,
+               pixel_size ):
     """
     Interface function to fit an Airy model to a given input.
     """
@@ -97,41 +74,37 @@ def fit_airy ( discontinuum,
 
     log = logging.getLogger ( __name__ )
 
-    airy_custom_model = airy ( beam = beam,
+    log.debug ( "initial_gap = %f" % initial_gap )
+    
+    # Guessing values from data:
+    beam_max = numpy.amax ( discontinuum.array )
+
+    airy_custom_model = airy ( beam = beam_max,
                                center_row = center [ 0 ], 
                                center_col = center [ 1 ],
                                finesse = finesse,
                                focal_length = focal_length,
-                               gap = gap )
+                               gap = gap,
+                               initial_gap = initial_gap,
+                               pixel_size = pixel_size )
     
     LevMarLSQFitter_fit = LevMarLSQFitter ( )
     
-    y, x = numpy.mgrid [ : discontinuum.shape [ 1 ], : discontinuum.shape [ 2 ] ]
-    result = numpy.zeros ( shape = discontinuum.shape )
-       
-    #return tuna.io.can ( array = discontinuum.array )
-    for dep in range ( discontinuum.shape [ 0 ] ):
-        #with warnings.catch_warnings ( ):
-        #    warnings.simplefilter ( 'ignore' )
-        #airy_custom_model.beam = beam
-        #airy_custom_model.center_row = center [ 0 ]
-        #airy_custom_model.center_row.fixed = True
-        #airy_custom_model.center_col = center [ 1 ]
-        #airy_custom_model.center_col.fixed = True
-        #airy_custom_model.finesse = finesse
-        #airy_custom_model.finesse.fixed = True
-        #airy_custom_model.focal_length = focal_length
-        #airy_custom_model.gap = gap
+    data = discontinuum.array
+    cube = numpy.ones ( shape = data.shape )
 
-        data = discontinuum.array [ dep ]
-        airy_model_fit = LevMarLSQFitter_fit ( airy_custom_model, x, y, data )
-        result [ dep ] = airy_model_fit ( x, y )
-        msg = "plane %d, beam = %.1f, finesse = %.1f, focal_length = %.3f, gap = %.2f"
-        log.debug ( msg % ( dep, 
-                            airy_model_fit.parameters [ 0 ], 
-                            airy_model_fit.parameters [ 3 ],
-                            airy_model_fit.parameters [ 4 ], 
-                            airy_model_fit.parameters [ 5 ] ) )
+    airy_model_fit = LevMarLSQFitter_fit ( airy_custom_model, cube, data )
+    result = airy_model_fit ( cube )
+
+    msg = "beam = %.1f, center = ( %d, %d ), finesse = %.1f, focal_length = %.3f, gap = %.6f, initial_gap = %.6f, pixel_size = %f."
+    log.info ( msg % ( airy_model_fit.parameters [ 0 ],
+                       airy_model_fit.parameters [ 1 ], 
+                       airy_model_fit.parameters [ 2 ], 
+                       airy_model_fit.parameters [ 3 ],
+                       airy_model_fit.parameters [ 4 ], 
+                       airy_model_fit.parameters [ 5 ],
+                       airy_model_fit.parameters [ 6 ],
+                       airy_model_fit.parameters [ 7 ] ) )
 
     log.info ( "Airy fit took %ds." % ( time ( ) - start ) )
     return tuna.io.can ( array = result )
