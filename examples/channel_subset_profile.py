@@ -53,6 +53,9 @@ def generate_data ( channels ):
                                                       noise_mask_radius = 7,
                                                       scanning_wavelength = 6616.895 )
 
+    high_res.start ( )
+    high_res.join ( )
+
     unwrapped   = high_res.unwrapped_phase_map
     comparee    = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G094.AD3_07_unwrapped.fits' )
     comparison  = unwrapped.array - comparee.array
