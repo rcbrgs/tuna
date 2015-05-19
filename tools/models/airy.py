@@ -87,6 +87,9 @@ def fit_airy ( discontinuum,
                                gap = gap,
                                initial_gap = initial_gap,
                                pixel_size = pixel_size )
+
+    airy_custom_model.finesse.min = finesse * 0.9
+    airy_custom_model.finesse.max = finesse * 1.1
     
     LevMarLSQFitter_fit = LevMarLSQFitter ( )
     

@@ -53,10 +53,9 @@ def generate_data ( channels ):
                                                       noise_mask_radius = 7,
                                                       scanning_wavelength = 6616.895 )
 
-    unwrapped   = high_res.get_unwrapped_phase_map_array ( )
-    compare_one = unwrapped
-    compare_two = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G094.AD3_07_unwrapped.fits' )
-    comparison  = compare_one - compare_two.array
+    unwrapped   = high_res.unwrapped_phase_map
+    comparee    = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G094.AD3_07_unwrapped.fits' )
+    comparison  = unwrapped.array - comparee.array
 
     return numpy.sum ( numpy.square ( comparison ) ) # divide by num pixels
 

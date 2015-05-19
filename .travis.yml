@@ -5,11 +5,11 @@ python:
   - "3.3"
 
 install:
+  - "sudo apt-get install -y libopenblas-dev* liblapack-dev* gfortran*"
   - "pip install --upgrade pip"
   - "pip install coveralls"
   - "pip install numpy"
   - "pip install -r pip_packages.txt"
-  - "sudo apt-get install -y libopenblas-dev* liblapack-dev*"
   - "pip install scipy"
 
 script:
