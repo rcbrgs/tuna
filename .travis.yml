@@ -9,6 +9,7 @@ install:
   - "pip install coveralls"
   - "pip install numpy"
   - "pip install -r pip_packages.txt"
+  - "sudo apt-get install -y libopenblas-dev* liblapack-dev*"
   - "pip install scipy"
 
 script:
@@ -17,4 +18,4 @@ script:
 after_success:
   coveralls
 
-#sudo: required
+sudo: required
