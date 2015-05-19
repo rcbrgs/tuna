@@ -10,7 +10,7 @@ install:
   - "pip install coveralls"
   - "pip install numpy"
   - "pip install -r pip_packages.txt"
-  - "pip install scipy"
+  - "travis_wait pip install scipy"
 
 script:
   nosetests --with-coverage --cover-package=tuna

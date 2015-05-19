@@ -22,11 +22,13 @@ airy = tuna.tools.models.fit_airy ( beam = 450,
                                     discontinuum = discontinuum_can,
                                     pixel_size = 9 )
 
+tuna.io.write ( array = airy.array, file_name = "airy_fit.fits", file_format = "fits" )
+
 def generate_data ( channels ):
-    print ( "sleeping a little so you can cancel the run." )
-    import time
-    time.sleep ( 5 )
-    print ( "starting with %d channels suppressed." % len ( channels ) )
+    #print ( "Press CTRL+C to cancel the run." )
+    #import time
+    #time.sleep ( 5 )
+    #print ( "starting with %d channels suppressed." % len ( channels ) )
 
     suppressed = tuna.tools.phase_map.suppress_channel ( array = raw.array, 
                                                          replacement = airy,
@@ -75,8 +77,9 @@ for c in range ( 1, 35 ):
             some_channel = random.randint ( 0, 35 )
             if ( some_channel not in random_channel_list ):
                 random_channel_list.append ( some_channel )
-        print ( "random_channel_list = %s" % str ( random_channel_list ) )           
         data = generate_data ( random_channel_list ) / number_of_pixels
+        print ( "random_channel_list = %s, error = %f" % ( str ( random_channel_list ),
+                                                           data ) )
         subset_sum += data
         subset_values.append ( data )
 

@@ -75,11 +75,8 @@ def fit_airy ( discontinuum,
     log = logging.getLogger ( __name__ )
 
     log.debug ( "initial_gap = %f" % initial_gap )
-    
-    # Guessing values from data:
-    beam_max = numpy.amax ( discontinuum.array )
 
-    airy_custom_model = airy ( beam = beam_max,
+    airy_custom_model = airy ( beam = beam,
                                center_row = center [ 0 ], 
                                center_col = center [ 1 ],
                                finesse = finesse,
@@ -88,8 +85,12 @@ def fit_airy ( discontinuum,
                                initial_gap = initial_gap,
                                pixel_size = pixel_size )
 
-    airy_custom_model.finesse.min = finesse * 0.9
-    airy_custom_model.finesse.max = finesse * 1.1
+    # Trying to guess good values / ranges:
+    #beam_max = numpy.amax ( discontinuum.array )    
+    #airy_custom_model.beam.min = beam_max * 0.5
+    #airy_custom_model.beam.max = beam_max * 1.5   
+
+    airy_custom_model.finesse.fixed = True
     
     LevMarLSQFitter_fit = LevMarLSQFitter ( )
     
