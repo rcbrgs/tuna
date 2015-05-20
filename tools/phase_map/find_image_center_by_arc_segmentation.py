@@ -9,20 +9,23 @@ from math import acos, sqrt
 import numpy
 import random
 import sympy
-from time import time
+import threading
+import time
 import tuna
 
-class image_center_by_arc_segmentation ( object ):
-    def __init__ ( self, 
-                   wrapped ):
+class arc_segmentation_center_finder ( threading.Thread ):
+    def __init__ ( self, wrapped ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.DEBUG )
-        super ( image_center_by_arc_segmentation, self ).__init__ ( )
+        super ( self.__class__, self ).__init__ ( )
 
         self.__center_row = None
         self.__center_col = None
         self.wrapped = wrapped
+        self.center = None
         random.seed ( )
+
+        self.start ( )
 
     def get_center ( self ):
         """
@@ -34,6 +37,23 @@ class image_center_by_arc_segmentation ( object ):
         else:
             self.find_center ( )
             return ( self.__center_row, self.__center_col )
+
+    def run ( self ):
+        """
+        Try to find the center of the rings.
+        """
+        start = time.time ( )
+
+        self.log.info ( "Trying to find_image_center_by_arc_segmentation()." )
+
+        if not isinstance ( self.wrapped, tuna.io.can ):
+            self.log.error ( "Unexpected value for parameter." )
+            return None
+
+        self.center = self.get_center ( )
+        self.log.info ( "Center detected at %s ." % str ( self.center ) )
+
+        self.log.info ( "find_image_center_by_arc_segmentation() took %ds." % ( time.time ( ) - start ) )
 
     def find_center ( self ):
         """
@@ -220,23 +240,3 @@ class image_center_by_arc_segmentation ( object ):
                              ( coefficients [ 2 ] ) )
                 if ( abs ( result ) < 100 ):
                     self.__ring_borders [ row ] [ col ] = color
-
-def find_image_center_by_arc_segmentation ( wrapped ):
-    """
-    Try to find the center of the rings.
-    """
-    start = time ( )
-
-    log = logging.getLogger ( __name__ )
-    log.info ( "Trying to find_image_center_by_arc_segmentation()." )
-
-    if not isinstance ( wrapped, tuna.io.can ):
-        log.error ( "Unexpected value for parameter." )
-        return None
-
-    finder = image_center_by_arc_segmentation ( wrapped = wrapped )
-    center = finder.get_center ( )
-    log.info ( "Center detected at %s ." % str ( center ) )
-
-    log.info ( "find_image_center_by_arc_segmentation() took %ds." % ( time ( ) - start ) )
-    return center

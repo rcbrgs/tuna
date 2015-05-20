@@ -84,17 +84,22 @@ class high_resolution ( threading.Thread ):
         self.wrapped_phase_map = None
 
     def run ( self ):
-        self.continuum = tuna.tools.phase_map.detect_continuum ( array = self.tuna_can.array, 
-                                                                 continuum_to_FSR_ratio = self.continuum_to_FSR_ratio )
+        continuum_detector = tuna.tools.phase_map.continuum_detector ( self.tuna_can,
+                                                                       self.continuum_to_FSR_ratio )
+        continuum_detector.join ( )
+        self.continuum = continuum_detector.continuum
 
         self.discontinuum = tuna.io.can ( array = numpy.ndarray ( shape = self.tuna_can.shape ) )
         for plane in range ( self.tuna_can.planes ):
             self.discontinuum.array [ plane, : , : ] = numpy.abs ( self.tuna_can.array [ plane, : , : ] - self.continuum.array )
 
-        self.wrapped_phase_map = tuna.tools.phase_map.detect_barycenters ( array = self.discontinuum.array )
+        barycenter_detector = tuna.tools.phase_map.barycenter_detector ( self.discontinuum )
+        barycenter_detector.join ( )
+        self.wrapped_phase_map = barycenter_detector.result
 
-        find_center = tuna.tools.phase_map.find_image_center_by_arc_segmentation
-        self.rings_center = find_center ( wrapped = self.wrapped_phase_map )
+        center_finder = tuna.tools.phase_map.arc_segmentation_center_finder ( self.wrapped_phase_map )
+        center_finder.join ( )
+        self.rings_center = center_finder.center
 
         self.noise = tuna.tools.phase_map.detect_noise ( array = self.wrapped_phase_map.array, 
                                                          bad_neighbours_threshold = self.bad_neighbours_threshold, 
@@ -113,7 +118,7 @@ class high_resolution ( threading.Thread ):
         self.order_map = tuna.io.can ( array = self.fsr_map.astype ( dtype = numpy.float64 ) )
 
         self.create_unwrapped_phase_map ( )
-        return
+
         polynomial_fit = tuna.tools.models.fit_parabolic_model_by_Polynomial2D
         self.parabolic_model, self.parabolic_fit = polynomial_fit ( center = self.rings_center, 
                                                                     noise = self.noise.array, 

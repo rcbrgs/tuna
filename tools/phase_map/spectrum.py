@@ -1,7 +1,8 @@
 import logging
 from math import floor
 import numpy
-from time import time
+import threading
+import time
 import tuna
 
 def average_of_lowest_channels ( array = numpy.ndarray, number_of_channels = 3 ):
@@ -23,36 +24,40 @@ def average_of_lowest_channels ( array = numpy.ndarray, number_of_channels = 3 )
 
     return minimum_sum / number_of_channels
 
-def detect_continuum ( array = numpy.ndarray,
-                       continuum_to_FSR_ratio = 0.25,
-                       display = False ):
-    """
-    Returns a can where each pixel has the value of the continuum level of the input 3D array.
-    """
-    start = time ( )
+class continuum_detector ( threading.Thread ):
+    def __init__ ( self, can, continuum_to_FSR_ratio = 0.25 ):
+        self.log = logging.getLogger ( __name__ )
+        super ( self.__class__, self ).__init__ ( )
 
-    log = logging.getLogger ( __name__ )
-    log.setLevel ( logging.DEBUG )
+        self.can = can
+        self.continuum_to_FSR_ratio = continuum_to_FSR_ratio
 
-    continuum_array = numpy.zeros ( shape = ( array.shape[1], array.shape[2] ) )
-
-    log.info ( "Continuum array 0% created." )
-    last_percentage_logged = 0
-    for row in range ( array.shape [ 1 ] ):
-        percentage = 10 * int ( row / array.shape [ 1 ] * 10 )
-        if ( percentage > last_percentage_logged ):
-            last_percentage_logged = percentage
-            log.info ( "Continuum array %d%% created." % ( percentage ) )
-        for col in range ( array.shape [ 2 ] ):
-            continuum_array [ row ] [ col ] = median_of_lowest_channels ( spectrum = array [ :, row, col ], 
-                                                                          continuum_to_FSR_ratio = continuum_to_FSR_ratio )
+        self.continuum = None
         
-    log.info ( "Continuum array 100% created." )
+        self.start ( )
 
-    can = tuna.io.can ( array = continuum_array )
+    def run ( self ):
+        start = time.time ( )
 
-    log.info ( "detect_continuum() took %ds." % ( time ( ) - start ) )
-    return can
+        continuum_array = numpy.zeros ( shape = ( self.can.array.shape [ 1 ], 
+                                                  self.can.array.shape [ 2 ] ) )
+
+        self.log.info ( "Continuum array 0% created." )
+        last_percentage_logged = 0
+        for row in range ( self.can.array.shape [ 1 ] ):
+            percentage = 10 * int ( row / self.can.array.shape [ 1 ] * 10 )
+            if ( percentage > last_percentage_logged ):
+                last_percentage_logged = percentage
+                self.log.info ( "Continuum array %d%% created." % ( percentage ) )
+            for col in range ( self.can.array.shape [ 2 ] ):
+                continuum_array [ row ] [ col ] = median_of_lowest_channels ( spectrum = self.can.array [ :, row, col ], 
+                                                                              continuum_to_FSR_ratio = self.continuum_to_FSR_ratio )
+        
+        self.log.info ( "Continuum array 100% created." )
+
+        self.continuum = tuna.io.can ( array = continuum_array )
+
+        self.log.info ( "detect_continuum() took %ds." % ( time.time ( ) - start ) )
 
 def median_of_lowest_channels ( continuum_to_FSR_ratio = 0.25,
                                 spectrum = numpy.ndarray ):

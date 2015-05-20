@@ -1,7 +1,8 @@
 import logging
 from math import floor
 import numpy
-from time import time
+import threading
+import time
 import tuna
 
 class spectrum_cube ( object ):
@@ -20,21 +21,33 @@ class spectrum_cube ( object ):
         self.channel_range = 0
         self.channel_range_center = 0
 
-class barycenter ( object ):
+class barycenter_detector ( threading.Thread ):
     """
     Class to generate and store barycenter maps from spectral cubes.
     """
-    def __init__ ( self, array = None, log = print ):
+    def __init__ ( self, data ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        super ( barycenter, self ).__init__ ( )
+        super ( self.__class__, self ).__init__ ( )
 
-        self.__array = array
+        self.data = data
+        self.__array = self.data.array
         self.__number_of_spectral_regions_array = None
         self.__photon_counts_array = None
         self.__number_spectral_peaks_array = None
         self.cube = spectrum_cube ( )
         self.profile = None
+
+        self.result = None
+        self.start ( )
+
+    def run ( self ):
+        start = time.time ( )
+        
+        result = self.create_barycenter_using_peak ( )
+        self.result = tuna.io.can ( array = result )
+
+        self.log.info ( "Create_barycenter_array() took %ds." % ( time.time ( ) - start ) )
     
     def create_barycenter_using_peak ( self ):
         """
@@ -213,19 +226,3 @@ class barycenter ( object ):
         self.log.debug ( "i_left_shoulder = %d" % fwhh_dict['i_left_shoulder'] )
         self.log.debug ( "i_right_shoulder = %d" % fwhh_dict['i_right_shoulder'] )
         self.log.debug ( "il_shoulder_indices = %s" % str ( fwhh_dict['il_shoulder_indices'] ) )
-
-def detect_barycenters ( array = None ):
-    """
-    Create a wrapped phase map using the barycenter of each spectrum as the pixel value.
-    """
-    start = time ( )
-
-    log = logging.getLogger ( __name__ )
-    log.setLevel ( logging.DEBUG )
-
-    barycenter_object = barycenter ( array = array )
-    result = barycenter_object.create_barycenter_using_peak ( )
-    result_can = tuna.io.can ( array = result )
-
-    log.info ( "Create_barycenter_array() took %ds." % ( time ( ) - start ) )
-    return result_can
