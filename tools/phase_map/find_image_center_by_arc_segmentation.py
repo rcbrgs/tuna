@@ -59,7 +59,7 @@ class image_center_by_arc_segmentation ( object ):
             try:
                 intersection = sympy.geometry.intersection ( chord_bisector_0, chord_bisector_1 )
             except ValueError as e:
-                self.log ( "warning: ValueError %s. Ignoring this intersection." % ( e ) )
+                self.log.warning ( "ValueError %s. Ignoring this intersection." % ( e ) )
                 convergence_tries += 1
                 continue
 

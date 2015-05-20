@@ -113,7 +113,7 @@ class high_resolution ( threading.Thread ):
         self.order_map = tuna.io.can ( array = self.fsr_map.astype ( dtype = numpy.float64 ) )
 
         self.create_unwrapped_phase_map ( )
-
+        return
         polynomial_fit = tuna.tools.models.fit_parabolic_model_by_Polynomial2D
         self.parabolic_model, self.parabolic_fit = polynomial_fit ( center = self.rings_center, 
                                                                     noise = self.noise.array, 
