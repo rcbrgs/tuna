@@ -27,7 +27,8 @@ class high_resolution ( threading.Thread ):
                    channel_subset = [ ],
                    channel_threshold = 1, 
                    continuum_to_FSR_ratio = 0.125,
-                   noise_mask_radius = 1 ):
+                   noise_mask_radius = 1,
+                   dont_fit = False ):
 
         """
         Creates the phase map from raw data obtained with a Fabry-Perot instrument.
@@ -54,6 +55,7 @@ class high_resolution ( threading.Thread ):
         self.channel_subset = channel_subset
         self.channel_threshold = channel_threshold
         self.continuum_to_FSR_ratio = continuum_to_FSR_ratio
+        self.dont_fit = dont_fit
         self.finesse = finesse
         self.focal_length = focal_length
         self.free_spectral_range = free_spectral_range
@@ -106,14 +108,15 @@ class high_resolution ( threading.Thread ):
         center_finder.join ( )
         self.rings_center = center_finder.center
 
-        airy_fitter = tuna.tools.models.airy_fitter ( self.discontinuum,
-                                                      self.beam,
-                                                      self.rings_center,
-                                                      self.finesse,
-                                                      self.focal_length,
-                                                      self.gap,
-                                                      self.initial_gap,
-                                                      self.pixel_size )
+        if self.dont_fit == False:
+            airy_fitter = tuna.tools.models.airy_fitter ( self.discontinuum,
+                                                          self.beam,
+                                                          self.rings_center,
+                                                          self.finesse,
+                                                          self.focal_length,
+                                                          self.gap,
+                                                          self.initial_gap,
+                                                          self.pixel_size )
 
         noise_detector.join ( )
         self.noise = noise_detector.noise
@@ -133,16 +136,17 @@ class high_resolution ( threading.Thread ):
 
         self.create_unwrapped_phase_map ( )
 
-        airy_fitter.join ( )
-        self.airy_fit = airy_fitter.fit
-        airy_fit_residue = numpy.abs ( self.tuna_can.array - self.airy_fit.array )
-        self.airy_fit_residue = tuna.io.can ( array = airy_fit_residue )
-        airy_pixels = airy_fit_residue.shape [ 0 ] * airy_fit_residue.shape [ 1 ] * airy_fit_residue.shape [ 2 ] 
-        self.log.info ( "Airy fit residue average error = %s channels / pixel" % str ( numpy.sum ( airy_fit_residue ) / airy_pixels ) )
-        # It seems Astropy's fitters ain't thread safe, so the airy fit must be already joined.
-        parabolic_fitter = tuna.tools.models.parabolic_fitter ( self.noise,
-                                                                self.unwrapped_phase_map,
-                                                                self.rings_center )
+        if self.dont_fit == False:
+            airy_fitter.join ( )
+            self.airy_fit = airy_fitter.fit
+            airy_fit_residue = numpy.abs ( self.tuna_can.array - self.airy_fit.array )
+            self.airy_fit_residue = tuna.io.can ( array = airy_fit_residue )
+            airy_pixels = airy_fit_residue.shape [ 0 ] * airy_fit_residue.shape [ 1 ] * airy_fit_residue.shape [ 2 ] 
+            self.log.info ( "Airy fit residue average error = %s channels / pixel" % str ( numpy.sum ( airy_fit_residue ) / airy_pixels ) )
+            # It seems Astropy's fitters ain't thread safe, so the airy fit must be already joined.
+            parabolic_fitter = tuna.tools.models.parabolic_fitter ( self.noise,
+                                                                    self.unwrapped_phase_map,
+                                                                    self.rings_center )
 
         wavelength_calibrator = tuna.tools.wavelength.wavelength_calibrator ( self.unwrapped_phase_map,
                                                                               self.calibration_wavelength,
@@ -153,16 +157,17 @@ class high_resolution ( threading.Thread ):
                                                                               self.scanning_wavelength )
 
 
-        substituted_channels = numpy.copy ( self.tuna_can.array )
-        for channel in range ( self.tuna_can.planes ):
-            if channel in self.channel_subset:
-                substituted_channels [ plane ] = numpy.copy ( self.airy_fit.array [ plane ] )
-        self.substituted_channels = tuna.io.can ( array = substituted_channels )
+        if self.dont_fit == False:
+            substituted_channels = numpy.copy ( self.tuna_can.array )
+            for channel in range ( self.tuna_can.planes ):
+                if channel in self.channel_subset:
+                    substituted_channels [ plane ] = numpy.copy ( self.airy_fit.array [ plane ] )
+            self.substituted_channels = tuna.io.can ( array = substituted_channels )
 
-        parabolic_fitter.join ( )
-        self.parabolic_model = parabolic_fitter.coefficients
-        self.parabolic_fit   = parabolic_fitter.fit
-        self.verify_parabolic_model ( )
+            parabolic_fitter.join ( )
+            self.parabolic_model = parabolic_fitter.coefficients
+            self.parabolic_fit   = parabolic_fitter.fit
+            self.verify_parabolic_model ( )
 
         wavelength_calibrator.join ( )
         self.wavelength_calibrated = wavelength_calibrator.calibrated
