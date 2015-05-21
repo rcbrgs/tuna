@@ -106,6 +106,15 @@ class high_resolution ( threading.Thread ):
         center_finder.join ( )
         self.rings_center = center_finder.center
 
+        airy_fitter = tuna.tools.models.airy_fitter ( self.discontinuum,
+                                                      self.beam,
+                                                      self.rings_center,
+                                                      self.finesse,
+                                                      self.focal_length,
+                                                      self.gap,
+                                                      self.initial_gap,
+                                                      self.pixel_size )
+
         noise_detector.join ( )
         self.noise = noise_detector.noise
 
@@ -124,19 +133,13 @@ class high_resolution ( threading.Thread ):
 
         self.create_unwrapped_phase_map ( )
 
+        airy_fitter.join ( )
+
         parabolic_fitter = tuna.tools.models.parabolic_fitter ( self.noise,
                                                                 self.unwrapped_phase_map,
                                                                 self.rings_center )
 
-        self.airy_fit = tuna.tools.models.fit_airy ( beam = self.beam,
-                                                     center = self.rings_center,
-                                                     discontinuum = self.discontinuum,
-                                                     finesse = self.finesse,
-                                                     focal_length = self.focal_length,
-                                                     gap = self.gap,
-                                                     initial_gap = self.initial_gap,
-                                                     pixel_size = self.pixel_size )
-
+        self.airy_fit = airy_fitter.fit
         airy_fit_residue = numpy.abs ( self.tuna_can.array - self.airy_fit.array )
         self.airy_fit_residue = tuna.io.can ( array = airy_fit_residue )
         airy_pixels = airy_fit_residue.shape [ 0 ] * airy_fit_residue.shape [ 1 ] * airy_fit_residue.shape [ 2 ] 
