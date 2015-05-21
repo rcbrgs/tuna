@@ -5,7 +5,7 @@ Provides access to Tuna's phase_map_creation namespace.
 from .barycenter                            import ( barycenter_detector )
 from .find_image_center_by_symmetry         import find_image_center_by_symmetry
 from .find_image_center_by_arc_segmentation import arc_segmentation_center_finder
-from .fsr                                   import create_fsr_map
+from .fsr                                   import ( fsr_mapper )
 from .high_resolution                       import ( high_resolution,
                                                      high_resolution_pipeline,
                                                      profile_processing_history )

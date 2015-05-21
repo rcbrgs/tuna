@@ -114,10 +114,11 @@ class high_resolution ( threading.Thread ):
         ring_border_detector.join ( )
         self.borders_to_center_distances = ring_border_detector.distances
 
-        self.fsr_map = tuna.tools.phase_map.create_fsr_map ( distances = self.borders_to_center_distances.array,
-                                                             center = self.rings_center,
-                                                             wrapped = self.wrapped_phase_map.array )
-
+        fsr_mapper = tuna.tools.phase_map.fsr_mapper ( self.borders_to_center_distances,
+                                                       self.wrapped_phase_map,
+                                                       self.rings_center )
+        fsr_mapper.join ( )
+        self.fsr_map = fsr_mapper.fsr
         self.order_map = tuna.io.can ( array = self.fsr_map.astype ( dtype = numpy.float64 ) )
 
         self.create_unwrapped_phase_map ( )

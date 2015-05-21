@@ -5,26 +5,36 @@ Module fsr is responsible for computing the relative number of FSRs from the axi
 import logging
 from math import sqrt
 import numpy
-from time import time
-from tuna.tools.get_pixel_neighbours import get_pixel_neighbours
+import threading
+import time
+import tuna
 
-class fsr ( object ):
+class fsr_mapper ( threading.Thread ):
     """
     Responsible for computing and storing a 2D array of integers with the number of FSRs from the axis until each pixel.
     """
-    def __init__ ( self, 
-                   distances = numpy.ndarray, 
-                   center = ( int, int ), 
-                   wrapped = numpy.ndarray ):
+    def __init__ ( self, distances, wrapped, center ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.DEBUG )
-        super ( fsr, self ).__init__ ( )
+        super ( self.__class__, self ).__init__ ( )
 
-        self.__distances = distances
-        self.__center = center
-        self.__max_rows = distances.shape [ 0 ]
-        self.__max_cols = distances.shape [ 1 ]
-        self.__wrapped = wrapped
+        self.distances = distances.array
+        self.center = center
+        self.wrapped = wrapped.array
+
+        self.max_rows = distances.shape [ 0 ]
+        self.max_cols = distances.shape [ 1 ]
+
+        self.fsr = None
+
+        self.start ( )
+
+    def run ( self ):
+        start = time.time ( )
+
+        self.create_fsr_map ( )
+
+        self.log.info ( "create_fsr_map() took %ds." % ( time.time ( ) - start ) )
 
     def create_fsr_map ( self ):
         """
@@ -36,20 +46,20 @@ class fsr ( object ):
         rings = [ ]
         self.log.info ( "fsr array 0% created." )
         last_percentage_logged = 0
-        for row in range ( self.__max_rows ):
-            percentage = 10 * int ( row / self.__max_rows * 10 )
+        for row in range ( self.max_rows ):
+            percentage = 10 * int ( row / self.max_rows * 10 )
             if percentage > last_percentage_logged:
                 last_percentage_logged = percentage
                 self.log.info ( "fsr array %d%% created." % percentage )
-            for col in range ( self.__max_cols ):
-                if self.__distances [ row ] [ col ] > 0:
+            for col in range ( self.max_cols ):
+                if self.distances [ row ] [ col ] > 0:
                     possible_new_ring = True
                     for ring in rings:
-                        if ( ( self.__distances [ row ] [ col ] < ring + ring_thickness_threshold ) and
-                             ( self.__distances [ row ] [ col ] > ring - ring_thickness_threshold ) ):
+                        if ( ( self.distances [ row ] [ col ] < ring + ring_thickness_threshold ) and
+                             ( self.distances [ row ] [ col ] > ring - ring_thickness_threshold ) ):
                             possible_new_ring = False
                     if possible_new_ring:
-                        rings.append ( self.__distances [ row ] [ col ] )
+                        rings.append ( self.distances [ row ] [ col ] )
         self.log.info ( "fsr array 100% created." )
         #self.log ( "fl_rings = %s" % str ( rings ) )
 
@@ -58,26 +68,26 @@ class fsr ( object ):
         #self.log ( "fl_ordered_rings = %s" % str ( ordered_rings ) )
 
         # attribute FSR by verifying ring-relative "position"
-        median_channel = int ( numpy.amax ( self.__wrapped ) / 2 )
-        fsr = numpy.ndarray ( shape = self.__distances.shape, dtype = numpy.int8 )
-        for row in range ( self.__max_rows ):
-            for col in range ( self.__max_cols ):
+        median_channel = int ( numpy.amax ( self.wrapped ) / 2 )
+        fsr = numpy.ndarray ( shape = self.distances.shape, dtype = numpy.int8 )
+        for row in range ( self.max_rows ):
+            for col in range ( self.max_cols ):
                 fsr_result = len ( ordered_rings )
-                distance = sqrt ( ( self.__center [ 0 ] - row ) ** 2 +
-                                  ( self.__center [ 1 ] - col ) ** 2 )
+                distance = sqrt ( ( self.center [ 0 ] - row ) ** 2 +
+                                  ( self.center [ 1 ] - col ) ** 2 )
                 for fsr_range in range ( len ( ordered_rings ) ):
                     if ( distance <= ordered_rings [ fsr_range ] + ring_thickness_threshold ):
                         fsr_result = fsr_range
                         if ( distance >= ordered_rings [ fsr_range ] - ring_thickness_threshold ):
-                            if self.__wrapped [ row ] [ col ] < median_channel:
+                            if self.wrapped [ row ] [ col ] < median_channel:
                                 fsr_result = fsr_range + 1
                         break
                 fsr [ row ] [ col ] = fsr_result
 
-        return fsr
+        self.fsr = fsr
 
     def estimate_ring_thickness ( self ):
-        distances = numpy.unique ( self.__distances.astype ( numpy.int16 ) )
+        distances = numpy.unique ( self.distances.astype ( numpy.int16 ) )
         self.log.debug ( "distances = %s" % str ( distances ) )
 
         distances_sequences = [ ]
@@ -110,7 +120,7 @@ class fsr ( object ):
         return int ( max ( min ( thicknesses ) * 0.25, 20 ) )
         
     def estimate_ring_thickness_old ( self ):
-        distances = numpy.unique ( self.__distances.astype ( numpy.int16 ) )
+        distances = numpy.unique ( self.distances.astype ( numpy.int16 ) )
         self.log.debug ( "distances = %s" % str ( distances ) )
 
         distances_sequences = [ ]
@@ -137,15 +147,3 @@ class fsr ( object ):
         self.log.debug ( "thicknesses = %s" % str ( thicknesses ) )
         return max ( thicknesses )
         
-def create_fsr_map ( distances = numpy.ndarray, 
-                     center = ( int, int ), 
-                     wrapped = numpy.ndarray ):
-    start = time ( )
-    log = logging.getLogger ( __name__ )
-    
-    fsr_object = fsr ( distances = distances, 
-                       center = center, 
-                       wrapped = wrapped )
-
-    log.info ( "create_fsr_map() took %ds." % ( time ( ) - start ) )
-    return fsr_object.create_fsr_map ( )
