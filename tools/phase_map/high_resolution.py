@@ -101,10 +101,12 @@ class high_resolution ( threading.Thread ):
         center_finder.join ( )
         self.rings_center = center_finder.center
 
-        self.noise = tuna.tools.phase_map.detect_noise ( array = self.wrapped_phase_map.array, 
-                                                         bad_neighbours_threshold = self.bad_neighbours_threshold, 
-                                                         channel_threshold = self.channel_threshold, 
-                                                         noise_mask_radius = self.noise_mask_radius )
+        noise_detector = tuna.tools.phase_map.noise_detector ( self.wrapped_phase_map, 
+                                                               self.bad_neighbours_threshold, 
+                                                               self.channel_threshold, 
+                                                               self.noise_mask_radius )
+        noise_detector.join ( )
+        self.noise = noise_detector.noise
 
         map_distances = tuna.tools.phase_map.create_borders_to_center_distances
         self.borders_to_center_distances = map_distances ( array = self.wrapped_phase_map.array,
