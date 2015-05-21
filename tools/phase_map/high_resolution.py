@@ -98,13 +98,14 @@ class high_resolution ( threading.Thread ):
         self.wrapped_phase_map = barycenter_detector.result
 
         center_finder = tuna.tools.phase_map.arc_segmentation_center_finder ( self.wrapped_phase_map )
-        center_finder.join ( )
-        self.rings_center = center_finder.center
-
         noise_detector = tuna.tools.phase_map.noise_detector ( self.wrapped_phase_map, 
                                                                self.bad_neighbours_threshold, 
                                                                self.channel_threshold, 
                                                                self.noise_mask_radius )
+
+        center_finder.join ( )
+        self.rings_center = center_finder.center
+
         noise_detector.join ( )
         self.noise = noise_detector.noise
 
@@ -123,11 +124,9 @@ class high_resolution ( threading.Thread ):
 
         self.create_unwrapped_phase_map ( )
 
-        polynomial_fit = tuna.tools.models.fit_parabolic_model_by_Polynomial2D
-        self.parabolic_model, self.parabolic_fit = polynomial_fit ( center = self.rings_center, 
-                                                                    noise = self.noise.array, 
-                                                                    unwrapped = self.unwrapped_phase_map.array )
-        self.verify_parabolic_model ( )
+        parabolic_fitter = tuna.tools.models.parabolic_fitter ( self.noise,
+                                                                self.unwrapped_phase_map,
+                                                                self.rings_center )
 
         self.airy_fit = tuna.tools.models.fit_airy ( beam = self.beam,
                                                      center = self.rings_center,
@@ -158,6 +157,11 @@ class high_resolution ( threading.Thread ):
                                                   scanning_wavelength = self.scanning_wavelength,
                                                   unwrapped_phase_map = self.unwrapped_phase_map )
         
+        parabolic_fitter.join ( )
+        self.parabolic_model = parabolic_fitter.coefficients
+        self.parabolic_fit   = parabolic_fitter.fit
+        self.verify_parabolic_model ( )
+
     def create_unwrapped_phase_map ( self ):
         """
         Unwraps the phase map according using the order array constructed.
