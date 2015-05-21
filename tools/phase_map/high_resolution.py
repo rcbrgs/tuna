@@ -108,10 +108,11 @@ class high_resolution ( threading.Thread ):
         noise_detector.join ( )
         self.noise = noise_detector.noise
 
-        map_distances = tuna.tools.phase_map.create_borders_to_center_distances
-        self.borders_to_center_distances = map_distances ( array = self.wrapped_phase_map.array,
-                                                           center = self.rings_center,
-                                                           noise_array = self.noise.array )
+        ring_border_detector = tuna.tools.phase_map.ring_border_detector ( self.wrapped_phase_map,
+                                                                           self.rings_center,
+                                                                           self.noise )
+        ring_border_detector.join ( )
+        self.borders_to_center_distances = ring_border_detector.distances
 
         self.fsr_map = tuna.tools.phase_map.create_fsr_map ( distances = self.borders_to_center_distances.array,
                                                              center = self.rings_center,

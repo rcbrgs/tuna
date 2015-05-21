@@ -10,7 +10,6 @@ from .high_resolution                       import ( high_resolution,
                                                      high_resolution_pipeline,
                                                      profile_processing_history )
 from .noise                                 import ( noise_detector )
-from .ring_borders                          import ( create_ring_borders_map, 
-                                                     create_borders_to_center_distances )
+from .ring_borders                          import ( ring_border_detector )
 from .spectrum                              import ( continuum_detector,
                                                      suppress_channel )
