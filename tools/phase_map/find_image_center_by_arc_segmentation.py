@@ -16,7 +16,7 @@ import tuna
 class arc_segmentation_center_finder ( threading.Thread ):
     def __init__ ( self, wrapped ):
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.DEBUG )
+        self.log.setLevel ( logging.INFO )
         super ( self.__class__, self ).__init__ ( )
 
         self.__center_row = None
@@ -65,6 +65,7 @@ class arc_segmentation_center_finder ( threading.Thread ):
         bisections = [ ]
         centers = [ ]
         while ( True ):
+            self.log.debug ( "convergence_tries = %d" % convergence_tries )
             chord_bisector_0 = self.get_random_chord_bisector ( )
             chord_bisector_1 = self.get_random_chord_bisector ( )
             while ( sympy.Line.is_parallel ( chord_bisector_0, chord_bisector_1 ) ):
@@ -97,7 +98,7 @@ class arc_segmentation_center_finder ( threading.Thread ):
                     sum_col +=  centers [ center ] [ 1 ]
                 center = ( int ( sum_row / len ( centers ) ),
                              int ( sum_col / len ( centers ) ) )
-                #self.log ( "t_center now at %s" % str ( center ) )
+                self.log.debug ( "center possibly at %s" % str ( center ) )
             convergence_tries += 1
             if ( convergence_tries > 10 ):
                 if ( center == ( intersect_row, intersect_col ) ):
