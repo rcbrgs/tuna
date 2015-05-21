@@ -1,34 +1,39 @@
 import logging
 import math
 import numpy
+import threading
 import time
 import tuna
 
-class calibration ( object ):
+class wavelength_calibrator ( threading.Thread ):
     """
     Responsible for producing the wavelength calibrated cube from the phase map cube.
     """
-    def __init__ ( self,
+    def __init__ ( self, unwrapped_phase_map,
+                   calibration_wavelength,
+                   free_spectral_range,
+                   interference_order,
+                   interference_reference_wavelength,
                    rings_center,
-                   calibration_wavelength = None,
-                   free_spectral_range = None,
-                   interference_order = None,
-                   interference_reference_wavelength = None,
-                   scanning_wavelength = None,
-                   unwrapped_phase_map = None ):
+                   scanning_wavelength ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        super ( calibration, self ).__init__ ( )
+        super ( self.__class__, self ).__init__ ( )
 
-        self.calibrated = None
+        self.unwrapped_phase_map = unwrapped_phase_map
+        
         self.calibration_wavelength = calibration_wavelength
-        self.channel_width = unwrapped_phase_map.planes
         self.free_spectral_range = free_spectral_range
         self.interference_order = interference_order
         self.interference_reference_wavelength = interference_reference_wavelength
         self.rings_center = rings_center
         self.scanning_wavelength = scanning_wavelength
-        self.unwrapped_phase_map = unwrapped_phase_map
+
+        self.channel_width = unwrapped_phase_map.planes
+
+        self.calibrated = None
+
+        self.start ( )
 
     def calibrate ( self ):
         """
@@ -60,24 +65,10 @@ class calibration ( object ):
 
         self.calibrated = tuna.io.can ( array = calibrated )
 
-def wavelength_calibration ( rings_center,
-                             calibration_wavelength = None,
-                             free_spectral_range = None,
-                             interference_order = None,
-                             interference_reference_wavelength = None,
-                             scanning_wavelength = None,
-                             unwrapped_phase_map = None ):
-    start = time.time ( )
-    log = logging.getLogger ( __name__ )
+    def run ( self ):
+        start = time.time ( )
 
-    calibration_tool = calibration ( rings_center,
-                                     calibration_wavelength = calibration_wavelength,
-                                     free_spectral_range = free_spectral_range,
-                                     interference_order = interference_order,
-                                     interference_reference_wavelength = interference_reference_wavelength,
-                                     scanning_wavelength = scanning_wavelength,
-                                     unwrapped_phase_map = unwrapped_phase_map )
-    calibration_tool.calibrate ( )
+        self.calibrate ( )
     
-    log.info ( "wavelength_calibration() took %ds." % ( time.time ( ) - start ) )
-    return calibration_tool.calibrated
+        self.log.info ( "wavelength_calibration() took %ds." % ( time.time ( ) - start ) )
+

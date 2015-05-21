@@ -134,16 +134,24 @@ class high_resolution ( threading.Thread ):
         self.create_unwrapped_phase_map ( )
 
         airy_fitter.join ( )
-
-        parabolic_fitter = tuna.tools.models.parabolic_fitter ( self.noise,
-                                                                self.unwrapped_phase_map,
-                                                                self.rings_center )
-
         self.airy_fit = airy_fitter.fit
         airy_fit_residue = numpy.abs ( self.tuna_can.array - self.airy_fit.array )
         self.airy_fit_residue = tuna.io.can ( array = airy_fit_residue )
         airy_pixels = airy_fit_residue.shape [ 0 ] * airy_fit_residue.shape [ 1 ] * airy_fit_residue.shape [ 2 ] 
         self.log.info ( "Airy fit residue average error = %s channels / pixel" % str ( numpy.sum ( airy_fit_residue ) / airy_pixels ) )
+        # It seems Astropy's fitters ain't thread safe, so the airy fit must be already joined.
+        parabolic_fitter = tuna.tools.models.parabolic_fitter ( self.noise,
+                                                                self.unwrapped_phase_map,
+                                                                self.rings_center )
+
+        wavelength_calibrator = tuna.tools.wavelength.wavelength_calibrator ( self.unwrapped_phase_map,
+                                                                              self.calibration_wavelength,
+                                                                              self.free_spectral_range,
+                                                                              self.interference_order,
+                                                                              self.interference_reference_wavelength,
+                                                                              self.rings_center,
+                                                                              self.scanning_wavelength )
+
 
         substituted_channels = numpy.copy ( self.tuna_can.array )
         for channel in range ( self.tuna_can.planes ):
@@ -151,19 +159,13 @@ class high_resolution ( threading.Thread ):
                 substituted_channels [ plane ] = numpy.copy ( self.airy_fit.array [ plane ] )
         self.substituted_channels = tuna.io.can ( array = substituted_channels )
 
-        wavelength = tuna.tools.wavelength.calibration
-        self.wavelength_calibrated = wavelength ( self.rings_center,
-                                                  calibration_wavelength = self.calibration_wavelength,
-                                                  free_spectral_range = self.free_spectral_range,
-                                                  interference_order = self.interference_order,
-                                                  interference_reference_wavelength = self.interference_reference_wavelength,
-                                                  scanning_wavelength = self.scanning_wavelength,
-                                                  unwrapped_phase_map = self.unwrapped_phase_map )
-        
         parabolic_fitter.join ( )
         self.parabolic_model = parabolic_fitter.coefficients
         self.parabolic_fit   = parabolic_fitter.fit
         self.verify_parabolic_model ( )
+
+        wavelength_calibrator.join ( )
+        self.wavelength_calibrated = wavelength_calibrator.calibrated
 
     def create_unwrapped_phase_map ( self ):
         """

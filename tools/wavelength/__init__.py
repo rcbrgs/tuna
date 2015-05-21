@@ -2,4 +2,4 @@
 Provides access to wavelength namespace.
 """
 
-from .wavelength_calibration import wavelength_calibration as calibration
+from .wavelength_calibration import wavelength_calibrator
