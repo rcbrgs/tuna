@@ -9,7 +9,7 @@ class unit_test_pipeline_high_resolution ( unittest.TestCase ):
         tuna.log.set_path ( "../nose.log" )
 
     def test_pipeline ( self ):
-        file_name = "/home/nix/sync/tuna/sample_data/G094.AD3"
+        file_name = "test/unit/unit_io/adhoc.ad3"
         file_name_unpathed = file_name.split ( "/" ) [ -1 ]
         file_name_prefix = file_name_unpathed.split ( "." ) [ 0 ]
 
@@ -30,12 +30,15 @@ class unit_test_pipeline_high_resolution ( unittest.TestCase ):
                                                                    scanning_wavelength = 6616.89,
                                                                    tuna_can = can )
 
-        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] > 95 )
-        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] < 105 )
-        self.assertTrue ( high_res.rings_center [ 0 ] > 200 )
-        self.assertTrue ( high_res.rings_center [ 0 ] < 240 )
-        self.assertTrue ( high_res.rings_center [ 1 ] > 230 )
-        self.assertTrue ( high_res.rings_center [ 1 ] < 270 )
+        log = logging.getLogger ( __name__ )
+        log.info ( "high_res.wavelength_calibrated.array [ 0 ] [ 0 ] == %f" % high_res.wavelength_calibrated.array [ 0 ] [ 0 ] )
+        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] > 85 )
+        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] < 95 )
+        log.info ( "high_res.rings_center ==%s" % str ( high_res.rings_center ) )
+        self.assertTrue ( high_res.rings_center [ 0 ] > 250 )
+        self.assertTrue ( high_res.rings_center [ 0 ] < 270 )
+        self.assertTrue ( high_res.rings_center [ 1 ] > 210 )
+        self.assertTrue ( high_res.rings_center [ 1 ] < 230 )
 
     def tearDown ( self ):
         pass
