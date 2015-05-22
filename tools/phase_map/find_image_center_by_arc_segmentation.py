@@ -65,7 +65,8 @@ class arc_segmentation_center_finder ( threading.Thread ):
         bisections = [ ]
         centers = [ ]
         while ( True ):
-            self.log.debug ( "convergence_tries = %d" % convergence_tries )
+            if convergence_tries % 10 == 0:
+                self.log.info ( "convergence_tries = %d" % convergence_tries )
             chord_bisector_0 = self.get_random_chord_bisector ( )
             chord_bisector_1 = self.get_random_chord_bisector ( )
             while ( sympy.Line.is_parallel ( chord_bisector_0, chord_bisector_1 ) ):
@@ -104,7 +105,7 @@ class arc_segmentation_center_finder ( threading.Thread ):
                 if ( center == ( intersect_row, intersect_col ) ):
                     #self.log ( "t_center converged at %s" % str ( center ) )
                     break
-                if ( convergence_tries > 1000 ):
+                if ( convergence_tries > 500 ):
                     self.log.warning ( "Reached threshold for center convergence using chord perpendiculars." )
                     break
         # plot bisection lines for debug: (very slow)

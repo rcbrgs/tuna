@@ -54,7 +54,7 @@ number_of_pixels = raw.array.shape [ 0 ] * raw.array.shape [ 1 ] * raw.array.sha
 tabular_data = [ ]
 repetitions = 50
 
-for c in range ( 1, 35 ):
+for c in range ( 10, 35 ):
     print ( "Beginning to produce %d channels suppressed data." % c )
     filtered_sum = 0
     filtered_count = 0
