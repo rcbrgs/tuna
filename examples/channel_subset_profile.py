@@ -53,9 +53,12 @@ def generate_data ( channels ):
 number_of_pixels = raw.array.shape [ 0 ] * raw.array.shape [ 1 ] * raw.array.shape [ 2 ]
 tabular_data = [ ]
 repetitions = 50
+error_threshold = 2.0
 
-for c in range ( 10, 35 ):
+for c in range ( 14, 35 ):
     print ( "Beginning to produce %d channels suppressed data." % c )
+    filtered_max = 0.0
+    filtered_min = 2.0
     filtered_sum = 0
     filtered_count = 0
     subset_sum = 0
@@ -75,9 +78,11 @@ for c in range ( 10, 35 ):
         print ( "random_channel_list = %s, error = %f" % ( str ( random_channel_list ),
                                                            data ) )
         subset_sum += data
-        if data <= 36:
+        if data < error_threshold:
             filtered_sum += data
             filtered_count += 1
+            filtered_max = max ( data, filtered_max )
+            filtered_min = min ( data, filtered_min )
         subset_values.append ( ( random_channel_list, data ) )
 
     tabular_data.append ( ( c, 
@@ -85,6 +90,9 @@ for c in range ( 10, 35 ):
                             filtered_sum / filtered_count,
                             subset_values ) )
 
-    print ( "# suppressed, subset_avg, filtered_avg" )
+    print ( "# suppressed, repetitions, filtered_avg, err_estimate" )
     for entry in tabular_data:
-        print ( "%s, %s, %s" % ( entry [ 0 ], entry [ 1 ], entry [ 2 ] ) )
+        print ( "%s, %s, %s, %f" % ( entry [ 0 ], filtered_count, entry [ 2 ], filtered_max - filtered_min ) )
+
+for entry in tabular_data:
+    print ( "%s, %s, %s, %s" % ( entry [ 0 ], entry [ 1 ], entry [ 2 ], str ( entry [ 3 ] ) ) )
