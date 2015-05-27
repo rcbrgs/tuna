@@ -48,7 +48,7 @@ class ring_border_detector ( threading.Thread ):
                 if borders_to_center_distances [ row ] [ col ] == 1:
                     borders_to_center_distances [ row ] [ col ] = sqrt ( ( row - self.center [ 0 ] ) ** 2 +
                                                                          ( col - self.center [ 1 ] ) ** 2 )
-        self.log.info ( "distances array 100%% created." )
+        self.log.info ( "distances array 100% created." )
 
         self.discontinuities_distances = borders_to_center_distances
 

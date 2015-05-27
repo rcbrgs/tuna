@@ -197,7 +197,7 @@ class arc_segmentation_center_finder ( threading.Thread ):
         for origin in range ( len ( tl_points ) ):
             for destiny in range ( origin + 1, len ( tl_points ) ):
                 distance = sqrt ( ( tl_points [ origin ] [ 0 ] - tl_points [ destiny ] [ 0 ] ) ** 2 +
-                                    ( tl_points [ origin ] [ 1 ] - tl_points [ destiny ] [ 1 ] ) ** 2 )
+                                  ( tl_points [ origin ] [ 1 ] - tl_points [ destiny ] [ 1 ] ) ** 2 )
                 if ( distance >= max_distance ):
                     max_distance = distance
                     max_origin = origin
@@ -205,10 +205,11 @@ class arc_segmentation_center_finder ( threading.Thread ):
         return [ tl_points [ max_origin ], tl_points [ max_destiny ] ]
 
     def get_random_chord_bisector ( self ):
-        random_points = [ ]
-        for points in range ( 3 ):
-            random_points . append ( self.get_random_point_in_border ( ) )
-        max_distance_points = self.get_most_distant_points ( random_points )
+        random_points = set ( [ ] )
+        while ( len ( random_points ) < 3 ):
+            self.log.debug ( "len ( random_points ) = %d" % len ( random_points ) )
+            random_points . update ( [ self.get_random_point_in_border ( ) ] )
+        max_distance_points = self.get_most_distant_points ( list ( random_points ) )
         point_0 = sympy.Point ( max_distance_points [ 0 ] [ 0 ], max_distance_points [ 0 ] [ 1 ] )
         point_1 = sympy.Point ( max_distance_points [ 1 ] [ 0 ], max_distance_points [ 1 ] [ 1 ] )
         #self.log ( "debug: point_0, point_1 = %s, %s" % ( str ( point_0 ), str ( point_1 ) ) )
