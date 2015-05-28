@@ -55,7 +55,7 @@ tabular_data = [ ]
 repetitions = 50
 error_threshold = 2.0
 
-for c in range ( 14, 35 ):
+for c in range ( 16, 35 ):
     print ( "Beginning to produce %d channels suppressed data." % c )
     filtered_max = 0.0
     filtered_min = 2.0
@@ -69,6 +69,7 @@ for c in range ( 14, 35 ):
             some_channel = random.randint ( 0, 35 )
             if ( some_channel not in random_channel_list ):
                 random_channel_list.append ( some_channel )
+        print ( "%s = " % str ( random_channel_list ) )
         data = generate_data ( random_channel_list )
         #print ( "data generated" )
         if data == None:

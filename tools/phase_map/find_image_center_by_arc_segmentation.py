@@ -188,6 +188,12 @@ class arc_segmentation_center_finder ( threading.Thread ):
                     else:
                         ring_borders_map [ row ] [ col ] = 1
 
+        # if the largest arc is too small, abort
+        if max_arc_count < 50:
+            self.log.error ( "max_arc_count = %d, which is too small. Assuming no border." % max_arc_count )
+            self.__ring_borders = numpy.ones ( shape = ring_borders_map.shape )
+            return
+
         self.__ring_borders = numpy.copy ( ring_borders_map )
 
     def get_most_distant_points ( self, tl_points = [ ] ):
@@ -208,6 +214,7 @@ class arc_segmentation_center_finder ( threading.Thread ):
         random_points = set ( [ ] )
         while ( len ( random_points ) < 3 ):
             self.log.debug ( "len ( random_points ) = %d" % len ( random_points ) )
+            self.log.info ( "random_points = %s" % str ( random_points ) )
             random_points . update ( [ self.get_random_point_in_border ( ) ] )
         max_distance_points = self.get_most_distant_points ( list ( random_points ) )
         point_0 = sympy.Point ( max_distance_points [ 0 ] [ 0 ], max_distance_points [ 0 ] [ 1 ] )
