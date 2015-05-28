@@ -189,7 +189,7 @@ class arc_segmentation_center_finder ( threading.Thread ):
                         ring_borders_map [ row ] [ col ] = 1
 
         # if the largest arc is too small, abort
-        if max_arc_count < 50:
+        if max_arc_count < 20:
             self.log.error ( "max_arc_count = %d, which is too small. Assuming no border." % max_arc_count )
             self.__ring_borders = numpy.ones ( shape = ring_borders_map.shape )
             return
