@@ -55,7 +55,7 @@ tabular_data = [ ]
 repetitions = 50
 error_threshold = 2.0
 
-for c in range ( 16, 35 ):
+for c in range ( 19, 35 ):
     print ( "Beginning to produce %d channels suppressed data." % c )
     filtered_max = 0.0
     filtered_min = 2.0
@@ -89,11 +89,12 @@ for c in range ( 16, 35 ):
     tabular_data.append ( ( c, 
                             subset_sum / len ( subset_values ), 
                             filtered_sum / filtered_count,
+                            filtered_max - filtered_min,
                             subset_values ) )
 
-    print ( "# suppressed, repetitions, filtered_avg, err_estimate" )
+    print ( "# suppressed, filtered_avg, err_estimate" )
     for entry in tabular_data:
-        print ( "%s, %s, %s, %f" % ( entry [ 0 ], filtered_count, entry [ 2 ], filtered_max - filtered_min ) )
+        print ( "%s, %f, %f" % ( entry [ 0 ], entry [ 2 ], entry [ 3 ] ) )
 
 for entry in tabular_data:
-    print ( "%s, %s, %s, %s" % ( entry [ 0 ], entry [ 1 ], entry [ 2 ], str ( entry [ 3 ] ) ) )
+    print ( "%d, %f, %f, %f, %s" % ( entry [ 0 ], entry [ 1 ], entry [ 2 ], entry [ 3 ], str ( entry [ 4 ] ) ) )

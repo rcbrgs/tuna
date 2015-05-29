@@ -50,6 +50,14 @@ class wavelength_calibrator ( threading.Thread ):
         calibrated = numpy.copy ( self.unwrapped_phase_map.array )
         calibrated -= decalage
 
+        if ( self.rings_center [ 0 ] < 0 or
+             self.rings_center [ 1 ] < 0 or
+             self.rings_center [ 0 ] > self.unwrapped_phase_map.array.shape [ 0 ] or
+             self.rings_center [ 1 ] > self.unwrapped_phase_map.array.shape [ 1 ] ):
+            self.log.error ( "Cannot wavelength-calibrate when the center is not a valid pixel! Copying the unwrapped phase map as the result." )
+            self.calibrated = tuna.io.can ( array = self.unwrapped_phase_map.array )
+            return
+
         if calibrated [ self.rings_center [ 0 ] ] [ self.rings_center [ 1 ] ] < 0:
             ceiling_offset = math.ceil ( - numpy.amin ( calibrated ) / self.unwrapped_phase_map.planes ) * self.unwrapped_phase_map.planes
             calibrated += ceiling_offset

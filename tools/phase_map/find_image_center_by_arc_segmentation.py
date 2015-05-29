@@ -27,17 +27,6 @@ class arc_segmentation_center_finder ( threading.Thread ):
 
         self.start ( )
 
-    def get_center ( self ):
-        """
-        Returns the center coordinates. Will trigger a find if the center is yet unknown.
-        """
-        if ( ( self.__center_row is not None ) and
-             ( self.__center_col is not None ) ):
-            return ( self.__center_row, self.__center_col )
-        else:
-            self.find_center ( )
-            return ( self.__center_row, self.__center_col )
-
     def run ( self ):
         """
         Try to find the center of the rings.
@@ -54,67 +43,6 @@ class arc_segmentation_center_finder ( threading.Thread ):
         self.log.info ( "Center detected at %s ." % str ( self.center ) )
 
         self.log.info ( "find_image_center_by_arc_segmentation() took %ds." % ( time.time ( ) - start ) )
-
-    def find_center ( self ):
-        """
-        Tries to find the center by segmenting arcs and searching for the intersection of rays perpendicular to these segments.
-        """
-        self.detect_ring_borders ( )
-
-        convergence_tries = 1
-        bisections = [ ]
-        centers = [ ]
-        while ( True ):
-            if ( convergence_tries > 500 ):
-                self.log.warning ( "Reached threshold for center convergence using chord perpendiculars." )
-                break
-            if convergence_tries % 10 == 0:
-                self.log.info ( "convergence_tries = %d" % convergence_tries )
-            chord_bisector_0 = self.get_random_chord_bisector ( )
-            chord_bisector_1 = self.get_random_chord_bisector ( )
-            while ( sympy.Line.is_parallel ( chord_bisector_0, chord_bisector_1 ) ):
-                chord_bisector_0 = self.get_random_chord_bisector ( )
-                chord_bisector_1 = self.get_random_chord_bisector ( )
-                    
-            #self.log ( "o_chord_bisector_0 = %s, slope = %s" % ( str ( chord_bisector_0.equation ( ) ), str ( float ( chord_bisector_0.slope.evalf ( ) ) ) ) )
-            #self.log ( "o_chord_bisector_1 = %s, slope = %s" % ( str ( chord_bisector_1.equation ( ) ), str ( float ( chord_bisector_1.slope.evalf ( ) ) ) ) )
-            bisections.append ( ( chord_bisector_0, chord_bisector_1, convergence_tries * 10 ) )
-
-            # sometimes intesection fails because one of the bisectors ain't a GeometryEntity.
-            try:
-                intersection = sympy.geometry.intersection ( chord_bisector_0, chord_bisector_1 )
-            except ValueError as e:
-                self.log.warning ( "ValueError %s. Ignoring this intersection." % ( e ) )
-                convergence_tries += 1
-                continue
-
-            if ( len ( intersection ) != 0 ):
-                point_center = intersection [ 0 ]
-                intersect_row = int ( point_center.x.evalf ( ) )
-                intersect_col = int ( point_center.y.evalf ( ) )
-                #self.log ( "o_point_center = %s" % str ( ( intersect_row, intersect_col ) ) )
-                #self.log ( "i_convergence_tries * 10 = %s" % str ( convergence_tries * 10 ) )
-                centers.append ( ( int ( intersect_row ), int ( intersect_col ) ) )
-                sum_row = 0
-                sum_col = 0
-                for center in range ( len ( centers ) ):
-                    sum_row +=  centers [ center ] [ 0 ]
-                    sum_col +=  centers [ center ] [ 1 ]
-                center = ( int ( sum_row / len ( centers ) ),
-                             int ( sum_col / len ( centers ) ) )
-                self.log.debug ( "center possibly at %s" % str ( center ) )
-            convergence_tries += 1
-            if ( convergence_tries > 10 ):
-                if ( center == ( intersect_row, intersect_col ) ):
-                    #self.log ( "t_center converged at %s" % str ( center ) )
-                    break
-        # plot bisection lines for debug: (very slow)
-        #for bisection in range ( len ( bisections ) ):
-        #    self.plot_line ( line = bisections [ bisection ] [ 0 ], color = bisections [ bisection ] [ 2 ] )
-        #    self.plot_line ( line = bisections [ bisection ] [ 1 ], color = bisections [ bisection ] [ 2 ] )
-
-        self.__center_row = center [ 0 ]
-        self.__center_col = center [ 1 ]
 
     def detect_ring_borders ( self ):
         """
@@ -145,12 +73,12 @@ class arc_segmentation_center_finder ( threading.Thread ):
         # color continuous ring borders with different colors
         next_color = 2
         for row in range ( max_rows ):
-            #self.log ( "i_row = %d" % row )
+            self.log.debug ( "i_row = %d" % row )
             for col in range ( max_cols ):
                 if ring_borders_map [ row ] [ col ] == 1:
                     borderhood = [ ( row, col ) ]
                     while ( borderhood != [ ] ):
-                        #self.log ( "l_borderhood = %s" % str ( borderhood ) )
+                        self.log.debug ( "l_borderhood = %s" % str ( borderhood ) )
                         tocolor_pixel = borderhood.pop ( )
                         neighbours = tuna.tools.get_pixel_neighbours ( ( tocolor_pixel [ 0 ], tocolor_pixel [ 1 ] ), ring_borders_map )
                         for neighbour in neighbours:
@@ -196,6 +124,74 @@ class arc_segmentation_center_finder ( threading.Thread ):
 
         self.__ring_borders = numpy.copy ( ring_borders_map )
 
+    def find_center ( self ):
+        """
+        Tries to find the center by segmenting arcs and searching for the intersection of rays perpendicular to these segments.
+        """
+        self.detect_ring_borders ( )
+
+        convergence_tries = 1
+        bisections = [ ]
+        centers = [ ]
+        while ( True ):
+            if ( convergence_tries > 500 ):
+                self.log.warning ( "Reached threshold for center convergence using chord perpendiculars." )
+                break
+            if convergence_tries % 10 == 0:
+                self.log.info ( "convergence_tries = %d" % convergence_tries )
+            chord_bisector_0 = self.get_random_chord_bisector ( )
+            chord_bisector_1 = self.get_random_chord_bisector ( )
+            while ( sympy.Line.is_parallel ( chord_bisector_0, chord_bisector_1 ) ):
+                chord_bisector_0 = self.get_random_chord_bisector ( )
+                chord_bisector_1 = self.get_random_chord_bisector ( )
+                    
+            self.log.debug ( "o_chord_bisector_0 = %s, slope = %s" % ( str ( chord_bisector_0.equation ( ) ), str ( float ( chord_bisector_0.slope.evalf ( ) ) ) ) )
+            self.log.debug ( "o_chord_bisector_1 = %s, slope = %s" % ( str ( chord_bisector_1.equation ( ) ), str ( float ( chord_bisector_1.slope.evalf ( ) ) ) ) )
+            bisections.append ( ( chord_bisector_0, chord_bisector_1, convergence_tries * 10 ) )
+
+            # sometimes intesection fails because one of the bisectors ain't a GeometryEntity.
+            try:
+                intersection = sympy.geometry.intersection ( chord_bisector_0, chord_bisector_1 )
+            except ValueError as e:
+                self.log.warning ( "ValueError %s. Ignoring this intersection." % ( e ) )
+                convergence_tries += 1
+                continue
+
+            if ( len ( intersection ) != 0 ):
+                point_center = intersection [ 0 ]
+                intersect_row = int ( point_center.x.evalf ( ) )
+                intersect_col = int ( point_center.y.evalf ( ) )
+                self.log.debug ( "o_point_center = %s" % str ( ( intersect_row, intersect_col ) ) )
+                self.log.debug ( "i_convergence_tries * 10 = %s" % str ( convergence_tries * 10 ) )
+                centers.append ( ( int ( intersect_row ), int ( intersect_col ) ) )
+                sum_row = 0
+                sum_col = 0
+                for center in range ( len ( centers ) ):
+                    sum_row +=  centers [ center ] [ 0 ]
+                    sum_col +=  centers [ center ] [ 1 ]
+                center = ( int ( sum_row / len ( centers ) ),
+                             int ( sum_col / len ( centers ) ) )
+                self.log.debug ( "center possibly at %s" % str ( center ) )
+            convergence_tries += 1
+            if ( convergence_tries > 10 ):
+                if ( center == ( intersect_row, intersect_col ) ):
+                    self.log.debug ( "t_center converged at %s" % str ( center ) )
+                    break
+
+        self.__center_row = center [ 0 ]
+        self.__center_col = center [ 1 ]
+
+    def get_center ( self ):
+        """
+        Returns the center coordinates. Will trigger a find if the center is yet unknown.
+        """
+        if ( ( self.__center_row is not None ) and
+             ( self.__center_col is not None ) ):
+            return ( self.__center_row, self.__center_col )
+        else:
+            self.find_center ( )
+            return ( self.__center_row, self.__center_col )
+
     def get_most_distant_points ( self, tl_points = [ ] ):
         max_distance = 0
         max_origin = 0
@@ -219,7 +215,7 @@ class arc_segmentation_center_finder ( threading.Thread ):
         max_distance_points = self.get_most_distant_points ( list ( random_points ) )
         point_0 = sympy.Point ( max_distance_points [ 0 ] [ 0 ], max_distance_points [ 0 ] [ 1 ] )
         point_1 = sympy.Point ( max_distance_points [ 1 ] [ 0 ], max_distance_points [ 1 ] [ 1 ] )
-        #self.log ( "debug: point_0, point_1 = %s, %s" % ( str ( point_0 ), str ( point_1 ) ) )
+        self.log.debug ( "debug: point_0, point_1 = %s, %s" % ( str ( point_0 ), str ( point_1 ) ) )
         chord_segment = sympy.Segment ( point_0, point_1 )
         if ( type ( chord_segment ) is sympy.Point ):
             self.log.error ( "Segmentation created a point." )
@@ -235,18 +231,3 @@ class arc_segmentation_center_finder ( threading.Thread ):
             random_col = random.randint ( 0, self.wrapped.shape [ 1 ] - 1 )
             random_color = self.__ring_borders [ random_row ] [ random_col ]
         return ( random_row, random_col )
-
-    def plot_line ( self, line, color ):
-        max_rows = self.__ring_borders.shape [ 0 ]
-        max_cols = self.__ring_borders.shape [ 1 ]
-        coeff_x = line.coefficients [ 0 ].evalf ( )
-        coeff_y = line.coefficients [ 1 ].evalf ( )
-        coeff_C = line.coefficients [ 2 ].evalf ( )
-        coefficients = [ coeff_x, coeff_y, coeff_C ]
-        for row in range ( max_rows ):
-            for col in range ( max_cols ):
-                result = ( ( coefficients [ 0 ] * row ) + 
-                             ( coefficients [ 1 ] * col ) + 
-                             ( coefficients [ 2 ] ) )
-                if ( abs ( result ) < 100 ):
-                    self.__ring_borders [ row ] [ col ] = color
