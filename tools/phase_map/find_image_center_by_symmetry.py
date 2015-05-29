@@ -4,8 +4,9 @@ This tool tries to find the center of an image by finding the row and the column
 If a cube is received, it will use the first plane as its input.
 """
 
+import logging
 import numpy
-from time import time
+import time
 
 class image_center_by_symmetry ( object ):
     def __init__ ( self, 
@@ -69,16 +70,18 @@ class image_center_by_symmetry ( object ):
 
         #print ( "Center near ( %d, %d )." % ( self.__center_row, self.__center_col ) )
         
-def find_image_center_by_symmetry ( data = numpy.ndarray,
-                                    log = print ):
+def find_image_center_by_symmetry ( data = numpy.ndarray ):
     """
     Try to find the center of the rings.
     """
-    start = time ( )
+    start = time.time ( )
+
+    log = logging.getLogger ( __name__ )
 
     o_finder = image_center_by_symmetry ( array = data,
                                           log = log )
     iit_center = o_finder.get_center ( )
+    log.info ( "iit_center = %s" % str ( iit_center ) )
 
-    log ( "info: find_image_center_by_symmetry() took %ds." % ( time ( ) - start ) )
+    log.info ( "find_image_center_by_symmetry() took %ds." % ( time.time ( ) - start ) )
     return iit_center
