@@ -16,9 +16,10 @@ def generate_data ( channels ):
                                                          channels = channels )
     suppressed_can = tuna.io.can ( array = suppressed )
     
-    channel_string = ""
+    channel_string = "G094.AD3_channel_substituted_"
     for channel in channels:
         channel_string += str ( channel ) + "_"
+    channel_string += ".fits"
 
     high_res = tuna.tools.phase_map.high_resolution ( tuna_can = suppressed_can,
                                                       beam = 450,
@@ -41,6 +42,7 @@ def generate_data ( channels ):
     high_res.join ( )
 
     unwrapped = high_res.unwrapped_phase_map
+    tuna.io.write ( unwrapped.array, 'fits', channel_string )
 
     try:
         comparison = unwrapped.array - comparee.array

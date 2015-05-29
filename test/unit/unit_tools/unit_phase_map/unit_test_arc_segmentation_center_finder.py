@@ -15,8 +15,8 @@ class unit_test_arc_segmentation_center_finder ( unittest.TestCase ):
         wrapped = barycenter_detector.result
         center_finder = tuna.tools.phase_map.arc_segmentation_center_finder ( wrapped )
         center_finder.join ( )
-        self.assertTrue ( center_finder.center [ 0 ] > 120 )
-        self.assertTrue ( center_finder.center [ 0 ] < 140 )
+        self.assertTrue ( center_finder.center [ 0 ] > 110 )
+        self.assertTrue ( center_finder.center [ 0 ] < 130 )
         self.assertTrue ( center_finder.center [ 1 ] > 450 )
         self.assertTrue ( center_finder.center [ 1 ] < 470 )
 
