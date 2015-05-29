@@ -210,7 +210,7 @@ class arc_segmentation_center_finder ( threading.Thread ):
         random_points = set ( [ ] )
         while ( len ( random_points ) < 3 ):
             self.log.debug ( "len ( random_points ) = %d" % len ( random_points ) )
-            self.log.info ( "random_points = %s" % str ( random_points ) )
+            self.log.debug ( "random_points = %s" % str ( random_points ) )
             random_points . update ( [ self.get_random_point_in_border ( ) ] )
         max_distance_points = self.get_most_distant_points ( list ( random_points ) )
         point_0 = sympy.Point ( max_distance_points [ 0 ] [ 0 ], max_distance_points [ 0 ] [ 1 ] )
