@@ -11,7 +11,7 @@ airy     = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G094.AD3_
 comparee = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G094.AD3_07_unwrapped.fits' )  
 
 true_center = ( 219, 259 )
-center_difference_threshold = 14
+center_difference_threshold = 6
 
 def generate_data ( channels ):
     suppressed = tuna.tools.phase_map.suppress_channel ( array = raw.array, 
@@ -91,7 +91,8 @@ for c in range ( 21, 35 ):
         data = generate_data ( random_channel_list )
         #print ( "data generated" )
         if data == None:
-            print ( "random_channel_list = %s, error = None" % ( str ( random_channel_list ) ) )
+            #print ( "random_channel_list = %s, error = None" % ( str ( random_channel_list ) ) )
+            print ( "invalid data" )
             continue
 
         data /= number_of_pixels
