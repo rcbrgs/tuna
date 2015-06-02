@@ -1,5 +1,5 @@
 import logging
-from math import floor, sqrt
+import math
 import numpy
 import threading
 import time
@@ -28,7 +28,9 @@ class high_resolution ( threading.Thread ):
                    channel_threshold = 1, 
                    continuum_to_FSR_ratio = 0.125,
                    noise_mask_radius = 1,
-                   dont_fit = False ):
+                   dont_fit = False,
+                   unwrapped_only = False,
+                   verify_center = None ):
 
         """
         Creates the phase map from raw data obtained with a Fabry-Perot instrument.
@@ -67,6 +69,8 @@ class high_resolution ( threading.Thread ):
         self.pixel_size = pixel_size
         self.scanning_wavelength = scanning_wavelength
         self.tuna_can = tuna_can
+        self.unwrapped_only = unwrapped_only
+        self.verify_center = verify_center
 
         """outputs:"""
         self.airy_fit = None
@@ -99,14 +103,25 @@ class high_resolution ( threading.Thread ):
         barycenter_detector.join ( )
         self.wrapped_phase_map = barycenter_detector.result
 
-        center_finder = tuna.tools.phase_map.arc_segmentation_center_finder ( self.wrapped_phase_map )
-        noise_detector = tuna.tools.phase_map.noise_detector ( self.wrapped_phase_map, 
+        noise_detector = tuna.tools.phase_map.noise_detector ( self.tuna_can,
+                                                               self.wrapped_phase_map, 
                                                                self.bad_neighbours_threshold, 
                                                                self.channel_threshold, 
                                                                self.noise_mask_radius )
+        noise_detector.join ( )
+        self.noise = noise_detector.noise
 
+        center_finder = tuna.tools.phase_map.arc_segmentation_center_finder ( self.wrapped_phase_map,
+                                                                              self.noise )
         center_finder.join ( )
         self.rings_center = center_finder.center
+        if self.verify_center != None:
+            true_center = self.verify_center [ 0 ]
+            threshold = self.verify_center [ 1 ]
+            difference = math.sqrt ( ( self.rings_center [ 0 ] - true_center [ 0 ] ) ** 2 + \
+                                     ( self.rings_center [ 1 ] - true_center [ 1 ] ) ** 2 )
+            if difference >= threshold:
+                return
 
         if self.dont_fit == False:
             airy_fitter = tuna.tools.models.airy_fitter ( self.discontinuum,
@@ -117,9 +132,6 @@ class high_resolution ( threading.Thread ):
                                                           self.gap,
                                                           self.initial_gap,
                                                           self.pixel_size )
-
-        noise_detector.join ( )
-        self.noise = noise_detector.noise
 
         ring_border_detector = tuna.tools.phase_map.ring_border_detector ( self.wrapped_phase_map,
                                                                            self.rings_center,
@@ -135,6 +147,8 @@ class high_resolution ( threading.Thread ):
         self.order_map = tuna.io.can ( array = self.fsr_map.astype ( dtype = numpy.float64 ) )
 
         self.create_unwrapped_phase_map ( )
+        if self.unwrapped_only == True:
+            return
 
         if self.dont_fit == False:
             airy_fitter.join ( )

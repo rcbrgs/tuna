@@ -30,7 +30,10 @@ class unit_test_io_adhoc ( unittest.TestCase ):
         self.assertRaises ( OSError, tuna.io.read, file_name )
 
     def test_valid_adt_file ( self ):
-        tuna.io.read ( "test/unit/unit_io/G093/G093.ADT" )
+        g093 = tuna.io.read ( "test/unit/unit_io/G093/G093.ADT" )
+        # since we read this file, which is costly, let's test the metadata.
+        self.assertTrue ( "QUEENSGA" in g093.metadata.keys [ ] )
+        self.assertTrue ( g093.metadata [ QUEENSGA ] [ 0 ] [ : 17 ] = '-359, -359, -339,' )
 
     def tearDown ( self ):
         pass

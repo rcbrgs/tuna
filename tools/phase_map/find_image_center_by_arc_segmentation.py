@@ -14,17 +14,19 @@ import time
 import tuna
 
 class arc_segmentation_center_finder ( threading.Thread ):
-    def __init__ ( self, wrapped ):
+    def __init__ ( self, wrapped, noise ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
         super ( self.__class__, self ).__init__ ( )
 
+        self.noise = noise
+        self.wrapped = wrapped
+        
+        self.center = None
         self.__center_row = None
         self.__center_col = None
-        self.wrapped = wrapped
-        self.center = None
-        random.seed ( )
 
+        random.seed ( )
         self.start ( )
 
     def run ( self ):
@@ -40,7 +42,7 @@ class arc_segmentation_center_finder ( threading.Thread ):
             return None
 
         self.center = self.get_center ( )
-        self.log.info ( "Center detected at %s ." % str ( self.center ) )
+        self.log.info ( "Center detected at %s." % str ( self.center ) )
 
         self.log.info ( "find_image_center_by_arc_segmentation() took %ds." % ( time.time ( ) - start ) )
 
@@ -48,6 +50,8 @@ class arc_segmentation_center_finder ( threading.Thread ):
         """
         Detect borders, and select only the first connected set of pixels in this border.
         """
+        start = time.time ( )
+
         ring_borders_map = numpy.zeros ( shape = self.wrapped.shape, dtype = numpy.int16 )
         max_rows = self.wrapped.shape[0]
         max_cols = self.wrapped.shape[1]
@@ -63,7 +67,8 @@ class arc_segmentation_center_finder ( threading.Thread ):
                                                    self.wrapped.array [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] ) ) )
                 max_distance = max ( distances )
                 if ( max_distance > channel_threshold and
-                     int ( self.wrapped.array [ row ] [ col ] ) == 0 ):
+                     int ( self.wrapped.array [ row ] [ col ] ) == 0 and
+                     self.noise.array [ row ] [ col ] == 0 ):
                     ring_borders_map [ row ] [ col ] = 1
         if ( numpy.sum ( ring_borders_map ) == 0 ):
             self.log.warning ( "No borders detected." )
@@ -124,6 +129,8 @@ class arc_segmentation_center_finder ( threading.Thread ):
 
         self.__ring_borders = numpy.copy ( ring_borders_map )
 
+        self.log.info ( "detect_ring_borders() took %ds." % ( time.time ( ) - start ) )
+
     def find_center ( self ):
         """
         Tries to find the center by segmenting arcs and searching for the intersection of rays perpendicular to these segments.
@@ -134,7 +141,7 @@ class arc_segmentation_center_finder ( threading.Thread ):
         bisections = [ ]
         centers = [ ]
         while ( True ):
-            if ( convergence_tries > 500 ):
+            if ( convergence_tries > 50 ):
                 self.log.warning ( "Reached threshold for center convergence using chord perpendiculars." )
                 break
             if convergence_tries % 10 == 0:
