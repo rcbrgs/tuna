@@ -158,6 +158,7 @@ class high_resolution ( threading.Thread ):
                                                                               self.free_spectral_range,
                                                                               self.interference_order,
                                                                               self.interference_reference_wavelength,
+                                                                              self.tuna_can.shape [ 0 ],
                                                                               self.rings_center,
                                                                               self.scanning_wavelength )
 

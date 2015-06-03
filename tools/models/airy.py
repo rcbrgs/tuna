@@ -97,6 +97,7 @@ class airy_fitter ( threading.Thread ):
                                    pixel_size = self.pixel_size )
 
         airy_custom_model.finesse.fixed = True
+        airy_custom_model.pixel_size.fixed = True
     
         LevMarLSQFitter_fit = LevMarLSQFitter ( )
     

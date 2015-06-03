@@ -4,6 +4,8 @@ Tuna
 This program provides access to Tuna's libraries' namespaces.
 """
 
+__version__ = '0.10.0'
+
 import logging
 
 import tuna.console

@@ -15,9 +15,7 @@ class unit_test_arc_segmentation_center_finder ( unittest.TestCase ):
         wrapped = barycenter_detector.result
         noise_detector = tuna.tools.phase_map.noise_detector ( raw,
                                                                wrapped,
-                                                               7,
-                                                               1.0,
-                                                               10 )
+                                                               1 )
         noise_detector.join ( )
         noise = noise_detector.noise
         center_finder = tuna.tools.phase_map.arc_segmentation_center_finder ( wrapped,

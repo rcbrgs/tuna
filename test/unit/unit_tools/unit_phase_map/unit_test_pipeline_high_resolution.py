@@ -24,16 +24,14 @@ class unit_test_pipeline_high_resolution ( unittest.TestCase ):
                                                                    interference_order = 791,
                                                                    interference_reference_wavelength = 6562.7797852,
                                                                    pixel_size = 9,
-                                                                   channel_threshold = 1, 
-                                                                   bad_neighbours_threshold = 7, 
-                                                                   noise_mask_radius = 10,
+                                                                   noise_mask_radius = 1,
                                                                    scanning_wavelength = 6616.89,
                                                                    tuna_can = can )
 
         log = logging.getLogger ( __name__ )
         log.info ( "high_res.wavelength_calibrated.array [ 0 ] [ 0 ] == %f" % high_res.wavelength_calibrated.array [ 0 ] [ 0 ] )
-        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] > 85 )
-        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] < 95 )
+        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] > 100 )
+        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] < 120 )
         log.info ( "high_res.rings_center ==%s" % str ( high_res.rings_center ) )
         self.assertTrue ( high_res.rings_center [ 0 ] > 250 )
         self.assertTrue ( high_res.rings_center [ 0 ] < 270 )

@@ -9,11 +9,13 @@ class wavelength_calibrator ( threading.Thread ):
     """
     Responsible for producing the wavelength calibrated cube from the phase map cube.
     """
-    def __init__ ( self, unwrapped_phase_map,
+    def __init__ ( self,
+                   unwrapped_phase_map,
                    calibration_wavelength,
                    free_spectral_range,
                    interference_order,
                    interference_reference_wavelength,
+                   number_of_channels,
                    rings_center,
                    scanning_wavelength ):
         self.log = logging.getLogger ( __name__ )
@@ -26,10 +28,11 @@ class wavelength_calibrator ( threading.Thread ):
         self.free_spectral_range = free_spectral_range
         self.interference_order = interference_order
         self.interference_reference_wavelength = interference_reference_wavelength
+        self.number_of_channels = number_of_channels
         self.rings_center = rings_center
         self.scanning_wavelength = scanning_wavelength
 
-        self.channel_width = unwrapped_phase_map.planes
+        self.channel_width = number_of_channels
 
         self.calibrated = None
 
@@ -39,13 +42,19 @@ class wavelength_calibrator ( threading.Thread ):
         """
         Goal is to discover the value of the wavelength at the apex of the parabola that fits the data.
         """
-        calculated_FSR = self.scanning_wavelength / self.interference_order
+        self.log.info ( "self.interference_order = %f" % self.interference_order )
+        self.log.info ( "self.interference_reference_wavelength = %f" % self.interference_reference_wavelength )
+        self.log.info ( "self.calibration_wavelength = %f" % self.calibration_wavelength )
+        order_calibration = round ( self.interference_order * self.interference_reference_wavelength / self.calibration_wavelength )
+        self.log.info ( "order_calibration = %f" % order_calibration )
+        order_scanning = round ( self.interference_order * self.interference_reference_wavelength / self.scanning_wavelength )
+        self.log.info ( "order_scanning = %f" % order_scanning )
+        calculated_FSR = self.scanning_wavelength / order_scanning
         self.log.info ( "input FSR = %f, calculated FSR = %f" % ( self.free_spectral_range, 
-                                                                   calculated_FSR ) )
-        order_calibration = int ( self.interference_order * self.interference_reference_wavelength / self.calibration_wavelength )
-        order_scanning = int ( self.interference_order * self.interference_reference_wavelength / self.scanning_wavelength )
+                                                                calculated_FSR ) )
+
         decalage = self.channel_width * ( 0.5 - ( self.scanning_wavelength - 
-                                                  self.calibration_wavelength * ( order_calibration / order_scanning ) / self.free_spectral_range ) )
+                                                  self.calibration_wavelength * ( order_calibration / order_scanning ) ) / self.free_spectral_range )
         self.log.info ( "decalage = %f" % decalage )
         calibrated = numpy.copy ( self.unwrapped_phase_map.array )
         calibrated -= decalage
@@ -58,13 +67,14 @@ class wavelength_calibrator ( threading.Thread ):
             self.calibrated = tuna.io.can ( array = self.unwrapped_phase_map.array )
             return
 
+        self.log.info ( "self.number_of_channels = %d" % self.number_of_channels )
         if calibrated [ self.rings_center [ 0 ] ] [ self.rings_center [ 1 ] ] < 0:
-            ceiling_offset = math.ceil ( - numpy.amin ( calibrated ) / self.unwrapped_phase_map.planes ) * self.unwrapped_phase_map.planes
-            calibrated += ceiling_offset
+            ceiling_offset = math.ceil ( - numpy.amin ( calibrated ) / self.number_of_channels ) * self.number_of_channels
             self.log.info ( "ceiling_offset = %f" % ceiling_offset )
+            calibrated += ceiling_offset
 
-        if calibrated [ self.rings_center [ 0 ] ] [ self.rings_center [ 1 ] ] > self.unwrapped_phase_map.planes:
-            floor_offset = math.floor (  numpy.amin ( calibrated ) / self.unwrapped_phase_map.planes ) * self.unwrapped_phase_map.planes
+        if calibrated [ self.rings_center [ 0 ] ] [ self.rings_center [ 1 ] ] > self.number_of_channels:
+            floor_offset = math.floor (  numpy.amin ( calibrated ) / self.number_of_channels ) * self.number_of_channels
             calibrated -= floor_offset
             self.log.info ( "floor_offset = %f" % floor_offset )
 

@@ -1,3 +1,9 @@
+Tuna v0.10:
+- Multithreaded pipeline (done).
+- Wavelength calibration works correctly.
+- Model fittings now use Astropy v1.0.2.
+- Removed datacube class.
+
 Tuna v0.9:
 - Multithreaded pipeline (partially done).
 - Fix FSR calculation on wavelength calibration (done, but check for possible sign inversion).
