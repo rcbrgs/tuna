@@ -2,7 +2,6 @@ import logging
 
 from .can import can
 from .fits import fits
-from tuna.zeromq.zmq_client import zmq_client
 
 def read ( file_name ):
     log = logging.getLogger ( __name__ )

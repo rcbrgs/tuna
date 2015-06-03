@@ -9,7 +9,7 @@ Utilizing the lazy pirate pattern from 0MQ documentation.
 import logging
 import zmq
 
-class zmq_client ( ):
+class zmq_client ( object ):
     """
     Sets zmq context, connects to (stub) proxy and sends messages.
 
@@ -18,43 +18,38 @@ class zmq_client ( ):
     """
 
     def __init__ ( self ):
-        self.logg = logging.getLogger ( )
-        self.logg.setLevel ( logging.DEBUG )
+        self.log = logging.getLogger ( )
+        self.log.setLevel ( logging.DEBUG )
 
         self.zmq_context = zmq.Context ( )
+        self.zmq_socket_req = None
+        self.poller = None
         
     def close_socket ( self ):
         self.zmq_socket_req.setsockopt ( zmq.LINGER, 0 )
         self.zmq_socket_req.close ( )
         self.poller.unregister ( self.zmq_socket_req )
 
-    def log ( self, msg ):
+    def send ( self, message ):
         """
-        Sends (byte string) message to log_server through the (stub) proxy.
-        DEPRECATED.
+        Sends (byte string) message to ZMQ server.
         """
-        self.logg.error ( "Someone tried to send a log using the deprecated API." )
-        self.logg.error ( "msg = %s" % ( msg ) )
-        return
-
         self.open_socket ( )
         self.register_poller ( )
-
-        prefixed_msg = "log: " + msg
 
         self.zmq_socket_req.send_unicode ( prefixed_msg )
         
         retries = 0
-        unanswered = True
-        while unanswered:
+        answer = None
+        while answer == None:
             answer = dict ( self.poller.poll ( 1000 ) )
             if answer.get ( self.zmq_socket_req ) == zmq.POLLIN:
-                answer = self.zmq_socket_req.recv ( )
-                if answer.decode("utf-8") != 'ACK':
-                    print ( u'Something is fishy!' )
-                    print ( u'Received: "%s".' % answer.decode("utf-8") )
-                    print ( u"Expected: 'ACK'" )
-                unanswered = False
+                received = self.zmq_socket_req.recv ( )
+                answer = received.decode ( 'utf-8' )
+                if answer != 'ACK':
+                    self.log ( 'Something is fishy!' )
+                    self.log ( 'Received: "%s".' % answer.decode("utf-8") )
+                    self.log ( "Expected: 'ACK'" )
             else:
                 retries += 1
                 self.open_socket ( )
@@ -63,6 +58,7 @@ class zmq_client ( ):
                 self.zmq_socket_req.send_unicode ( suffixed_message )
 
         self.close_socket ( )
+        return answer
 
     def open_socket ( self ):
         self.zmq_socket_req = self.zmq_context.socket ( zmq.REQ )

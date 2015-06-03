@@ -46,7 +46,6 @@ class high_resolution ( threading.Thread ):
         self.log.setLevel ( logging.INFO )
 
         super ( high_resolution, self ).__init__ ( )
-        self.zmq_client = tuna.zeromq.zmq_client ( )
 
         self.log.info ( "Starting high_resolution pipeline." )
 

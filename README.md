@@ -3,8 +3,6 @@ Tuna
 
 Tuna is a Tunable Fabry-Perot Interferometer Data Reduction software solution.
 
-It uses ZeroMQ as a communications hub between its modules.
+It is written in Python. Uses Astropy, Numpy, Scipy, Sympy and ZeroMQ.
 
-It uses Astropy for several tasks.
-
-It is written in Python, but since ZeroMQ has wrappers for several languages, it is possible to rewrite modules in other languages.
+Currently it reduces GHASP calibration data; but we intend to make it more flexible and general.
