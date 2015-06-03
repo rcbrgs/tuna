@@ -1,4 +1,5 @@
 import logging
+import os
 import tuna
 import unittest
 
@@ -30,10 +31,20 @@ class unit_test_io_adhoc ( unittest.TestCase ):
         self.assertRaises ( OSError, tuna.io.read, file_name )
 
     def test_valid_adt_file ( self ):
+        log = logging.getLogger ( __name__ )
         g093 = tuna.io.read ( "test/unit/unit_io/G093/G093.ADT" )
+        tuna.io.write ( file_name = "g093_fits.fits",
+                        array = g093.array,
+                        metadata = g093.metadata,
+                        file_format = 'fits' )
+        g093_fits = tuna.io.read ( "g093_fits.fits" )
         # since we read this file, which is costly, let's test the metadata.
-        self.assertTrue ( "QUEENSGA" in g093.metadata.keys [ ] )
-        self.assertTrue ( g093.metadata [ QUEENSGA ] [ 0 ] [ : 17 ] = '-359, -359, -339,' )
+        self.assertTrue ( 'QUEENSGA' in g093_fits.metadata.keys ( ) )
+        log.info ( g093_fits.metadata.keys ( ) )
+        self.assertTrue ( g093_fits.metadata [ 'QUEENSGA' ] [ 0 ] [ : 17 ] == '-359, -359, -339,' )
+        log.info ( g093_fits.metadata [ 'QUEENSGA' ] [ 0 ] [ : 17 ] )
+        os.remove ( "g093_fits.fits" )
+        os.remove ( "metadata_g093_fits.fits" )
 
     def tearDown ( self ):
         pass

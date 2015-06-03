@@ -86,73 +86,15 @@ class fits ( file_reader ):
 
                     fits_key = fits_key.replace ( ' ', '_' )
                     
-                    self.log.info ( "fits_key = %s" % fits_key )
-                    self.log.info ( "len ( value ) = %d" % len ( value ) )
-                    self.log.info ( "len ( comment ) = %d" % len ( comment ) )
+                    self.log.debug ( "fits_key = %s" % fits_key )
+                    self.log.debug ( "len ( value ) = %d" % len ( value ) )
+                    self.log.debug ( "len ( comment ) = %d" % len ( comment ) )
 
                     card = astrofits.Card ( fits_key, value, comment )
-                    self.log.info ( "str ( card ) = %s" % str ( card ) )
+                    self.log.debug ( "str ( card ) = %s" % str ( card ) )
                     header.append ( card )
-                    #header.append ( ( fits_key, value, comment ) )
 
             hdu = astrofits.PrimaryHDU ( self.__array, header )
-            hdu_list = astrofits.HDUList ( [ hdu ] )
-            try:
-                hdu_list.writeto ( self.__file_name )
-            except OSError as e:
-                if e == "File '" + self.__file_name + "' already exists.":
-                    self.log.error ( "File %s already exists." % self.__file_name )
-                    sys.exit ( 1 )
-
-    def write_old ( self, file_name = None ):
-        self.log.debug ( tuna.log.function_header ( ) )
-
-        if self.__file_name:
-            hdu = astrofits.PrimaryHDU ( self.__array )
-            if self.__metadata:
-                columns = { }
-                key_list = [ ]
-                with warnings.catch_warnings ( ):
-                    warnings.simplefilter ( "ignore" )
-                    for key in self.__metadata.keys ( ):
-                        comment  = self.__metadata [ key ] [ 1 ]
-                        value = ""
-                        for metadata_value in self.__metadata [ key ] [ 0 ]:
-                            if ( value == "" ):
-                                value += str ( metadata_value )
-                            else:
-                                value += ", " + str ( metadata_value )
-
-                        fits_key = key
-                        self.log.debug ( "fits_key = %s" % fits_key )
-
-                        # check for too long key
-                        if len ( fits_key ) > 8:
-                            fits_key = fits_key [ : 8 ]
-                        self.log.debug ( "fits_key = %s" % fits_key )
-                        
-                        # check for repeated keys
-                        repeat = 1
-                        while fits_key in key_list:
-                            repeat += 1
-                            fits_key = fits_key [ : - len ( str ( repeat ) ) ] + str ( repeat )
-                        self.log.info ( "fits_key = %s" % fits_key )
-
-                        key_list.append ( fits_key )
-
-                        # cut values that are too long
-                        self.log.info ( "len ( value ) = %d" % len ( value ) )
-                        if len ( value ) > 60:
-                            comment = copy.copy ( value )
-                            value = value [ : 60 ]
-                            self.log.info ( "len ( value ) = %d" % len ( value ) )
-                        
-                        try:
-                            hdu.header [ fits_key ] = ( value, comment )
-                        except ValueError as error_message:
-                            self.log.error ( "ValueError: %s." % ( error_message ) )                
-                            self.log.error ( "fits_key = %s, len ( value ) = %d" % ( fits_key, len ( value ) ) )
-                        
             hdu_list = astrofits.HDUList ( [ hdu ] )
             try:
                 hdu_list.writeto ( self.__file_name )

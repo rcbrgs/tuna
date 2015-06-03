@@ -88,7 +88,7 @@ number_of_pixels = raw.array.shape [ 0 ] * raw.array.shape [ 1 ] * raw.array.sha
 tabular_data = [ ]
 repetitions = 10
 
-for c in range ( 21, 22 ):
+for c in range ( 6, 35 ):
     print ( "Beginning to produce %d channels suppressed data." % c )
     filtered_max = 0.0
     filtered_min = 2.0
@@ -97,9 +97,9 @@ for c in range ( 21, 22 ):
 
     for t in range ( 1, repetitions + 1 ):
         print ( "repetition %d" % t )
-        data = None
         error = error_threshold
         while ( error >= error_threshold ):
+            data = None
             while ( data == None ):
                 random_channel_list = [ ]
                 while ( len ( random_channel_list ) < c ):
