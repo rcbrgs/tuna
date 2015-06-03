@@ -16,9 +16,7 @@ high_res = tuna.tools.phase_map.high_resolution_pipeline ( beam = 450,
                                                            gap = 1904,
                                                            interference_order = 791,
                                                            interference_reference_wavelength = 6562.7797852,
-                                                           channel_threshold = 1, 
-                                                           bad_neighbours_threshold = 7, 
-                                                           noise_mask_radius = 10,
+                                                           noise_mask_radius = 1,
                                                            scanning_wavelength = 6616.89,
                                                            tuna_can = can )
 

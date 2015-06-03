@@ -23,12 +23,10 @@ class high_resolution ( threading.Thread ):
                    pixel_size,
                    scanning_wavelength,
                    tuna_can,
-                   bad_neighbours_threshold = 7, 
                    channel_subset = [ ],
-                   channel_threshold = 1, 
                    continuum_to_FSR_ratio = 0.125,
-                   noise_mask_radius = 1,
                    dont_fit = False,
+                   noise_mask_radius = 1,
                    unwrapped_only = False,
                    verify_center = None ):
 
@@ -38,9 +36,7 @@ class high_resolution ( threading.Thread ):
         Parameters:
         ---
         - array : the raw data. Must be a 3D numpy.ndarray.
-        - bad_neighbours_threshold : how many neighbouring pixels can have a value above the threshold before the pixel itself is conidered noise.
-        - channel_threshold : the distance, in "channels", that a neighbouring pixel' value can have before being considered noise.
-        - noise_mas_radius : the distance from a noise pixel that will be marked as noise also (size of a circle around each noise pixel).
+        - noise_mask_radius : the distance from a noise pixel that will be marked as noise also (size of a circle around each noise pixel).
         """
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
@@ -50,11 +46,9 @@ class high_resolution ( threading.Thread ):
         self.log.info ( "Starting high_resolution pipeline." )
 
         """inputs:"""
-        self.bad_neighbours_threshold = bad_neighbours_threshold
         self.beam = beam
         self.calibration_wavelength = calibration_wavelength
         self.channel_subset = channel_subset
-        self.channel_threshold = channel_threshold
         self.continuum_to_FSR_ratio = continuum_to_FSR_ratio
         self.dont_fit = dont_fit
         self.finesse = finesse
@@ -104,8 +98,6 @@ class high_resolution ( threading.Thread ):
 
         noise_detector = tuna.tools.phase_map.noise_detector ( self.tuna_can,
                                                                self.wrapped_phase_map, 
-                                                               self.bad_neighbours_threshold, 
-                                                               self.channel_threshold, 
                                                                self.noise_mask_radius )
         noise_detector.join ( )
         self.noise = noise_detector.noise
@@ -231,10 +223,11 @@ def high_resolution_pipeline ( beam,
                                pixel_size,
                                scanning_wavelength,
                                tuna_can,
-                               bad_neighbours_threshold = 7, 
                                channel_subset = [ ],
-                               channel_threshold = 1, 
                                continuum_to_FSR_ratio = 0.125,
+                               dont_fit = False,
+                               unwrapped_only = False,
+                               verify_center = None,
                                noise_mask_radius = 1 ):
 
     log = logging.getLogger ( __name__ )
@@ -262,11 +255,13 @@ def high_resolution_pipeline ( beam,
                                                  pixel_size,
                                                  scanning_wavelength,
                                                  tuna_can,
-                                                 bad_neighbours_threshold, 
                                                  channel_subset,
-                                                 channel_threshold, 
                                                  continuum_to_FSR_ratio,
-                                                 noise_mask_radius )
+                                                 dont_fit,
+                                                 noise_mask_radius,
+                                                 unwrapped_only,
+                                                 verify_center )
+
     high_resolution_pipeline.start ( )
     high_resolution_pipeline.join ( )
 

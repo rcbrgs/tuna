@@ -1,28 +1,9 @@
 import logging
-from math import floor
+import math
 import numpy
 import threading
 import time
 import tuna
-
-def average_of_lowest_channels ( array = numpy.ndarray, number_of_channels = 3 ):
-    """
-    Returns the average of the three lowest channels of the input profile.
-    """
-    auxiliary = numpy.copy ( array )
-    minimum_sum = 0
-    number_of_channels = min ( [ number_of_channels, array.shape [ 0 ] ] )
-
-    for element in range ( number_of_channels ):
-        minimum_index = numpy.argmin ( auxiliary )
-        minimum_sum += array[minimum_index]
-        next_auxiliary = [ ]
-        for element in range ( auxiliary.shape[0] ):
-            if element != minimum_index:
-                next_auxiliary.append ( auxiliary[element] )
-        auxiliary = numpy.array ( next_auxiliary )
-
-    return minimum_sum / number_of_channels
 
 class continuum_detector ( threading.Thread ):
     def __init__ ( self, can, continuum_to_FSR_ratio = 0.25 ):
@@ -77,7 +58,7 @@ def median_of_lowest_channels ( continuum_to_FSR_ratio = 0.25,
     if ( channels % 2 == 0 ):
         return ( lowest [ int ( channels / 2 ) ] + lowest [ int ( channels / 2 ) - 1 ] ) / 2
     else:
-        return lowest [ floor ( channels / 2 ) ]
+        return lowest [ math.floor ( channels / 2 ) ]
 
 def suppress_channel ( replacement,
                        array = numpy.ndarray,

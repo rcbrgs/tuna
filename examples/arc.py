@@ -4,9 +4,7 @@ import tuna
 
 can = tuna.io.read ( file_name = '/home/nix/sync/tuna/sample_data/G092.AD3_second_ring_ROI.fits' )
 high_res = tuna.tools.phase_map.high_resolution ( beam = 450,
-                                                  bad_neighbours_threshold = 7,
                                                   calibration_wavelength = 6598.950,
-                                                  channel_threshold = 1, 
                                                   finesse = 15,
                                                   focal_length = 0.1,
                                                   free_spectral_range = 8.36522123894,

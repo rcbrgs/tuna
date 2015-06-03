@@ -20,11 +20,14 @@ high_res = tuna.tools.phase_map.high_resolution_pipeline ( beam = 450,
                                                            interference_order = 791,
                                                            interference_reference_wavelength = 6562.7797852,
                                                            pixel_size = 9,
-                                                           channel_threshold = 1, 
-                                                           bad_neighbours_threshold = 7, 
-                                                           noise_mask_radius = 10,
                                                            scanning_wavelength = 6616.89,
-                                                           tuna_can = can )
+                                                           tuna_can = can,
+                                                           channel_subset = [ ],
+                                                           continuum_to_FSR_ratio = 0.125,
+                                                           noise_mask_radius = 1,
+                                                           dont_fit = False,
+                                                           unwrapped_only = False,
+                                                           verify_center = None )
 
 tuna.write ( file_name   = file_name_prefix + '_00_original.fits',
              array       = can.array,

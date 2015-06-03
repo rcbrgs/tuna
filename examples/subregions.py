@@ -44,9 +44,7 @@ high_res = tuna.tools.phase_map.high_resolution ( beam = 450,
                                                   interference_order = 798,
                                                   interference_reference_wavelength = 6562.7797852,
                                                   tuna_can = center_ROI_file,
-                                                  bad_neighbours_threshold = 7, 
-                                                  channel_threshold = 1, 
-                                                  noise_mask_radius = 7,
+                                                  noise_mask_radius = 1,
                                                   scanning_wavelength = 6616.895 )
 
 high_res.start ( )
@@ -88,9 +86,7 @@ high_res = tuna.tools.phase_map.high_resolution ( beam = 450,
                                                   interference_order = 798,
                                                   interference_reference_wavelength = 6562.7797852,
                                                   tuna_can = offcenter_file,
-                                                  bad_neighbours_threshold = 7, 
-                                                  channel_threshold = 1, 
-                                                  noise_mask_radius = 7,
+                                                  noise_mask_radius = 1,
                                                   scanning_wavelength = 6616.895 )
 high_res.start ( )
 high_res.join ( )
@@ -131,9 +127,7 @@ high_res = tuna.tools.phase_map.high_resolution ( beam = 450,
                                                   interference_order = 798,
                                                   interference_reference_wavelength = 6562.7797852,
                                                   tuna_can = rings_file,
-                                                  bad_neighbours_threshold = 7, 
-                                                  channel_threshold = 1, 
-                                                  noise_mask_radius = 7,
+                                                  noise_mask_radius = 1,
                                                   scanning_wavelength = 6616.895 )
 high_res.start ( )
 high_res.join ( )
