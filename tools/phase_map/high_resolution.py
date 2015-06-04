@@ -1,3 +1,4 @@
+import cProfile
 import logging
 import math
 import numpy
@@ -94,6 +95,7 @@ class high_resolution ( threading.Thread ):
 
         barycenter_detector = tuna.tools.phase_map.barycenter_detector ( self.discontinuum )
         barycenter_detector.join ( )
+
         self.wrapped_phase_map = barycenter_detector.result
 
         noise_detector = tuna.tools.phase_map.noise_detector ( self.tuna_can,

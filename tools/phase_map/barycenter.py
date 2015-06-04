@@ -1,25 +1,10 @@
+from astropy.modeling import models, fitting
 import logging
-from math import floor
 import numpy
 import threading
 import time
 import tuna
-
-class spectrum_cube ( object ):
-    """
-    Helper class to the barycenter class; contains metadata about the profile.
-    """
-    def __init__ ( self ):
-        super ( spectrum_cube, self ).__init__ ( )
-        
-        self.dep_index = 0
-        self.row_index = 1
-        self.col_index = 2
-        self.max_dep = 0
-        self.max_row = 0
-        self.max_col = 0
-        self.channel_range = 0
-        self.channel_range_center = 0
+import warnings
 
 class barycenter_detector ( threading.Thread ):
     """
@@ -35,19 +20,73 @@ class barycenter_detector ( threading.Thread ):
         self.__number_of_spectral_regions_array = None
         self.__photon_counts_array = None
         self.__number_spectral_peaks_array = None
-        self.cube = spectrum_cube ( )
-        self.profile = None
 
+        self.mask = numpy.mgrid [ 1 : self.__array.shape [ 0 ] + 1 ]
+        
+        self.barycenter = None
         self.result = None
         self.start ( )
 
     def run ( self ):
         start = time.time ( )
         
-        result = self.create_barycenter_using_peak ( )
+        #result = self.create_barycenter_using_peak ( )
+        result = self.create_barycenter ( )
         self.result = tuna.io.can ( array = result )
+        self.barycenter = self.result
 
         self.log.info ( "Create_barycenter_array() took %ds." % ( time.time ( ) - start ) )
+
+    def create_barycenter ( self ):
+        barycenter = numpy.zeros ( shape = ( self.__array.shape [ 1 ],
+                                             self.__array.shape [ 2 ] ) )
+        planes_indexes = numpy.mgrid [ 0 : self.__array.shape [ 0 ] ]      
+        # Supposing a single peak, a single Gaussian distribution should be ok.
+        gaussian = models.Gaussian1D ( amplitude = 1.0, mean = self.__array.shape [ 0 ] / 2, stddev = 1 )
+        fitter = fitting.LevMarLSQFitter ( )
+        for row in range (  self.__array.shape [ 1 ] ):
+            self.log.info ( "barycenter at row %d" % row )
+            for col in range ( self.__array.shape [ 2 ] ):
+                profile = self.__array [ :, row, col ]
+                self.log.debug ( "(%3d, %3d) prof = %s" % ( row, col, str ( profile ) ) )
+                # Single peak: centering the largest signal should center the profile.
+                profile_max = numpy.argmax ( profile )
+                roll = round ( self.__array.shape [ 0 ] / 2 ) - profile_max
+                self.log.debug ( "(%3d, %3d) roll = %d" % ( row, col, roll ) )
+                shifted_profile = numpy.roll ( profile, roll )
+                self.log.debug ( "(%3d, %3d) spro = %s" % ( row, col, str ( shifted_profile ) ) )
+                with warnings.catch_warnings ( ):
+                    warnings.simplefilter ( "ignore" )
+                    fit = fitter ( gaussian, planes_indexes, shifted_profile )
+                mean = abs ( fit.parameters [ 1 ] )
+                self.log.debug ( "(%3d, %3d) ampl = %f, mean = %f, stddev = %f." % ( row, col, fit.parameters [ 0 ], mean, fit.parameters [ 2 ] ) )
+                # From https://en.wikipedia.org/wiki/Gaussian_function:
+                FWHH = 2.35482 * fit.parameters [ 2 ]
+                self.log.debug ( "(%3d, %3d) fwhh = %f." % ( row, col, FWHH ) )
+                left_shoulder = round ( mean - FWHH / 2 )
+                right_shoulder = round ( mean + FWHH / 2 )
+                self.log.debug ( "(%3d, %3d) shou = [ %d : %d ]" % ( row, col, left_shoulder, right_shoulder ) )
+                peak = shifted_profile [ left_shoulder : right_shoulder ]
+                self.log.debug ( "(%3d, %3d) peak = %s" % ( row, col, str ( peak ) ) )
+                peak_center_of_mass = self.get_center_of_mass ( peak )
+                self.log.debug ( "(%3d, %3d) pcen = %f" % ( row, col, peak_center_of_mass ) )
+                rolled_center_of_mass = mean + peak_center_of_mass
+                self.log.debug ( "(%3d, %3d) rcent = %f" % ( row, col, rolled_center_of_mass ) )
+                center_of_mass = rolled_center_of_mass - roll
+                self.log.debug ( "(%3d, %3d) rcent = %f" % ( row, col, center_of_mass ) )
+                barycenter [ row ] [ col ] = center_of_mass
+                
+        #return self.create_barycenter_using_peak ( )
+        return barycenter
+
+    def get_center_of_mass ( self, peak ):
+        total_mass = numpy.sum ( peak )
+        if ( total_mass == 0 ):
+            return 0
+        #mask = numpy.mgrid [ 1 : peak.shape [ 0 ] + 1 ]
+        weighted_mass = self.mask [ : peak.shape [ 0 ] ] * peak
+        center_of_mass = numpy.sum ( weighted_mass ) / total_mass
+        return center_of_mass
     
     def create_barycenter_using_peak ( self ):
         """
@@ -70,10 +109,7 @@ class barycenter_detector ( threading.Thread ):
         if self.__array.ndim != 3:
             return
             
-        self.cube.max_dep = self.__array.shape[self.cube.dep_index]
-        self.cube.max_row = self.__array.shape[self.cube.row_index]
-        self.cube.max_col = self.__array.shape[self.cube.col_index]
-        barycenter_array = numpy.ndarray ( shape = ( self.cube.max_row, self.cube.max_col ) )
+        barycenter_array = numpy.ndarray ( shape = ( self.__array.shape [ 1 ], self.__array.shape [ 2 ] ) )
 
         # Linear algebra to produce the barycenter:
         # All calculations are made using arrays that are created with index 0 containing values in reference to the "leftmost" channel of the spectral range being considered.
@@ -86,17 +122,17 @@ class barycenter_detector ( threading.Thread ):
         
         self.log.info ( "Creating barycenter 0% done." )
         last_percentage_logged = 0
-        for row in range ( self.cube.max_row ):
-            percentage = 10 * int ( row / self.cube.max_row * 10 )
+        for row in range ( self.__array.shape [ 1 ] ):
+            percentage = 10 * int ( row / self.__array.shape [ 1 ] * 10 )
             if percentage > last_percentage_logged:
                 self.log.info ( "Creating barycenter %d%% done." % ( percentage ) )
                 last_percentage_logged = percentage
-            for col in range ( self.cube.max_col ):
+            for col in range ( self.__array.shape [ 2 ] ):
                 profile = self.__array[:,row,col]
                 shoulder = self.get_fwhh ( profile = profile )
 
-                shoulder_mask = numpy.zeros ( shape = ( self.cube.max_dep ) )
-                multipliers = numpy.zeros ( shape = ( self.cube.max_dep ) )
+                shoulder_mask = numpy.zeros ( shape = ( self.__array.shape [ 0 ] ) )
+                multipliers = numpy.zeros ( shape = ( self.__array.shape [ 0 ] ) )
                 cursor = shoulder['i_left_shoulder']
                 multiplier = 1
                 multipliers[cursor] = multiplier
@@ -123,8 +159,8 @@ class barycenter_detector ( threading.Thread ):
 
                 shifted_center_of_mass = shoulder['i_left_shoulder'] - 1 + center_of_mass
 
-                if shifted_center_of_mass != self.cube.max_dep:
-                    ordered_shifted_center_of_mass = shifted_center_of_mass % ( self.cube.max_dep )
+                if shifted_center_of_mass != self.__array.shape [ 0 ]:
+                    ordered_shifted_center_of_mass = shifted_center_of_mass % ( self.__array.shape [ 0 ] )
                 
                 barycenter_array[row][col] = ordered_shifted_center_of_mass
         self.log.info ( "Creating barycenter 100% done." )
@@ -203,7 +239,7 @@ class barycenter_detector ( threading.Thread ):
         Returns the next channel 'to the left' in the profile.
         """
         if channel == 0:
-            return self.cube.max_dep - 1
+            return self.__array.shape [ 0 ] - 1
         else:
             return channel - 1
 
@@ -211,7 +247,7 @@ class barycenter_detector ( threading.Thread ):
         """
         Returns the next channel 'to the right' in the profile.
         """
-        if ( channel == self.cube.max_dep - 1 ):
+        if ( channel == self.__array.shape [ 0 ] - 1 ):
             return 0
         else:
             return channel + 1
@@ -226,3 +262,4 @@ class barycenter_detector ( threading.Thread ):
         self.log.debug ( "i_left_shoulder = %d" % fwhh_dict['i_left_shoulder'] )
         self.log.debug ( "i_right_shoulder = %d" % fwhh_dict['i_right_shoulder'] )
         self.log.debug ( "il_shoulder_indices = %s" % str ( fwhh_dict['il_shoulder_indices'] ) )
+
