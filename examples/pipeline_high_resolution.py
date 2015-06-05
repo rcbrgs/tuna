@@ -6,6 +6,7 @@ import tuna
 tuna.log.set_path ( "pipeline_high_resolution.log" )
 
 file_name = "/home/nix/sync/tuna/sample_data/G094.AD3"
+#file_name = "/home/nix/sync/tuna/sample_data/small_region.fits"
 file_name_unpathed = file_name.split ( "/" ) [ -1 ]
 file_name_prefix = file_name_unpathed.split ( "." ) [ 0 ]
 
@@ -25,6 +26,7 @@ high_res = tuna.tools.phase_map.high_resolution_pipeline ( beam = 450,
                                                            channel_subset = [ ],
                                                            continuum_to_FSR_ratio = 0.125,
                                                            noise_mask_radius = 1,
+                                                           barycenter_fast = True,
                                                            dont_fit = False,
                                                            unwrapped_only = False,
                                                            verify_center = None )

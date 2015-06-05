@@ -1,5 +1,6 @@
 from astropy.modeling import models, fitting
 import logging
+import math
 import numpy
 import threading
 import time
@@ -10,12 +11,13 @@ class barycenter_detector ( threading.Thread ):
     """
     Class to generate and store barycenter maps from spectral cubes.
     """
-    def __init__ ( self, data ):
+    def __init__ ( self, data, fast = False ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
         super ( self.__class__, self ).__init__ ( )
 
         self.data = data
+        self.fast = fast
         self.__array = self.data.array
         self.__number_of_spectral_regions_array = None
         self.__photon_counts_array = None
@@ -29,13 +31,17 @@ class barycenter_detector ( threading.Thread ):
 
     def run ( self ):
         start = time.time ( )
-        
-        #result = self.create_barycenter_using_peak ( )
-        result = self.create_barycenter ( )
+
+        if self.fast:
+            result = self.create_barycenter_using_peak ( )
+        else:
+            result = self.create_barycenter ( )
+        self.log.debug ( "result.shape = %s" % str ( result.shape ) )
         self.result = tuna.io.can ( array = result )
+        self.log.debug ( "self.result.array.shape = %s" % str ( self.result.array.shape ) )
         self.barycenter = self.result
 
-        self.log.info ( "Create_barycenter_array() took %ds." % ( time.time ( ) - start ) )
+        self.log.info ( "Barycenter detection took %ds." % ( time.time ( ) - start ) )
 
     def create_barycenter ( self ):
         barycenter = numpy.zeros ( shape = ( self.__array.shape [ 1 ],
@@ -45,43 +51,50 @@ class barycenter_detector ( threading.Thread ):
         gaussian = models.Gaussian1D ( amplitude = 1.0, mean = self.__array.shape [ 0 ] / 2, stddev = 1 )
         fitter = fitting.LevMarLSQFitter ( )
         for row in range (  self.__array.shape [ 1 ] ):
-            self.log.info ( "barycenter at row %d" % row )
+            self.log.debug ( "barycenter at row %d" % row )
             for col in range ( self.__array.shape [ 2 ] ):
                 profile = self.__array [ :, row, col ]
-                self.log.debug ( "(%3d, %3d) prof = %s" % ( row, col, str ( profile ) ) )
                 # Single peak: centering the largest signal should center the profile.
                 profile_max = numpy.argmax ( profile )
                 roll = round ( self.__array.shape [ 0 ] / 2 ) - profile_max
-                self.log.debug ( "(%3d, %3d) roll = %d" % ( row, col, roll ) )
                 shifted_profile = numpy.roll ( profile, roll )
-                self.log.debug ( "(%3d, %3d) spro = %s" % ( row, col, str ( shifted_profile ) ) )
                 with warnings.catch_warnings ( ):
                     warnings.simplefilter ( "ignore" )
                     fit = fitter ( gaussian, planes_indexes, shifted_profile )
-                mean = abs ( fit.parameters [ 1 ] )
-                self.log.debug ( "(%3d, %3d) ampl = %f, mean = %f, stddev = %f." % ( row, col, fit.parameters [ 0 ], mean, fit.parameters [ 2 ] ) )
+                mean = fit.parameters [ 1 ]
                 # From https://en.wikipedia.org/wiki/Gaussian_function:
-                FWHH = 2.35482 * fit.parameters [ 2 ]
-                self.log.debug ( "(%3d, %3d) fwhh = %f." % ( row, col, FWHH ) )
-                left_shoulder = round ( mean - FWHH / 2 )
-                right_shoulder = round ( mean + FWHH / 2 )
-                self.log.debug ( "(%3d, %3d) shou = [ %d : %d ]" % ( row, col, left_shoulder, right_shoulder ) )
+                FWHH = 2.35482 * abs ( fit.parameters [ 2 ] )
+                left_shoulder = max ( 0, math.floor ( mean - FWHH * 4 ) )
+                right_shoulder = min ( self.__array.shape [ 0 ], math.ceil ( mean + FWHH * 4 ) )
                 peak = shifted_profile [ left_shoulder : right_shoulder ]
-                self.log.debug ( "(%3d, %3d) peak = %s" % ( row, col, str ( peak ) ) )
                 peak_center_of_mass = self.get_center_of_mass ( peak )
-                self.log.debug ( "(%3d, %3d) pcen = %f" % ( row, col, peak_center_of_mass ) )
-                rolled_center_of_mass = mean + peak_center_of_mass
-                self.log.debug ( "(%3d, %3d) rcent = %f" % ( row, col, rolled_center_of_mass ) )
-                center_of_mass = rolled_center_of_mass - roll
-                self.log.debug ( "(%3d, %3d) rcent = %f" % ( row, col, center_of_mass ) )
-                barycenter [ row ] [ col ] = center_of_mass
-                
-        #return self.create_barycenter_using_peak ( )
+                rolled_center_of_mass = left_shoulder + peak_center_of_mass
+                unrolled_center_of_mass = rolled_center_of_mass - roll
+                moduled_center_of_mass = unrolled_center_of_mass % self.__array.shape [ 0 ]
+                barycenter [ row ] [ col ] = moduled_center_of_mass
+                if col == 0:
+                    self.log.debug ( "(%d, %3d) prof = %s" % ( row, col, str ( profile ) ) )
+                    self.log.debug ( "(%d, %3d) roll = %d" % ( row, col, roll ) )
+                    self.log.debug ( "(%d, %3d) spro = %s" % ( row, col, str ( shifted_profile ) ) )
+                    self.log.debug ( "(%d, %3d) ampl = %f, mean = %f, stddev = %f." % ( row, col, fit.parameters [ 0 ], mean, fit.parameters [ 2 ] ) )
+                    self.log.debug ( "(%d, %3d) fwhh = %f." % ( row, col, FWHH ) )
+                    self.log.debug ( "(%d, %3d) shou = [ %d : %d ]" % ( row, col, left_shoulder, right_shoulder ) )
+                    self.log.debug ( "(%d, %3d) peak = %s" % ( row, col, str ( peak ) ) )
+                    self.log.debug ( "(%d, %3d) pcen = %f" % ( row, col, peak_center_of_mass ) )
+                    self.log.debug ( "(%d, %3d) rcen = %f" % ( row, col, rolled_center_of_mass ) )
+                    self.log.debug ( "(%d, %3d) ucen = %f" % ( row, col, unrolled_center_of_mass ) )
+                    self.log.debug ( "(%d, %3d) mcen = %f" % ( row, col, moduled_center_of_mass ) )
+                    self.log.info ( "(%d, %d) barycenter detected at %.3f using %.1f%% of the spectrum." %
+                                    ( row, col, moduled_center_of_mass,
+                                      peak.shape [ 0 ] / self.__array.shape [ 0 ] * 100 ) )
+
+            self.log.debug ( "barycenter.shape = %s" % str ( barycenter.shape ) )
         return barycenter
 
     def get_center_of_mass ( self, peak ):
         total_mass = numpy.sum ( peak )
-        if ( total_mass == 0 ):
+        if ( total_mass == 0 or
+             peak == [ ] ):
             return 0
         #mask = numpy.mgrid [ 1 : peak.shape [ 0 ] + 1 ]
         weighted_mass = self.mask [ : peak.shape [ 0 ] ] * peak

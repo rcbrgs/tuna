@@ -11,7 +11,7 @@ class high_resolution ( threading.Thread ):
     Creates and stores an unwrapped phase map, taking as input a raw data cube.
     Intermediary products are the binary noise, the ring borders, the regions and orders maps.
     """
-    def __init__ ( self, 
+    def __init__ ( self,
                    beam,
                    calibration_wavelength,
                    finesse,
@@ -26,6 +26,7 @@ class high_resolution ( threading.Thread ):
                    tuna_can,
                    channel_subset = [ ],
                    continuum_to_FSR_ratio = 0.125,
+                   barycenter_fast = False,
                    dont_fit = False,
                    noise_mask_radius = 1,
                    unwrapped_only = False,
@@ -47,6 +48,7 @@ class high_resolution ( threading.Thread ):
         self.log.info ( "Starting high_resolution pipeline." )
 
         """inputs:"""
+        self.barycenter_fast = barycenter_fast
         self.beam = beam
         self.calibration_wavelength = calibration_wavelength
         self.channel_subset = channel_subset
@@ -93,10 +95,11 @@ class high_resolution ( threading.Thread ):
         for plane in range ( self.tuna_can.planes ):
             self.discontinuum.array [ plane, : , : ] = numpy.abs ( self.tuna_can.array [ plane, : , : ] - self.continuum.array )
 
-        barycenter_detector = tuna.tools.phase_map.barycenter_detector ( self.discontinuum )
+        barycenter_detector = tuna.tools.phase_map.barycenter_detector ( self.discontinuum, self.barycenter_fast )
         barycenter_detector.join ( )
 
         self.wrapped_phase_map = barycenter_detector.result
+        self.log.info ( "self.wrapped_phase_map.array.shape = %s" % str ( self.wrapped_phase_map.array.shape ) )
 
         noise_detector = tuna.tools.phase_map.noise_detector ( self.tuna_can,
                                                                self.wrapped_phase_map, 
@@ -228,6 +231,7 @@ def high_resolution_pipeline ( beam,
                                tuna_can,
                                channel_subset = [ ],
                                continuum_to_FSR_ratio = 0.125,
+                               barycenter_fast = False,
                                dont_fit = False,
                                unwrapped_only = False,
                                verify_center = None,
@@ -260,6 +264,7 @@ def high_resolution_pipeline ( beam,
                                                  tuna_can,
                                                  channel_subset,
                                                  continuum_to_FSR_ratio,
+                                                 barycenter_fast,
                                                  dont_fit,
                                                  noise_mask_radius,
                                                  unwrapped_only,
