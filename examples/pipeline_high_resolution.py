@@ -11,25 +11,28 @@ file_name_unpathed = file_name.split ( "/" ) [ -1 ]
 file_name_prefix = file_name_unpathed.split ( "." ) [ 0 ]
 
 can = tuna.io.read ( file_name )
-high_res = tuna.tools.phase_map.high_resolution_pipeline ( beam = 450,
-                                                           calibration_wavelength = 6598.953125,
-                                                           finesse = 15.,
-                                                           focal_length = 0.1,
-                                                           free_spectral_range = 8.36522123894,
-                                                           gap = 0.01,
-                                                           initial_gap = 1904.,
-                                                           interference_order = 798,
-                                                           interference_reference_wavelength = 6562.7797852,
-                                                           pixel_size = 9,
-                                                           scanning_wavelength = 6616.89,
-                                                           tuna_can = can,
-                                                           channel_subset = [ ],
-                                                           continuum_to_FSR_ratio = 0.125,
-                                                           noise_mask_radius = 1,
-                                                           barycenter_fast = True,
-                                                           dont_fit = False,
-                                                           unwrapped_only = False,
-                                                           verify_center = None )
+
+from tuna.tools.phase_map import barycenter_fast
+high_res = tuna.tools.phase_map.high_resolution ( beam = 450,
+                                                  calibration_wavelength = 6598.953125,
+                                                  finesse = 15.,
+                                                  focal_length = 0.1,
+                                                  free_spectral_range = 8.36522123894,
+                                                  gap = 0.01,
+                                                  initial_gap = 1904.,
+                                                  interference_order = 798,
+                                                  interference_reference_wavelength = 6562.7797852,
+                                                  pixel_size = 9,
+                                                  scanning_wavelength = 6616.89,
+                                                  tuna_can = can,
+                                                  wrapped_algorithm = barycenter_fast,
+                                                  channel_subset = [ ],
+                                                  continuum_to_FSR_ratio = 0.125,
+                                                  noise_mask_radius = 1,
+                                                  dont_fit = False,
+                                                  unwrapped_only = False,
+                                                  verify_center = None )
+high_res.join ( )
 
 tuna.write ( file_name   = file_name_prefix + '_00_original.fits',
              array       = can.array,

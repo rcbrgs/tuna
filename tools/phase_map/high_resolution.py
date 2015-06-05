@@ -24,9 +24,9 @@ class high_resolution ( threading.Thread ):
                    pixel_size,
                    scanning_wavelength,
                    tuna_can,
+                   wrapped_algorithm,
                    channel_subset = [ ],
                    continuum_to_FSR_ratio = 0.125,
-                   barycenter_fast = False,
                    dont_fit = False,
                    noise_mask_radius = 1,
                    unwrapped_only = False,
@@ -45,10 +45,20 @@ class high_resolution ( threading.Thread ):
 
         super ( high_resolution, self ).__init__ ( )
 
+        if not isinstance ( tuna_can, tuna.io.can ):
+            log.info ( "array must be a numpy.ndarray or derivative object." )
+            return
+        try:
+            if tuna_can.ndim != 3:
+                log.warning ( "Image does not have 3 dimensions, aborting." )
+                return
+        except AttributeError as e:
+            log.warning ( "%s, aborting." % str ( e ) )
+            return
+        
         self.log.info ( "Starting high_resolution pipeline." )
 
         """inputs:"""
-        self.barycenter_fast = barycenter_fast
         self.beam = beam
         self.calibration_wavelength = calibration_wavelength
         self.channel_subset = channel_subset
@@ -67,6 +77,7 @@ class high_resolution ( threading.Thread ):
         self.tuna_can = tuna_can
         self.unwrapped_only = unwrapped_only
         self.verify_center = verify_center
+        self.wrapped_algorithm = wrapped_algorithm
 
         """outputs:"""
         self.airy_fit = None
@@ -84,7 +95,9 @@ class high_resolution ( threading.Thread ):
         self.unwrapped_phase_map = None
         self.wavelength_calibrated = None
         self.wrapped_phase_map = None
-
+        
+        self.start ( )
+        
     def run ( self ):
         continuum_detector = tuna.tools.phase_map.continuum_detector ( self.tuna_can,
                                                                        self.continuum_to_FSR_ratio )
@@ -95,10 +108,12 @@ class high_resolution ( threading.Thread ):
         for plane in range ( self.tuna_can.planes ):
             self.discontinuum.array [ plane, : , : ] = numpy.abs ( self.tuna_can.array [ plane, : , : ] - self.continuum.array )
 
-        barycenter_detector = tuna.tools.phase_map.barycenter_detector ( self.discontinuum, self.barycenter_fast )
-        barycenter_detector.join ( )
+        #barycenter_detector = tuna.tools.phase_map.barycenter_detector ( self.discontinuum, self.barycenter_fast )
+        #barycenter_detector.join ( )
+        wrapped_producer = self.wrapped_algorithm ( self.discontinuum )
+        wrapped_producer.join ( )
 
-        self.wrapped_phase_map = barycenter_detector.result
+        self.wrapped_phase_map = wrapped_producer.result
         self.log.info ( "self.wrapped_phase_map.array.shape = %s" % str ( self.wrapped_phase_map.array.shape ) )
 
         noise_detector = tuna.tools.phase_map.noise_detector ( self.tuna_can,
@@ -216,64 +231,6 @@ class high_resolution ( threading.Thread ):
     def verify_parabolic_model ( self ):
         self.log.info ( "Ratio between 2nd degree coefficients is: %f" % ( self.parabolic_model [ 'x2y0' ] / 
                                                                            self.parabolic_model [ 'x0y2' ] ) )
-
-def high_resolution_pipeline ( beam,
-                               calibration_wavelength,
-                               finesse,
-                               focal_length,
-                               free_spectral_range,
-                               gap,
-                               initial_gap,
-                               interference_order,
-                               interference_reference_wavelength,
-                               pixel_size,
-                               scanning_wavelength,
-                               tuna_can,
-                               channel_subset = [ ],
-                               continuum_to_FSR_ratio = 0.125,
-                               barycenter_fast = False,
-                               dont_fit = False,
-                               unwrapped_only = False,
-                               verify_center = None,
-                               noise_mask_radius = 1 ):
-
-    log = logging.getLogger ( __name__ )
-
-    if not isinstance ( tuna_can, tuna.io.can ):
-        log.info ( "array must be a numpy.ndarray or derivative object." )
-        return
-    try:
-        if tuna_can.ndim != 3:
-            log.warning ( "Image does not have 3 dimensions, aborting." )
-            return
-    except AttributeError as e:
-        log.warning ( "%s, aborting." % str ( e ) )
-        return
-
-    high_resolution_pipeline = high_resolution ( beam,
-                                                 calibration_wavelength,
-                                                 finesse,
-                                                 focal_length,
-                                                 free_spectral_range,
-                                                 gap,
-                                                 initial_gap,
-                                                 interference_order,
-                                                 interference_reference_wavelength,
-                                                 pixel_size,
-                                                 scanning_wavelength,
-                                                 tuna_can,
-                                                 channel_subset,
-                                                 continuum_to_FSR_ratio,
-                                                 barycenter_fast,
-                                                 dont_fit,
-                                                 noise_mask_radius,
-                                                 unwrapped_only,
-                                                 verify_center )
-
-    high_resolution_pipeline.start ( )
-    high_resolution_pipeline.join ( )
-
-    return high_resolution_pipeline
 
 def profile_processing_history ( high_resolution, pixel ):
     profile = { }

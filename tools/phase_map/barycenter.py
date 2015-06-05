@@ -11,13 +11,12 @@ class barycenter_detector ( threading.Thread ):
     """
     Class to generate and store barycenter maps from spectral cubes.
     """
-    def __init__ ( self, data, fast = False ):
+    def __init__ ( self, data ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
         super ( self.__class__, self ).__init__ ( )
 
         self.data = data
-        self.fast = fast
         self.__array = self.data.array
         self.__number_of_spectral_regions_array = None
         self.__photon_counts_array = None
@@ -32,14 +31,10 @@ class barycenter_detector ( threading.Thread ):
     def run ( self ):
         start = time.time ( )
 
-        if self.fast:
-            result = self.create_barycenter_using_peak ( )
-        else:
-            result = self.create_barycenter ( )
+        result = self.create_barycenter ( )
         self.log.debug ( "result.shape = %s" % str ( result.shape ) )
         self.result = tuna.io.can ( array = result )
         self.log.debug ( "self.result.array.shape = %s" % str ( self.result.array.shape ) )
-        self.barycenter = self.result
 
         self.log.info ( "Barycenter detection took %ds." % ( time.time ( ) - start ) )
 
@@ -101,6 +96,34 @@ class barycenter_detector ( threading.Thread ):
         center_of_mass = numpy.sum ( weighted_mass ) / total_mass
         return center_of_mass
     
+class barycenter_fast ( threading.Thread ):
+    """
+    Class to generate and store barycenter maps from spectral cubes.
+    """
+    def __init__ ( self, data ):
+        self.log = logging.getLogger ( __name__ )
+        self.log.setLevel ( logging.INFO )
+        super ( self.__class__, self ).__init__ ( )
+
+        self.data = data
+        self.__array = self.data.array
+        self.__number_of_spectral_regions_array = None
+        self.__photon_counts_array = None
+        self.__number_spectral_peaks_array = None
+
+        self.result = None
+        self.start ( )
+
+    def run ( self ):
+        start = time.time ( )
+
+        result = self.create_barycenter_using_peak ( )
+        self.log.debug ( "result.shape = %s" % str ( result.shape ) )
+        self.result = tuna.io.can ( array = result )
+        self.log.debug ( "self.result.array.shape = %s" % str ( self.result.array.shape ) )
+
+        self.log.info ( "Barycenter detection took %ds." % ( time.time ( ) - start ) )
+
     def create_barycenter_using_peak ( self ):
         """
         Returns a barycenter array from the input array, using the shoulder-to-shoulder peak channels as the relevant signals.
