@@ -12,7 +12,9 @@ from tuna.zeromq.zmq_proxy import zmq_proxy
 
 class zmq_daemon ( threading.Thread ):
     def __init__ ( self ):
-        super ( zmq_daemon, self ).__init__ ( daemon = True )
+        super ( zmq_daemon, self ).__init__ ( )
+        self.daemon = True
+        self.log = logging.getLogger ( __name__ )
         self.zmq_proxy_instance = zmq_proxy ( )
 
     def run ( self ):

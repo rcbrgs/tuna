@@ -2,7 +2,7 @@ import logging
 import re
 
 class metadata_parser ( object ):
-    def __init__ ( self, file_name = None, log = print ):
+    def __init__ ( self, file_name = None ):
         super ( metadata_parser, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
 

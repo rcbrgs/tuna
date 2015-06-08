@@ -9,12 +9,11 @@ import numpy
 import time
 
 class image_center_by_symmetry ( object ):
-    def __init__ ( self, 
-                   array = numpy.ndarray,
-                   log = print ):
+    def __init__ ( self, array = numpy.ndarray ):
         super ( image_center_by_symmetry, self ).__init__ ( )
+        self.log = logging.getLogger ( __name__ )
+
         self.__input_array = None
-        self.log = log
         if array.ndim == 2:
             self.__input_array = array
         elif array.ndim == 3:
