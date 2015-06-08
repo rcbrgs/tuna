@@ -2,11 +2,12 @@ language: python
 cache:
   pip
 python:
+  - "2.7"
   - "3.3"
 
 install:
   - "sudo apt-get install -y libopenblas-dev* liblapack-dev* gfortran"
-  - "sudo apt-get install -y python-scipy"
+  - "sudo apt-get install -y python-scipy python3-scipy"
   - "pip install --upgrade pip"
   - "pip install coveralls"
   - "pip install -r pip_packages.txt"
