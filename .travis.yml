@@ -13,7 +13,11 @@ install:
   - "travis_wait pip install scipy"
 
 script:
-  nosetests --with-coverage --cover-package=tuna
+  nosetests --with-coverage --cover-package=tuna test/unit/unit_console/unit_test_console.py
+  nosetests --with-coverage --cover-package=tuna test/unit/unit_io/unit_test_io_adhoc.py test/unit/unit_io/unit_test_io_adhoc_ada.py test/unit/unit_io/unit_test_io_can.py
+  nosetests --with-coverage --cover-package=tuna test/unit/unit_log/unit_test_client.py test/unit/unit_log/unit_test_server.py
+  nosetests --with-coverage --cover-package=tuna test/unit/unit_repo/unit_test_client.py test/unit/unit_repo/unit_test_local_disk.py
+  nosetests --with-coverage --cover-package=tuna test/unit/unit_tools/unit_test_client.py test/unit/unit_tools/unit_test_get_pixel_neighbours.py
 
 after_success:
   coveralls
