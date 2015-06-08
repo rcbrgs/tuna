@@ -2,14 +2,12 @@ language: python
 cache:
   pip
 python:
-#  - "2.7"
-  - "3.3"
+  - "2.7"
+#  - "3.3"
 
 install:
   - "sudo apt-get install -y libopenblas-dev* liblapack-dev* gfortran"
-#  - "sudo apt-get install -y python-scipy python3-scipy"
-#  - "sudo apt-get install -y python3-numpy python3-scipy python3-matplotlib ipython3 ipython3-notebook python3-pandas python3-sympy python3-nose"
-  - "sudo apt-get install -y python3-numpy python3-scipy ipython3 ipython3-notebook python3-nose"
+  - "sudo apt-get install -y python-numpy python-scipy python-matplotlib python-sympy"
   - "pip install --upgrade pip"
   - "pip install coveralls"
   - "pip install -r pip_packages.txt"
