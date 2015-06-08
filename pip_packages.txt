@@ -1,6 +1,5 @@
 astropy
 matplotlib
-numpy
 psutil
 pyfits
 sympy
