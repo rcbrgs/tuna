@@ -2,16 +2,16 @@ language: python
 cache:
   pip
 python:
-  - "2.7"
-#  - "3.3"
+#  - "2.7"
+  - "3.3"
 
 install:
   - "sudo apt-get install -y libopenblas-dev* liblapack-dev* gfortran"
-  - "sudo apt-get install -y python-numpy python-scipy python-matplotlib python-sympy"
+  - "sudo apt-get install -y python3-numpy python3-scipy* python3-matplotlib python3-sympy"
   - "pip install --upgrade pip"
   - "pip install coveralls"
   - "pip install -r pip_packages.txt"
-#  - "travis_wait pip install scipy"
+  - "travis_wait pip install scipy"
 
 script:
   nosetests --with-coverage --cover-package=tuna
