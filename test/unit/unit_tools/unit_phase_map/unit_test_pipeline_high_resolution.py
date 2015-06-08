@@ -14,20 +14,22 @@ class unit_test_pipeline_high_resolution ( unittest.TestCase ):
         file_name_prefix = file_name_unpathed.split ( "." ) [ 0 ]
 
         can = tuna.io.read ( file_name )
-        high_res = tuna.tools.phase_map.high_resolution_pipeline ( beam = 450,
-                                                                   calibration_wavelength = 6598.953125,
-                                                                   finesse = 15.,
-                                                                   focal_length = 0.1,
-                                                                   free_spectral_range = 8.36522123894,
-                                                                   gap = 0.01,
-                                                                   initial_gap = 1904.,
-                                                                   interference_order = 791,
-                                                                   interference_reference_wavelength = 6562.7797852,
-                                                                   pixel_size = 9,
-                                                                   noise_mask_radius = 1,
-                                                                   scanning_wavelength = 6616.89,
-                                                                   tuna_can = can )
-
+        from tuna.tools.phase_map import barycenter_fast as fast
+        high_res = tuna.tools.phase_map.high_resolution ( beam = 450,
+                                                          calibration_wavelength = 6598.953125,
+                                                          finesse = 15.,
+                                                          focal_length = 0.1,
+                                                          free_spectral_range = 8.36522123894,
+                                                          gap = 0.01,
+                                                          initial_gap = 1904.,
+                                                          interference_order = 791,
+                                                          interference_reference_wavelength = 6562.7797852,
+                                                          pixel_size = 9,
+                                                          noise_mask_radius = 1,
+                                                          scanning_wavelength = 6616.89,
+                                                          tuna_can = can,
+                                                          wrapped_algorithm = fast )
+        high_res.join ( )
         log = logging.getLogger ( __name__ )
         log.info ( "high_res.wavelength_calibrated.array [ 0 ] [ 0 ] == %f" % high_res.wavelength_calibrated.array [ 0 ] [ 0 ] )
         self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] > 100 )

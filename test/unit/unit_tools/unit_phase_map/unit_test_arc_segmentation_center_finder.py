@@ -10,7 +10,7 @@ class unit_test_arc_segmentation_center_finder ( unittest.TestCase ):
 
     def test_center_finder ( self ):
         raw = tuna.io.read ( "test/unit/unit_io/adhoc.ad3" )
-        barycenter_detector = tuna.tools.phase_map.barycenter_detector ( raw )
+        barycenter_detector = tuna.tools.phase_map.barycenter_fast ( raw )
         barycenter_detector.join ( )
         wrapped = barycenter_detector.result
         noise_detector = tuna.tools.phase_map.noise_detector ( raw,
