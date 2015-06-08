@@ -1,6 +1,4 @@
 astropy
-matplotlib
 psutil
 pyfits
-sympy
 pyzmq
