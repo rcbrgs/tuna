@@ -77,8 +77,7 @@ def find_image_center_by_symmetry ( data = numpy.ndarray ):
 
     log = logging.getLogger ( __name__ )
 
-    o_finder = image_center_by_symmetry ( array = data,
-                                          log = log )
+    o_finder = image_center_by_symmetry ( array = data )
     iit_center = o_finder.get_center ( )
     log.info ( "iit_center = %s" % str ( iit_center ) )
 

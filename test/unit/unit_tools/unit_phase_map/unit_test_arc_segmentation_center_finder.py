@@ -25,7 +25,7 @@ class unit_test_arc_segmentation_center_finder ( unittest.TestCase ):
         self.assertTrue ( center_finder.center [ 0 ] > 110 )
         self.assertTrue ( center_finder.center [ 0 ] < 130 )
         self.assertTrue ( center_finder.center [ 1 ] > 450 )
-        self.assertTrue ( center_finder.center [ 1 ] < 470 )
+        self.assertTrue ( center_finder.center [ 1 ] < 480 )
 
     def tearDown ( self ):
         pass
