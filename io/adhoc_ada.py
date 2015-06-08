@@ -1,3 +1,4 @@
+# coding: latin-1
 from .file_reader import file_reader
 
 import logging
