@@ -45,7 +45,7 @@ def median_of_lowest_channels ( continuum_to_FSR_ratio = 0.25,
     """
     Returns the median of the three lowest channels of the input profile.
     """
-    channels = int ( continuum_to_FSR_ratio * spectrum.shape [ 0 ] )
+    channels = max ( 1, int ( continuum_to_FSR_ratio * spectrum.shape [ 0 ] ) )
 
     lowest = [ ]
     auxiliary = spectrum
@@ -56,7 +56,7 @@ def median_of_lowest_channels ( continuum_to_FSR_ratio = 0.25,
     lowest.sort ( )
 
     if ( channels % 2 == 0 ):
-        return ( lowest [ int ( channels / 2 ) ] + lowest [ int ( channels / 2 ) - 1 ] ) / 2
+        return ( lowest [ math.floor ( channels / 2 ) ] + lowest [ math.ceil ( channels / 2 ) ] ) / 2
     else:
         return lowest [ math.floor ( channels / 2 ) ]
 

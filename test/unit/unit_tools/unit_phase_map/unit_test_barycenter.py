@@ -9,10 +9,10 @@ class unit_test_barycenter_detector ( unittest.TestCase ):
         tuna.log.set_path ( "../nose.log" )
 
     def test_barycenter_creation ( self ):
-        raw = tuna.io.read ( "test/unit/unit_io/adhoc.ad3" )
+        raw = tuna.io.read ( "test/unit/unit_io/partial_4_planes.fits" )
         barycenter_detector = tuna.tools.phase_map.barycenter_detector ( raw )
         barycenter_detector.join ( )
-        self.assertEqual ( int ( barycenter_detector.result.array [ 0 ] [ 0 ] ), 27 )
+        self.assertEqual ( int ( barycenter_detector.result.array [ 0 ] [ 0 ] ), 3 )
 
     def tearDown ( self ):
         pass

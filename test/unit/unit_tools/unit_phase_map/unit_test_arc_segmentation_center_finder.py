@@ -9,23 +9,16 @@ class unit_test_arc_segmentation_center_finder ( unittest.TestCase ):
         tuna.log.set_path ( "../nose.log" )
 
     def test_center_finder ( self ):
-        raw = tuna.io.read ( "test/unit/unit_io/adhoc.ad3" )
-        barycenter_detector = tuna.tools.phase_map.barycenter_fast ( raw )
-        barycenter_detector.join ( )
-        wrapped = barycenter_detector.result
-        noise_detector = tuna.tools.phase_map.noise_detector ( raw,
-                                                               wrapped,
-                                                               1 )
-        noise_detector.join ( )
-        noise = noise_detector.noise
+        wrapped = tuna.io.read ( "test/unit/unit_io/G094_03_wrapped_phase_map.fits" )
+        noise = tuna.io.read ( "test/unit/unit_io/G094_04_noise.fits" )
         center_finder = tuna.tools.phase_map.arc_segmentation_center_finder ( wrapped,
                                                                               noise )
         center_finder.join ( )
         
-        self.assertTrue ( center_finder.center [ 0 ] > 110 )
-        self.assertTrue ( center_finder.center [ 0 ] < 130 )
-        self.assertTrue ( center_finder.center [ 1 ] > 450 )
-        self.assertTrue ( center_finder.center [ 1 ] < 480 )
+        self.assertTrue ( center_finder.center [ 0 ] > 190 )
+        self.assertTrue ( center_finder.center [ 0 ] < 250 )
+        self.assertTrue ( center_finder.center [ 1 ] > 220 )
+        self.assertTrue ( center_finder.center [ 1 ] < 280 )
 
     def tearDown ( self ):
         pass

@@ -9,12 +9,12 @@ class unit_test_pipeline_high_resolution ( unittest.TestCase ):
         tuna.log.set_path ( "../nose.log" )
 
     def test_pipeline ( self ):
-        file_name = "test/unit/unit_io/adhoc.ad3"
+        file_name = "test/unit/unit_io/partial.fits"
         file_name_unpathed = file_name.split ( "/" ) [ -1 ]
         file_name_prefix = file_name_unpathed.split ( "." ) [ 0 ]
 
         can = tuna.io.read ( file_name )
-        from tuna.tools.phase_map import barycenter_fast as fast
+        from tuna.tools.phase_map import barycenter_fast
         high_res = tuna.tools.phase_map.high_resolution ( beam = 450,
                                                           calibration_wavelength = 6598.953125,
                                                           finesse = 15.,
@@ -28,17 +28,17 @@ class unit_test_pipeline_high_resolution ( unittest.TestCase ):
                                                           noise_mask_radius = 1,
                                                           scanning_wavelength = 6616.89,
                                                           tuna_can = can,
-                                                          wrapped_algorithm = fast )
+                                                          wrapped_algorithm = barycenter_fast )
         high_res.join ( )
         log = logging.getLogger ( __name__ )
         log.info ( "high_res.wavelength_calibrated.array [ 0 ] [ 0 ] == %f" % high_res.wavelength_calibrated.array [ 0 ] [ 0 ] )
-        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] > 100 )
-        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] < 120 )
+        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] > 0. )
+        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] < 2. )
         log.info ( "high_res.rings_center ==%s" % str ( high_res.rings_center ) )
-        self.assertTrue ( high_res.rings_center [ 0 ] > 250 )
-        self.assertTrue ( high_res.rings_center [ 0 ] < 270 )
-        self.assertTrue ( high_res.rings_center [ 1 ] > 210 )
-        self.assertTrue ( high_res.rings_center [ 1 ] < 230 )
+        self.assertTrue ( high_res.rings_center [ 0 ] > 0 )
+        self.assertTrue ( high_res.rings_center [ 0 ] < 50 )
+        self.assertTrue ( high_res.rings_center [ 1 ] > 0 )
+        self.assertTrue ( high_res.rings_center [ 1 ] < 50 )
 
     def tearDown ( self ):
         pass
