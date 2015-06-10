@@ -8,28 +8,26 @@ import threading
 import time
 import tuna
       
-@custom_model
-def airy ( cube,
-           beam = 1.0,
-           center_row = 0,
-           center_col = 0,
-           finesse = 1.,
-           focal_length = 1.,
-           gap = 1.,
-           initial_gap = 1.,
-           pixel_size = 9. ):
+def airy_function ( cube,
+                    beam = 1.0,
+                    center_row = 0,
+                    center_col = 0,
+                    finesse = 1.,
+                    focal_length = 1.,
+                    gap = 1.,
+                    initial_gap = 1.,
+                    pixel_size = 9. ):
     log = logging.getLogger ( __name__ )
-    log.info ( "beam = %f,"
-               " center_row = %d,"
-               " center_col = %d,"
-               " finesse = %f,"
-               " focal_length = %f,"
-               " gap = %f,"
-               " initial_gap = %f,"
-               " pixel_size = %f." % ( beam, center_row, center_col, finesse, 
-                                       focal_length, gap, initial_gap, pixel_size ) )
+    log.debug ( "beam = %f,"
+                " center_row = %d,"
+                " center_col = %d,"
+                " finesse = %f,"
+                " focal_length = %f,"
+                " gap = %f,"
+                " initial_gap = %f,"
+                " pixel_size = %f." % ( beam, center_row, center_col, finesse, 
+                                        focal_length, gap, initial_gap, pixel_size ) )
 
-    reflectivity = 0.99
     wavelength = 0.6563
 
     planes = cube.shape [ 0 ]
@@ -51,13 +49,33 @@ def airy ( cube,
     for current_plane in range ( planes ):
         current_gap = initial_gap + gap * current_plane
         # function of Airy I
-        airy_function = 4.0 * ( ( finesse ** 2 ) ) / ( numpy.pi ** 2 ) 
-        phase = 4.0 * numpy.pi * reflectivity * current_gap * numpy.cos ( theta ) / wavelength 
-        intensity = beam / ( 1. + airy_function * ( numpy.sin ( phase / 2.0 ) ) ** 2 )
+        airy_function_I = 4.0 * ( ( finesse ** 2 ) ) / ( numpy.pi ** 2 ) 
+        phase = 4.0 * numpy.pi * current_gap * numpy.cos ( theta ) / wavelength 
+        intensity = beam / ( 1. + airy_function_I * ( numpy.sin ( phase / 2.0 ) ) ** 2 )
         
         result [ current_plane ] = numpy.copy ( intensity )
 
     return result
+
+@custom_model
+def airy_fittable_function ( cube,
+                             beam = 1.0,
+                             center_row = 0,
+                             center_col = 0,
+                             finesse = 1.,
+                             focal_length = 1.,
+                             gap = 1.,
+                             initial_gap = 1.,
+                             pixel_size = 9. ):
+    return airy_function ( cube,
+                           beam,
+                           center_row,
+                           center_col,
+                           finesse,
+                           focal_length,
+                           gap,
+                           initial_gap,
+                           pixel_size )
 
 class airy_fitter ( threading.Thread ):
     def __init__ ( self, discontinuum, beam, center, finesse, focal_length,
@@ -87,17 +105,21 @@ class airy_fitter ( threading.Thread ):
 
         self.log.debug ( "initial_gap = %f" % self.initial_gap )
 
-        airy_custom_model = airy ( beam = self.beam,
-                                   center_row = self.center [ 0 ], 
-                                   center_col = self.center [ 1 ],
-                                   finesse = self.finesse,
-                                   focal_length = self.focal_length,
-                                   gap = self.gap,
-                                   initial_gap = self.initial_gap,
-                                   pixel_size = self.pixel_size )
+        airy_custom_model = airy_fittable_function ( beam = self.beam,
+                                                     center_row = self.center [ 0 ], 
+                                                     center_col = self.center [ 1 ],
+                                                     finesse = self.finesse,
+                                                     focal_length = self.focal_length,
+                                                     gap = self.gap,
+                                                     initial_gap = self.initial_gap,
+                                                     pixel_size = self.pixel_size )
 
         airy_custom_model.finesse.fixed = True
+        airy_custom_model.focal_length.fixed = True
+        airy_custom_model.gap.fixed = True
         airy_custom_model.pixel_size.fixed = True
+        airy_custom_model.center_row.fixed = True
+        airy_custom_model.center_col.fixed = True
     
         LevMarLSQFitter_fit = LevMarLSQFitter ( )
     
@@ -109,14 +131,14 @@ class airy_fitter ( threading.Thread ):
         self.parameters = airy_model_fit.parameters
 
         msg = "beam = %.1f, center = ( %d, %d ), finesse = %.1f, focal_length = %.3f, gap = %.6f, initial_gap = %.6f, pixel_size = %f."
-        self.log.info ( msg % ( airy_model_fit.parameters [ 0 ],
-                           airy_model_fit.parameters [ 1 ], 
-                           airy_model_fit.parameters [ 2 ], 
-                           airy_model_fit.parameters [ 3 ],
-                           airy_model_fit.parameters [ 4 ], 
-                           airy_model_fit.parameters [ 5 ],
-                           airy_model_fit.parameters [ 6 ],
-                           airy_model_fit.parameters [ 7 ] ) )
+        self.log.warning ( msg % ( airy_model_fit.parameters [ 0 ],
+                                airy_model_fit.parameters [ 1 ], 
+                                airy_model_fit.parameters [ 2 ], 
+                                airy_model_fit.parameters [ 3 ],
+                                airy_model_fit.parameters [ 4 ], 
+                                airy_model_fit.parameters [ 5 ],
+                                airy_model_fit.parameters [ 6 ],
+                                airy_model_fit.parameters [ 7 ] ) )
 
         self.log.info ( "Airy fit took %ds." % ( time.time ( ) - start ) )
         self.fit = tuna.io.can ( result )

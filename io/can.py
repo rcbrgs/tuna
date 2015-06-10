@@ -102,6 +102,19 @@ class can ( file_reader ):
         
         self.array = array
 
+
+    def fliplr ( self ):
+        result = numpy.ndarray ( shape = self.array.shape )
+        for plane in range ( self.array.shape [ 0 ] ):
+            result [ plane ] = numpy.fliplr ( self.array [ plane ] )
+        self.array = result
+
+    def flipud ( self ):
+        result = numpy.ndarray ( shape = self.array.shape )
+        for plane in range ( self.array.shape [ 0 ] ):
+            result [ plane ] = numpy.flipud ( self.array [ plane ] )
+        self.array = result
+
     def info ( self ):
         self.log.debug ( tuna.log.function_header ( ) )
 

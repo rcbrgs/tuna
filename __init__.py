@@ -2,6 +2,8 @@
 Tuna
 
 This program provides access to Tuna's libraries' namespaces.
+
+From Tuna v0.11 onwards, we are adopting the convention mentioned in: http://docs.scipy.org/doc/numpy/reference/internals.html, so that rows will be the last item indexed. Therefore, cubes in tuna should be indexed as [ planes, columns, rows ].
 """
 
 __version__ = '0.10.0'
