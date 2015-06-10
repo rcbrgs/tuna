@@ -1,3 +1,16 @@
+"""
+Airy function and fit.
+
+The Airy function (or as Wikipedia calls it, the transmittance function of a Fabry-Pérot interferometer) modeled here is:
+
+T = 1 / ( 1 + F sin^2 ( delta / 2 ) )
+
+The airy_function will return a dataset containing the values for an Airy function with the given parameters.
+
+The airy_fitter will spawn a thread that will fit the Airy function to the given data, using the given parameters as initial guesses.
+
+"""
+
 from astropy.modeling.models import custom_model
 from astropy.modeling.fitting import LevMarLSQFitter
 
@@ -17,6 +30,38 @@ def airy_function ( cube,
                     gap = 1.,
                     initial_gap = 1.,
                     pixel_size = 9. ):
+    """
+    The Airy function being modeled is:
+
+    I = C + I_0 / ( 1 + ( 4F^2 / pi^2 ) * sin^2 ( phi / 2 )
+
+    From the input parameters, this function will return a dataset with the value for I calculated on each point. The intention is to produce a tridimensional array where each plane is an image with rings equivalent to the ones in Fabry-Pérot interferograms.
+
+    To calculate phi:
+
+    phi = 2 pi * ( 2 n e_i cos ( theta ) ) / lambda_c
+
+    Where:
+
+    n e_i = n ( e + i delta_e )
+
+    theta = tan^-1 ( b r ), b = s / f
+
+
+    Parameters: (In parentheses, the equation variable the paremeter corresponds to)
+    -----------
+    cube: any array with the dimensions for the desired result.
+    beam: the intensity parameter (I).
+    center_row: the row for the center of the rings.
+    center_col: the column for the center of the rings.
+    finesse: (F)
+    focal_length: necessary to calculate theta (f).
+    gap: The difference of the étalons distances for two consecutive channels (delta_e).
+    initial_gap: the distance between the étalons for channel 0 (e).
+    pixel_size: s
+    
+    """
+    
     log = logging.getLogger ( __name__ )
     log.debug ( "beam = %f,"
                 " center_row = %d,"

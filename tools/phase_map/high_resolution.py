@@ -1,4 +1,3 @@
-import cProfile
 import logging
 import math
 import numpy
@@ -135,14 +134,14 @@ class high_resolution ( threading.Thread ):
                 return
 
         if self.dont_fit == False:
-            airy_fitter = tuna.tools.models.airy_fitter ( self.discontinuum,
-                                                          self.beam,
-                                                          self.rings_center,
-                                                          self.finesse,
-                                                          self.focal_length,
-                                                          self.gap,
-                                                          self.initial_gap,
-                                                          self.pixel_size )
+            airy_fitter = tuna.models.airy_fitter ( self.discontinuum,
+                                                    self.beam,
+                                                    self.rings_center,
+                                                    self.finesse,
+                                                    self.focal_length,
+                                                    self.gap,
+                                                    self.initial_gap,
+                                                    self.pixel_size )
 
         ring_border_detector = tuna.tools.phase_map.ring_border_detector ( self.wrapped_phase_map,
                                                                            self.rings_center,
@@ -169,9 +168,9 @@ class high_resolution ( threading.Thread ):
             airy_pixels = airy_fit_residue.shape [ 0 ] * airy_fit_residue.shape [ 1 ] * airy_fit_residue.shape [ 2 ] 
             self.log.info ( "Airy fit residue average error = %s channels / pixel" % str ( numpy.sum ( airy_fit_residue ) / airy_pixels ) )
             # It seems Astropy's fitters ain't thread safe, so the airy fit must be already joined.
-            parabolic_fitter = tuna.tools.models.parabolic_fitter ( self.noise,
-                                                                    self.unwrapped_phase_map,
-                                                                    self.rings_center )
+            parabolic_fitter = tuna.models.parabolic_fitter ( self.noise,
+                                                              self.unwrapped_phase_map,
+                                                              self.rings_center )
 
         wavelength_calibrator = tuna.tools.wavelength.wavelength_calibrator ( self.unwrapped_phase_map,
                                                                               self.calibration_wavelength,
