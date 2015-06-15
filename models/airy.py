@@ -11,11 +11,12 @@ The airy_fitter will spawn a thread that will fit the Airy function to the given
 
 """
 
-from astropy.modeling.models import custom_model
-from astropy.modeling.fitting import LevMarLSQFitter
+#from astropy.modeling.models import custom_model
+#from astropy.modeling.fitting import LevMarLSQFitter
 
 import logging
-from math import sqrt
+import math
+import mpyfit
 import numpy
 import threading
 import time

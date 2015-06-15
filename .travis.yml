@@ -12,6 +12,8 @@ install:
   - "pip install coveralls"
   - "pip install -r pip_packages.txt"
   - "travis_wait pip install scipy"
+  - "git clone https://github.com/evertrol/mpyfit.git"
+  - "cd mpyfit; python setup.py install"
 
 script:
   nosetests --with-coverage --cover-package=tuna
