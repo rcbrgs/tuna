@@ -4,7 +4,6 @@ tools.py
 Provides access to Tuna's tools namespace.
 """
 
-import tuna.models
 import tuna.tools.phase_map
 import tuna.tools.wavelength
 
