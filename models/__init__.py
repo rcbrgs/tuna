@@ -1,4 +1,4 @@
 import astropy
 from .airy     import ( airy_fitter,
-                        airy_function )
+                        airy_plane )
 from .parabola import ( parabolic_fitter )

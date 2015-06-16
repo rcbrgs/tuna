@@ -6,7 +6,7 @@ import unittest
 
 class unit_test_barycenter_detector ( unittest.TestCase ):
     def setUp ( self ):
-        tuna.log.set_path ( "../nose.log" )
+        tuna.log.set_path ( "/home/nix/nose.log" )
 
     def test_barycenter_creation ( self ):
         raw = tuna.io.read ( "test/unit/unit_io/partial_4_planes.fits" )

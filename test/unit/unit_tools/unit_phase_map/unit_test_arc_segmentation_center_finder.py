@@ -6,7 +6,7 @@ import unittest
 
 class unit_test_arc_segmentation_center_finder ( unittest.TestCase ):
     def setUp ( self ):
-        tuna.log.set_path ( "../nose.log" )
+        tuna.log.set_path ( "/home/nix/nose.log" )
 
     def test_center_finder ( self ):
         wrapped = tuna.io.read ( "test/unit/unit_io/G094_03_wrapped_phase_map.fits" )

@@ -6,7 +6,7 @@ import unittest
 
 class unit_test_io_can ( unittest.TestCase ):
     def setUp ( self ):
-        tuna.log.set_path ( "../nose.log" )
+        tuna.log.set_path ( "/home/nix/nose.log" )
 
     def test_add ( self ):
         z1 = numpy.zeros ( shape = ( 1, 2, 3 ) )

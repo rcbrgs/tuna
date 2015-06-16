@@ -6,7 +6,7 @@ import unittest
 
 class unit_test_pipeline_high_resolution ( unittest.TestCase ):
     def setUp ( self ):
-        tuna.log.set_path ( "../nose.log" )
+        tuna.log.set_path ( "/home/nix/nose.log" )
 
     def test_pipeline ( self ):
         file_name = "test/unit/unit_io/partial.fits"
