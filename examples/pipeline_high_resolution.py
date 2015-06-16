@@ -14,7 +14,7 @@ can = tuna.io.read ( file_name )
 
 from tuna.tools.phase_map import barycenter_fast
 high_res = tuna.tools.phase_map.high_resolution ( beam = 450,
-                                                  calibration_wavelength = 6598.953125,
+                                                  calibration_wavelength = 0.6598953125,
                                                   finesse = 15.,
                                                   focal_length = 0.1,
                                                   free_spectral_range = 8.36522123894,

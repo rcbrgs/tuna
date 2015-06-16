@@ -22,10 +22,10 @@ import tuna
 def airy_plane ( b_ratio = 9.e-6,
                  center_col = 256,
                  center_row = 256,
-                 continuum = 0,
+                 continuum = 1,
                  finesse = 15,
                  gap = 250,
-                 intensity = 1,
+                 intensity = 100,
                  shape_cols = 512,
                  shape_rows = 512,
                  wavelength = 0.6563 ):
@@ -115,7 +115,7 @@ def least_mpyfit ( p, args ):
         print ( "Exception: %s" % str ( e ) )
 
     log.debug ( "residue = %s" % str ( residue ) )
-    log.warning ( "numpy.sum ( residue ) = %f" % numpy.sum ( residue ) )
+    log.debug ( "numpy.sum ( residue ) = %f" % numpy.sum ( residue ) )
     log.debug ( "/least_mpyfit" )
     return ( residue.flatten ( ) )
 
@@ -124,34 +124,30 @@ class airy_fitter ( threading.Thread ):
                    b_ratio,
                    center_col,
                    center_row,
-                   continuum,
                    data,
                    finesse,
                    gap,
-                   intensity,
-                   shape_cols,
-                   shape_rows,
-                   wavelength ):
+                   wavelength,
+                   mpyfit_parinfo = [ ] ):
                    
         self.log = logging.getLogger ( __name__ )
-        #super ( self.__class__, self ).__init__ ( )
+        super ( self.__class__, self ).__init__ ( )
 
         self.b_ratio = b_ratio
         self.center_col = center_col
         self.center_row = center_row
-        self.continuum = continuum
         self.data = data
         self.finesse = finesse
         self.gap = gap
-        self.intensity = intensity
-        self.shape_cols = shape_cols
-        self.shape_rows = shape_rows
+        self.mpyfit_parinfo = mpyfit_parinfo
+        self.shape_cols = self.data.shape [ 0 ]
+        self.shape_rows = self.data.shape [ 1 ]
         self.wavelength = wavelength
         
         self.fit = None
         self.parameters = None
 
-        #self.start ( )
+        self.start ( )
 
     def run ( self ):
         """
@@ -159,39 +155,89 @@ class airy_fitter ( threading.Thread ):
         """
         start = time.time ( )
 
-        #parameters = [ 1., ]
+        lower_percentile = 1
+        while ( numpy.percentile ( self.data, lower_percentile ) <= 0 ):
+            lower_percentile += 1
+
+        upper_percentile = 99
+            
+        self.log.info ( "%d-percentile = %f, %d-percentile = %f." % ( lower_percentile,
+                                                                      numpy.percentile ( self.data,
+                                                                                         lower_percentile ),
+                                                                      upper_percentile,
+                                                                      numpy.percentile ( self.data,
+                                                                                         upper_percentile ) ) )
         
+        intensity = numpy.percentile ( self.data, upper_percentile ) - numpy.percentile ( self.data, lower_percentile )
+        self.log.info ( "percentile difference = %f" % intensity )
+        finesse_factor = 4.0 * self.finesse ** 2 / numpy.pi ** 2
+        finesse_intensity_factor = ( 1 + finesse_factor ) / finesse_factor
+        self.log.info ( "finesse_intensity_factor = %f" % finesse_intensity_factor )
+        intensity *= finesse_intensity_factor
+        self.log.info ( "intensity = %f" % intensity )
+
+        continuum = abs ( numpy.percentile ( self.data, upper_percentile ) - intensity )
+
+        msg = "guesses: b_ratio = %f, center = ( %d, %d ), continuum = %f, finesse = %f, gap = %f, intensity = %f\n"
+        self.log.info ( msg % ( self.b_ratio,
+                                self.center_col,
+                                self.center_row,
+                                continuum,
+                                self.finesse,
+                                self.gap,
+                                intensity ) )
+              
         parameters = ( self.b_ratio,
                        self.center_col,
                        self.center_row,
-                       self.continuum,
+                       continuum,
                        self.finesse,
                        self.gap,
-                       self.intensity )
+                       intensity )
         
         # Constraints on parameters
-        parinfo = [ ]
-        parbase = { 'fixed' : False, 'limits' : ( self.b_ratio * 0.96, self.b_ratio * 1.04 ) }
-        parinfo.append ( parbase )
-        parbase = { 'fixed' : False, 'limits' : ( self.center_col - 15, self.center_col + 15 ) }
-        parinfo.append ( parbase )
-        parbase = { 'fixed' : False, 'limits' : ( self.center_row - 15, self.center_row + 15 ) }
-        parinfo.append ( parbase )
-        parbase = { 'fixed' : False, 'limits' : ( self.continuum * 0.9, self.continuum * 1.1 ) }
-        parinfo.append ( parbase )
-        parbase = { 'fixed' : False, 'limits' : ( self.finesse / 1.5, self.finesse * 1.5 ) }
-        parinfo.append ( parbase )
-        parbase = { 'fixed' : False, 'limits' : ( self.gap - self.wavelength / 4., self.gap + self.wavelength / 4. ) }
-        parinfo.append ( parbase )
-        parbase = { 'fixed' : False, 'limits' : ( self.intensity * 0.9, self.intensity * 1.1 ) }
-        parinfo.append ( parbase )
+        if self.mpyfit_parinfo == [ ]:
+            parinfo = [ ]
+            parbase = { 'fixed' : False, 'limits' : ( self.b_ratio * 0.96, self.b_ratio * 1.04 ) }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : True }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : True }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : False, 'limits' : ( continuum * 0.9, continuum * 1.1 ) }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : False, 'limits' : ( self.finesse / 1.5, self.finesse * 1.5 ) }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : False, 'limits' : ( self.gap - self.wavelength / 4., self.gap + self.wavelength / 4. ) }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : False, 'limits' : ( intensity * 0.9, intensity * 1.1 ) }
+            parinfo.append ( parbase )
+        else:
+            parinfo = [ ]
+            parbase = self.mpyfit_parinfo [ 0 ]
+            parinfo.append ( parbase )
+            parbase = self.mpyfit_parinfo [ 1 ]
+            parinfo.append ( parbase )
+            parbase = self.mpyfit_parinfo [ 2 ]
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : self.mpyfit_parinfo [ 3 ] [ 'fixed' ], 'limits' : ( continuum * 0.9, continuum * 1.1 ) }
+            parinfo.append ( parbase )
+            parbase = self.mpyfit_parinfo [ 4 ]
+            parinfo.append ( parbase )
+            parbase = self.mpyfit_parinfo [ 5 ]
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : self.mpyfit_parinfo [ 6 ] [ 'fixed' ], 'limits' : ( intensity * 0.9, intensity * 1.1 ) }
+            parinfo.append ( parbase )
 
+                        
+        self.log.info ( parinfo )
+            
         flat = 1
 
-        self.log.warning ( "run ( )" )
+        self.log.debug ( "run ( )" )
 
         try:
-            self.log.warning ( "parameters = %s" % str ( parameters ) ) 
+            self.log.debug ( "parameters = %s" % str ( parameters ) ) 
             fit_parameters, fit_result = mpyfit.fit ( least_mpyfit,
                                                       parameters,
                                                       args = ( self.shape_cols,
@@ -199,23 +245,33 @@ class airy_fitter ( threading.Thread ):
                                                                self.wavelength,
                                                                self.data,
                                                                flat ),
-                                                      #parinfo = parinfo,
+                                                      parinfo = parinfo,
                                                       stepfactor = 10 )
         except Exception as e:
             print ( "Exception: %s" % str ( e ) )
             raise ( e )
         
-        self.log.warning ( "fit_result [ 'bestnorm' ] = %s" % str ( fit_result [ 'bestnorm' ] ) )
+        self.log.debug ( "fit_result [ 'bestnorm' ] = %s" % str ( fit_result [ 'bestnorm' ] ) )
+        self.log.debug ( "fit_result = %s" % str ( fit_result ) )
 
-        msg = "b_ratio = %.1f, center = ( %d, %d ), continuum = %.1f, finesse = %.1f, gap = %.6f., intensity = %.3f"
-        self.log.warning ( msg % ( fit_parameters [ 0 ],
-                                   fit_parameters [ 1 ], 
-                                   fit_parameters [ 2 ], 
-                                   fit_parameters [ 3 ],
-                                   fit_parameters [ 4 ], 
-                                   fit_parameters [ 5 ],
-                                   fit_parameters [ 6 ] ) )
+        msg = "results: b_ratio = %f, center = ( %d, %d ), continuum = %f, finesse = %f, gap = %f, intensity = %f\n"
+        self.log.info ( msg % ( fit_parameters [ 0 ],
+                                fit_parameters [ 1 ], 
+                                fit_parameters [ 2 ], 
+                                fit_parameters [ 3 ],
+                                fit_parameters [ 4 ], 
+                                fit_parameters [ 5 ],
+                                fit_parameters [ 6 ] ) )
 
         self.log.info ( "Airy fit took %ds." % ( time.time ( ) - start ) )
-        self.fit = tuna.io.can ( fit_result )
+        self.fit = tuna.io.can ( airy_plane ( fit_parameters [ 0 ],
+                                              fit_parameters [ 1 ],
+                                              fit_parameters [ 2 ],
+                                              fit_parameters [ 3 ],
+                                              fit_parameters [ 4 ],
+                                              fit_parameters [ 5 ],
+                                              fit_parameters [ 6 ],
+                                              self.shape_cols,
+                                              self.shape_rows,
+                                              self.wavelength ) )
         self.parameters = fit_parameters

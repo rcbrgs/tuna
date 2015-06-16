@@ -107,8 +107,6 @@ class high_resolution ( threading.Thread ):
         for plane in range ( self.tuna_can.planes ):
             self.discontinuum.array [ plane, : , : ] = numpy.abs ( self.tuna_can.array [ plane, : , : ] - self.continuum.array )
 
-        #barycenter_detector = tuna.tools.phase_map.barycenter_detector ( self.discontinuum, self.barycenter_fast )
-        #barycenter_detector.join ( )
         wrapped_producer = self.wrapped_algorithm ( self.discontinuum )
         wrapped_producer.join ( )
 
@@ -134,14 +132,71 @@ class high_resolution ( threading.Thread ):
                 return
 
         if self.dont_fit == False:
-            airy_fitter = tuna.models.airy_fitter ( self.discontinuum,
-                                                    self.beam,
-                                                    self.rings_center,
-                                                    self.finesse,
-                                                    self.focal_length,
-                                                    self.gap,
-                                                    self.initial_gap,
-                                                    self.pixel_size )
+            airy_fitter_0 = tuna.models.airy_fitter ( 0.9e-6, #todo
+                                                      self.rings_center [ 0 ],
+                                                      self.rings_center [ 1 ],
+                                                      self.discontinuum.array [ 0 ],
+                                                      self.finesse,
+                                                      self.initial_gap,
+                                                      self.calibration_wavelength )
+            airy_fitter_0.join ( )
+            
+            b_ratio     = airy_fitter_0.parameters [ 0 ]
+            continuum   = airy_fitter_0.parameters [ 3 ]
+            finesse     = airy_fitter_0.parameters [ 4 ]
+            initial_gap = airy_fitter_0.parameters [ 5 ]
+            beam        = airy_fitter_0.parameters [ 6 ]
+
+            parinfo = [ ]
+            parbase = { 'fixed' : True }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : True }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : True }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : True }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : True }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : False, 'limits' : ( initial_gap - self.calibration_wavelength / 4., initial_gap + self.calibration_wavelength / 4. ) }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : True }
+            parinfo.append ( parbase )
+
+            airy_fitter_1 = tuna.models.airy_fitter ( b_ratio,
+                                                      self.rings_center [ 0 ],
+                                                      self.rings_center [ 1 ],
+                                                      self.discontinuum.array [ 1 ],
+                                                      finesse,
+                                                      initial_gap,
+                                                      self.calibration_wavelength,
+                                                      mpyfit_parinfo = parinfo )
+            airy_fitter_1.join ( )
+            
+            gap = airy_fitter_1.parameters [ 5 ] - airy_fitter_0.parameters [ 5 ]
+            self.log.info ( "gap = %f" % gap )
+
+            airy_fit = numpy.ndarray ( shape = self.tuna_can.shape )
+            airy_fit [ 0 ] = airy_fitter_0.fit.array
+            airy_fit [ 1 ] = airy_fitter_1.fit.array
+            for plane in range ( 2, self.tuna_can.planes ):
+                airy_fit [ plane ] = tuna.models.airy_plane ( 0.9e-6, # todo
+                                                              self.rings_center [ 0 ],
+                                                              self.rings_center [ 1 ],
+                                                              1, #todo
+                                                              self.finesse,
+                                                              airy_fitter_0.parameters [ 5 ] + plane * gap,
+                                                              self.beam,
+                                                              self.tuna_can.cols,
+                                                              self.tuna_can.rows,
+                                                              self.calibration_wavelength )
+            self.airy_fit = tuna.io.can ( airy_fit )
+            
+            airy_fit_residue = numpy.abs ( self.tuna_can.array - self.airy_fit.array )
+            self.airy_fit_residue = tuna.io.can ( array = airy_fit_residue )
+            airy_pixels = airy_fit_residue.shape [ 0 ] * airy_fit_residue.shape [ 1 ] * airy_fit_residue.shape [ 2 ] 
+            self.log.info ( "Airy fit residue average error = %s channels / pixel" % str ( numpy.sum ( airy_fit_residue ) / airy_pixels ) )
+
 
         ring_border_detector = tuna.tools.phase_map.ring_border_detector ( self.wrapped_phase_map,
                                                                            self.rings_center,
@@ -161,12 +216,6 @@ class high_resolution ( threading.Thread ):
             return
 
         if self.dont_fit == False:
-            airy_fitter.join ( )
-            self.airy_fit = airy_fitter.fit
-            airy_fit_residue = numpy.abs ( self.tuna_can.array - self.airy_fit.array )
-            self.airy_fit_residue = tuna.io.can ( array = airy_fit_residue )
-            airy_pixels = airy_fit_residue.shape [ 0 ] * airy_fit_residue.shape [ 1 ] * airy_fit_residue.shape [ 2 ] 
-            self.log.info ( "Airy fit residue average error = %s channels / pixel" % str ( numpy.sum ( airy_fit_residue ) / airy_pixels ) )
             # It seems Astropy's fitters ain't thread safe, so the airy fit must be already joined.
             parabolic_fitter = tuna.models.parabolic_fitter ( self.noise,
                                                               self.unwrapped_phase_map,
