@@ -1,3 +1,4 @@
+# coding: latin-1
 """
 Airy function and fit.
 
