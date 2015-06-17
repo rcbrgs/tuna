@@ -63,6 +63,7 @@ def airy_plane ( b_ratio = 9.e-6,
     """
 
     log = logging.getLogger ( __name__ )
+    #log.setLevel ( logging.DEBUG )
     log.debug ( "airy_plane" )
     
     log.debug ( "b_ratio = %f,"
@@ -79,11 +80,14 @@ def airy_plane ( b_ratio = 9.e-6,
     indices_rows, indices_cols = numpy.indices ( ( shape_rows, shape_cols ) )
     distances = numpy.sqrt ( ( indices_rows - center_row ) ** 2 +
                              ( indices_cols - center_col ) ** 2 )
+    log.debug ( "distances [ 0 ] [ 0 ] = %s" % str ( distances [ 0 ] [ 0 ] ) )
     
     log.debug ( "Calculating airy_function_I" )
     airy_function_I = 4.0 * finesse ** 2 / numpy.pi ** 2
     phase = 2.0 * numpy.pi * gap / ( wavelength * numpy.sqrt ( 1 + b_ratio ** 2 * distances ** 2 ) )
+    log.debug ( "phase     [ 0 ] [ 0 ] = %s" % str ( phase [ 0 ] [ 0 ] ) )
     result = continuum + intensity / ( 1. + airy_function_I * numpy.sin ( phase ) ** 2 )
+    log.debug ( "result    [ 0 ] [ 0 ] = %s" % str ( result [ 0] [ 0 ] ) )
 
     log.debug ( "/airy_plane" )
     return result
@@ -179,14 +183,7 @@ class airy_fitter ( threading.Thread ):
 
         continuum = abs ( numpy.percentile ( self.data, upper_percentile ) - intensity )
 
-        msg = "guesses: b_ratio = %f, center = ( %d, %d ), continuum = %f, finesse = %f, gap = %f, intensity = %f\n"
-        self.log.info ( msg % ( self.b_ratio,
-                                self.center_col,
-                                self.center_row,
-                                continuum,
-                                self.finesse,
-                                self.gap,
-                                intensity ) )
+        self.log.info ( "guesses: b_ratio = %f, center = ( %d, %d ), continuum = %f, finesse = %f, gap = %f, intensity = %f" % ( self.b_ratio, self.center_col, self.center_row, continuum, self.finesse, self.gap, intensity ) )
               
         parameters = ( self.b_ratio,
                        self.center_col,
@@ -201,13 +198,13 @@ class airy_fitter ( threading.Thread ):
             parinfo = [ ]
             parbase = { 'fixed' : False, 'limits' : ( self.b_ratio * 0.96, self.b_ratio * 1.04 ) }
             parinfo.append ( parbase )
-            parbase = { 'fixed' : True }
+            parbase = { 'fixed' : False, 'limits' : ( self.center_col - 5, self.center_col + 5 ) }
             parinfo.append ( parbase )
-            parbase = { 'fixed' : True }
+            parbase = { 'fixed' : False, 'limits' : ( self.center_row - 5, self.center_row + 5 ) }
             parinfo.append ( parbase )
             parbase = { 'fixed' : False, 'limits' : ( continuum * 0.9, continuum * 1.1 ) }
             parinfo.append ( parbase )
-            parbase = { 'fixed' : False, 'limits' : ( self.finesse / 1.5, self.finesse * 1.5 ) }
+            parbase = { 'fixed' : False, 'limits' : ( self.finesse * 0.95, self.finesse * 1.05 ) }
             parinfo.append ( parbase )
             parbase = { 'fixed' : False, 'limits' : ( self.gap - self.wavelength / 4., self.gap + self.wavelength / 4. ) }
             parinfo.append ( parbase )
@@ -221,17 +218,19 @@ class airy_fitter ( threading.Thread ):
             parinfo.append ( parbase )
             parbase = self.mpyfit_parinfo [ 2 ]
             parinfo.append ( parbase )
-            parbase = { 'fixed' : self.mpyfit_parinfo [ 3 ] [ 'fixed' ], 'limits' : ( continuum * 0.9, continuum * 1.1 ) }
+            parbase = { 'fixed'  : self.mpyfit_parinfo [ 3 ] [ 'fixed' ],
+                        'limits' : ( continuum * 0.9, continuum * 1.1 ) }
             parinfo.append ( parbase )
             parbase = self.mpyfit_parinfo [ 4 ]
             parinfo.append ( parbase )
             parbase = self.mpyfit_parinfo [ 5 ]
             parinfo.append ( parbase )
-            parbase = { 'fixed' : self.mpyfit_parinfo [ 6 ] [ 'fixed' ], 'limits' : ( intensity * 0.9, intensity * 1.1 ) }
+            parbase = { 'fixed'  : self.mpyfit_parinfo [ 6 ] [ 'fixed' ],
+                        'limits' : ( intensity * 0.9, intensity * 1.1 ) }
             parinfo.append ( parbase )
 
-                        
-        self.log.info ( parinfo )
+
+        self.log.info ( "parinfo = %s" % str ( parinfo ) )
             
         flat = 1
 
@@ -255,7 +254,7 @@ class airy_fitter ( threading.Thread ):
         self.log.debug ( "fit_result [ 'bestnorm' ] = %s" % str ( fit_result [ 'bestnorm' ] ) )
         self.log.debug ( "fit_result = %s" % str ( fit_result ) )
 
-        msg = "results: b_ratio = %f, center = ( %d, %d ), continuum = %f, finesse = %f, gap = %f, intensity = %f\n"
+        msg = "results: b_ratio = %f, center = ( %d, %d ), continuum = %f, finesse = %f, gap = %f, intensity = %f"
         self.log.info ( msg % ( fit_parameters [ 0 ],
                                 fit_parameters [ 1 ], 
                                 fit_parameters [ 2 ], 

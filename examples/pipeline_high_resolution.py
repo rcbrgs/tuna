@@ -13,13 +13,11 @@ file_name_prefix = file_name_unpathed.split ( "." ) [ 0 ]
 can = tuna.io.read ( file_name )
 
 from tuna.tools.phase_map import barycenter_fast
-high_res = tuna.tools.phase_map.high_resolution ( beam = 450,
-                                                  calibration_wavelength = 0.6598953125,
+high_res = tuna.tools.phase_map.high_resolution ( calibration_wavelength = 0.6598953125,
                                                   finesse = 15.,
                                                   focal_length = 0.1,
                                                   free_spectral_range = 8.36522123894,
-                                                  gap = 0.01,
-                                                  initial_gap = 1904.,
+                                                  initial_gap = 0.0145,
                                                   interference_order = 798,
                                                   interference_reference_wavelength = 6562.7797852,
                                                   pixel_size = 9,

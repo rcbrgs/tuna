@@ -11,12 +11,10 @@ class high_resolution ( threading.Thread ):
     Intermediary products are the binary noise, the ring borders, the regions and orders maps.
     """
     def __init__ ( self,
-                   beam,
                    calibration_wavelength,
                    finesse,
                    focal_length,
                    free_spectral_range,
-                   gap,
                    initial_gap,
                    interference_order,
                    interference_reference_wavelength,
@@ -58,7 +56,6 @@ class high_resolution ( threading.Thread ):
         self.log.info ( "Starting high_resolution pipeline." )
 
         """inputs:"""
-        self.beam = beam
         self.calibration_wavelength = calibration_wavelength
         self.channel_subset = channel_subset
         self.continuum_to_FSR_ratio = continuum_to_FSR_ratio
@@ -66,7 +63,6 @@ class high_resolution ( threading.Thread ):
         self.finesse = finesse
         self.focal_length = focal_length
         self.free_spectral_range = free_spectral_range
-        self.gap = gap
         self.initial_gap = initial_gap
         self.interference_order = interference_order
         self.interference_reference_wavelength = interference_reference_wavelength
@@ -132,13 +128,34 @@ class high_resolution ( threading.Thread ):
                 return
 
         if self.dont_fit == False:
-            airy_fitter_0 = tuna.models.airy_fitter ( 0.9e-6, #todo
-                                                      self.rings_center [ 0 ],
+            #initial_b_ratio = 0.9e-6 # todo
+            initial_b_ratio = 0.5e-3
+            
+            parinfo = [ ]
+            parbase = { 'fixed' : False, 'limits' : ( initial_b_ratio * 0.96, initial_b_ratio * 1.04 ) }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : True }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : True }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : False }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : False, 'limits' : ( self.finesse * 0.95, self.finesse * 1.05 ) }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : False, 'limits' : ( self.initial_gap - self.calibration_wavelength / 4,
+                                                      self.initial_gap + self.calibration_wavelength / 4 ) }
+            parinfo.append ( parbase )
+            parbase = { 'fixed' : False }
+            parinfo.append ( parbase )
+
+            airy_fitter_0 = tuna.models.airy_fitter ( initial_b_ratio,
                                                       self.rings_center [ 1 ],
+                                                      self.rings_center [ 0 ],
                                                       self.discontinuum.array [ 0 ],
                                                       self.finesse,
                                                       self.initial_gap,
-                                                      self.calibration_wavelength )
+                                                      self.calibration_wavelength,
+                                                      mpyfit_parinfo = parinfo )
             airy_fitter_0.join ( )
             
             b_ratio     = airy_fitter_0.parameters [ 0 ]
@@ -158,14 +175,15 @@ class high_resolution ( threading.Thread ):
             parinfo.append ( parbase )
             parbase = { 'fixed' : True }
             parinfo.append ( parbase )
-            parbase = { 'fixed' : False, 'limits' : ( initial_gap - self.calibration_wavelength / 4., initial_gap + self.calibration_wavelength / 4. ) }
+            parbase = { 'fixed' : False, 'limits' : ( initial_gap - self.calibration_wavelength / 4.,
+                                                      initial_gap + self.calibration_wavelength / 4. ) }
             parinfo.append ( parbase )
             parbase = { 'fixed' : True }
             parinfo.append ( parbase )
 
             airy_fitter_1 = tuna.models.airy_fitter ( b_ratio,
-                                                      self.rings_center [ 0 ],
                                                       self.rings_center [ 1 ],
+                                                      self.rings_center [ 0 ],
                                                       self.discontinuum.array [ 1 ],
                                                       finesse,
                                                       initial_gap,
@@ -180,13 +198,13 @@ class high_resolution ( threading.Thread ):
             airy_fit [ 0 ] = airy_fitter_0.fit.array
             airy_fit [ 1 ] = airy_fitter_1.fit.array
             for plane in range ( 2, self.tuna_can.planes ):
-                airy_fit [ plane ] = tuna.models.airy_plane ( 0.9e-6, # todo
-                                                              self.rings_center [ 0 ],
+                airy_fit [ plane ] = tuna.models.airy_plane ( b_ratio,
                                                               self.rings_center [ 1 ],
-                                                              1, #todo
-                                                              self.finesse,
+                                                              self.rings_center [ 0 ],
+                                                              continuum,
+                                                              finesse,
                                                               airy_fitter_0.parameters [ 5 ] + plane * gap,
-                                                              self.beam,
+                                                              beam,
                                                               self.tuna_can.cols,
                                                               self.tuna_can.rows,
                                                               self.calibration_wavelength )
