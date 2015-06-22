@@ -161,8 +161,15 @@ class airy_fitter ( threading.Thread ):
         start = time.time ( )
 
         lower_percentile = 1
-        while ( numpy.percentile ( self.data, lower_percentile ) <= 0 ):
+        lower_percentile_value = numpy.percentile ( self.data, lower_percentile )
+        while ( lower_percentile_value <= 0 ):
             lower_percentile += 1
+            if lower_percentile == 100:
+                lower_percentile = 1
+                break
+            lower_percentile_value = numpy.percentile ( self.data, lower_percentile )
+            self.log.info ( "numpy.percentile ( self.data, %d ) = %f" % ( lower_percentile,
+                                                                          lower_percentile_value ) )
 
         upper_percentile = 99
             
@@ -252,7 +259,7 @@ class airy_fitter ( threading.Thread ):
             raise ( e )
         
         self.log.debug ( "fit_result [ 'bestnorm' ] = %s" % str ( fit_result [ 'bestnorm' ] ) )
-        self.log.debug ( "fit_result = %s" % str ( fit_result ) )
+        self.log.info ( "fit_result = %s" % str ( fit_result ) )
 
         msg = "results: b_ratio = %f, center = ( %d, %d ), continuum = %f, finesse = %f, gap = %f, intensity = %f"
         self.log.info ( msg % ( fit_parameters [ 0 ],

@@ -17,7 +17,7 @@ high_res = tuna.tools.phase_map.high_resolution ( calibration_wavelength = 0.659
                                                   finesse = 15.,
                                                   focal_length = 0.1,
                                                   free_spectral_range = 8.36522123894,
-                                                  initial_gap = 0.0145,
+                                                  initial_gap = 4.36,
                                                   interference_order = 798,
                                                   interference_reference_wavelength = 6562.7797852,
                                                   pixel_size = 9,
