@@ -129,7 +129,7 @@ class high_resolution ( threading.Thread ):
 
         if self.dont_fit == False:
             #initial_b_ratio = 0.9e-6 # todo
-            initial_b_ratio = 0.002
+            initial_b_ratio = 0.00231
             
             parinfo = [ ]
             parbase = { 'fixed' : False, 'limits' : ( initial_b_ratio * 0.96, initial_b_ratio * 1.04 ) }
@@ -151,7 +151,7 @@ class high_resolution ( threading.Thread ):
             airy_fitter_0 = tuna.models.airy_fitter ( initial_b_ratio,
                                                       self.rings_center [ 1 ],
                                                       self.rings_center [ 0 ],
-                                                      self.discontinuum.array [ 0 ],
+                                                      self.tuna_can.array [ 0 ],
                                                       self.finesse,
                                                       self.initial_gap,
                                                       self.calibration_wavelength,
@@ -184,7 +184,7 @@ class high_resolution ( threading.Thread ):
             airy_fitter_1 = tuna.models.airy_fitter ( b_ratio,
                                                       self.rings_center [ 1 ],
                                                       self.rings_center [ 0 ],
-                                                      self.discontinuum.array [ 1 ],
+                                                      self.tuna_can.array [ 1 ],
                                                       finesse,
                                                       initial_gap,
                                                       self.calibration_wavelength,
@@ -210,10 +210,11 @@ class high_resolution ( threading.Thread ):
                                                               self.calibration_wavelength )
             self.airy_fit = tuna.io.can ( airy_fit )
             
-            airy_fit_residue = numpy.abs ( self.tuna_can.array - self.airy_fit.array )
+            #airy_fit_residue = numpy.abs ( self.tuna_can.array - self.airy_fit.array )
+            airy_fit_residue = self.tuna_can.array - self.airy_fit.array
             self.airy_fit_residue = tuna.io.can ( array = airy_fit_residue )
             airy_pixels = airy_fit_residue.shape [ 0 ] * airy_fit_residue.shape [ 1 ] * airy_fit_residue.shape [ 2 ] 
-            self.log.info ( "Airy fit residue average error = %s channels / pixel" % str ( numpy.sum ( airy_fit_residue ) / airy_pixels ) )
+            self.log.info ( "Airy fit residue average error = %s photons / pixel" % str ( numpy.sum ( airy_fit_residue ) / airy_pixels ) )
 
 
         ring_border_detector = tuna.tools.phase_map.ring_border_detector ( self.wrapped_phase_map,
