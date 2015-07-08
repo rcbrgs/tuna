@@ -129,7 +129,8 @@ class high_resolution ( threading.Thread ):
 
         if self.dont_fit == False:
             #initial_b_ratio = 0.9e-6 # todo
-            initial_b_ratio = 0.00231
+            #initial_b_ratio = 0.00231
+            initial_b_ratio = 6.1375e-8
             
             parinfo = [ ]
             parbase = { 'fixed' : False, 'limits' : ( initial_b_ratio * 0.96, initial_b_ratio * 1.04 ) }

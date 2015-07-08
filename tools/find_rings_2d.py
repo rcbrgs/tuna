@@ -3,12 +3,13 @@ The scope of this module is to find rings within 2D FP spectrographs.
 """
 
 import logging
+import math
 import numpy
 import tuna
 
 class rings_2d_finder ( object ):
     """
-    The responsibility of this class is to find all rings contained in a bidimensional numpy array provided by the user.
+    The responsibility of this class is to find all rings contained in a bidimensional numpy array provided by the user. It should return ndarrays containing the pixels, and lists of the rings centers and radii.
     """
 
     def __init__ ( self, array ):
@@ -190,26 +191,67 @@ class rings_2d_finder ( object ):
             average_col = 0
             average_row = 0
             for point in ring:
-                if ( point [ 0 ] == 1 or
-                     point [ 1 ] == 1 or
-                     point [ 0 ] == self.array.shape [ 0 ] - 2 or
-                     point [ 1 ] == self.array.shape [ 1 ] - 2 ):
+                if ( point [ 0 ] < 3 or
+                     point [ 1 ] < 3 or
+                     point [ 0 ] > self.array.shape [ 0 ] -3 or
+                     point [ 1 ] > self.array.shape [ 0 ] -3 ):
                     broken_ring = True
                     break
                 average_col += point [ 0 ]
                 average_row += point [ 1 ]
             average_col /= len ( ring )
             average_row /= len ( ring )
-            if not broken_ring:
-                probable_centers.append ( ( average_col, average_row ) )
-                self.log.info ( "probable center: {}, {}".format ( average_col, average_row ) )
+            if broken_ring:
+                self.log.info ( "Ignoring broken ring" )
+                continue
+
+            """
+            Spectrographs with central "blobs" instead of well-defined rings are too sensitive to noise for this algorithm to be reliable; so ignore them.
+            """
+            max_col = 0
+            min_col = self.array.shape [ 1 ]
+            max_row = 0
+            min_row = self.array.shape [ 1 ]
+            for point in ring:
+                max_col = max ( point [ 0 ], max_col )
+                min_col = min ( point [ 0 ], min_col )
+                max_row = max ( point [ 1 ], max_row )
+                min_row = min ( point [ 1 ], min_row )
+                
+            col_diff = max_col - min_col
+            row_diff = max_row - min_row
+            if ( max_col - min_col < 0.25 * self.array.shape [ 0 ] or
+                 max_row - min_row < 0.25 * self.array.shape [ 1 ] ):
+                self.log.info ( "Ignoring ring with too small span." )
+                continue
+            
+            probable_centers.append ( ( average_col, average_row ) )
+            self.log.info ( "probable center: {}, {}".format ( average_col, average_row ) )
+
+        """
+        If we have centers, we can obtain the radii.
+        """
+
+        distances = [ ]
+        for center in probable_centers:
+            for ring in rings:
+                average_ring_center_distance = 0
+                for col in range ( cols ):
+                    for row in range ( rows ):
+                        if ring [ col ] [ row ] == 1:
+                            average_ring_center_distance += math.sqrt ( ( col - center [ 0 ] ) ** 2 +
+                                                                        ( row - center [ 1 ] ) ** 2 )
+                average_ring_center_distance /= numpy.sum ( ring )
+                distances.append ( average_ring_center_distance )
+                        
+        
             
             
         """
         Saving all results for return to user.
         """
             
-        self.result = { 'radii'   : [ ],
+        self.result = { 'radii'   : distances,
                         'ndarray' : { 'max' : max_differences,
                                       'nw' : nw_finite_differences,
                                       'nn' : nn_finite_differences,
@@ -224,7 +266,8 @@ class rings_2d_finder ( object ):
                                       'fill' : fill,
                                       'continuous' : continuous_zero_regions,
                                       },
-                        'rings' : rings
+                        'rings' : rings,
+                        'probable_centers' : probable_centers,
                         }
 
 def find_rings_2d ( array ):
@@ -237,4 +280,4 @@ def find_rings_2d ( array ):
 
     finder = rings_2d_finder ( array )
     finder.execute ( )
-    return finder.result
+    return finder.result# [ 'probable_centers' ]
