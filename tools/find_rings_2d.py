@@ -245,7 +245,7 @@ class rings_2d_finder ( object ):
                 distances.append ( average_ring_center_distance )
                         
         
-            
+        self.log.info ( "radii = {}".format ( distances ) )
             
         """
         Saving all results for return to user.

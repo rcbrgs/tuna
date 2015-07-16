@@ -13,9 +13,9 @@ class high_resolution ( threading.Thread ):
     def __init__ ( self,
                    calibration_wavelength,
                    finesse,
-                   focal_length,
+                   #focal_length,
                    free_spectral_range,
-                   initial_gap,
+                   #initial_gap,
                    interference_order,
                    interference_reference_wavelength,
                    pixel_size,
@@ -39,8 +39,9 @@ class high_resolution ( threading.Thread ):
         """       
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.0'
+        self.__version__ = '0.1.1'
         self.changelog = {
+            '0.1.1' : "Using variables instead of harcoded values for inital b and gap values.",
             '0.1.0' : "Initial changelog."
             }
         super ( high_resolution, self ).__init__ ( )
@@ -64,9 +65,9 @@ class high_resolution ( threading.Thread ):
         self.continuum_to_FSR_ratio = continuum_to_FSR_ratio
         self.dont_fit = dont_fit
         self.finesse = finesse
-        self.focal_length = focal_length
+        #self.focal_length = focal_length
         self.free_spectral_range = free_spectral_range
-        self.initial_gap = initial_gap
+        #self.initial_gap = initial_gap
         self.interference_order = interference_order
         self.interference_reference_wavelength = interference_reference_wavelength
         self.noise_mask_radius = noise_mask_radius
@@ -131,12 +132,14 @@ class high_resolution ( threading.Thread ):
                 return
 
         if self.dont_fit == False:
-            #initial_b_ratio = 0.9e-6 # todo
-            #initial_b_ratio = 0.00231
             rings = tuna.tools.find_rings_2d ( self.tuna_can.array [ 0 ] )
-            initial_b_ratio = tuna.tools.estimate_b_ratio ( rings [ 'radii' ], [ self.interference_order - 1,
-                                                                                 self.interference_order ] )
-            initial_gap = 0.6598953125 * 791 * math.sqrt ( 1 + initial_b_ratio**2 * rings [ 'radii' ] [ 0 ] **2 ) / 2
+            initial_b_ratio = tuna.tools.estimate_b_ratio ( [ rings [ 'radii' ] [ 0 ],
+                                                              rings [ 'radii' ] [ 1 ] ],
+                                                              [ self.interference_order - 1,
+                                                                self.interference_order ] )
+            self.log.info ( "initial_b_ratio = {}".format ( initial_b_ratio ) )
+            initial_gap = self.calibration_wavelength * self.interference_order * math.sqrt ( 1 + initial_b_ratio**2 * rings [ 'radii' ] [ 0 ] **2 ) / 2
+            self.log.info ( "inital_gap = {}".format ( initial_gap ) )
             
             parinfo = [ ]
             parbase = { 'fixed' : False, 'limits' : ( initial_b_ratio * 0.96, initial_b_ratio * 1.04 ) }

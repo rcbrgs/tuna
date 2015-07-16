@@ -12,6 +12,7 @@ The airy_fitter will spawn a thread that will fit the Airy function to the given
 
 """
 
+import copy
 import logging
 import math
 import mpyfit
@@ -137,6 +138,10 @@ class airy_fitter ( threading.Thread ):
                    
         self.log = logging.getLogger ( __name__ )
         super ( self.__class__, self ).__init__ ( )
+        self.__version__ = '0.1.0'
+        self.changelog = {
+            '0.1.0' : "Initial changelog."
+            }
 
         self.b_ratio = b_ratio
         self.center_col = center_col
@@ -236,8 +241,8 @@ class airy_fitter ( threading.Thread ):
                         'limits' : ( intensity * 0.9, intensity * 1.1 ) }
             parinfo.append ( parbase )
 
-
-        self.log.info ( "parinfo = %s" % str ( parinfo ) )
+        for entry in parinfo:
+            self.log.info ( "parinfo = %s" % str ( entry ) )
             
         flat = 1
 
@@ -259,7 +264,10 @@ class airy_fitter ( threading.Thread ):
             raise ( e )
         
         self.log.debug ( "fit_result [ 'bestnorm' ] = %s" % str ( fit_result [ 'bestnorm' ] ) )
-        self.log.info ( "fit_result = %s" % str ( fit_result ) )
+        non_spammy_results = copy.copy ( fit_result )
+        del ( non_spammy_results [ 'covariances' ] )
+        for key in non_spammy_results.keys ( ):
+            self.log.info ( "fit_result [ {} ] = {}".format ( key, non_spammy_results [ key ] ) )
 
         msg = "results: b_ratio = %f, center = ( %d, %d ), continuum = %f, finesse = %f, gap = %f, intensity = %f"
         self.log.info ( msg % ( fit_parameters [ 0 ],
