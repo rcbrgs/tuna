@@ -36,21 +36,24 @@ class high_resolution ( threading.Thread ):
         ---
         - array : the raw data. Must be a 3D numpy.ndarray.
         - noise_mask_radius : the distance from a noise pixel that will be marked as noise also (size of a circle around each noise pixel).
-        """
+        """       
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-
+        self.__version__ = '0.1.0'
+        self.changelog = {
+            '0.1.0' : "Initial changelog."
+            }
         super ( high_resolution, self ).__init__ ( )
 
         if not isinstance ( tuna_can, tuna.io.can ):
-            log.info ( "array must be a numpy.ndarray or derivative object." )
+            self.log.info ( "array must be a numpy.ndarray or derivative object." )
             return
         try:
             if tuna_can.ndim != 3:
-                log.warning ( "Image does not have 3 dimensions, aborting." )
+                self.log.warning ( "Image does not have 3 dimensions, aborting." )
                 return
         except AttributeError as e:
-            log.warning ( "%s, aborting." % str ( e ) )
+            self.log.warning ( "%s, aborting." % str ( e ) )
             return
         
         self.log.info ( "Starting high_resolution pipeline." )
@@ -130,7 +133,10 @@ class high_resolution ( threading.Thread ):
         if self.dont_fit == False:
             #initial_b_ratio = 0.9e-6 # todo
             #initial_b_ratio = 0.00231
-            initial_b_ratio = 6.1375e-8
+            rings = tuna.tools.find_rings_2d ( self.tuna_can.array [ 0 ] )
+            initial_b_ratio = tuna.tools.estimate_b_ratio ( rings [ 'radii' ], [ self.interference_order - 1,
+                                                                                 self.interference_order ] )
+            initial_gap = 0.6598953125 * 791 * math.sqrt ( 1 + initial_b_ratio**2 * rings [ 'radii' ] [ 0 ] **2 ) / 2
             
             parinfo = [ ]
             parbase = { 'fixed' : False, 'limits' : ( initial_b_ratio * 0.96, initial_b_ratio * 1.04 ) }
@@ -143,8 +149,8 @@ class high_resolution ( threading.Thread ):
             parinfo.append ( parbase )
             parbase = { 'fixed' : False, 'limits' : ( self.finesse * 0.95, self.finesse * 1.05 ) }
             parinfo.append ( parbase )
-            parbase = { 'fixed' : False, 'limits' : ( self.initial_gap - self.calibration_wavelength / 4,
-                                                      self.initial_gap + self.calibration_wavelength / 4 ) }
+            parbase = { 'fixed' : False, 'limits' : ( initial_gap - self.calibration_wavelength / 4,
+                                                      initial_gap + self.calibration_wavelength / 4 ) }
             parinfo.append ( parbase )
             parbase = { 'fixed' : False }
             parinfo.append ( parbase )
@@ -154,7 +160,7 @@ class high_resolution ( threading.Thread ):
                                                       self.rings_center [ 0 ],
                                                       self.tuna_can.array [ 0 ],
                                                       self.finesse,
-                                                      self.initial_gap,
+                                                      initial_gap,
                                                       self.calibration_wavelength,
                                                       mpyfit_parinfo = parinfo )
             airy_fitter_0.join ( )
@@ -176,29 +182,31 @@ class high_resolution ( threading.Thread ):
             parinfo.append ( parbase )
             parbase = { 'fixed' : True }
             parinfo.append ( parbase )
-            parbase = { 'fixed' : False, 'limits' : ( initial_gap - self.calibration_wavelength / 4.,
+            #parbase = { 'fixed' : False, 'limits' : ( initial_gap - self.calibration_wavelength / 4.,
+            parbase = { 'fixed' : False, 'limits' : ( initial_gap - self.calibration_wavelength / ( 2*self.tuna_can.array.shape [ 0 ] ),
                                                       initial_gap + self.calibration_wavelength / 4. ) }
             parinfo.append ( parbase )
             parbase = { 'fixed' : True }
             parinfo.append ( parbase )
 
+            second_plane = round ( self.tuna_can.array.shape [ 0 ] / 2 )
             airy_fitter_1 = tuna.models.airy_fitter ( b_ratio,
                                                       self.rings_center [ 1 ],
                                                       self.rings_center [ 0 ],
-                                                      self.tuna_can.array [ 1 ],
+                                                      self.tuna_can.array [ second_plane ],
                                                       finesse,
                                                       initial_gap,
                                                       self.calibration_wavelength,
                                                       mpyfit_parinfo = parinfo )
             airy_fitter_1.join ( )
             
-            gap = airy_fitter_1.parameters [ 5 ] - airy_fitter_0.parameters [ 5 ]
+            gap = ( airy_fitter_1.parameters [ 5 ] - airy_fitter_0.parameters [ 5 ] ) / second_plane
             self.log.info ( "gap = %f" % gap )
 
             airy_fit = numpy.ndarray ( shape = self.tuna_can.shape )
             airy_fit [ 0 ] = airy_fitter_0.fit.array
-            airy_fit [ 1 ] = airy_fitter_1.fit.array
-            for plane in range ( 2, self.tuna_can.planes ):
+            #airy_fit [ 1 ] = airy_fitter_1.fit.array
+            for plane in range ( 1, self.tuna_can.planes ):
                 airy_fit [ plane ] = tuna.models.airy_plane ( b_ratio,
                                                               self.rings_center [ 1 ],
                                                               self.rings_center [ 0 ],

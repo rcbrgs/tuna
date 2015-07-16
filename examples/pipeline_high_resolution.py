@@ -1,11 +1,12 @@
 #!/bin/env ipython3
 
+import math
 # Import all modules and classes relevant to a user:
 import tuna
 
 tuna.log.set_path ( "pipeline_high_resolution.log" )
 
-file_name = "/home/nix/sync/tuna/sample_data/G094.AD3"
+#file_name = "/home/nix/sync/tuna/sample_data/G094.AD3"
 #file_name = "/home/nix/sync/tuna/sample_data/small_region.fits"
 file_name = "/home/nix/vtuna/full_04/G094_09_airy_fit.fits" 
 file_name_unpathed = file_name.split ( "/" ) [ -1 ]
@@ -14,6 +15,9 @@ file_name_prefix = file_name_unpathed.split ( "." ) [ 0 ]
 can = tuna.io.read ( file_name )
 
 from tuna.tools.phase_map import barycenter_fast
+
+
+
 high_res = tuna.tools.phase_map.high_resolution ( calibration_wavelength = 0.6598953125,
                                                   finesse = 14,
                                                   focal_length = 0.1,
