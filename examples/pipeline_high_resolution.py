@@ -1,4 +1,4 @@
-#!/bin/env ipython3
+  #!/bin/env ipython3
 
 import math
 # Import all modules and classes relevant to a user:
@@ -17,16 +17,16 @@ can = tuna.io.read ( file_name )
 from tuna.tools.phase_map import barycenter_fast
 
 
-
-high_res = tuna.tools.phase_map.high_resolution ( calibration_wavelength = 0.6598953125,
-                                                  finesse = 14,
+factor = 1e5
+high_res = tuna.tools.phase_map.high_resolution ( calibration_wavelength = 0.6598953125 * factor,
+                                                  finesse = 5,
                                                   #focal_length = 0.1,
                                                   free_spectral_range = 8.36522123894,
                                                   #initial_gap = 10000,
-                                                  interference_order = 0.85e7,
-                                                  interference_reference_wavelength = 0.65627797852,
+                                                  interference_order = 791,
+                                                  interference_reference_wavelength = 0.65627797852 * factor,
                                                   pixel_size = 9,
-                                                  scanning_wavelength = 0.661689,
+                                                  scanning_wavelength = 0.661689 * factor,
                                                   tuna_can = can,
                                                   wrapped_algorithm = barycenter_fast,
                                                   channel_subset = [ ],

@@ -58,13 +58,34 @@ def set_path ( file_name ):
         log.error ( "Non-string passed as file_name." )
         return
 
-    if tuna._log_handler != None:
-        tuna._log.removeHandler ( tuna._log_handler )
-
-    tuna._log_handler   = logging.FileHandler ( file_name )
-    tuna._log_formatter = logging.Formatter ( fmt = "%(asctime)s %(levelname)5s %(message)s", 
-                                              datefmt = '%Y-%m-%d %H:%M:%S' )
-    tuna._log_handler.setFormatter ( tuna._log_formatter )
-    tuna._log.addHandler ( tuna._log_handler )
+    new_handler = logging.FileHandler ( file_name )
+    new_formatter = logging.Formatter ( fmt = "%(asctime)s %(levelname)5s %(message)s", 
+                                        datefmt = '%Y-%m-%d %H:%M:%S' )
+    new_handler.setFormatter ( new_formatter )
+    tuna._log.addHandler ( new_handler )
+    tuna._log_handlers.append ( new_handler )
 
     log.info ( "Log file set to %s." % file_name )
+
+def verbose ( handler_type, verbosity ):
+    """
+    Will set the specified logging handler type to the specified verbosity.
+    Arguments:
+    - handler_type is a string that can be either "console" or "file".
+    - verbosity must be string equivalent to a level from the logging module, such as "DEBUG" or "INFO".
+    """
+    try:
+        level = getattr ( logging, verbosity )
+    except:
+        print ( "Unrecognized logging level." )
+        return
+
+    if handler_type == "console":
+        for handler in tuna._log_handlers:
+            if isinstance ( handler, logging.StreamHandler ):
+                handler.setLevel ( level )
+    
+    if handler_type == "file":
+        for handler in tuna._log_handlers:
+            if isinstance ( handler, logging.FileHandler ):
+                handler.setLevel ( level )

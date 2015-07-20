@@ -2,27 +2,53 @@
 Plot the numpy array using matplotlib.
 """
 
+import math
 import matplotlib.pyplot as plt
 import numpy
 
+def log ( message ):
+    debug = True
+    if debug:
+        print ( message )
+
 def plot ( data ):
-    #fig, axes = matplotlib.pyplot.subplots ( nrows = 1, ncols = 1 )
-    #fig.set_figwidth ( 20 )
-    #fig.set_figheight ( 4 )
-    #imleft   = axes.imshow( array )
-    #imcenter = axes.flat [ 1 ].imshow( center )
-    #imright  = axes.flat [ 2 ].imshow( right )
-    
-    #fig.colorbar ( imleft, ax = axes )
-    #fig.colorbar ( imcenter, ax = axes [ 1 ] )
-    #fig.colorbar ( imright, ax = axes [ 2 ] )
-    
-    #matplotlib.pyplot.show()
-    
-    #pixels = left.shape [ 0 ] * left.shape [ 1 ]
-    #print ( "max       = %d\t\t\t %d\t\t\t %d" % ( numpy.amax ( left ),
-    fig = plt.figure ( )
-    ax1 = plt.subplot ( 131 )
-    plt.imshow ( data, cmap='spectral')
-    plt.colorbar ( orientation="horizontal" )
-                    
+    """
+    Function that attempts to plot a numpy ndarray argument.
+    Will plot a mosaic if data is 3D, a simple plot if 2D.
+    """
+    if len ( data.shape ) == 3:
+        subplots = data.shape [ 0 ]
+        log ( "subplots = {}".format ( subplots ) )
+
+        dimensions = math.ceil ( math.sqrt ( subplots ) )
+        log ( "should create mosaic of {} x {} slots.".format ( dimensions, dimensions ) )
+
+        figure, axes = plt.subplots ( dimensions, dimensions, sharex='all', sharey='all' )
+
+        for plane in range ( data.shape [ 0 ] ):
+            axes.flat [ plane ] .imshow ( data [ plane ] )
+
+        return
+
+    if len ( data.shape ) == 2:
+        fig = plt.figure ( )
+        plt.imshow ( data, cmap='spectral')
+        plt.colorbar ( orientation="horizontal" )
+
+def plot_high_res ( high_res ):
+    """
+    Expects a high_res object.
+    Will plot each of the intermediary products.
+    """
+    plot ( high_res.continuum.array )
+    plot ( high_res.discontinuum.array )
+    plot ( high_res.wrapped_phase_map.array )
+    plot ( high_res.noise )
+    plot ( high_res.borders_to_center_distances )
+    plot ( high_res.order_map )
+    plot ( high_res.unwrapped_phase_map )
+    plot ( high_res.parabolic_fit )
+    plot ( high_res.airy_fit )
+    plot ( high_res.airy_fit_residue )
+    plot ( high_res.substituted_channels )
+    plot ( high_res.wavelength_calibrated )

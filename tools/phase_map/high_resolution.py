@@ -8,7 +8,19 @@ import tuna
 class high_resolution ( threading.Thread ):
     """
     Creates and stores an unwrapped phase map, taking as input a raw data cube.
-    Intermediary products are the binary noise, the ring borders, the regions and orders maps.
+    Intermediary products are:
+    - continuum
+    - discontinuum
+    - wrapped_phase_map
+    - noise
+    - borders_to_center_distances
+    - order_map
+    - unwrapped_phase_map
+    - parabolic_fit
+    - airy_fit
+    - airy_fit_residue
+    - substituted_channels
+    - wavelength_calibrated
     """
     def __init__ ( self,
                    calibration_wavelength,
