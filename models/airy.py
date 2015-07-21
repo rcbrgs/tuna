@@ -64,7 +64,6 @@ def airy_plane ( b_ratio = 9.e-6,
     """
 
     log = logging.getLogger ( __name__ )
-    #log.setLevel ( logging.DEBUG )
     log.debug ( "airy_plane" )
     
     log.debug ( "b_ratio = %f,"
@@ -173,29 +172,37 @@ class airy_fitter ( threading.Thread ):
                 lower_percentile = 1
                 break
             lower_percentile_value = numpy.percentile ( self.data, lower_percentile )
-            self.log.info ( "numpy.percentile ( self.data, %d ) = %f" % ( lower_percentile,
-                                                                          lower_percentile_value ) )
+            self.log.debug ( "numpy.percentile ( self.data, %d ) = %f" % ( lower_percentile,
+                                                                           lower_percentile_value ) )
 
         upper_percentile = 99
             
-        self.log.info ( "%d-percentile = %f, %d-percentile = %f." % ( lower_percentile,
-                                                                      numpy.percentile ( self.data,
-                                                                                         lower_percentile ),
-                                                                      upper_percentile,
-                                                                      numpy.percentile ( self.data,
-                                                                                         upper_percentile ) ) )
+        self.log.debug ( "%d-percentile = %f, %d-percentile = %f." % ( lower_percentile,
+                                                                       numpy.percentile ( self.data,
+                                                                                          lower_percentile ),
+                                                                       upper_percentile,
+                                                                       numpy.percentile ( self.data,
+                                                                                          upper_percentile ) ) )
         
         intensity = numpy.percentile ( self.data, upper_percentile ) - numpy.percentile ( self.data, lower_percentile )
         self.log.info ( "percentile difference = %f" % intensity )
         finesse_factor = 4.0 * self.finesse ** 2 / numpy.pi ** 2
         finesse_intensity_factor = ( 1 + finesse_factor ) / finesse_factor
-        self.log.info ( "finesse_intensity_factor = %f" % finesse_intensity_factor )
+        self.log.info ( "finesse_intensity_factor = ( 1 + F ) / F = %f" % finesse_intensity_factor )
         intensity *= finesse_intensity_factor
         self.log.info ( "intensity = %f" % intensity )
 
         continuum = abs ( numpy.percentile ( self.data, upper_percentile ) - intensity )
 
-        self.log.info ( "guesses: b_ratio = %f, center = ( %d, %d ), continuum = %f, finesse = %f, gap = %f, intensity = %f" % ( self.b_ratio, self.center_col, self.center_row, continuum, self.finesse, self.gap, intensity ) )
+        self.log.info ( "guesses:\n"
+                        "\tb_ratio     = {:e},\n"
+                        "\tcenter      = ( {}, {} )\n"
+                        "\tcontinuum   = {:e}\n"
+                        "\tfinesse     = {:e}\n"
+                        "\tinitial gap = {:e}\n"
+                        "\tintensity   = {:e}".format ( self.b_ratio, self.center_col,
+                                                        self.center_row, continuum, self.finesse,
+                                                        self.gap, intensity ) )
               
         parameters = ( self.b_ratio,
                        self.center_col,
@@ -208,7 +215,7 @@ class airy_fitter ( threading.Thread ):
         # Constraints on parameters
         if self.mpyfit_parinfo == [ ]:
             parinfo = [ ]
-            parbase = { 'fixed' : False, 'limits' : ( self.b_ratio * 0.96, self.b_ratio * 1.04 ) }
+            parbase = { 'fixed' : False, 'limits' : ( self.b_ratio * 0.9, self.b_ratio * 1.1 ) }
             parinfo.append ( parbase )
             parbase = { 'fixed' : False, 'limits' : ( self.center_col - 5, self.center_col + 5 ) }
             parinfo.append ( parbase )
@@ -242,7 +249,7 @@ class airy_fitter ( threading.Thread ):
             parinfo.append ( parbase )
 
         for entry in parinfo:
-            self.log.info ( "parinfo = %s" % str ( entry ) )
+            self.log.debug ( "parinfo = %s" % str ( entry ) )
             
         flat = 1
 
@@ -267,16 +274,21 @@ class airy_fitter ( threading.Thread ):
         non_spammy_results = copy.copy ( fit_result )
         del ( non_spammy_results [ 'covariances' ] )
         for key in non_spammy_results.keys ( ):
-            self.log.info ( "fit_result [ {} ] = {}".format ( key, non_spammy_results [ key ] ) )
+            self.log.debug ( "fit_result [ {} ] = {}".format ( key, non_spammy_results [ key ] ) )
 
-        msg = "results: b_ratio = %f, center = ( %d, %d ), continuum = %f, finesse = %f, gap = %f, intensity = %f"
-        self.log.info ( msg % ( fit_parameters [ 0 ],
-                                fit_parameters [ 1 ], 
-                                fit_parameters [ 2 ], 
-                                fit_parameters [ 3 ],
-                                fit_parameters [ 4 ], 
-                                fit_parameters [ 5 ],
-                                fit_parameters [ 6 ] ) )
+        self.log.info ( "results:\n"
+                        "\tb_ratio     = {:e},\n"
+                        "\tcenter      = ( {}, {} )\n"
+                        "\tcontinuum   = {:e}\n"
+                        "\tfinesse     = {:e}\n"
+                        "\tinitial gap = {:e}\n"
+                        "\tintensity   = {:e}".format ( fit_parameters [ 0 ],
+                                                        fit_parameters [ 1 ], 
+                                                        fit_parameters [ 2 ], 
+                                                        fit_parameters [ 3 ],
+                                                        fit_parameters [ 4 ], 
+                                                        fit_parameters [ 5 ],
+                                                        fit_parameters [ 6 ] ) )
 
         self.log.info ( "Airy fit took %ds." % ( time.time ( ) - start ) )
         self.fit = tuna.io.can ( airy_plane ( fit_parameters [ 0 ],

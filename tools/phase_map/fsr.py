@@ -15,7 +15,7 @@ class fsr_mapper ( threading.Thread ):
     """
     def __init__ ( self, distances, wrapped, center ):
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.DEBUG )
+        self.log.setLevel ( logging.INFO )
         super ( self.__class__, self ).__init__ ( )
 
         self.distances = distances.array
@@ -44,13 +44,13 @@ class fsr_mapper ( threading.Thread ):
         self.log.debug ( "ring_thickness_threshold = %f" % ring_thickness_threshold )
         # find how many rings are there
         rings = [ ]
-        self.log.info ( "fsr array 0% created." )
+        self.log.debug ( "fsr array 0% created." )
         last_percentage_logged = 0
         for row in range ( self.max_rows ):
             percentage = 10 * int ( row / self.max_rows * 10 )
             if percentage > last_percentage_logged:
                 last_percentage_logged = percentage
-                self.log.info ( "fsr array %d%% created." % percentage )
+                self.log.debug ( "fsr array %d%% created." % percentage )
             for col in range ( self.max_cols ):
                 if self.distances [ row ] [ col ] > 0:
                     possible_new_ring = True
@@ -60,7 +60,7 @@ class fsr_mapper ( threading.Thread ):
                             possible_new_ring = False
                     if possible_new_ring:
                         rings.append ( self.distances [ row ] [ col ] )
-        self.log.info ( "fsr array 100% created." )
+        self.log.info ( "fsr array created." )
         #self.log ( "fl_rings = %s" % str ( rings ) )
 
         # order rings by distance

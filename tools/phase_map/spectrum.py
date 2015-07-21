@@ -23,22 +23,22 @@ class continuum_detector ( threading.Thread ):
         continuum_array = numpy.zeros ( shape = ( self.can.array.shape [ 1 ], 
                                                   self.can.array.shape [ 2 ] ) )
 
-        self.log.info ( "Continuum array 0% created." )
+        self.log.debug ( "Continuum array 0% created." )
         last_percentage_logged = 0
         for row in range ( self.can.array.shape [ 1 ] ):
             percentage = 10 * int ( row / self.can.array.shape [ 1 ] * 10 )
             if ( percentage > last_percentage_logged ):
                 last_percentage_logged = percentage
-                self.log.info ( "Continuum array %d%% created." % ( percentage ) )
+                self.log.debug ( "Continuum array %d%% created." % ( percentage ) )
             for col in range ( self.can.array.shape [ 2 ] ):
                 continuum_array [ row ] [ col ] = median_of_lowest_channels ( spectrum = self.can.array [ :, row, col ], 
                                                                               continuum_to_FSR_ratio = self.continuum_to_FSR_ratio )
         
-        self.log.info ( "Continuum array 100% created." )
+        self.log.info ( "Continuum array created." )
 
         self.continuum = tuna.io.can ( array = continuum_array )
 
-        self.log.info ( "detect_continuum() took %ds." % ( time.time ( ) - start ) )
+        self.log.debug ( "detect_continuum() took %ds." % ( time.time ( ) - start ) )
 
 def median_of_lowest_channels ( continuum_to_FSR_ratio = 0.25,
                                 spectrum = numpy.ndarray ):

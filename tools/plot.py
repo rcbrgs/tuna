@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy
 
 def log ( message ):
-    debug = True
+    debug = False
     if debug:
         print ( message )
 
@@ -28,8 +28,13 @@ def plot ( data, title = "" ):
         figure.suptitle ( title )
 
         for plane in range ( data.shape [ 0 ] ):
-            axes.flat [ plane ] .imshow ( data [ plane ] )
+            image = axes.flat [ plane ] .imshow ( data [ plane ] )
 
+        figure.subplots_adjust(right=0.8)
+        
+        colorbar_axe = figure.add_axes ( [ 0.85, 0.15, 0.05, 0.7 ] )
+        figure.colorbar ( image, cax=colorbar_axe )
+            
         return
 
     if len ( data.shape ) == 2:

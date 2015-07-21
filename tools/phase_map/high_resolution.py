@@ -25,9 +25,7 @@ class high_resolution ( threading.Thread ):
     def __init__ ( self,
                    calibration_wavelength,
                    finesse,
-                   #focal_length,
                    free_spectral_range,
-                   #initial_gap,
                    interference_order,
                    interference_reference_wavelength,
                    pixel_size,
@@ -51,8 +49,9 @@ class high_resolution ( threading.Thread ):
         """       
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.1'
+        self.__version__ = '0.1.2'
         self.changelog = {
+            '0.1.2' : "Refactored to use new ring center finder.",
             '0.1.1' : "Using variables instead of harcoded values for inital b and gap values.",
             '0.1.0' : "Initial changelog."
             }
@@ -123,7 +122,7 @@ class high_resolution ( threading.Thread ):
         wrapped_producer.join ( )
 
         self.wrapped_phase_map = wrapped_producer.result
-        self.log.info ( "self.wrapped_phase_map.array.shape = %s" % str ( self.wrapped_phase_map.array.shape ) )
+        self.log.debug ( "self.wrapped_phase_map.array.shape = %s" % str ( self.wrapped_phase_map.array.shape ) )
 
         noise_detector = tuna.tools.phase_map.noise_detector ( self.tuna_can,
                                                                self.wrapped_phase_map, 
@@ -131,26 +130,23 @@ class high_resolution ( threading.Thread ):
         noise_detector.join ( )
         self.noise = noise_detector.noise
 
-        center_finder = tuna.tools.phase_map.arc_segmentation_center_finder ( self.wrapped_phase_map,
-                                                                              self.noise )
-        center_finder.join ( )
-        self.rings_center = center_finder.center
+        self.rings_center = tuna.tools.find_rings_2d ( self.tuna_can.array [ 0 ] )
+        
         if self.verify_center != None:
             true_center = self.verify_center [ 0 ]
             threshold = self.verify_center [ 1 ]
-            difference = math.sqrt ( ( self.rings_center [ 0 ] - true_center [ 0 ] ) ** 2 + \
-                                     ( self.rings_center [ 1 ] - true_center [ 1 ] ) ** 2 )
+            difference = math.sqrt ( ( self.rings_center [ 'probable_centers' ] [ 0 ] - true_center [ 0 ] ) ** 2 + \
+                                     ( self.rings_center [ 'probable_centers' ] [ 1 ] - true_center [ 1 ] ) ** 2 )
             if difference >= threshold:
                 return
 
         if self.dont_fit == False:
-            rings = tuna.tools.find_rings_2d ( self.tuna_can.array [ 0 ] )
-            initial_b_ratio = tuna.tools.estimate_b_ratio ( [ rings [ 'radii' ] [ 0 ],
-                                                              rings [ 'radii' ] [ 1 ] ],
+            initial_b_ratio = tuna.tools.estimate_b_ratio ( [ self.rings_center [ 'radii' ] [ 0 ],
+                                                              self.rings_center [ 'radii' ] [ 1 ] ],
                                                               [ self.interference_order - 1,
                                                                 self.interference_order ] )
             self.log.info ( "initial_b_ratio = {}".format ( initial_b_ratio ) )
-            initial_gap = self.calibration_wavelength * self.interference_order * math.sqrt ( 1 + initial_b_ratio**2 * rings [ 'radii' ] [ 0 ] **2 ) / 2
+            initial_gap = self.calibration_wavelength * self.interference_order * math.sqrt ( 1 + initial_b_ratio**2 * self.rings_center [ 'radii' ] [ 0 ] **2 ) / 2
             self.log.info ( "inital_gap = {}".format ( initial_gap ) )
             
             parinfo = [ ]
@@ -171,8 +167,8 @@ class high_resolution ( threading.Thread ):
             parinfo.append ( parbase )
 
             airy_fitter_0 = tuna.models.airy_fitter ( initial_b_ratio,
-                                                      self.rings_center [ 1 ],
-                                                      self.rings_center [ 0 ],
+                                                      self.rings_center [ 'probable_centers' ] [ 1 ],
+                                                      self.rings_center [ 'probable_centers' ] [ 0 ],
                                                       self.tuna_can.array [ 0 ],
                                                       self.finesse,
                                                       initial_gap,
@@ -206,8 +202,8 @@ class high_resolution ( threading.Thread ):
 
             second_plane = round ( self.tuna_can.array.shape [ 0 ] / 2 )
             airy_fitter_1 = tuna.models.airy_fitter ( b_ratio,
-                                                      self.rings_center [ 1 ],
-                                                      self.rings_center [ 0 ],
+                                                      self.rings_center [ 'probable_centers' ] [ 1 ],
+                                                      self.rings_center [ 'probable_centers' ] [ 0 ],
                                                       self.tuna_can.array [ second_plane ],
                                                       finesse,
                                                       initial_gap,
@@ -223,8 +219,8 @@ class high_resolution ( threading.Thread ):
             #airy_fit [ 1 ] = airy_fitter_1.fit.array
             for plane in range ( 1, self.tuna_can.planes ):
                 airy_fit [ plane ] = tuna.models.airy_plane ( b_ratio,
-                                                              self.rings_center [ 1 ],
-                                                              self.rings_center [ 0 ],
+                                                              self.rings_center [ 'probable_centers' ] [ 1 ],
+                                                              self.rings_center [ 'probable_centers' ] [ 0 ],
                                                               continuum,
                                                               finesse,
                                                               airy_fitter_0.parameters [ 5 ] + plane * gap,
@@ -242,14 +238,14 @@ class high_resolution ( threading.Thread ):
 
 
         ring_border_detector = tuna.tools.phase_map.ring_border_detector ( self.wrapped_phase_map,
-                                                                           self.rings_center,
+                                                                           self.rings_center [ 'probable_centers' ],
                                                                            self.noise )
         ring_border_detector.join ( )
         self.borders_to_center_distances = ring_border_detector.distances
 
         fsr_mapper = tuna.tools.phase_map.fsr_mapper ( self.borders_to_center_distances,
                                                        self.wrapped_phase_map,
-                                                       self.rings_center )
+                                                       self.rings_center [ 'probable_centers' ] )
         fsr_mapper.join ( )
         self.fsr_map = fsr_mapper.fsr
         self.order_map = tuna.io.can ( array = self.fsr_map.astype ( dtype = numpy.float64 ) )
@@ -262,7 +258,7 @@ class high_resolution ( threading.Thread ):
             # It seems Astropy's fitters ain't thread safe, so the airy fit must be already joined.
             parabolic_fitter = tuna.models.parabolic_fitter ( self.noise,
                                                               self.unwrapped_phase_map,
-                                                              self.rings_center )
+                                                              self.rings_center [ 'probable_centers' ] )
 
         wavelength_calibrator = tuna.tools.wavelength.wavelength_calibrator ( self.unwrapped_phase_map,
                                                                               self.calibration_wavelength,
@@ -270,7 +266,7 @@ class high_resolution ( threading.Thread ):
                                                                               self.interference_order,
                                                                               self.interference_reference_wavelength,
                                                                               self.tuna_can.shape [ 0 ],
-                                                                              self.rings_center,
+                                                                              self.rings_center [ 'probable_centers' ],
                                                                               self.scanning_wavelength )
 
 
@@ -303,7 +299,7 @@ class high_resolution ( threading.Thread ):
         unwrapped_phase_map = numpy.zeros ( shape = self.wrapped_phase_map.shape )
         self.log.debug ( "unwrapped_phase_map.ndim == %d" % unwrapped_phase_map.ndim )
 
-        self.log.info ( "Phase map 0% unwrapped." )
+        self.log.debug ( "Phase map 0% unwrapped." )
         last_percentage_logged = 0
         for x in range ( max_x ):
             percentage = 10 * int ( x / max_x * 10 )

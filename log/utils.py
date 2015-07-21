@@ -59,7 +59,7 @@ def set_path ( file_name ):
         return
 
     new_handler = logging.FileHandler ( file_name )
-    new_formatter = logging.Formatter ( fmt = "%(asctime)s %(levelname)5s %(message)s", 
+    new_formatter = logging.Formatter ( fmt = "%(asctime)s %(name)s %(levelname)5s %(message)s", 
                                         datefmt = '%Y-%m-%d %H:%M:%S' )
     new_handler.setFormatter ( new_formatter )
     tuna._log.addHandler ( new_handler )

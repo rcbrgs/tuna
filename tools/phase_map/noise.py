@@ -41,7 +41,7 @@ class noise_detector ( threading.Thread ):
         profile_sums = numpy.sum ( self.raw.array, 0 )
 
         average = numpy.average ( profile_sums )
-        self.log.info ( "average profile sum: %f" % average )
+        self.log.debug ( "average profile sum: %f" % average )
 
         signalless = numpy.where ( profile_sums < average * threshold,
                                    numpy.ones ( shape = self.noise.array.shape ),
@@ -57,7 +57,7 @@ class noise_detector ( threading.Thread ):
         
         self.noise.array = signalless
 
-        self.log.info ( "detect_signalless() took %ds." % ( time.time ( ) - start ) )
+        self.log.debug ( "detect_signalless() took %ds." % ( time.time ( ) - start ) )
 
 def include_noise_circle ( position = ( int, int ), radius = int, array = numpy.array ):
     for x in range ( position[0] - math.ceil ( radius ), position[0] + math.ceil ( radius ) + 1 ):

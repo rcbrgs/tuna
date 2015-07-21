@@ -14,8 +14,10 @@ class rings_2d_finder ( object ):
 
     def __init__ ( self, array ):
         self.log = logging.getLogger ( __name__ )
-        self.__version__ = '0.1.0'
+        self.__version__ = '0.1.2'
         self.changelog = {
+            '0.1.2' : "Moved percentile on threshold to 10% to 'get' more rings.",
+            '0.1.1' : "Changed threshold for begin a filling region from 10% to 1% of image pixels, to account for images with many pixels.",
             '0.1.0' : "Initial version." }
 
         self.array = array
@@ -98,7 +100,7 @@ class rings_2d_finder ( object ):
         """
         Threshold will be applied at some high percentile. Must make the result image have zeros between the rings. Unfortunately will also zero a "ridge" in the middle of each ring.
         """
-        percentile = numpy.percentile ( max_differences, 90 )
+        percentile = numpy.percentile ( max_differences, 50 )
 
         threshold = numpy.where ( max_differences > percentile,
                                   max_differences,
@@ -137,9 +139,12 @@ class rings_2d_finder ( object ):
                                           numpy.ones ( shape = self.array.shape ),
                                           numpy.zeros ( shape = self.array.shape ) )
             filling_count = numpy.sum ( filling_array )
-            if filling_count / pixels_total >= 0.1:
+            if filling_count / pixels_total >= 0.01:
                 self.log.info ( "Filling {} has {} pixels.".format ( filling, filling_count ) )
                 continuous_zero_regions += filling_array
+            else:
+                self.log.info ( "Ignoring filling {} since it has {} pixels ({}%)".format (
+                    filling, filling_count, filling_count / pixels_total ) )
 
         """
         Now we have an image with zeros in the "rings" and ones in the "inter"-rings regions.
@@ -274,10 +279,25 @@ def find_rings_2d ( array ):
     """
     Attempts to find rings contained in a 2D numpy ndarray input.
     Returns a structure with the following format:
-    result = { 'radii'   : [ ],
-               'ndarray' : { } }
+    result = { 'radii'   : [ ],  # list of radii for rings
+               'ndarray' : { 'max', # array where each pixel has the value of the max difference between itself and its neighbours, in the original array.
+                             'nw', # array where pixels have max difference with regards to their nw neighbour
+                             'nn',
+                             'ne',
+                             'ww',
+                             'ee',
+                             'sw',
+                             'ss',
+                             'se',
+                             'threshold', # array where inter-rings are 0s and rings are 1s
+                             'fill',
+                             'continuous'
+                            } 
+                'rings',
+                'probable_centers'
+              }
     """
 
     finder = rings_2d_finder ( array )
     finder.execute ( )
-    return finder.result# [ 'probable_centers' ]
+    return finder.result

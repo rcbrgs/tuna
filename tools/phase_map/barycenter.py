@@ -122,7 +122,7 @@ class barycenter_fast ( threading.Thread ):
         self.result = tuna.io.can ( array = result )
         self.log.debug ( "self.result.array.shape = %s" % str ( self.result.array.shape ) )
 
-        self.log.info ( "Barycenter detection took %ds." % ( time.time ( ) - start ) )
+        self.log.debug ( "Barycenter detection took %ds." % ( time.time ( ) - start ) )
 
     def create_barycenter_using_peak ( self ):
         """
@@ -156,12 +156,12 @@ class barycenter_fast ( threading.Thread ):
         # The weighted-by-distance mass value is the profile times the multipliers array;
         # The total mass value is the profile times the shoulder_mask.
         
-        self.log.info ( "Creating barycenter 0% done." )
+        self.log.debug ( "Barycenter 0% done." )
         last_percentage_logged = 0
         for row in range ( self.__array.shape [ 1 ] ):
             percentage = 10 * int ( row / self.__array.shape [ 1 ] * 10 )
             if percentage > last_percentage_logged:
-                self.log.info ( "Creating barycenter %d%% done." % ( percentage ) )
+                self.log.debug ( "Barycenter %d%% done." % ( percentage ) )
                 last_percentage_logged = percentage
             for col in range ( self.__array.shape [ 2 ] ):
                 profile = self.__array[:,row,col]
@@ -199,7 +199,7 @@ class barycenter_fast ( threading.Thread ):
                     ordered_shifted_center_of_mass = shifted_center_of_mass % ( self.__array.shape [ 0 ] )
                 
                 barycenter_array[row][col] = ordered_shifted_center_of_mass
-        self.log.info ( "Creating barycenter 100% done." )
+        self.log.info ( "Barycenter done." )
 
         return barycenter_array
 
