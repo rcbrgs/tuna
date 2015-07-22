@@ -52,7 +52,7 @@ _log.setLevel ( logging.INFO )
 handler = logging.StreamHandler ( stream = sys.stdout )
 _log_handlers = [ ]
 _log_handlers.append ( handler )
-handler.setLevel ( logging.DEBUG )
+handler.setLevel ( logging.INFO )
 formatter = logging.Formatter ( fmt = "%(asctime)s %(name)s %(levelname)5s %(message)s", 
                                 datefmt = '%Y-%m-%d %H:%M:%S' )
 handler.setFormatter ( formatter )

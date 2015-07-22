@@ -265,7 +265,7 @@ class rings_2d_finder ( object ):
             average_ring_center_distance /= numpy.sum ( ring )
             distances.append ( average_ring_center_distance )
         
-        self.log.info ( "radii = {}".format ( distances ) )
+        self.log.debug ( "radii = {}".format ( distances ) )
             
         """
         Saving all results for return to user.

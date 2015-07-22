@@ -49,8 +49,9 @@ class high_resolution ( threading.Thread ):
         """       
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.3'
+        self.__version__ = '0.1.4'
         self.changelog = {
+            '0.1.4' : "Reverted to simpler method of fitting first 2 planes; works beautifully.",
             '0.1.3' : "Made default less verbose.",
             '0.1.2' : "Refactored to use new ring center finder.",
             '0.1.1' : "Using variables instead of harcoded values for inital b and gap values.",
@@ -145,7 +146,7 @@ class high_resolution ( threading.Thread ):
             sorted_radii = sorted ( self.rings_center [ 'radii' ] )
             self.log.info ( "sorted_radii = {}".format ( sorted_radii ) )
             
-            initial_b_ratio = tuna.tools.estimate_b_ratio ( sorted_radii [ 0 : 1 ],
+            initial_b_ratio = tuna.tools.estimate_b_ratio ( sorted_radii [ : 2 ],
                                                             [ self.interference_order,
                                                               self.interference_order - 1 ] )
             self.log.info ( "initial_b_ratio = {}".format ( initial_b_ratio ) )
@@ -153,7 +154,7 @@ class high_resolution ( threading.Thread ):
             self.log.info ( "inital_gap = {}".format ( initial_gap ) )
             
             parinfo = [ ]
-            parbase = { 'fixed' : False, 'limits' : ( initial_b_ratio * 0.96, initial_b_ratio * 1.04 ) }
+            parbase = { 'fixed' : False, 'limits' : ( initial_b_ratio * 0.9, initial_b_ratio * 1.1 ) }
             parinfo.append ( parbase )
             parbase = { 'fixed' : True }
             parinfo.append ( parbase )
@@ -161,7 +162,7 @@ class high_resolution ( threading.Thread ):
             parinfo.append ( parbase )
             parbase = { 'fixed' : False }
             parinfo.append ( parbase )
-            parbase = { 'fixed' : False, 'limits' : ( self.finesse * 0.95, self.finesse * 1.05 ) }
+            parbase = { 'fixed' : False, 'limits' : ( self.finesse * 0.9, self.finesse * 1.1 ) }
             parinfo.append ( parbase )
             parbase = { 'fixed' : False, 'limits' : ( initial_gap - self.calibration_wavelength / 4,
                                                       initial_gap + self.calibration_wavelength / 4 ) }
@@ -203,7 +204,8 @@ class high_resolution ( threading.Thread ):
             parbase = { 'fixed' : True }
             parinfo.append ( parbase )
 
-            second_plane = round ( self.tuna_can.array.shape [ 0 ] / 2 )
+            # second_plane = round ( self.tuna_can.array.shape [ 0 ] / 2 )
+            second_plane = 1
             airy_fitter_1 = tuna.models.airy_fitter ( b_ratio,
                                                       self.rings_center [ 'probable_centers' ] [ 1 ],
                                                       self.rings_center [ 'probable_centers' ] [ 0 ],
@@ -214,7 +216,8 @@ class high_resolution ( threading.Thread ):
                                                       mpyfit_parinfo = parinfo )
             airy_fitter_1.join ( )
             
-            gap = ( airy_fitter_1.parameters [ 5 ] - airy_fitter_0.parameters [ 5 ] ) / second_plane
+            #gap = ( airy_fitter_1.parameters [ 5 ] - airy_fitter_0.parameters [ 5 ] ) / second_plane
+            gap = airy_fitter_1.parameters [ 5 ] - airy_fitter_0.parameters [ 5 ]
             self.log.info ( "channel gap = %f" % gap )
 
             airy_fit = numpy.ndarray ( shape = self.tuna_can.shape )

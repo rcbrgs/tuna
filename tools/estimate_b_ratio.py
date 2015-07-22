@@ -1,11 +1,13 @@
 import logging
+import math
 import tuna
 
 class b_ratio_estimator ( object ):
     def __init__ ( self, radii, orders ):
         self.log = logging.getLogger ( __name__ )
-        self.__version__ = '0.1.0'
+        self.__version__ = '0.1.1'
         self.changelog = {
+            '0.1.1'  : "Error: was returning b**2 instead of its radix.",
             '0.1.0'  : "First changelogged version."
             }
         
@@ -40,9 +42,9 @@ class b_ratio_estimator ( object ):
         r_1  = self.radii  [ 1 ]
         self.log.info ( "r = {:e}, pc = {:e}; r_1 = {:e}, pc_1 = {:e}".format ( r, pc, r_1, pc_1 ) )
 
-        b = 2 * pc_1 / ( pc**2 * ( r_1**2 - r**2 ) - 2 * pc * r_1**2 + r_1**2 )
+        b_squared = 2 * pc_1 / ( pc**2 * ( r_1**2 - r**2 ) - 2 * pc * r_1**2 + r_1**2 )
 
-        return b
+        return math.sqrt ( b_squared )
 
 def estimate_b_ratio ( radii, orders ):
     """
