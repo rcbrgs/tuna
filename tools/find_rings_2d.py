@@ -12,10 +12,12 @@ class rings_2d_finder ( object ):
     The responsibility of this class is to find all rings contained in a bidimensional numpy array provided by the user. It should return ndarrays containing the pixels, and lists of the rings centers and radii.
     """
 
-    def __init__ ( self, array ):
+    def __init__ ( self, array, ring_minimal_percentile ):
         self.log = logging.getLogger ( __name__ )
-        self.__version__ = '0.1.3'
+        self.log.setLevel ( logging.INFO )
+        self.__version__ = '0.1.4'
         self.changelog = {
+            '0.1.4' : "Parameterized percentile for ring / inter ring decision.",
             '0.1.3' : "There should be a single center being considered, so the average of the found centers is used.",
             '0.1.2' : "Moved percentile on threshold to 10% to 'get' more rings.",
             '0.1.1' : "Changed threshold for begin a filling region from 10% to 1% of image pixels, to account for images with many pixels.",
@@ -24,6 +26,7 @@ class rings_2d_finder ( object ):
         self.array = array
         self.result = { 'radii'   : [ ],
                         'ndarray' : { } }
+        self.ring_minimal_percentile = ring_minimal_percentile
         
     def execute ( self ):
         """
@@ -101,7 +104,7 @@ class rings_2d_finder ( object ):
         """
         Threshold will be applied at some high percentile. Must make the result image have zeros between the rings. Unfortunately will also zero a "ridge" in the middle of each ring.
         """
-        percentile = numpy.percentile ( max_differences, 50 )
+        percentile = numpy.percentile ( max_differences, self.ring_minimal_percentile )
 
         threshold = numpy.where ( max_differences > percentile,
                                   max_differences,
@@ -143,9 +146,9 @@ class rings_2d_finder ( object ):
             if filling_count / pixels_total >= 0.01:
                 self.log.debug ( "Filling {} has {} pixels.".format ( filling, filling_count ) )
                 continuous_zero_regions += filling_array
-            else:
-                self.log.debug ( "Ignoring filling {} since it has {} pixels ({}%)".format (
-                    filling, filling_count, filling_count / pixels_total ) )
+            #else:
+            #    self.log.debug ( "Ignoring filling {} since it has {} pixels ({}%)".format (
+            #        filling, filling_count, filling_count / pixels_total ) )
 
         """
         Now we have an image with zeros in the "rings" and ones in the "inter"-rings regions.
@@ -167,7 +170,7 @@ class rings_2d_finder ( object ):
                 new_region = tuna.tools.get_connected_region ( ( col, row ),
                                                                continuous_zero_regions, considered )
                 connected_regions.append ( new_region )
-                self.log.debug ( "new_region with len = {}".format ( len ( new_region ) ) )
+                #self.log.debug ( "new_region with len = {}".format ( len ( new_region ) ) )
                 if len ( new_region ) > max_length:
                     max_length = len ( new_region )
 
@@ -247,8 +250,9 @@ class rings_2d_finder ( object ):
         average_center_col /= centers
         average_center_row /= centers
         average_center = ( average_center_col, average_center_row )
-        self.log.info ( "averaged probable center: {}.".format ( average_center ) )
-            
+        self.log.info ( "averaged probable center: ({:.1f}, {:.1f}).".format ( average_center [ 0 ],
+                                                                               average_center [ 1 ] ) )
+        
         """
         If we have centers, we can obtain the radii.
         """
@@ -290,8 +294,10 @@ class rings_2d_finder ( object ):
                         'probable_centers' : average_center,
                         }
 
-def find_rings_2d ( array ):
+def find_rings_2d ( array, ring_minimal_percentile = 50 ):
     """
+    - ring_minimal_percentile is the percentile of the array that pixels with values below that percentile belong to inter-ring regions, while values on or above that percentile belong to rings. Default is 50.
+
     Attempts to find rings contained in a 2D numpy ndarray input.
     Returns a structure with the following format:
     result = { 'radii'   : [ ],  # list of radii for rings
@@ -313,6 +319,6 @@ def find_rings_2d ( array ):
               }
     """
 
-    finder = rings_2d_finder ( array )
+    finder = rings_2d_finder ( array, ring_minimal_percentile )
     finder.execute ( )
     return finder.result

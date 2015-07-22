@@ -34,7 +34,7 @@ class fsr_mapper ( threading.Thread ):
 
         self.create_fsr_map ( )
 
-        self.log.info ( "create_fsr_map() took %ds." % ( time.time ( ) - start ) )
+        self.log.debug ( "create_fsr_map() took %ds." % ( time.time ( ) - start ) )
 
     def create_fsr_map ( self ):
         """

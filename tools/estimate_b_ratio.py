@@ -40,11 +40,13 @@ class b_ratio_estimator ( object ):
 
         r    = self.radii  [ 0 ]
         r_1  = self.radii  [ 1 ]
-        self.log.info ( "r = {:e}, pc = {:e}; r_1 = {:e}, pc_1 = {:e}".format ( r, pc, r_1, pc_1 ) )
+        self.log.debug ( "r = {:e}, pc = {:e}; r_1 = {:e}, pc_1 = {:e}".format ( r, pc, r_1, pc_1 ) )
 
         b_squared = 2 * pc_1 / ( pc**2 * ( r_1**2 - r**2 ) - 2 * pc * r_1**2 + r_1**2 )
+        b = math.sqrt ( b_squared )
+        self.log.info ( "b_ratio = {:e}".format ( b ) )
 
-        return math.sqrt ( b_squared )
+        return b
 
 def estimate_b_ratio ( radii, orders ):
     """

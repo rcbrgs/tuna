@@ -2,6 +2,7 @@
 Plot the numpy array using matplotlib.
 """
 
+import IPython
 import math
 import matplotlib.pyplot as plt
 import numpy
@@ -11,11 +12,15 @@ def log ( message ):
     if debug:
         print ( message )
 
-def plot ( data, title = "" ):
+def plot ( data, title = "", ipython = None ):
     """
     Function that attempts to plot a numpy ndarray argument.
     Will plot a mosaic if data is 3D, a simple plot if 2D.
     """
+    if not ipython:
+        ipython = IPython.get_ipython()
+        ipython.magic("matplotlib qt")
+
     if len ( data.shape ) == 3:
         subplots = data.shape [ 0 ]
         log ( "subplots = {}".format ( subplots ) )
@@ -48,17 +53,21 @@ def plot_high_res ( high_res ):
     Expects a high_res object.
     Will plot each of the intermediary products.
     """
-    plot ( high_res.continuum.array, title = "continuum" )
-    plot ( high_res.discontinuum.array, title = "discontinuum" )
-    plot ( high_res.wrapped_phase_map.array, title = "wrapped phase map" )
-    plot ( high_res.noise.array, title = "noise" )
-    plot ( high_res.borders_to_center_distances.array, title = "borders to center distances" )
-    plot ( high_res.order_map.array, title = "order map" )
-    plot ( high_res.unwrapped_phase_map.array, title = "unwrapped phase map" )
+    
+    ipython = IPython.get_ipython()
+    ipython.magic("matplotlib qt")
+
+    plot ( high_res.continuum.array, title = "continuum", ipython = ipython )
+    plot ( high_res.discontinuum.array, title = "discontinuum", ipython = ipython )
+    plot ( high_res.wrapped_phase_map.array, title = "wrapped phase map", ipython = ipython )
+    plot ( high_res.noise.array, title = "noise", ipython = ipython )
+    plot ( high_res.borders_to_center_distances.array, title = "borders to center distances", ipython = ipython )
+    plot ( high_res.order_map.array, title = "order map", ipython = ipython )
+    plot ( high_res.unwrapped_phase_map.array, title = "unwrapped phase map", ipython = ipython )
     if high_res.parabolic_fit:
-        plot ( high_res.parabolic_fit.array, title = "parabolic fit" )
+        plot ( high_res.parabolic_fit.array, title = "parabolic fit", ipython = ipython )
     if high_res.airy_fit:
-        plot ( high_res.airy_fit.array, title = "airy fit" )
-        plot ( high_res.airy_fit_residue.array, title = "airy fit residue" )
-    plot ( high_res.substituted_channels.array, title = "substituted channels" )
-    plot ( high_res.wavelength_calibrated.array, title = "wavelength calibrated" )
+        plot ( high_res.airy_fit.array, title = "airy fit", ipython = ipython )
+        plot ( high_res.airy_fit_residue.array, title = "airy fit residue", ipython = ipython )
+    plot ( high_res.substituted_channels.array, title = "substituted channels", ipython = ipython )
+    plot ( high_res.wavelength_calibrated.array, title = "wavelength calibrated", ipython = ipython )

@@ -23,8 +23,9 @@ Indexing order
 From Tuna v0.11 onwards, we are adopting the convention mentioned in: http://docs.scipy.org/doc/numpy/reference/internals.html, so that rows will be the last item indexed. Therefore, cubes in tuna should be indexed as [ planes, columns, rows ].
 """
 
-__version__ = '0.10.1'
+__version__ = '0.10.2'
 changelog = {
+    '0.10.2'  : "Tweaked logging to be less spammy for user.",
     '0.10.1'  : "Refactored the logging facility to have more stdout information, and at the same time save info to log file if specified."
     }
 
@@ -52,8 +53,8 @@ _log.setLevel ( logging.INFO )
 handler = logging.StreamHandler ( stream = sys.stdout )
 _log_handlers = [ ]
 _log_handlers.append ( handler )
-handler.setLevel ( logging.INFO )
-formatter = logging.Formatter ( fmt = "%(asctime)s %(name)s %(levelname)5s %(message)s", 
+handler.setLevel ( logging.NOTSET )
+formatter = logging.Formatter ( fmt = "%(asctime)s %(message)s", 
                                 datefmt = '%Y-%m-%d %H:%M:%S' )
 handler.setFormatter ( formatter )
 _log.addHandler ( handler )

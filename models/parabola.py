@@ -34,10 +34,11 @@ class parabolic_fitter ( threading.Thread ):
         start = time.time ( )
 
         self.create_model_map_by_Polynomial2D ( )
-        self.log.info ( "parabolic_model.get_center() = %s" % str ( self.get_center ( ) ) )
+        self.log.debug ( "parabolic_model.get_center() = %s" % str ( self.get_center ( ) ) )
         self.fit = tuna.io.can ( self.model )
-
-        self.log.info ( "fit_parabolic_model_by_Polynomial2D() took %ds." % ( time.time ( ) - start ) )  
+        
+        self.log.info ( "Parabolic model fitted." )
+        self.log.debug ( "fit_parabolic_model_by_Polynomial2D() took %ds." % ( time.time ( ) - start ) )  
 
     def create_model_map_by_Polynomial2D ( self ):
         """

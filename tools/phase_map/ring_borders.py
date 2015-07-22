@@ -30,7 +30,7 @@ class ring_border_detector ( threading.Thread ):
         self.create_synthetic_borders ( )
         self.distances = tuna.io.can ( self.borders )
 
-        self.log.info ( "ring_border_detector took %ds." % ( time.time ( ) - start ) )
+        self.log.debug ( "ring_border_detector took %ds." % ( time.time ( ) - start ) )
 
     def map_distances ( self ):
         """

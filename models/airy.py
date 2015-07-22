@@ -137,8 +137,9 @@ class airy_fitter ( threading.Thread ):
                    
         self.log = logging.getLogger ( __name__ )
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = '0.1.0'
+        self.__version__ = '0.1.1'
         self.changelog = {
+            '0.1.1' : "Refactored algorithm for getting lowest percentile into another module.",
             '0.1.0' : "Initial changelog."
             }
 
@@ -164,19 +165,8 @@ class airy_fitter ( threading.Thread ):
         """
         start = time.time ( )
 
-        lower_percentile = 1
-        lower_percentile_value = numpy.percentile ( self.data, lower_percentile )
-        while ( lower_percentile_value <= 0 ):
-            lower_percentile += 1
-            if lower_percentile == 100:
-                lower_percentile = 1
-                break
-            lower_percentile_value = numpy.percentile ( self.data, lower_percentile )
-            self.log.debug ( "numpy.percentile ( self.data, %d ) = %f" % ( lower_percentile,
-                                                                           lower_percentile_value ) )
-
-        upper_percentile = 99
-            
+        lower_percentile = tuna.tools.find_lowest_nonnull_percentile ( self.data )
+        upper_percentile = 99          
         self.log.debug ( "%d-percentile = %f, %d-percentile = %f." % ( lower_percentile,
                                                                        numpy.percentile ( self.data,
                                                                                           lower_percentile ),
@@ -185,24 +175,24 @@ class airy_fitter ( threading.Thread ):
                                                                                           upper_percentile ) ) )
         
         intensity = numpy.percentile ( self.data, upper_percentile ) - numpy.percentile ( self.data, lower_percentile )
-        self.log.info ( "percentile difference = %f" % intensity )
+        self.log.debug ( "percentile difference = %f" % intensity )
         finesse_factor = 4.0 * self.finesse ** 2 / numpy.pi ** 2
         finesse_intensity_factor = ( 1 + finesse_factor ) / finesse_factor
-        self.log.info ( "finesse_intensity_factor = ( 1 + F ) / F = %f" % finesse_intensity_factor )
+        self.log.debug ( "finesse_intensity_factor = ( 1 + F ) / F = %f" % finesse_intensity_factor )
         intensity *= finesse_intensity_factor
-        self.log.info ( "intensity = %f" % intensity )
+        self.log.debug ( "intensity = %f" % intensity )
 
         continuum = abs ( numpy.percentile ( self.data, upper_percentile ) - intensity )
 
-        self.log.info ( "guesses:\n"
-                        "\tb_ratio     = {:e},\n"
-                        "\tcenter      = ( {}, {} )\n"
-                        "\tcontinuum   = {:e}\n"
-                        "\tfinesse     = {:e}\n"
-                        "\tinitial gap = {:e}\n"
-                        "\tintensity   = {:e}".format ( self.b_ratio, self.center_col,
-                                                        self.center_row, continuum, self.finesse,
-                                                        self.gap, intensity ) )
+        self.log.debug ( "guesses:\n"
+                         "\tb_ratio     = {:e},\n"
+                         "\tcenter      = ( {}, {} )\n"
+                         "\tcontinuum   = {:e}\n"
+                         "\tfinesse     = {:e}\n"
+                         "\tinitial gap = {:e}\n"
+                         "\tintensity   = {:e}".format ( self.b_ratio, self.center_col,
+                                                         self.center_row, continuum, self.finesse,
+                                                         self.gap, intensity ) )
               
         parameters = ( self.b_ratio,
                        self.center_col,
@@ -276,21 +266,21 @@ class airy_fitter ( threading.Thread ):
         for key in non_spammy_results.keys ( ):
             self.log.debug ( "fit_result [ {} ] = {}".format ( key, non_spammy_results [ key ] ) )
 
-        self.log.info ( "results:\n"
-                        "\tb_ratio     = {:e},\n"
-                        "\tcenter      = ( {}, {} )\n"
-                        "\tcontinuum   = {:e}\n"
-                        "\tfinesse     = {:e}\n"
-                        "\tinitial gap = {:e}\n"
-                        "\tintensity   = {:e}".format ( fit_parameters [ 0 ],
-                                                        fit_parameters [ 1 ], 
-                                                        fit_parameters [ 2 ], 
-                                                        fit_parameters [ 3 ],
-                                                        fit_parameters [ 4 ], 
-                                                        fit_parameters [ 5 ],
-                                                        fit_parameters [ 6 ] ) )
+        self.log.debug ( "results:\n"
+                         "\tb_ratio     = {:e},\n"
+                         "\tcenter      = ( {}, {} )\n"
+                         "\tcontinuum   = {:e}\n"
+                         "\tfinesse     = {:e}\n"
+                         "\tinitial gap = {:e}\n"
+                         "\tintensity   = {:e}".format ( fit_parameters [ 0 ],
+                                                         fit_parameters [ 1 ], 
+                                                         fit_parameters [ 2 ], 
+                                                         fit_parameters [ 3 ],
+                                                         fit_parameters [ 4 ], 
+                                                         fit_parameters [ 5 ],
+                                                         fit_parameters [ 6 ] ) )
 
-        self.log.info ( "Airy fit took %ds." % ( time.time ( ) - start ) )
+        self.log.debug ( "Airy fit took %ds." % ( time.time ( ) - start ) )
         self.fit = tuna.io.can ( airy_plane ( fit_parameters [ 0 ],
                                               fit_parameters [ 1 ],
                                               fit_parameters [ 2 ],

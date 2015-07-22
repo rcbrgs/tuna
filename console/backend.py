@@ -24,7 +24,7 @@ class backend ( object ):
     def __init__ ( self ):
         super ( backend, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.DEBUG )
+        self.log.setLevel ( logging.INFO )
 
         self.lock = False
 
