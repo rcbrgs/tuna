@@ -49,8 +49,9 @@ class high_resolution ( threading.Thread ):
         """       
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.2'
+        self.__version__ = '0.1.3'
         self.changelog = {
+            '0.1.3' : "Made default less verbose.",
             '0.1.2' : "Refactored to use new ring center finder.",
             '0.1.1' : "Using variables instead of harcoded values for inital b and gap values.",
             '0.1.0' : "Initial changelog."
@@ -305,11 +306,11 @@ class high_resolution ( threading.Thread ):
             percentage = 10 * int ( x / max_x * 10 )
             if percentage > last_percentage_logged:
                 last_percentage_logged = percentage
-                self.log.info ( "Phase map %d%% unwrapped." % percentage )
+                self.log.debug ( "Phase map %d%% unwrapped." % percentage )
             for y in range ( max_y ):
                 unwrapped_phase_map [ x ] [ y ] = self.wrapped_phase_map.array [ x ] [ y ] + \
                                                   max_channel * float ( self.order_map.array [ x ] [ y ] )
-        self.log.info ( "Phase map 100% unwrapped." )
+        self.log.info ( "Phase map unwrapped." )
 
         self.unwrapped_phase_map = tuna.io.can ( array = unwrapped_phase_map )
 

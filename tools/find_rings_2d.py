@@ -14,8 +14,9 @@ class rings_2d_finder ( object ):
 
     def __init__ ( self, array ):
         self.log = logging.getLogger ( __name__ )
-        self.__version__ = '0.1.2'
+        self.__version__ = '0.1.3'
         self.changelog = {
+            '0.1.3' : "There should be a single center being considered, so the average of the found centers is used.",
             '0.1.2' : "Moved percentile on threshold to 10% to 'get' more rings.",
             '0.1.1' : "Changed threshold for begin a filling region from 10% to 1% of image pixels, to account for images with many pixels.",
             '0.1.0' : "Initial version." }
@@ -234,21 +235,34 @@ class rings_2d_finder ( object ):
             self.log.info ( "probable center: {}, {}".format ( average_col, average_row ) )
 
         """
+        If we have more than one center, lets average them out.
+        """
+        average_center_col = 0
+        average_center_row = 0
+        centers = 0
+        for center in probable_centers:
+            average_center_col += center [ 0 ]
+            average_center_row += center [ 1 ]
+            centers += 1
+        average_center_col /= centers
+        average_center_row /= centers
+        average_center = ( average_center_col, average_center_row )
+            
+        """
         If we have centers, we can obtain the radii.
         """
 
         distances = [ ]
-        for center in probable_centers:
-            for ring in rings:
-                average_ring_center_distance = 0
-                for col in range ( cols ):
-                    for row in range ( rows ):
-                        if ring [ col ] [ row ] == 1:
-                            average_ring_center_distance += math.sqrt ( ( col - center [ 0 ] ) ** 2 +
-                                                                        ( row - center [ 1 ] ) ** 2 )
-                average_ring_center_distance /= numpy.sum ( ring )
-                distances.append ( average_ring_center_distance )
-                        
+        #for center in probable_centers:
+        for ring in rings:
+            average_ring_center_distance = 0
+            for col in range ( cols ):
+                for row in range ( rows ):
+                    if ring [ col ] [ row ] == 1:
+                        average_ring_center_distance += math.sqrt ( ( col - average_center [ 0 ] ) ** 2 +
+                                                                    ( row - average_center [ 1 ] ) ** 2 )
+            average_ring_center_distance /= numpy.sum ( ring )
+            distances.append ( average_ring_center_distance )
         
         self.log.info ( "radii = {}".format ( distances ) )
             
@@ -272,7 +286,7 @@ class rings_2d_finder ( object ):
                                       'continuous' : continuous_zero_regions,
                                       },
                         'rings' : rings,
-                        'probable_centers' : probable_centers,
+                        'probable_centers' : average_center,
                         }
 
 def find_rings_2d ( array ):
