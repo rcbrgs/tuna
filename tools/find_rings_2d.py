@@ -141,10 +141,10 @@ class rings_2d_finder ( object ):
                                           numpy.zeros ( shape = self.array.shape ) )
             filling_count = numpy.sum ( filling_array )
             if filling_count / pixels_total >= 0.01:
-                self.log.info ( "Filling {} has {} pixels.".format ( filling, filling_count ) )
+                self.log.debug ( "Filling {} has {} pixels.".format ( filling, filling_count ) )
                 continuous_zero_regions += filling_array
             else:
-                self.log.info ( "Ignoring filling {} since it has {} pixels ({}%)".format (
+                self.log.debug ( "Ignoring filling {} since it has {} pixels ({}%)".format (
                     filling, filling_count, filling_count / pixels_total ) )
 
         """
@@ -174,7 +174,7 @@ class rings_2d_finder ( object ):
         probable_rings = [ ]
         for region in connected_regions:
             if len ( region ) > max_length / 5:
-                self.log.info ( "Probable ring region with {} pixels.".format ( len ( region ) ) )
+                self.log.debug ( "Probable ring region with {} pixels.".format ( len ( region ) ) )
                 probable_rings.append ( region )
 
         """
@@ -208,7 +208,7 @@ class rings_2d_finder ( object ):
             average_col /= len ( ring )
             average_row /= len ( ring )
             if broken_ring:
-                self.log.info ( "Ignoring broken ring" )
+                self.log.debug ( "Ignoring broken ring" )
                 continue
 
             """
@@ -228,11 +228,11 @@ class rings_2d_finder ( object ):
             row_diff = max_row - min_row
             if ( max_col - min_col < 0.25 * self.array.shape [ 0 ] or
                  max_row - min_row < 0.25 * self.array.shape [ 1 ] ):
-                self.log.info ( "Ignoring ring with too small span." )
+                self.log.debug ( "Ignoring ring with too small span." )
                 continue
             
             probable_centers.append ( ( average_col, average_row ) )
-            self.log.info ( "probable center: {}, {}".format ( average_col, average_row ) )
+            self.log.debug ( "probable center: {}, {}".format ( average_col, average_row ) )
 
         """
         If we have more than one center, lets average them out.
@@ -247,6 +247,7 @@ class rings_2d_finder ( object ):
         average_center_col /= centers
         average_center_row /= centers
         average_center = ( average_center_col, average_center_row )
+        self.log.info ( "averaged probable center: {}.".format ( average_center ) )
             
         """
         If we have centers, we can obtain the radii.

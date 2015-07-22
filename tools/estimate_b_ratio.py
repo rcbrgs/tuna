@@ -4,10 +4,19 @@ import tuna
 class b_ratio_estimator ( object ):
     def __init__ ( self, radii, orders ):
         self.log = logging.getLogger ( __name__ )
+        self.__version__ = '0.1.0'
+        self.changelog = {
+            '0.1.0'  : "First changelogged version."
+            }
+        
         self.orders = orders
         self.radii  = radii        
 
     def estimate ( self ):
+        """
+        The self.radii list should contain at least two radii.
+        The innermost radii is of order "p", and the next one is of order "p-1".
+        """
         if not isinstance ( self.radii, list ):
             self.log.error ( "radii should be a list!" )
             return None
@@ -24,11 +33,12 @@ class b_ratio_estimator ( object ):
             self.log.error ( "radii and orders should have the same length!" )
             return None
 
-        pc   = self.orders [ 1 ]
-        pc_1 = self.orders [ 0 ]
+        pc   = self.orders [ 0 ]
+        pc_1 = self.orders [ 1 ]
 
-        r    = self.radii  [ 1 ]
-        r_1  = self.radii  [ 0 ]
+        r    = self.radii  [ 0 ]
+        r_1  = self.radii  [ 1 ]
+        self.log.info ( "r = {:e}, pc = {:e}; r_1 = {:e}, pc_1 = {:e}".format ( r, pc, r_1, pc_1 ) )
 
         b = 2 * pc_1 / ( pc**2 * ( r_1**2 - r**2 ) - 2 * pc * r_1**2 + r_1**2 )
 

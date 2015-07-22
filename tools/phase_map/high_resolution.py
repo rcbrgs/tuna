@@ -142,10 +142,12 @@ class high_resolution ( threading.Thread ):
                 return
 
         if self.dont_fit == False:
-            initial_b_ratio = tuna.tools.estimate_b_ratio ( [ self.rings_center [ 'radii' ] [ 0 ],
-                                                              self.rings_center [ 'radii' ] [ 1 ] ],
-                                                              [ self.interference_order - 1,
-                                                                self.interference_order ] )
+            sorted_radii = sorted ( self.rings_center [ 'radii' ] )
+            self.log.info ( "sorted_radii = {}".format ( sorted_radii ) )
+            
+            initial_b_ratio = tuna.tools.estimate_b_ratio ( sorted_radii [ 0 : 1 ],
+                                                            [ self.interference_order,
+                                                              self.interference_order - 1 ] )
             self.log.info ( "initial_b_ratio = {}".format ( initial_b_ratio ) )
             initial_gap = self.calibration_wavelength * self.interference_order * math.sqrt ( 1 + initial_b_ratio**2 * self.rings_center [ 'radii' ] [ 0 ] **2 ) / 2
             self.log.info ( "inital_gap = {}".format ( initial_gap ) )
@@ -213,7 +215,7 @@ class high_resolution ( threading.Thread ):
             airy_fitter_1.join ( )
             
             gap = ( airy_fitter_1.parameters [ 5 ] - airy_fitter_0.parameters [ 5 ] ) / second_plane
-            self.log.info ( "gap = %f" % gap )
+            self.log.info ( "channel gap = %f" % gap )
 
             airy_fit = numpy.ndarray ( shape = self.tuna_can.shape )
             airy_fit [ 0 ] = airy_fitter_0.fit.array
