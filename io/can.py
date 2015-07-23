@@ -19,8 +19,9 @@ class can ( file_reader ):
         super ( can, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.0'
+        self.__version__ = '0.1.1'
         self.changelog = {
+            '0.1.1' : "Feed info into db upon update, added file_type property.",
             '0.1.0' : "Initial changelogged version."
             }
 
@@ -31,6 +32,7 @@ class can ( file_reader ):
         self.photons = photons
 
         self.digest = None
+        self.file_type = None
         self.ndim = None
         self.shape = None
         self.planes = None
@@ -114,8 +116,13 @@ class can ( file_reader ):
         if not self.digest:
             self.digest = tuna.tools.get_hash_from_array ( self.array )
         record = tuna.db.select_record ( 'datasets', { 'hash' : self.digest } )
-        if not record:
-            self.log.info ( "Can is not yet on db." )
+        function = tuna.db.insert_record
+        if record:
+            self.log.debug ( "Can is already on db." )
+            function = tuna.db.update_record
+        function ( 'datasets', { 'hash'      : "{}".format ( self.digest ),
+                                 'file_name' : "{}".format ( self.file_name ),
+                                 'file_type' : "{}".format ( self.file_type ) } )
 
     def fliplr ( self ):
         result = numpy.ndarray ( shape = self.array.shape )
@@ -155,13 +162,18 @@ class can ( file_reader ):
                 self.array = ada_object.get_array ( )
                 self.metadata = ada_object.get_metadata ( )
                 self.__d_photons = ada_object.get_photons ( )
+                self.file_type = "adt"
+                self.update ( )
+                
             elif ( self.file_name.startswith ( ".fits", -5 ) or
                    self.file_name.startswith ( ".FITS", -5 ) ):
                 fits_object = fits ( file_name = self.file_name )
                 fits_object.read ( )
                 self.array = fits_object.get_array ( )
                 self.metadata = fits_object.get_metadata ( )
+                self.file_type = "fits"
                 self.update ( )
+
             elif ( self.file_name.startswith ( ".ad2", -4 ) or
                    self.file_name.startswith ( ".AD2", -4 ) or
                    self.file_name.startswith ( ".ad3", -4 ) or
@@ -170,7 +182,9 @@ class can ( file_reader ):
                 adhoc_object.read ( )
                 self.array = adhoc_object.get_array ( )
                 #self.metadata = adhoc_object.__trailer
+                self.file_type = "ada"
                 self.update ( )
+
         self.log.debug ( "After attempting to read file, " + tuna.io.system.status ( ) )
 
     def update ( self ):

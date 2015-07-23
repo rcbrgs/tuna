@@ -7,8 +7,9 @@ import time
 class database ( threading.Thread ):
     def __init__ ( self ):
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = "0.1.2"
+        self.__version__ = "0.1.3"
         self.changelog = {
+            '0.1.3' : "Better logging during insert.",
             '0.1.2' : "Added type info to dataset table.",
             '0.1.1' : "Refactored to use table definitions from a single variable.",
             '0.1.0' : "Initial version."
@@ -179,7 +180,7 @@ class database ( threading.Thread ):
             self.framework.shutdown = True
             return
         except Exception as e:
-            self.log.error ( "Exception during insert: {}.".format ( e ) )
+            self.log.error ( "Exception during insert: {}. sql = '{}'.".format ( e, sql ) )
             if e == ( 2014, 'Command Out of Sync' ):
                 self.log.info ( "Trying to recover resursively." )
                 return self.select_record ( table, columns_values )
