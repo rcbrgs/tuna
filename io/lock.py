@@ -6,7 +6,7 @@ import tuna
 class lock ( object ):
     def __init__ ( self ):
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.DEBUG )
+        self.log.setLevel ( logging.INFO )
         self.__version__ = '0.1.0'
         self.changelog = {
             '0.1.0'  : "Added changelog, logging."

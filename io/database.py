@@ -8,8 +8,9 @@ import tuna
 class database ( threading.Thread ):
     def __init__ ( self ):
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = "0.1.6"
+        self.__version__ = "0.1.7"
         self.changelog = {
+            '0.1.7' : "Added a lockable queue and diverted functions to enqueue requests.",
             '0.1.6' : "Tweaked exception handling during update to be more  resilient to error.",
             '0.1.5' : "Added table noise.",
             '0.1.4' : "Wrapped values in single quotes for insert.",
@@ -19,7 +20,7 @@ class database ( threading.Thread ):
             '0.1.0' : "Initial version."
         }
         self.log = logging.getLogger ( __name__ )
-        self.log_level = logging.DEBUG
+        self.log_level = logging.INFO
         self.daemon = True
         self.shutdown = False
 
@@ -157,6 +158,14 @@ class database ( threading.Thread ):
 
     def insert_record ( self, table, columns_values, attempt = 0 ):
         """
+        Enqueues request to insert_record_processor.
+        """
+        self.enqueue ( { 'function' : self.insert_record_processor,
+                         'args' : ( table, columns_values ),
+                         'kwargs' : { 'attempt' : attempt } } )
+        
+    def insert_record_processor ( self, table, columns_values, attempt = 0 ):
+        """
         columns_values must be a dict with columns as keys.
         """
         if attempt > 10:
@@ -197,6 +206,9 @@ class database ( threading.Thread ):
             self.log.info ( "Trying to recover insert_record recursively (attemp #{}). sql = '{}'".format (
                 attempt + 1, sql ) )
             return self.insert_record ( table, columns_values, attempt + 1 )
+        except pymysql.err.IntegrityError:
+            self.log.info ( "Trying to recover insert_record by calling update instead (attemp #{}). sql = '{}'".format ( attempt + 1, sql ) )
+            return self.update_record ( table, columns_values, attempt + 1 )
         except Exception as e:
             self.log.error ( "Exception during insert_record: {}, sys.exc_info() = '{}'. sql = '{}'".format (
                 e, sys.exc_info ( ), sql ) )
