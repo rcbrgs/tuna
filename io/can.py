@@ -118,11 +118,11 @@ class can ( file_reader ):
         record = tuna.db.select_record ( 'datasets', { 'hash' : self.digest } )
         function = tuna.db.insert_record
         if record:
-            self.log.debug ( "Can is already on db." )
+            self.log.info ( "Can is already on db." )
             function = tuna.db.update_record
-        function ( 'datasets', { 'hash'      : "{}".format ( self.digest ),
-                                 'file_name' : "{}".format ( self.file_name ),
-                                 'file_type' : "{}".format ( self.file_type ) } )
+        function ( 'datasets', { 'hash'      : self.digest,
+                                 'file_name' : self.file_name,
+                                 'file_type' : self.file_type } )
 
     def fliplr ( self ):
         result = numpy.ndarray ( shape = self.array.shape )

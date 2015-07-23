@@ -7,8 +7,10 @@ import time
 class database ( threading.Thread ):
     def __init__ ( self ):
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = "0.1.3"
+        self.__version__ = "0.1.5"
         self.changelog = {
+            '0.1.5' : "Added table noise.",
+            '0.1.4' : "Wrapped values in single quotes for insert.",
             '0.1.3' : "Better logging during insert.",
             '0.1.2' : "Added type info to dataset table.",
             '0.1.1' : "Refactored to use table definitions from a single variable.",
@@ -21,10 +23,13 @@ class database ( threading.Thread ):
 
         self.connection = None
         self.expected_tables = {
-            'datasets' : "( hash varchar ( 20 ) primary key,"
+            'datasets' : "( hash varchar ( 40 ) primary key,"
                          "file_name varchar ( 255 ),"
                          "file_type varchar ( 10 ),"
-                         "alias varchar ( 30 ) )"
+                         "alias varchar ( 30 ) )",
+            'noise'    : "( hash varchar ( 40 ) primary key,"
+                         "radius int,"
+                         "threshold int )"
         }
 
     def __del__ ( self ):
@@ -94,7 +99,7 @@ class database ( threading.Thread ):
         except Exception as e:
             self.log.error ( "Exception during MySQL connection open: {}.".format ( e ) )
             self.connection = None
-        self.log.info ( "MySQL connection opened." )
+        self.log.debug ( "MySQL connection opened." )
 
     # Config methods. They suppose connection is fine.
 
@@ -160,12 +165,12 @@ class database ( threading.Thread ):
         for key in columns_values.keys ( ):
             entry = columns_values [ key ]
             try:
-                values_string += ", {}".format ( entry )
+                values_string += ", '{}'".format ( entry )
             except UnboundLocalError:
-                values_string = "{}".format ( entry )
+                values_string = "'{}'".format ( entry )
         values_string = "( " + values_string + " )"
 
-        self.log.info ( "values_string = '{}'.".format ( values_string ) )
+        self.log.debug ( "values_string = '{}'.".format ( values_string ) )
 
         cursor = self.connection.cursor ( )
         try:
