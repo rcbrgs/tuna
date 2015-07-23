@@ -118,7 +118,7 @@ class can ( file_reader ):
         record = tuna.db.select_record ( 'datasets', { 'hash' : self.digest } )
         function = tuna.db.insert_record
         if record:
-            self.log.info ( "Can is already on db." )
+            self.log.debug ( "Can is already on db." )
             function = tuna.db.update_record
         function ( 'datasets', { 'hash'      : self.digest,
                                  'file_name' : self.file_name,

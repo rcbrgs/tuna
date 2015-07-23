@@ -156,7 +156,8 @@ class high_resolution ( threading.Thread ):
 
         if self.dont_fit == False:
             sorted_radii = sorted ( self.rings_center [ 'radii' ] )
-            self.log.info ( "sorted_radii = {}".format ( sorted_radii ) )
+            self.log.info ( "sorted_radii = {}".format (
+                [ "{:.2f}".format ( radius ) for radius in sorted_radii ] ) )
             
             initial_b_ratio = tuna.tools.estimate_b_ratio ( sorted_radii [ : 2 ],
                                                             [ self.interference_order,

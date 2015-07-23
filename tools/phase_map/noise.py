@@ -82,9 +82,12 @@ class noise_detector ( threading.Thread ):
         function = tuna.db.insert_record
         if record:
             function = tuna.db.update_record
+        threshold = "NULL"
+        if self.noise_threshold:
+            threshold = self.noise_threshold
         function ( 'noise', { 'hash' : digest,
                               'radius' : self.noise_mask_radius,
-                              'threshold' : self.noise_threshold } )
+                              'threshold' : threshold } )
 
 def include_noise_circle ( position = ( int, int ), radius = int, array = numpy.array ):
     for     col in range ( position [ 0 ] - radius, position [ 0 ] + radius ):

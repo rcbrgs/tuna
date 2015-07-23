@@ -10,6 +10,7 @@ from .convenience     import ( read,
 from .database        import database
 from .file_reader     import file_reader
 from .fits            import fits
-from tuna.io.system   import status
+from .lock            import lock
 from .metadata_parser import ( metadata_parser, 
                                get_metadata )
+from tuna.io.system   import status

@@ -3,6 +3,7 @@ import pymysql
 import sys
 import threading
 import time
+import tuna
 
 class database ( threading.Thread ):
     def __init__ ( self ):
@@ -18,7 +19,7 @@ class database ( threading.Thread ):
             '0.1.0' : "Initial version."
         }
         self.log = logging.getLogger ( __name__ )
-        self.log_level = logging.INFO
+        self.log_level = logging.DEBUG
         self.daemon = True
         self.shutdown = False
 
@@ -32,6 +33,8 @@ class database ( threading.Thread ):
                          "radius int,"
                          "threshold int )"
         }
+        self.queue = [ ]
+        self.queue_lock = tuna.io.lock ( )
 
     def __del__ ( self ):
         self.stop ( )
@@ -68,6 +71,8 @@ class database ( threading.Thread ):
                 #self.stop ( )
 
             self.log.setLevel ( self.log_level )
+
+            self.dequeue ( )
 
         self.close_mysql_connection ( )
             
@@ -150,10 +155,13 @@ class database ( threading.Thread ):
 
     # Data methods. They suppose connection and tables are valid.
 
-    def insert_record ( self, table, columns_values ):
+    def insert_record ( self, table, columns_values, attempt = 0 ):
         """
         columns_values must be a dict with columns as keys.
         """
+        if attempt > 10:
+            self.log.info ( "Failing db action due to excessive attempts." )
+            return
 
         columns_string = "( "
         for column in columns_values.keys ( ):
@@ -185,19 +193,19 @@ class database ( threading.Thread ):
             self.log.error ( "BrokenPipeError during insert: '{}'.".format ( e ) )
             self.framework.shutdown = True
             return
+        except pymysql.err.OperationalError:
+            self.log.info ( "Trying to recover insert_record recursively (attemp #{}). sql = '{}'".format (
+                attempt + 1, sql ) )
+            return self.insert_record ( table, columns_values, attempt + 1 )
         except Exception as e:
-            self.log.error ( "Exception during insert: {}. sql = '{}'. sys.exc_info = '{}'.".format (
-                e, sql, sys.exc_info ( ) ) )
-            if e == ( 2014, 'Command Out of Sync' ):
-                self.log.info ( "Trying to recover resursively." )
-                return self.select_record ( table, columns_values )
+            self.log.error ( "Exception during insert_record: {}, sys.exc_info() = '{}'. sql = '{}'".format (
+                e, sys.exc_info ( ), sql ) )
             return
         
     def select_record ( self, table, columns_values, attempt = 0 ):
         """
         columns_values must be a dict with columns as keys.
         """
-
         if attempt > 10:
             self.log.info ( "Failing db action due to excessive attempts." )
             return
@@ -222,17 +230,29 @@ class database ( threading.Thread ):
                 return None
             return res [ 0 ]
         except pymysql.err.OperationalError:
-            self.log.info ( "Trying to recover resursively." )
+            self.log.info ( "Trying to recover select_record recursively (attemp #{}).".format ( attempt + 1 ) )
             return self.select_record ( table, columns_values, attempt + 1 )
         except Exception as e:
-            self.log.error ( "Exception during select: {}, sys.exc_info() = '{}'.".format ( e, sys.exc_info ( ) ) )
+            self.log.error ( "Exception during select_record: {}, sys.exc_info() = '{}'.".format (
+                e, sys.exc_info ( ) ) )
             return None
 
-    def update_record ( self, table, columns_values ):
+    def update_record ( self, table, columns_values, attempt = 0 ):
+        """
+        Enqueues request to update_record_processor.
+        """
+        self.enqueue ( { 'function' : self.update_record_processor,
+                         'args' : ( table, columns_values ),
+                         'kwargs' : { 'attempt' : attempt } } )
+        
+    def update_record_processor ( self, table, columns_values, attempt = 0 ):
         """
         columns_values must be a dict with columns as keys.
         """
-        
+        if attempt > 10:
+            self.log.info ( "Failing update_record due to excessive attempts." )
+            return
+                
         for key in columns_values.keys ( ):
             if key == "hash":
                 continue
@@ -256,6 +276,31 @@ class database ( threading.Thread ):
             if len ( res ) == 0:
                 return None
             return res [ 0 ]
+        except pymysql.err.OperationalError:
+            self.log.info ( "Trying to recover update_record recursively (attemp #{}).".format ( attempt + 1 ) )
+            return self.update_record ( table, columns_values, attempt + 1 )
         except Exception as e:
-            self.log.error ( "Exception during update: {}.".format ( e ) )
+            self.log.error ( "Exception during update_record: {}, sys.exc_info() = '{}'. sql = '{}'".format (
+                e, sys.exc_info ( ), sql ) )
             return None
+
+    # queue
+           
+    def enqueue ( self, data ):
+        self.log.debug ( "enqueue: {}.".format ( data ) )
+        self.queue_lock.get ( )
+        self.queue.append ( data )
+        self.queue_lock.let ( )
+
+    def dequeue ( self ):
+        self.queue_lock.get ( )
+        data = None
+        if len ( self.queue ) > 0:
+            data = self.queue.pop ( )
+        self.queue_lock.let ( )
+        if data:
+            self.log.debug ( "dequeue: {}.".format ( data ) )
+            self.process ( data )
+
+    def process ( self, data ):
+        data [ 'function' ] ( *data [ 'args' ], **data [ 'kwargs' ] )
