@@ -7,8 +7,9 @@ import time
 class database ( threading.Thread ):
     def __init__ ( self ):
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = "0.1.5"
+        self.__version__ = "0.1.6"
         self.changelog = {
+            '0.1.6' : "Tweaked exception handling during update to be more  resilient to error.",
             '0.1.5' : "Added table noise.",
             '0.1.4' : "Wrapped values in single quotes for insert.",
             '0.1.3' : "Better logging during insert.",
@@ -185,16 +186,21 @@ class database ( threading.Thread ):
             self.framework.shutdown = True
             return
         except Exception as e:
-            self.log.error ( "Exception during insert: {}. sql = '{}'.".format ( e, sql ) )
+            self.log.error ( "Exception during insert: {}. sql = '{}'. sys.exc_info = '{}'.".format (
+                e, sql, sys.exc_info ( ) ) )
             if e == ( 2014, 'Command Out of Sync' ):
                 self.log.info ( "Trying to recover resursively." )
                 return self.select_record ( table, columns_values )
             return
         
-    def select_record ( self, table, columns_values ):
+    def select_record ( self, table, columns_values, attempt = 0 ):
         """
         columns_values must be a dict with columns as keys.
         """
+
+        if attempt > 10:
+            self.log.info ( "Failing db action due to excessive attempts." )
+            return
         
         for key in columns_values.keys ( ):
             try:
@@ -215,11 +221,11 @@ class database ( threading.Thread ):
             if len ( res ) == 0:
                 return None
             return res [ 0 ]
+        except pymysql.err.OperationalError:
+            self.log.info ( "Trying to recover resursively." )
+            return self.select_record ( table, columns_values, attempt + 1 )
         except Exception as e:
-            self.log.error ( "Exception during select: {}.".format ( e ) )
-            if e == ( 2014, 'Command Out of Sync' ):
-                self.log.info ( "Trying to recover resursively." )
-                return self.select_record ( table, columns_values )
+            self.log.error ( "Exception during select: {}, sys.exc_info() = '{}'.".format ( e, sys.exc_info ( ) ) )
             return None
 
     def update_record ( self, table, columns_values ):

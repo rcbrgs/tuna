@@ -14,8 +14,9 @@ class noise_detector ( threading.Thread ):
         
         self.log = logging.getLogger ( __name__ )
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = '0.1.3'
+        self.__version__ = '0.1.4'
         self.changelog = {
+            '0.1.4'  : "Added hook to update noise table on db.",
             '0.1.3'  : "Simplified noise radius loop to fix it.",
             '0.1.2'  : "Made threshold default to lowest nonnull percentile value, overridable.",
             '0.1.1'  : "Completed support for noise_threhsold parameter.",
@@ -38,6 +39,7 @@ class noise_detector ( threading.Thread ):
         noise_map = numpy.zeros ( shape = self.wrapped.array.shape, dtype = numpy.int16 )
         self.noise = tuna.io.can ( noise_map )
         self.detect_signalless ( self.noise_threshold )
+        self.refresh_database ( )
 
     def detect_signalless ( self, threshold ):
         """
@@ -73,6 +75,16 @@ class noise_detector ( threading.Thread ):
 
         self.log.info ( "Noise map created with lower_value = {}.".format ( lower_value ) )
         self.log.debug ( "detect_signalless() took %ds." % ( time.time ( ) - start ) )
+
+    def refresh_database ( self ):
+        digest = tuna.tools.get_hash_from_array ( self.noise.array )
+        record = tuna.db.select_record ( 'noise', { 'hash' : digest } )
+        function = tuna.db.insert_record
+        if record:
+            function = tuna.db.update_record
+        function ( 'noise', { 'hash' : digest,
+                              'radius' : self.noise_mask_radius,
+                              'threshold' : self.noise_threshold } )
 
 def include_noise_circle ( position = ( int, int ), radius = int, array = numpy.array ):
     for     col in range ( position [ 0 ] - radius, position [ 0 ] + radius ):
