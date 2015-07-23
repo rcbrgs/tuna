@@ -2,5 +2,6 @@ astropy
 matplotlib
 psutil
 pyfits
+pymysql
 pyzmq
 sympy

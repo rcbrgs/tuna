@@ -14,8 +14,9 @@ class noise_detector ( threading.Thread ):
         
         self.log = logging.getLogger ( __name__ )
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = '0.1.2'
+        self.__version__ = '0.1.3'
         self.changelog = {
+            '0.1.3'  : "Simplified noise radius loop to fix it.",
             '0.1.2'  : "Made threshold default to lowest nonnull percentile value, overridable.",
             '0.1.1'  : "Completed support for noise_threhsold parameter.",
             '0.1.0'  : "First changelogged version."
@@ -60,25 +61,25 @@ class noise_detector ( threading.Thread ):
                                    numpy.ones ( shape = self.noise.array.shape ),
                                    numpy.zeros ( shape = self.noise.array.shape ) )
 
-        if self.noise_mask_radius != 1:
-            for row in range ( signalless.shape [ 0 ] ):
-                for col in range ( signalless.shape [ 1 ] ):
-                    if signalless [ row ] [ col ] == 1:
-                        include_noise_circle ( position = ( row, col ),
-                                               radius = self.noise_mask_radius,
-                                               array = signalless )
+        noise = numpy.zeros ( shape = self.noise.array.shape )
+        for row in range ( signalless.shape [ 0 ] ):
+            for col in range ( signalless.shape [ 1 ] ):
+                if signalless [ row ] [ col ] == 1:
+                    include_noise_circle ( position = ( row, col ),
+                                           radius = self.noise_mask_radius,
+                                           array = noise )
         
-        self.noise.array = signalless
+        self.noise.array = noise
 
         self.log.info ( "Noise map created with lower_value = {}.".format ( lower_value ) )
         self.log.debug ( "detect_signalless() took %ds." % ( time.time ( ) - start ) )
 
 def include_noise_circle ( position = ( int, int ), radius = int, array = numpy.array ):
-    for x in range ( position[0] - math.ceil ( radius ), position[0] + math.ceil ( radius ) + 1 ):
-        for y in range ( position[1] - math.ceil ( radius ), position[1] + math.ceil ( radius ) + 1 ):
-            if position_is_valid_pixel_address ( position = ( x, y ), array = array ):
-                if math.sqrt ( ( x - position[0] )**2 + ( y - position[1] )**2 ) <= radius:
-                    array[x][y] = 1
+    for     col in range ( position [ 0 ] - radius, position [ 0 ] + radius ):
+        for row in range ( position [ 1 ] - radius, position [ 1 ] + radius ):
+            if position_is_valid_pixel_address ( position = ( col, row ), array = array ):
+                if math.sqrt ( ( col - position [ 0 ] )**2 + ( row - position [ 1 ] )**2 ) <= radius:
+                    array [ col ] [ row ] = 1
 
 def position_is_valid_pixel_address ( position = ( int, int ), array = numpy.array ):
     if ( position[0] >= 0 and

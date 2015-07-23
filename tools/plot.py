@@ -58,14 +58,18 @@ def plot_high_res ( high_res ):
     ipython.magic("matplotlib qt")
 
     plot ( high_res.continuum.array, title = "continuum", ipython = ipython )
-    plot ( high_res.discontinuum.array, title = "discontinuum", ipython = ipython )
     plot ( high_res.wrapped_phase_map.array, title = "wrapped phase map", ipython = ipython )
     plot ( high_res.noise.array, title = "noise", ipython = ipython )
+    ring_counter = 0
+    for ring in high_res.rings_center [ 'rings' ]:
+        plot ( ring, title = "ring {}".format ( ring_counter ), ipython = ipython )
+        ring_counter += 1
     plot ( high_res.borders_to_center_distances.array, title = "borders to center distances", ipython = ipython )
     plot ( high_res.order_map.array, title = "order map", ipython = ipython )
     plot ( high_res.unwrapped_phase_map.array, title = "unwrapped phase map", ipython = ipython )
     if high_res.parabolic_fit:
         plot ( high_res.parabolic_fit.array, title = "parabolic fit", ipython = ipython )
+    plot ( high_res.discontinuum.array, title = "discontinuum", ipython = ipython )
     if high_res.airy_fit:
         plot ( high_res.airy_fit.array, title = "airy fit", ipython = ipython )
         plot ( high_res.airy_fit_residue.array, title = "airy fit residue", ipython = ipython )

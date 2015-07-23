@@ -37,3 +37,6 @@ class backend ( object ):
 
             self.zmq_proxy_instance = zmq_daemon ( )
             self.zmq_proxy_instance.start ( )
+
+            self.db = tuna.io.database ( )
+            self.db.start ( )
