@@ -19,8 +19,9 @@ class can ( file_reader ):
         super ( can, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.1'
+        self.__version__ = '0.1.2'
         self.changelog = {
+            '0.1.2' : "Do not update db if that is going to update a file_name to None.",
             '0.1.1' : "Feed info into db upon update, added file_type property.",
             '0.1.0' : "Initial changelogged version."
             }
@@ -117,12 +118,18 @@ class can ( file_reader ):
             self.digest = tuna.tools.get_hash_from_array ( self.array )
         record = tuna.db.select_record ( 'datasets', { 'hash' : self.digest } )
         function = tuna.db.insert_record
+        file_name = self.file_name
+        file_type = self.file_type
         if record:
             self.log.debug ( "Can is already on db." )
             function = tuna.db.update_record
+            if ( record [ 'file_name' ] != "None" and
+                 self.file_name == None ):
+                file_name = record [ 'file_name' ]
+                file_type = record [ 'file_type' ]
         function ( 'datasets', { 'hash'      : self.digest,
-                                 'file_name' : self.file_name,
-                                 'file_type' : self.file_type } )
+                                 'file_name' : file_name,
+                                 'file_type' : file_type } )
 
     def fliplr ( self ):
         result = numpy.ndarray ( shape = self.array.shape )
