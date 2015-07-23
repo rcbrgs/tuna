@@ -23,8 +23,9 @@ Indexing order
 From Tuna v0.11 onwards, we are adopting the convention mentioned in: http://docs.scipy.org/doc/numpy/reference/internals.html, so that rows will be the last item indexed. Therefore, cubes in tuna should be indexed as [ planes, columns, rows ].
 """
 
-__version__ = '0.10.3'
+__version__ = '0.10.4'
 changelog = {
+    '0.10.4'  : "Added db link through the daemons.",
     '0.10.3'  : "Even less spammy.",
     '0.10.2'  : "Tweaked logging to be less spammy for user.",
     '0.10.1'  : "Refactored the logging facility to have more stdout information, and at the same time save info to log file if specified."
@@ -61,3 +62,4 @@ handler.setFormatter ( formatter )
 _log.addHandler ( handler )
 
 __daemons = daemons ( )
+db = __daemons.tuna_daemons.db

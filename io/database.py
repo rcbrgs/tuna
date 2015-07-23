@@ -7,19 +7,24 @@ import time
 class database ( threading.Thread ):
     def __init__ ( self ):
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = "0.1.1"
+        self.__version__ = "0.1.2"
         self.changelog = {
+            '0.1.2' : "Added type info to dataset table.",
             '0.1.1' : "Refactored to use table definitions from a single variable.",
             '0.1.0' : "Initial version."
         }
         self.log = logging.getLogger ( __name__ )
         self.log_level = logging.INFO
         self.daemon = True
+        self.shutdown = False
 
         self.connection = None
         self.expected_tables = {
-            'datasets' : "( hash varchar ( 20 ) primary key )"
-            }
+            'datasets' : "( hash varchar ( 20 ) primary key,"
+                         "file_name varchar ( 255 ),"
+                         "file_type varchar ( 10 ),"
+                         "alias varchar ( 30 ) )"
+        }
 
     def __del__ ( self ):
         self.stop ( )
@@ -48,15 +53,14 @@ class database ( threading.Thread ):
                 return
 
         while not self.shutdown:
-            time.sleep ( self.framework.preferences.loop_wait )
-
-            # STARTMOD
+            self.log.debug ( "Starting database loop." )
+            time.sleep ( 1 )
 
             if not self.connection:
                 self.log.warning ( "Connection became None during runtime." )
                 #self.stop ( )
-            
-            # ENDMOD                             
+
+            self.log.setLevel ( self.log_level )
 
         self.close_mysql_connection ( )
             
@@ -108,7 +112,7 @@ class database ( threading.Thread ):
                 result_tables.append ( entry [ key ] )
         expected_tables = list ( self.expected_tables.keys ( ) )
         if sorted ( result_tables ) != sorted ( expected_tables ):
-            self.log.error ( "Tables in db '{}' differ from the expected '{}'!".format ( result,
+            self.log.debug ( "Tables in db '{}' differ from the expected '{}'!".format ( result,
                                                                                          expected_tables ) )
             return False
         return True
@@ -127,7 +131,7 @@ class database ( threading.Thread ):
             return
             
         if result != ( ):
-            self.log.error ( "db '{}' is not empty!".format ( result ) )
+            self.log.error ( "Database '{}' is not empty AND is different from expected!".format ( result ) )
             return
 
         for table in self.expected_tables.keys ( ):

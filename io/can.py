@@ -19,6 +19,10 @@ class can ( file_reader ):
         super ( can, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
+        self.__version__ = '0.1.0'
+        self.changelog = {
+            '0.1.0' : "Initial changelogged version."
+            }
 
         self.array = array
         self.file_name = file_name
@@ -26,6 +30,7 @@ class can ( file_reader ):
         self.interference_reference_wavelength = interference_reference_wavelength
         self.photons = photons
 
+        self.digest = None
         self.ndim = None
         self.shape = None
         self.planes = None
@@ -102,6 +107,15 @@ class can ( file_reader ):
         
         self.array = array
 
+    def database_refresh ( self ):
+        """
+        Supposing both the can and the db connection are fine, check if there is an entry on db about this can's array, and create / update it as appropriate.
+        """
+        if not self.digest:
+            self.digest = tuna.tools.get_hash_from_array ( self.array )
+        record = tuna.db.select_record ( 'datasets', { 'hash' : self.digest } )
+        if not record:
+            self.log.info ( "Can is not yet on db." )
 
     def fliplr ( self ):
         result = numpy.ndarray ( shape = self.array.shape )
@@ -191,3 +205,5 @@ class can ( file_reader ):
         if ( self.ndim < 2 or
              self.ndim > 3 ):
             self.log.warning ( "ndarray has either less than 2 or more than 3 dimensions." )
+
+        self.database_refresh ( )
