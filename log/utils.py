@@ -84,8 +84,10 @@ def verbose ( handler_type, verbosity ):
         for handler in tuna._log_handlers:
             if isinstance ( handler, logging.StreamHandler ):
                 handler.setLevel ( level )
+                print ( "Handler {} set to {}.".format ( handler, level ) )
     
     if handler_type == "file":
         for handler in tuna._log_handlers:
             if isinstance ( handler, logging.FileHandler ):
                 handler.setLevel ( level )
+                print ( "Handler {} set to {}.".format ( handler, level ) )

@@ -50,12 +50,12 @@ class daemons ( object ):
         self.tuna_daemons.start ( )
 
 _log = logging.getLogger ( __name__ )
-_log.setLevel ( logging.INFO )
+_log.setLevel ( logging.DEBUG )
 
 handler = logging.StreamHandler ( stream = sys.stdout )
 _log_handlers = [ ]
 _log_handlers.append ( handler )
-handler.setLevel ( logging.NOTSET )
+handler.setLevel ( logging.INFO )
 formatter = logging.Formatter ( fmt = "%(message)s", 
                                 datefmt = '%Y-%m-%d %H:%M:%S' )
 handler.setFormatter ( formatter )
