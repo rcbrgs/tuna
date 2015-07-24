@@ -3,13 +3,16 @@ import pymysql
 import sys
 import threading
 import time
+import traceback
 import tuna
 
 class database ( threading.Thread ):
     def __init__ ( self ):
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = "0.1.7"
+        self.__version__ = "0.1.9"
         self.changelog = {
+            '0.1.9' : "Added cursor.close calls in several points.",
+            '0.1.8' : "Added a traceback print in exception handler for select_record.",
             '0.1.7' : "Added a lockable queue and diverted functions to enqueue requests.",
             '0.1.6' : "Tweaked exception handling during update to be more  resilient to error.",
             '0.1.5' : "Added table noise.",
@@ -116,8 +119,9 @@ class database ( threading.Thread ):
             cursor.execute ( "show tables" )
             self.connection.commit ( )
             result = cursor.fetchall ( )
+            cursor.close ( )
         except Exception as e:
-            self.log.error ( "Exception during check_tables: {}.".format ( e ) )
+            self.log.error ( tuna.console.output_exception ( e ) )
             return False
         result_tables = [ ]
         for entry in result:
@@ -139,8 +143,9 @@ class database ( threading.Thread ):
             cursor.execute ( "show tables" )
             self.connection.commit ( )
             result = cursor.fetchall ( )
+            cursor.close ( )
         except Exception as e:
-            self.log.error ( "Exception during configure_tables: {}.".format ( e ) )
+            self.log.error ( tuna.console.output_exception ( e ) )
             return
             
         if result != ( ):
@@ -149,10 +154,12 @@ class database ( threading.Thread ):
 
         for table in self.expected_tables.keys ( ):
             try:
+                cursor = self.connection.cursor ( )
                 cursor.execute ( "create table {} {}".format ( table, self.expected_tables [ table ] ) )
                 self.connection.commit ( )
+                cursor.close ( )
             except Exception as e:
-                self.log.error ( "Exception during table creation: {}.".format ( e ) )
+                self.log.error ( tuna.console.output_exception ( e ) )
 
     # Data methods. They suppose connection and tables are valid.
 
@@ -164,14 +171,10 @@ class database ( threading.Thread ):
                          'args' : ( table, columns_values ),
                          'kwargs' : { 'attempt' : attempt } } )
         
-    def insert_record_processor ( self, table, columns_values, attempt = 0 ):
+    def insert_record_processor ( self, table, columns_values ):
         """
         columns_values must be a dict with columns as keys.
         """
-        if attempt > 10:
-            self.log.info ( "Failing db action due to excessive attempts." )
-            return
-
         columns_string = "( "
         for column in columns_values.keys ( ):
             if columns_string != "( ":
@@ -189,82 +192,53 @@ class database ( threading.Thread ):
         values_string = "( " + values_string + " )"
 
         self.log.debug ( "values_string = '{}'.".format ( values_string ) )
-
+        sql = "insert into {} {} values {}".format ( table, 
+                                                     columns_string,
+                                                     values_string )
         cursor = self.connection.cursor ( )
-        try:
-            sql = "insert into {} {} values {}".format ( table, 
-                                                         columns_string,
-                                                         values_string )
-            self.log.debug ( "sql = '{}'.".format ( sql ) )
-            cursor.execute ( sql )
-            self.connection.commit ( )
-        except BrokenPipeError as e:
-            self.log.error ( "BrokenPipeError during insert: '{}'.".format ( e ) )
-            self.framework.shutdown = True
-            return
-        except pymysql.err.OperationalError:
-            self.log.info ( "Trying to recover insert_record recursively (attemp #{}). sql = '{}'".format (
-                attempt + 1, sql ) )
-            return self.insert_record ( table, columns_values, attempt + 1 )
-        except pymysql.err.IntegrityError:
-            self.log.info ( "Trying to recover insert_record by calling update instead (attemp #{}). sql = '{}'".format ( attempt + 1, sql ) )
-            return self.update_record ( table, columns_values, attempt + 1 )
-        except Exception as e:
-            self.log.error ( "Exception during insert_record: {}, sys.exc_info() = '{}'. sql = '{}'".format (
-                e, sys.exc_info ( ), sql ) )
-            return
+        self.log.debug ( "sql = '{}'.".format ( sql ) )
+        cursor.execute ( sql )
+        self.connection.commit ( )
+        cursor.close ( )
         
-    def select_record ( self, table, columns_values, attempt = 0 ):
+    def select_record ( self, table, columns_values ):
         """
         columns_values must be a dict with columns as keys.
         """
-        if attempt > 10:
-            self.log.info ( "Failing db action due to excessive attempts." )
-            return
-        
         for key in columns_values.keys ( ):
             try:
                 where_string += " and {} = '{}'".format ( key, columns_values [ key ] )
             except UnboundLocalError:
                 where_string = "{} = '{}'".format ( key, columns_values [ key ] )
                 continue
-
-        cursor = self.connection.cursor ( )
+        sql = "select * from {} where {}".format ( table, 
+                                                   where_string )
+        self.log.debug ( "sql = '{}'.".format ( sql ) )
+        
         try:
-            sql = "select * from {} where {}".format ( table, 
-                                                         where_string )
-            self.log.debug ( "sql = '{}'.".format ( sql ) )
+            cursor = self.connection.cursor ( )
             cursor.execute ( sql )
             self.connection.commit ( )
             res = cursor.fetchall ( )
             self.log.debug ( "res = {}".format ( res ) )
-            if len ( res ) == 0:
-                return None
-            return res [ 0 ]
-        except pymysql.err.OperationalError:
-            self.log.info ( "Trying to recover select_record recursively (attemp #{}).".format ( attempt + 1 ) )
-            return self.select_record ( table, columns_values, attempt + 1 )
+            cursor.close ( )
+            return res, True
         except Exception as e:
-            self.log.error ( "Exception during select_record: {}, sys.exc_info() = '{}'.".format (
-                e, sys.exc_info ( ) ) )
-            return None
+            self.log.error ( tuna.console.output_exception ( e ) )
+            return None, False
 
-    def update_record ( self, table, columns_values, attempt = 0 ):
+    def update_record ( self, table, columns_values ):
         """
         Enqueues request to update_record_processor.
         """
         self.enqueue ( { 'function' : self.update_record_processor,
                          'args' : ( table, columns_values ),
-                         'kwargs' : { 'attempt' : attempt } } )
+                         'kwargs' : { } } )
         
-    def update_record_processor ( self, table, columns_values, attempt = 0 ):
+    def update_record_processor ( self, table, columns_values ):
         """
         columns_values must be a dict with columns as keys.
         """
-        if attempt > 10:
-            self.log.info ( "Failing update_record due to excessive attempts." )
-            return
-                
         for key in columns_values.keys ( ):
             if key == "hash":
                 continue
@@ -275,26 +249,19 @@ class database ( threading.Thread ):
                 continue
 
         where_string = "hash = '{}'".format ( columns_values [ 'hash' ] )
+        sql = "update {} set {} where {}".format ( table, 
+                                                   update_string,
+                                                   where_string )
+        self.log.debug ( "sql = '{}'.".format ( sql ) )
 
         cursor = self.connection.cursor ( )
-        try:
-            sql = "update {} set {} where {}".format ( table, 
-                                                       update_string,
-                                                       where_string )
-            self.log.debug ( "sql = '{}'.".format ( sql ) )
-            cursor.execute ( sql )
-            self.connection.commit ( )
-            res = cursor.fetchall ( )
-            if len ( res ) == 0:
-                return None
-            return res [ 0 ]
-        except pymysql.err.OperationalError:
-            self.log.info ( "Trying to recover update_record recursively (attemp #{}).".format ( attempt + 1 ) )
-            return self.update_record ( table, columns_values, attempt + 1 )
-        except Exception as e:
-            self.log.error ( "Exception during update_record: {}, sys.exc_info() = '{}'. sql = '{}'".format (
-                e, sys.exc_info ( ), sql ) )
+        cursor.execute ( sql )
+        self.connection.commit ( )
+        res = cursor.fetchall ( )
+        cursor.close ( )
+        if len ( res ) == 0:
             return None
+        return res [ 0 ]
 
     # queue
            
@@ -315,4 +282,7 @@ class database ( threading.Thread ):
             self.process ( data )
 
     def process ( self, data ):
-        data [ 'function' ] ( *data [ 'args' ], **data [ 'kwargs' ] )
+        try:
+            data [ 'function' ] ( *data [ 'args' ], **data [ 'kwargs' ] )
+        except Exception as e:
+            self.log.error ( tuna.console.output_exception ( e ) )

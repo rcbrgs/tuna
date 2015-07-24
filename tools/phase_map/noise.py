@@ -82,7 +82,7 @@ class noise_detector ( threading.Thread ):
         function = tuna.db.insert_record
         if record:
             function = tuna.db.update_record
-        threshold = "NULL"
+        threshold = 0
         if self.noise_threshold:
             threshold = self.noise_threshold
         function ( 'noise', { 'hash' : digest,

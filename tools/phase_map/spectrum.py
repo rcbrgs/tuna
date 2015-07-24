@@ -48,8 +48,8 @@ def median_of_lowest_channels ( continuum_to_FSR_ratio = 0.25,
     log = logging.getLogger ( __name__ )
 
     channels = max ( 1, int ( continuum_to_FSR_ratio * spectrum.shape [ 0 ] ) )
-    log.debug ( "Using %d (out of %d) channels to compute the continuum." % ( channels,
-                                                                              spectrum.shape [ 0 ] ) )
+    #log.debug ( "Using %d (out of %d) channels to compute the continuum." % ( channels,
+    #                                                                          spectrum.shape [ 0 ] ) )
 
     lowest = [ ]
     auxiliary = spectrum

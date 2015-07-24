@@ -116,7 +116,9 @@ class can ( file_reader ):
         """
         if not self.digest:
             self.digest = tuna.tools.get_hash_from_array ( self.array )
-        record = tuna.db.select_record ( 'datasets', { 'hash' : self.digest } )
+        records, sql_success = tuna.db.select_record ( 'datasets', { 'hash' : self.digest } )
+        record = records [ 0 ]
+            
         function = tuna.db.insert_record
         file_name = self.file_name
         file_type = self.file_type
