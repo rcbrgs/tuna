@@ -163,13 +163,13 @@ class database ( threading.Thread ):
 
     # Data methods. They suppose connection and tables are valid.
 
-    def insert_record ( self, table, columns_values, attempt = 0 ):
+    def insert_record ( self, table, columns_values ):
         """
         Enqueues request to insert_record_processor.
         """
         self.enqueue ( { 'function' : self.insert_record_processor,
                          'args' : ( table, columns_values ),
-                         'kwargs' : { 'attempt' : attempt } } )
+                         'kwargs' : { } } )
         
     def insert_record_processor ( self, table, columns_values ):
         """

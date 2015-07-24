@@ -1,3 +1,4 @@
+
 """
 Plot the numpy array using matplotlib.
 """
@@ -28,10 +29,10 @@ def plot ( data, title = "", ipython = None ):
         dimensions = math.ceil ( math.sqrt ( subplots ) )
         log ( "should create mosaic of {} x {} slots.".format ( dimensions, dimensions ) )
 
-        figure, axes = plt.subplots ( dimensions, dimensions, sharex='all', sharey='all' )
+        figure, axes = plt.subplots ( dimensions, dimensions, sharex='col', sharey='row' )
 
         figure.suptitle ( title )
-
+        
         for plane in range ( data.shape [ 0 ] ):
             image = axes.flat [ plane ] .imshow ( data [ plane ] )
 

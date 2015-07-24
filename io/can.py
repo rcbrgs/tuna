@@ -117,7 +117,12 @@ class can ( file_reader ):
         if not self.digest:
             self.digest = tuna.tools.get_hash_from_array ( self.array )
         records, sql_success = tuna.db.select_record ( 'datasets', { 'hash' : self.digest } )
-        record = records [ 0 ]
+        if not sql_success:
+            self.log.debug ( "At database_refresh sql_success == False." )
+            return
+        record = None
+        if records:
+            record = records [ 0 ]
             
         function = tuna.db.insert_record
         file_name = self.file_name

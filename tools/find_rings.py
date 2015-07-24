@@ -14,7 +14,6 @@ class rings_finder ( object ):
     """
     def __init__ ( self, array ):
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.INFO )
         self.__version__ = '0.1.0'
         self.changelog = {
             '0.1.0' : "Initial version." }
@@ -23,12 +22,14 @@ class rings_finder ( object ):
             self.ipython = IPython.get_ipython()
             self.ipython.magic("matplotlib qt")
 
-        self.upper_percentile = 99
-        self.percentile_interval = 4
+        self.chosen_plane = 1
+        self.ridge_threshold = 1
+        self.upper_percentile = 90
+
             
         self.array = array
         
-        self.result = [ ]
+        self.result = { }
         
     def execute ( self ):
         """
@@ -36,55 +37,115 @@ class rings_finder ( object ):
         2. Create a separate array for each individual ring.
         3. Calculate the center and the average radius.
         """
-
+        self.segment ( )
+        self.find_continuous_regions ( )       
+        self.log.debug ( "rings_finder finished." )
+        
+    def segment ( self ):
         if len ( self.array.shape ) != 3:
             self.log.info ( "This procedure expects a 3D numpy ndarray as input." )
         
         gradients = numpy.gradient ( self.array )
         if self.plot_log:
-            tuna.tools.plot ( gradients [ 0 ], "Dep gradients", self.ipython )
+            tuna.tools.plot ( gradients [ 0 ] [ self.chosen_plane ], "gradients [ 0 ] [ {} ]".format (
+                self.chosen_plane ), self.ipython )
             #tuna.tools.plot ( gradients [ 1 ], "Col gradients", self.ipython )
             #tuna.tools.plot ( gradients [ 2 ], "Row gradients", self.ipython )
-
-        upper_percentile_value = numpy.percentile ( gradients [ 0 ], self.upper_percentile ) 
-        upper_dep_gradient = numpy.where ( gradients [ 0 ] > upper_percentile_value, 1, 0 )
-        #upper_percentile_value = numpy.percentile ( gradients [ 1 ], 99 )
-        #upper_col_gradient = numpy.where ( gradients [ 1 ] > upper_percentile_value,
-        #                                   numpy.ones  ( shape = self.array.shape ),
-        #                                   numpy.zeros ( shape = self.array.shape ) )
-        #upper_percentile_value = numpy.percentile ( gradients [ 2 ], 99 )
-        #upper_row_gradient = numpy.where ( gradients [ 2 ] > upper_percentile_value,
-        #                                   numpy.ones  ( shape = self.array.shape ),
-        #                                   numpy.zeros ( shape = self.array.shape ) )
-        #if self.plot_log:
-        #    tuna.tools.plot ( upper_dep_gradient, "99 percentile dep gradients", self.ipython )
-        #    tuna.tools.plot ( upper_col_gradient, "99 percentile col gradients", self.ipython )
-        #    tuna.tools.plot ( upper_row_gradient, "99 percentile row gradients", self.ipython )
-        #
-        #col_or_row = numpy.logical_or ( upper_col_gradient, upper_row_gradient )
-        #col_or_row_numerical = numpy.where ( col_or_row == True,
-        #                                     1, 0 )
-        #dep_and_col_or_row = numpy.where ( numpy.logical_and ( upper_dep_gradient, col_or_row ),
-        #                                   1, 0 )
-        #if self.plot_log:
-        #    tuna.tools.plot ( col_or_row_numerical, "col or row", self.ipython )
-        #    tuna.tools.plot ( dep_and_col_or_row, "dep AND ( col or row )", self.ipython )
-
-        lower_percentile = self.upper_percentile - self.percentile_interval
-        lower_percentile_value = numpy.percentile ( gradients [ 0 ], lower_percentile ) 
-        lower_dep_gradient = numpy.where ( gradients [ 0 ] > lower_percentile_value, 1, 0 )
-
-        #diff_dep_gradient = numpy.where ( upper_dep_gradient - lower_dep_gradient > 0, 1, 0 )
-        diff_dep_gradient = lower_dep_gradient - upper_dep_gradient 
+        self.result [ 'gradients' ] = gradients
+            
+        gradient = gradients [ 0 ] [ self.chosen_plane ]
+        self.result [ 'gradient' ] = gradient
+            
+        upper_percentile_value = numpy.percentile ( gradient, self.upper_percentile ) 
+        upper_dep_gradient = numpy.where ( gradient > upper_percentile_value, 1, 0 )
         if self.plot_log:
-            tuna.tools.plot ( upper_dep_gradient, "{} percentile dep gradients".format (
+            tuna.tools.plot ( upper_dep_gradient, "({}) upper_dep_gradient".format (
                 self.upper_percentile ), self.ipython )
-            tuna.tools.plot ( lower_dep_gradient, "{} percentile dep gradients".format (
+
+        lower_percentile = tuna.tools.find_lowest_nonnull_percentile ( gradient )
+        lower_percentile_value = numpy.percentile ( gradient, lower_percentile )
+        lower_percentile_regions = numpy.where ( gradient < lower_percentile_value, 1, 0 )
+        if self.plot_log:
+            tuna.tools.plot ( lower_percentile_regions, "({}) lower_percentile_regions".format (
                 lower_percentile ), self.ipython )
-            tuna.tools.plot ( diff_dep_gradient, "Diff percentile dep gradients", self.ipython )
+        self.result [ 'lower_percentile_regions' ] = lower_percentile_regions
 
-        self.log.debug ( "rings_finder finished." )
+        ridge = numpy.zeros ( shape = gradient.shape )
+        for col in range ( ridge.shape [ 0 ] ):
+            for row in range ( ridge.shape [ 1 ] ):
+                ridge [ col ] [ row ] = self.ridgeness ( upper_dep_gradient,
+                                                         lower_percentile_regions,
+                                                         col, row, threshold = self.ridge_threshold )
+        if self.plot_log:
+            tuna.tools.plot ( ridge, "ridge ", self.ipython )
+        
+        self.log.debug ( "ridge found" )    
+        self.result [ 'ridge' ] = ridge
 
+    def ridgeness ( self, upper, lower, col, row, threshold = 1 ):
+        """
+        Returns 1 if point at col, row has threshold neighbours that is 1 in both upper and lower arrays.
+        """
+        neighbours = tuna.tools.get_pixel_neighbours ( ( col, row ), upper )
+        upper_neighbour = 0
+        lower_neighbour = 0
+        for neighbour in neighbours:
+            if ( upper_neighbour >= threshold and
+                 lower_neighbour >= threshold ):
+                return 1
+            if upper [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] == 1:
+                upper_neighbour += 1
+            if lower [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] == 1:
+                lower_neighbour += 1
+        if ( upper_neighbour >= threshold and
+             lower_neighbour >= threshold ):
+            return 1
+        return 0    
+
+    def find_continuous_regions ( self ):
+        ridge = self.result [ 'ridge' ]
+        painted = numpy.copy ( ridge )
+        color = 1
+        for col in range ( ridge.shape [ 0 ] ):
+            self.log.debug ( "painted creation: col {}.".format ( col ) )
+            for row in range ( ridge.shape [ 1 ] ):
+                if painted [ col ] [ row ] != 0:
+                    continue
+                color += 1
+                to_paint = [ ( col, row ) ]
+                while ( len ( to_paint ) > 0 ):
+                    here = to_paint.pop ( )
+                    painted [ here [ 0 ] ] [ here [ 1 ] ] = color
+                    neighbours = tuna.tools.get_pixel_neighbours ( here, ridge )
+                    for neighbour in neighbours:
+                        if painted [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] != 0:
+                            continue
+                        to_paint.append ( neighbour )
+        if self.plot_log:
+            tuna.tools.plot ( painted, "painted", self.ipython )
+        self.result [ 'painted' ] = painted
+        return
+        color = 0
+        continuous = painted - ridge
+        for col in range ( continuous.shape [ 0 ] ):
+            self.log.debug ( "continuous creation: col {}.".format ( col ) )
+            for row in range ( continuous.shape [ 1 ] ):
+                if continuous [ col ] [ row ] != 0:
+                    color = continuous [ col ] [ row ]
+                    continue
+                to_paint = [ ( col, row ) ]
+                while ( len ( to_paint ) > 0 ):
+                    here = to_paint.pop ( )
+                    painted [ here [ 0 ] ] [ here [ 1 ] ] = color
+                    neighbours = tuna.tools.get_pixel_neighbours ( here, continuous )
+                    for neighbour in neighbours:
+                        if continuous [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] != 0:
+                            continue
+                        to_paint.append ( neighbour )
+        if self.plot_log:
+            tuna.tools.plot ( continuous, "continuous", self.ipython )
+        self.result [ 'continuous' ] = continuous
+    
 def find_rings ( array ):
     """
     Attempts to find rings contained in a 3D numpy ndarray input.
