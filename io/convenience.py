@@ -18,6 +18,10 @@ def write ( array       = None,
             file_name   = None, 
             metadata    = None,
             photons   = None ):
+    __version__ = '0.1.1'
+    changelog = {
+        '0.1.1' : "Added error message when file format is unknown."
+        }
     log = logging.getLogger ( __name__ )
     log.setLevel ( logging.INFO )
 
@@ -31,3 +35,6 @@ def write ( array       = None,
         fits_io_object.write_metadata_table ( )
         fits_io_object.write_photons_table ( )
         log.info ( "FITS file written at %s." % str ( file_name ) )
+        return
+
+    self.log.error ( "No file_format '{}' known.".format ( file_format ) )

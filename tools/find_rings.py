@@ -23,7 +23,7 @@ class rings_finder ( object ):
             self.ipython.magic("matplotlib qt")
 
         self.chosen_plane = 1
-        self.ridge_threshold = 1
+        self.ridge_threshold = 4
         self.upper_percentile = 90
 
             
@@ -38,7 +38,8 @@ class rings_finder ( object ):
         3. Calculate the center and the average radius.
         """
         self.segment ( )
-        self.find_continuous_regions ( )       
+        #self.find_continuous_regions ( )
+        self.accumulate_traces ( )
         self.log.debug ( "rings_finder finished." )
         
     def segment ( self ):
@@ -145,7 +146,43 @@ class rings_finder ( object ):
         if self.plot_log:
             tuna.tools.plot ( continuous, "continuous", self.ipython )
         self.result [ 'continuous' ] = continuous
-    
+
+    def accumulate_traces ( self ):
+        """
+        From a zeroes array where ones mean existing points, create a new array where each existing point is connected to each other, and pixels in this line segment accumulate the value 1.
+        """
+        array = self.result [ 'ridge' ]
+        accumulated = numpy.zeros ( shape = array.shape )
+        points = [ ]
+        for col in range ( array.shape [ 0 ] ):
+            for row in range ( array.shape [ 1 ] ):
+                if array [ col ] [ row ] == 1:
+                    points.append ( ( col, row ) )
+        while ( len ( points ) > 0 ):
+            here = points.pop ( )
+            for point in points:
+                self.add_trace ( accumulated, here, point )
+        if self.plot_log:
+            tuna.tools.plot ( accumulated, "accumulated", self.ipython )
+        self.result [ 'accumulated' ] = accumulated
+
+    def add_trace ( self, array, origin, destiny ):
+        """
+        Add 1 to each pixel in the line segment between origin and destiny.
+        """
+        diff_col = origin [ 0 ] - destiny [ 0 ]
+        diff_row = origin [ 1 ] - destiny [ 1 ]
+        if diff_col == 0:
+            # not sure
+            return
+        theta = math.atan ( diff_row / diff_col )
+        col_zero_crossing = origin [ 1 ] - theta * origin [ 0 ]
+        for col in range ( array.shape [ 0 ] ):
+            row = theta * col + col_zero_crossing
+            if ( row < 0 or row > array.shape [ 1 ] ):
+                continue
+            array [ col ] [ row ] += 1
+        
 def find_rings ( array ):
     """
     Attempts to find rings contained in a 3D numpy ndarray input.
