@@ -23,7 +23,7 @@ class rings_finder ( object ):
             self.ipython.magic("matplotlib qt")
 
         self.chosen_plane = 1
-        self.ridge_threshold = 4
+        self.ridge_threshold = 2
         self.upper_percentile = 90
 
             
@@ -39,7 +39,9 @@ class rings_finder ( object ):
         """
         self.segment ( )
         #self.find_continuous_regions ( )
-        self.accumulate_traces ( )
+        #self.accumulate_traces ( )
+        #self.hough_circles ( )
+        self.get_statistics ( )
         self.log.debug ( "rings_finder finished." )
         
     def segment ( self ):
@@ -154,19 +156,36 @@ class rings_finder ( object ):
         array = self.result [ 'ridge' ]
         accumulated = numpy.zeros ( shape = array.shape )
         points = [ ]
+        thetas = [ ]
         for col in range ( array.shape [ 0 ] ):
             for row in range ( array.shape [ 1 ] ):
                 if array [ col ] [ row ] == 1:
                     points.append ( ( col, row ) )
-        while ( len ( points ) > 0 ):
-            here = points.pop ( )
-            for point in points:
-                self.add_trace ( accumulated, here, point )
+        unconsidered = points
+        while ( len ( unconsidered ) > 0 ):
+            here = unconsidered.pop ( )
+            there = self.find_most_distant_pair ( here, points )
+            if there in unconsidered:
+                unconsidered.remove ( there )
+            if there in points:
+                points.remove ( there )
+            self.add_trace ( accumulated, here, there, thetas, array )
         if self.plot_log:
             tuna.tools.plot ( accumulated, "accumulated", self.ipython )
         self.result [ 'accumulated' ] = accumulated
 
-    def add_trace ( self, array, origin, destiny ):
+    def find_most_distant_pair ( self, origin, points ):
+        max_distance = 0
+        max_point = origin
+        for point in points:
+            distance = math.sqrt ( ( origin [ 0 ] - point [ 0 ] ) ** 2 +
+                                   ( origin [ 1 ] - point [ 1 ] ) ** 2 )
+            if distance >= max_distance:
+                max_distance = distance
+                max_point = point
+        return max_point
+        
+    def add_trace ( self, array, origin, destiny, thetas, borders ):
         """
         Add 1 to each pixel in the line segment between origin and destiny.
         """
@@ -176,13 +195,91 @@ class rings_finder ( object ):
             # not sure
             return
         theta = math.atan ( diff_row / diff_col )
+        weight = 1
+        if round ( theta, 2 ) in thetas:
+            weight = 0.1
+        thetas.append ( round ( theta, 2 ) )
         col_zero_crossing = origin [ 1 ] - theta * origin [ 0 ]
+        border_latest = 0
+        border_crossings = 0
+        carry = 0
+        temp = numpy.zeros ( shape = array.shape )
         for col in range ( array.shape [ 0 ] ):
             row = theta * col + col_zero_crossing
             if ( row < 0 or row > array.shape [ 1 ] ):
                 continue
-            array [ col ] [ row ] += 1
-        
+            #distance_origin = math.sqrt ( ( origin [ 0 ] - col ) ** 2 +
+            #                              ( origin [ 1 ] - row ) ** 2 )
+            #distance_destiny = math.sqrt ( ( destiny [ 0 ] - col ) ** 2 +
+            #                               ( destiny [ 1 ] - row ) ** 2 )
+            #distance = round ( abs ( distance_origin - distance_destiny ) )
+            #array [ col ] [ row ] += distance
+            temp [ col ] [ row ] += weight * carry
+            carry += 1
+            if borders [ col ] [ row ] == 1:
+                if border_latest == 0:
+                    border_crossings += 1
+                    carry = 0
+                    border_latest = 1
+            else:
+                border_latest = 0
+        if border_crossings % 2 == 0:
+            self.log.info ( "theta = {}".format ( theta ) )
+            array += temp                
+
+    def hough_circles ( self ):
+        array = self.result [ 'ridge' ]
+        for col in range ( array.shape [ 0 ] ):
+            for row in range ( array.shape [ 1 ] ):
+                circle = self.get_circle ( ( col, row ), 100, array.shape )
+                diff = numpy.sum ( numpy.where ( array == circle, 1, 0 ) )
+                self.log.info ( "({}, {}) diff = {}".format ( col, row, diff ) )
+                
+        #if self.plot_log:
+        #    tuna.tools.plot ( circle, "circle", self.ipython )       
+            
+    def get_circle ( self, center, radius, shape ):
+        result = numpy.zeros ( shape = shape )
+        for col in range ( shape [ 0 ] ):
+            for row in range ( shape [ 1 ] ):
+                if round ( tuna.tools.calculate_distance ( center, ( col, row ) ) ) == round ( radius ):
+                    result [ col ] [ row ] = 1
+        return result
+
+    def get_statistics ( self ):
+        array = self.result [ 'ridge' ]
+        max_col_crossings = 0
+        max_col_cross = -1
+        for col in range ( array.shape [ 0 ] ):
+            border_latest = 0
+            border_crossings = 0
+            for row in range ( array.shape [ 1 ] ):
+                if array [ col ] [ row ] == 1:
+                    if border_latest == 0:
+                        border_crossings += 1
+                        if border_crossings > max_col_crossings:
+                            max_col_crossings = border_crossings
+                            max_col_cross = col                        
+                        border_latest = 1
+                else:
+                    border_latest = 0
+        self.log.info ( "row {} has {} max border crossings.".format ( max_col_cross, max_col_crossings ) )
+        max_row_crossings = 0
+        for row in range ( array.shape [ 1 ] ):
+            border_latest = 0
+            border_crossings = 0
+            for col in range ( array.shape [ 0 ] ):
+                if array [ col ] [ row ] == 1:
+                    if border_latest == 0:
+                        border_crossings += 1
+                        if border_crossings > max_row_crossings:
+                            max_row_crossings = border_crossings
+                            max_row_cross = row
+                        border_latest = 1
+                else:
+                    border_latest = 0
+        self.log.info ( "col {} has {} max border crossings.".format ( max_row_cross, max_row_crossings ) )
+    
 def find_rings ( array ):
     """
     Attempts to find rings contained in a 3D numpy ndarray input.
@@ -196,3 +293,4 @@ def find_rings ( array ):
     finder = rings_finder ( array )
     finder.execute ( )
     return finder.result
+
