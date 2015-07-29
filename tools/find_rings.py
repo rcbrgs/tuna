@@ -5,6 +5,7 @@ The scope of this module is to find rings within 3D FP spectrographs.
 import IPython
 import logging
 import math
+import mpyfit
 import numpy
 import tuna
 
@@ -23,7 +24,7 @@ class rings_finder ( object ):
             self.ipython.magic("matplotlib qt")
 
         self.chosen_plane = 1
-        self.ridge_threshold = 2
+        self.ridge_threshold = 3
         self.upper_percentile = 90
 
             
@@ -37,11 +38,13 @@ class rings_finder ( object ):
         2. Create a separate array for each individual ring.
         3. Calculate the center and the average radius.
         """
-        self.segment ( )
+        self.segment ( ) # self.result [ 'ridge' ] contains this subresult.
         #self.find_continuous_regions ( )
         #self.accumulate_traces ( )
         #self.hough_circles ( )
-        self.get_statistics ( )
+        self.get_statistics ( ) # self.result [ 'max_number_of_rings' ] contains this subresult
+        self.separate_rings ( ) # self.result [ 'ring_pixel_sets' ] contains this subresult
+        self.fit_circles ( )
         self.log.debug ( "rings_finder finished." )
         
     def segment ( self ):
@@ -263,7 +266,7 @@ class rings_finder ( object ):
                         border_latest = 1
                 else:
                     border_latest = 0
-        self.log.info ( "row {} has {} max border crossings.".format ( max_col_cross, max_col_crossings ) )
+        self.log.debug ( "row {} has {} max border crossings.".format ( max_col_cross, max_col_crossings ) )
         max_row_crossings = 0
         for row in range ( array.shape [ 1 ] ):
             border_latest = 0
@@ -278,8 +281,77 @@ class rings_finder ( object ):
                         border_latest = 1
                 else:
                     border_latest = 0
-        self.log.info ( "col {} has {} max border crossings.".format ( max_row_cross, max_row_crossings ) )
-    
+        self.log.debug ( "col {} has {} max border crossings.".format ( max_row_cross, max_row_crossings ) )
+        max_crossings = max ( max_row_crossings, max_col_crossings )
+
+        max_number_of_rings = max_crossings # this will be the case if we have a spectrograph containing only the "corner" of all its rings.
+        
+        self.log.debug ( "max_number_of_rings = {}".format ( max_number_of_rings ) )
+        self.result [ 'max_number_of_rings' ] = max_number_of_rings
+
+    def fit_circles ( self ):
+        count = 0
+        for pixel_set in self.result [ 'ring_pixel_sets' ]:
+            fit = fit_circle ( pixel_set )
+            if self.plot_log:
+                tuna.tools.plot ( fit, "fit {}".format ( count ), self.ipython )
+                tuna.tools.plot ( fit * self.result [ 'ridge' ], "fit {} * ridge".format ( count ), self.ipython )
+                count += 1
+
+    def separate_rings ( self ):
+        array = self.result [ 'ridge' ]
+        visited = numpy.zeros ( shape = array.shape )
+        connected_pixels_sets = [ ]
+        for col in range ( array.shape [ 0 ] ):
+            for row in range ( array.shape [ 1 ] ):
+                if visited [ col ] [ row ] == 1:
+                    continue
+                if array [ col ] [ row ] == 1:
+                    to_visit = [ ( col, row ) ]
+                    region = [ ]
+                    while ( len ( to_visit ) > 0 ):
+                        here = to_visit.pop ( )
+                        visited [ here [ 0 ] ] [ here [ 1 ] ] = 1
+                        region.append ( here )
+                        neighbours = tuna.tools.get_pixel_neighbours ( here, array )
+                        for neighbour in neighbours:
+                            if visited [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] == 1:
+                                continue
+                            if array [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] == 0:
+                                continue
+                            to_visit.append ( neighbour )
+                    connected_pixels_sets.append ( region )
+
+        self.log.debug ( "connected_pixels_sets = {}".format ( connected_pixels_sets ) )
+
+        pixels_set_lengths = [ ]
+        for pixels_set in connected_pixels_sets:
+            pixels_set_lengths.append ( len ( pixels_set ) )
+        sorted_pixels_set_lengths = sorted ( pixels_set_lengths )
+        shortest = sorted_pixels_set_lengths [ - ( self.result [ 'max_number_of_rings' ] - 1 ) ]
+        longest = sorted_pixels_set_lengths [ - 1 ]
+
+        for pixels_set in connected_pixels_sets:
+            if len ( pixels_set ) < shortest:
+                continue
+            if len ( pixels_set ) < 10:
+                continue
+            if len ( pixels_set ) < longest * 0.1:
+                continue
+            set_array = numpy.zeros ( shape = array.shape )
+            for pixel in pixels_set:
+                set_array [ pixel [ 0 ] ] [ pixel [ 1 ] ] = 1
+            try:
+                self.result [ 'ring_pixel_sets' ].append ( set_array )
+            except KeyError:
+                self.result [ 'ring_pixel_sets' ] = [ set_array ]
+
+        if self.plot_log:
+            count = 0
+            for pixel_set in self.result [ 'ring_pixel_sets' ]:
+                tuna.tools.plot ( pixel_set, "pixel_set {}".format ( count ), self.ipython )
+                count += 1
+            
 def find_rings ( array ):
     """
     Attempts to find rings contained in a 3D numpy ndarray input.
@@ -294,3 +366,104 @@ def find_rings ( array ):
     finder.execute ( )
     return finder.result
 
+def circle ( center, radius, shape ):
+    log = logging.getLogger ( __name__ )
+    log.debug ( "circle: center = {}, radius = {}, shape = {}".format (
+        center, radius, shape ) )
+    
+    #border = numpy.zeros ( shape = shape )
+    distances = numpy.zeros ( shape = shape )
+    for col in range ( shape [ 0 ] ):
+        for row in range ( shape [ 1 ] ):
+            center_distance = tuna.tools.calculate_distance ( center, ( col, row ) )
+            #distances [ col ] [ row ] = 1 + abs ( center_distance - radius )
+            distances [ col ] [ row ] = 1 + ( abs ( center_distance - radius ) / radius ) ** 2
+            #if abs ( center_distance - radius ) < 2:
+            #    border [ col ] [ row ] = 1
+
+    log.debug ( "returning result" )
+    #return distances * border
+    return distances
+
+def least_circle ( p, args ):
+    log = logging.getLogger ( __name__ )
+    log.debug ( "least_circle" )
+    
+    center_col, center_row, radius = p
+    shape, data = args
+    log.debug ( "parameters and arguments parsed." )
+    log.debug ( "least_circle: center = ( {}, {} ), radius = {}.".format ( center_col, center_row, radius ) )
+    
+    try:
+        log.debug ( "calling circle function" )
+        calculated_circle = circle ( ( center_col,
+                                       center_row ),
+                                     radius,
+                                     shape )
+        #log.debug ( "calculated_circle = %s" % str ( calculated_circle ) )
+    except Exception as e:
+        print ( "Exception: %s" % str ( e ) )
+
+    try:
+        log.debug ( "calculating residue" )
+        residue = calculated_circle - data
+    except Exception as e:
+        print ( "Exception: %s" % str ( e ) )
+
+    #log.debug ( "residue = %s" % str ( residue ) )
+    log.debug ( "numpy.sum ( numpy.abs ( residue ) ) = %f" % numpy.sum ( numpy.abs ( residue ) ) )
+    log.debug ( "/least_mpyfit" )
+    return ( residue.flatten ( ) )
+
+def fit_circle ( data ):
+    log = logging.getLogger ( __name__ )
+
+    center_col = 0
+    center_row = 0
+    points = 0
+    for col in range ( data.shape [ 0 ] ):
+        for row in range ( data.shape [ 1 ] ):
+            if data [ col ] [ row ] == 1:
+                center_col += col
+                center_row += row
+                points += 1
+    center_col /= points
+    center_row /= points
+    
+    parameters = ( center_col,
+                   center_row,
+                   100 )
+    
+    # Constraints on parameters
+    parinfo = [ ]
+    parbase = { 'fixed'  : False,
+                'limits' : ( - data.shape [ 0 ], 2 * data.shape [ 0 ] ),
+                'step'   : data.shape [ 0 ] / 10 }
+    parinfo.append ( parbase )
+    parbase = { 'fixed'  : False,
+                'limits' : ( - data.shape [ 1 ], 2 * data.shape [ 1 ] ),
+                'step'   : data.shape [ 1 ] / 10 }
+    parinfo.append ( parbase )
+    parbase = { 'fixed'  : False,
+                'limits' : ( 10, max ( data.shape [ 0 ], data.shape [ 1 ] ) ),
+                'step'   : data.shape [ 1 ] / 10 }
+    parinfo.append ( parbase )
+    
+    for entry in parinfo:
+        log.debug ( "parinfo = %s" % str ( entry ) )
+            
+    try:
+        log.info ( "input parameters = %s" % str ( parameters ) ) 
+        fit_parameters, fit_result = mpyfit.fit ( least_circle,
+                                                  parameters,
+                                                  args = ( data.shape, data ),
+                                                  parinfo = parinfo,
+                                                  stepfactor = 1e6 )
+    except Exception as e:
+        log.info ( tuna.console.output_exception ( e ) )
+        raise ( e )
+
+    log.info ( "fit_parameters = {}".format ( fit_parameters ) )
+    log.info ( "fit_result     = {}".format ( fit_result ) )
+
+    return circle ( ( fit_parameters [ 0 ], fit_parameters [ 1 ] ), fit_parameters [ 2 ], data.shape )
