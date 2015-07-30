@@ -24,7 +24,7 @@ class rings_finder ( object ):
             self.ipython.magic("matplotlib qt")
 
         self.chosen_plane = 1
-        self.ridge_threshold = 3
+        self.ridge_threshold = 2
         self.upper_percentile = 90
 
             
@@ -292,11 +292,64 @@ class rings_finder ( object ):
     def fit_circles ( self ):
         count = 0
         for pixel_set in self.result [ 'ring_pixel_sets' ]:
-            fit = fit_circle ( pixel_set )
+            self.log.debug ( "attempting to fit set {}".format ( count ) )
+            mountain = self.mountain_to_Mohammed ( pixel_set )
+            self.log.debug ( "mountain found" )
+            try:
+                self.result [ 'mountains' ].append ( mountain )
+            except KeyError:
+                self.result [ 'mountains' ] = [ mountain ]
             if self.plot_log:
-                tuna.tools.plot ( fit, "fit {}".format ( count ), self.ipython )
-                tuna.tools.plot ( fit * self.result [ 'ridge' ], "fit {} * ridge".format ( count ), self.ipython )
-                count += 1
+                tuna.tools.plot ( mountain, "mountain {}".format ( count ), self.ipython )
+            mountain_parameters, fit = fit_mountain ( mountain )
+            self.log.debug ( "mountain_parameters {} = {}".format ( count, mountain_parameters ) )
+            self.log.debug ( "circle fitted to mountain" )
+            if self.plot_log:
+                tuna.tools.plot ( fit, "mountain fit {}".format ( count ), self.ipython )
+                #tuna.tools.plot ( fit * self.result [ 'ridge' ], "fit {} * ridge".format ( count ), self.ipython )
+            try:
+                self.result [ 'mountain_fit' ].append ( fit )
+            except KeyError:
+                self.result [ 'mountain_fit' ]= [ fit ]
+
+            ring_parameters, ring_fit = fit_circle ( mountain_parameters [ 0 ],
+                                                     mountain_parameters [ 1 ],
+                                                     mountain_parameters [ 2 ],
+                                                     mountain_to_Mohammed ( pixel_set, factor = 0.9 ),
+                                                     circle_min )
+            self.log.debug ( "ring_parameterers {} = {}".format ( count, ring_parameters ) )
+            if self.plot_log:
+                tuna.tools.plot ( ring_fit, "ring fit {}".format ( count ), self.ipython )
+                tuna.tools.plot ( ring_fit * self.result [ 'ridge' ], "ring_fit {} * ridge".format ( count ), self.ipython )
+            try:
+                self.result [ 'ring_fit' ].append ( ring_fit )
+            except KeyError:
+                self.result [ 'ring_fit' ] = [ ring_fit ]
+            try:
+                self.result [ 'ring_fit_parameters' ].append ( ring_parameters )
+            except KeyError:
+                self.result [ 'ring_fit_parameters' ] = [ ring_parameters ]
+                
+            count += 1
+            
+        self.log.debug ( "All sets fitted." )
+
+    def mountain_to_Mohammed ( self, array, factor = 0.99 ):
+        target = 1
+        result = numpy.copy ( array )
+        zeros = numpy.sum ( numpy.where ( result == 0, 1, 0 ) )
+        while ( zeros > 0 ):
+            self.log.debug ( "zeros = {}".format ( zeros ) )
+            for col in range ( result.shape [ 0 ] ):
+                for row in range ( result.shape [ 1 ] ):
+                    if result [ col ] [ row ] == target:
+                        neighbours = tuna.tools.get_pixel_neighbours ( ( col, row ), result )
+                        for neighbour in neighbours:
+                            if result [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] == 0:
+                                result [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] = target * factor
+            target *= factor
+            zeros = numpy.sum ( numpy.where ( result == 0, 1, 0 ) )
+        return result
 
     def separate_rings ( self ):
         array = self.result [ 'ridge' ]
@@ -346,6 +399,7 @@ class rings_finder ( object ):
             except KeyError:
                 self.result [ 'ring_pixel_sets' ] = [ set_array ]
 
+        self.log.debug ( "pixels_sets found" )
         if self.plot_log:
             count = 0
             for pixel_set in self.result [ 'ring_pixel_sets' ]:
@@ -366,7 +420,7 @@ def find_rings ( array ):
     finder.execute ( )
     return finder.result
 
-def circle ( center, radius, shape ):
+def circle_max ( center, radius, shape ):
     log = logging.getLogger ( __name__ )
     log.debug ( "circle: center = {}, radius = {}, shape = {}".format (
         center, radius, shape ) )
@@ -376,8 +430,37 @@ def circle ( center, radius, shape ):
     for col in range ( shape [ 0 ] ):
         for row in range ( shape [ 1 ] ):
             center_distance = tuna.tools.calculate_distance ( center, ( col, row ) )
+            # border as minimum, parabolic regions otherwise:
+            #distances [ col ] [ row ] = 1 + ( abs ( center_distance - radius ) / radius ) ** 2
+
+            # border as maximum, parabolic regions otherwise:
+            distances [ col ] [ row ] = 1 - ( abs ( center_distance - radius ) / radius ) ** 2
+            
             #distances [ col ] [ row ] = 1 + abs ( center_distance - radius )
-            distances [ col ] [ row ] = 1 + ( abs ( center_distance - radius ) / radius ) ** 2
+            #if abs ( center_distance - radius ) < 2:
+            #    border [ col ] [ row ] = 1
+
+    log.debug ( "returning result" )
+    #return distances * border
+    return distances
+
+def circle_min ( center, radius, shape ):
+    log = logging.getLogger ( __name__ )
+    log.debug ( "circle: center = {}, radius = {}, shape = {}".format (
+        center, radius, shape ) )
+    
+    #border = numpy.zeros ( shape = shape )
+    distances = numpy.zeros ( shape = shape )
+    for col in range ( shape [ 0 ] ):
+        for row in range ( shape [ 1 ] ):
+            center_distance = tuna.tools.calculate_distance ( center, ( col, row ) )
+            # border as minimum, parabolic regions otherwise:
+            #distances [ col ] [ row ] = 1 + ( abs ( center_distance - radius ) / radius ) ** 2
+
+            # border as maximum, parabolic regions otherwise:
+            #distances [ col ] [ row ] = 1 - ( abs ( center_distance - radius ) / radius ) ** 2
+            
+            distances [ col ] [ row ] = 1 + abs ( center_distance - radius )
             #if abs ( center_distance - radius ) < 2:
             #    border [ col ] [ row ] = 1
 
@@ -396,10 +479,10 @@ def least_circle ( p, args ):
     
     try:
         log.debug ( "calling circle function" )
-        calculated_circle = circle ( ( center_col,
-                                       center_row ),
-                                     radius,
-                                     shape )
+        calculated_circle = circle_max ( ( center_col,
+                                           center_row ),
+                                         radius,
+                                         shape )
         #log.debug ( "calculated_circle = %s" % str ( calculated_circle ) )
     except Exception as e:
         print ( "Exception: %s" % str ( e ) )
@@ -415,24 +498,12 @@ def least_circle ( p, args ):
     log.debug ( "/least_mpyfit" )
     return ( residue.flatten ( ) )
 
-def fit_circle ( data ):
+def fit_circle ( center_col, center_row, radius, data, function ):
     log = logging.getLogger ( __name__ )
 
-    center_col = 0
-    center_row = 0
-    points = 0
-    for col in range ( data.shape [ 0 ] ):
-        for row in range ( data.shape [ 1 ] ):
-            if data [ col ] [ row ] == 1:
-                center_col += col
-                center_row += row
-                points += 1
-    center_col /= points
-    center_row /= points
-    
     parameters = ( center_col,
                    center_row,
-                   100 )
+                   radius )
     
     # Constraints on parameters
     parinfo = [ ]
@@ -466,4 +537,26 @@ def fit_circle ( data ):
     log.info ( "fit_parameters = {}".format ( fit_parameters ) )
     log.info ( "fit_result     = {}".format ( fit_result ) )
 
-    return circle ( ( fit_parameters [ 0 ], fit_parameters [ 1 ] ), fit_parameters [ 2 ], data.shape )
+    return fit_parameters, function (
+        ( fit_parameters [ 0 ], fit_parameters [ 1 ] ), fit_parameters [ 2 ], data.shape )
+
+def fit_mountain ( data ):
+    log = logging.getLogger ( __name__ )
+
+    center_col = 0
+    center_row = 0
+    points = 0
+    for col in range ( data.shape [ 0 ] ):
+        for row in range ( data.shape [ 1 ] ):
+            if data [ col ] [ row ] == 1:
+                center_col += col
+                center_row += row
+                points += 1
+    center_col /= points
+    center_row /= points
+    
+    return fit_circle ( center_col,
+                        center_row,
+                        100,
+                        data,
+                        circle_max )
