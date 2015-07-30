@@ -36,7 +36,7 @@ def plot ( data, title = "", ipython = None ):
         for plane in range ( data.shape [ 0 ] ):
             image = axes.flat [ plane ] .imshow ( data [ plane ] )
 
-        figure.subplots_adjust(right=0.8)
+        figure.subplots_adjust( right = 0.8 )
         
         colorbar_axe = figure.add_axes ( [ 0.85, 0.15, 0.05, 0.7 ] )
         figure.colorbar ( image, cax=colorbar_axe )
@@ -45,7 +45,7 @@ def plot ( data, title = "", ipython = None ):
 
     if len ( data.shape ) == 2:
         fig = plt.figure ( )
-        plt.imshow ( data, cmap='spectral')
+        plt.imshow ( data, cmap='Greys')
         plt.colorbar ( orientation="horizontal" )
         plt.title ( title )
 
