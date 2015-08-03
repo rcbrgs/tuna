@@ -481,17 +481,22 @@ class rings_finder ( object ):
                 tuna.tools.plot ( pixel_set, "pixel_set {}".format ( count ), self.ipython )
                 count += 1
             
-def find_rings ( array ):
+def find_rings ( array, plane ):
     """
     Attempts to find rings contained in a 3D numpy ndarray input.
+    Parameters:
+    - array is the 3D numpy array with the spectrograph.
+    - plane is the index in the cube for the spectrograph whose rings the user wants.
+
     Returns a list of dicts, with the following keys:
     'array'  : 2D numpy.ndarray where pixels in the ring have value 1 and other pixels have value 0.
     'center' : a tuple of 2 floats, where the first is the column and the second is the row of the most probable locations for the center of that ring.
-    'plane'  : A non-negative integer that corresponds to the index of the plane where this ring is in the original cube.
     'radius' : a float with the average value of the distance of the ring pixels to its center.
+    'construction' : a list of numpy arrays containing the geometric construction that led to the estimated center and radius used in the fit.
+    'pixel_set' : a list of numpy arrays containing the segmented pixel sets corresponding to each identified ring.
     """
 
-    finder = rings_finder ( array )
+    finder = rings_finder ( array, plane )
     finder.execute ( )
     return finder.result
 
