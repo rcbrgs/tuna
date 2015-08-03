@@ -14,10 +14,11 @@ class rings_finder ( object ):
     """
     The responsibility of this class is to find all rings contained in a data cube.
     """
-    def __init__ ( self, array ):
+    def __init__ ( self, array, plane ):
         self.log = logging.getLogger ( __name__ )
-        self.__version__ = '0.1.2'
+        self.__version__ = '0.1.3'
         self.changelog = {
+            '0.1.3' : "Made plane a parameter of init.",
             '0.1.2' : "Added construct_ring_center function.",
             '0.1.1' : "check_is_circle now returns False if there is a pixel with less than two neighbours in the ring",
             '0.1.0' : "Initial version." }
@@ -26,10 +27,9 @@ class rings_finder ( object ):
             self.ipython = IPython.get_ipython()
             self.ipython.magic("matplotlib qt")
 
-        self.chosen_plane = 23
+        self.chosen_plane = plane
         self.ridge_threshold = 2
         self.upper_percentile = 90
-
             
         self.array = array
         
@@ -331,7 +331,7 @@ class rings_finder ( object ):
                    ( sympy.N ( diameter_extreme.y ) + min_pixel [ 1 ] ) / 2 )
         radius = tuna.tools.calculate_distance ( center, min_pixel )
 
-        for neighbour in tuna.tools.get_pixel_neighbours ( center ):
+        for neighbour in tuna.tools.get_pixel_neighbours ( center, construction ):
             construction [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] = color
         
         try:
