@@ -7,6 +7,7 @@ import logging
 import math
 import mpyfit
 import numpy
+#import sympy
 import tuna
 
 class rings_finder ( object ):
@@ -15,15 +16,17 @@ class rings_finder ( object ):
     """
     def __init__ ( self, array ):
         self.log = logging.getLogger ( __name__ )
-        self.__version__ = '0.1.0'
+        self.__version__ = '0.1.2'
         self.changelog = {
+            '0.1.2' : "Added construct_ring_center function.",
+            '0.1.1' : "check_is_circle now returns False if there is a pixel with less than two neighbours in the ring",
             '0.1.0' : "Initial version." }
         self.plot_log = True
         if self.plot_log:
             self.ipython = IPython.get_ipython()
             self.ipython.magic("matplotlib qt")
 
-        self.chosen_plane = 1
+        self.chosen_plane = 23
         self.ridge_threshold = 2
         self.upper_percentile = 90
 
@@ -156,47 +159,31 @@ class rings_finder ( object ):
             if self.plot_log:
                 tuna.tools.plot ( mountain_fit, "mountain_fit {}".format ( count ), self.ipython )
 
-            minimal_point = numpy.unravel_index ( numpy.argmin ( mountain_fit ), mountain_fit.shape )
-            a_point = numpy.unravel_index ( numpy.argmax ( pixel_set ), pixel_set.shape )
-            self.log.debug ( "( {}, {} ) is the minimal point.".format ( minimal_point [ 0 ],
-                                                                         minimal_point [ 1 ] ) )
-            self.log.debug ( "( {}, {} ) is a point in the arc.".format ( a_point [ 0 ],
-                                                                          a_point [ 1 ] ) )
-            arc_pixels = numpy.sum ( pixel_set )
-            minimal_radius = arc_pixels / ( 2 * numpy.pi )
-            self.log.debug ( "minimal_radius = {:.5f}".format ( minimal_radius ) )
-            distance = tuna.tools.calculate_distance ( a_point, minimal_point )
-            self.log.debug ( "distance = {:.5f}".format ( distance ) )
-            ratio = distance / minimal_radius
-            self.log.debug ( "ratio distance / minimal_radius = {:.5f}".format ( abs ( ratio ) ) )
-            if ratio > 1:
-                self.log.debug ( "Algorithm will likely fail. Attempting alternate center finder." )
-                pixels = 0
-                center_col = 0
-                center_row = 0
-                for col in range ( pixel_set.shape [ 0 ] ):
-                    for row in range ( pixel_set.shape [ 1 ] ):
-                        if pixel_set [ col ] [ row ] == 1:
-                            pixels += 1
-                            center_col += col
-                            center_row += row
-                center_col /= pixels
-                center_row /= pixels
-                minimal_point = ( center_col, center_row )
-                self.log.debug ( "( {}, {} ) is the new minimal point.".format ( minimal_point [ 0 ],
-                                                                                 minimal_point [ 1 ] ) )
-                    
+            is_ring = self.check_set_is_ring ( pixel_set )
+            self.log.debug ( "check_set_is_ring = {}".format ( is_ring ) )
+            if is_ring:
+                minimal_point, minimal_radius = self.estimate_for_full_ring ( pixel_set )
+            else:
+                minimal_point, minimal_radius = self.estimate_center_from_curve ( pixel_set )
                 
             ring_parameters, ring_fit = fit_circle ( minimal_point [ 0 ],
                                                      minimal_point [ 1 ],
                                                      minimal_radius,
-                                                     mountain_fit, 
+                                                     mountain_fit,
+                                                     #pixel_set,
+                                                     #circle )
                                                      mountain_circle )
             
             self.log.info ( "ring_parameters {} = {}".format ( count, ring_parameters ) )
+            self.construct_ring_center ( pixel_set )
             if self.plot_log:
                 tuna.tools.plot ( ring_fit, "ring fit {}".format ( count ), self.ipython )
-                tuna.tools.plot ( ring_fit * self.result [ 'ridge' ], "ring_fit {} * ridge".format ( count ), self.ipython )
+                tuna.tools.plot ( pixel_set - ring_fit, "pixel_set {} - ring_fit {}".format (
+                    count, count ), self.ipython )
+                tuna.tools.plot ( self.result [ 'construction' ], "construction {}".format (
+                    count ), self.ipython )
+            
+
             try:
                 self.result [ 'ring_fit' ].append ( ring_fit )
             except KeyError:
@@ -210,6 +197,186 @@ class rings_finder ( object ):
             
         self.log.debug ( "All sets fitted." )
 
+    def estimate_center_from_curve ( self, pixel_set ):
+        pixels = [ ]
+        for col in range ( pixel_set.shape [ 0 ] ):
+            for row in range ( pixel_set.shape [ 1 ] ):
+                if pixel_set [ col ] [ row ] == 1:
+                    pixels.append ( ( col, row ) )
+        
+        max_distance = 0
+        max_pair = None
+        for pixel in pixels:
+            for other in pixels:
+                distance = tuna.tools.calculate_distance ( pixel, other )
+                if distance >= max_distance:
+                    max_distance = distance
+                    max_pair = ( pixel, other )
+
+        if not max_pair:
+            self.log.error ( "Could not find a pixel pair!" )
+            return None, None
+
+        self.log.debug ( "max_pair = {}".format ( max_pair ) )
+
+        mid_point = ( ( max_pair [ 0 ] [ 0 ] + max_pair [ 1 ] [ 0 ] ) / 2,
+                      ( max_pair [ 0 ] [ 1 ] + max_pair [ 1 ] [ 1 ] ) / 2 )
+
+        self.log.debug ( "mid_point = {}".format ( mid_point ) )
+        
+        min_distance = math.sqrt ( pixel_set.shape [ 0 ] ** 2 + pixel_set.shape [ 1 ] ** 2 )
+        for pixel in pixels:
+            distance = tuna.tools.calculate_distance ( pixel, mid_point )
+            if distance <= min_distance:
+                min_distance = distance
+                min_pixel = pixel
+
+        self.log.debug ( "min_distance = {}".format ( min_distance ) )
+        ratio = min_distance / max_distance
+        self.log.debug ( "ratio = {}".format ( ratio ) )
+
+        if ratio > 0.4:
+            center = mid_point
+            radius = min_distance
+            self.log.debug ( "Estimated center = ( {:.5f}, {:.5f} ), radius = {:.5f}".format (
+                center [ 0 ], center [ 1 ], radius ) )
+            return center, radius
+        #elif ratio > 0.2:
+        #    self.log.debug ( "Partial ring is too large for this algorithm. Using full ring algorithm instead." )
+        #    #return self.estimate_for_full_ring ( pixel_set )
+
+        dir_vector = ( - min_pixel [ 0 ] + mid_point [ 0 ], - min_pixel [ 1 ] + mid_point [ 1 ] )
+        dir_vector_normalizer = math.sqrt ( dir_vector [ 0 ] ** 2 + dir_vector [ 1 ] ** 2 )
+        dir_vector = ( dir_vector [ 0 ] / dir_vector_normalizer, dir_vector [ 1 ] / dir_vector_normalizer )
+        self.log.debug ( "dir_vector = {}".format ( dir_vector ) )
+        
+        radius = max_distance * math.sqrt ( 2 ) / 2 + min_distance
+        center = ( min_pixel [ 0 ] + radius * dir_vector [ 0 ],
+                   min_pixel [ 1 ] + radius * dir_vector [ 1 ] )
+            
+        self.log.debug ( "Estimated center = ( {:.5f}, {:.5f} ), radius = {:.5f}".format (
+            center [ 0 ], center [ 1 ], radius ) )
+        
+        return center, radius
+
+    def construct_ring_center ( self, pixel_set ):
+        construction = numpy.copy ( pixel_set )
+        pixels = [ ]
+        for col in range ( pixel_set.shape [ 0 ] ):
+            for row in range ( pixel_set.shape [ 1 ] ):
+                if pixel_set [ col ] [ row ] == 1:
+                    pixels.append ( ( col, row ) )
+        
+        max_distance = 0
+        max_pair = None
+        for pixel in pixels:
+            for other in pixels:
+                distance = tuna.tools.calculate_distance ( pixel, other )
+                if distance >= max_distance:
+                    max_distance = distance
+                    max_pair = ( pixel, other )
+
+        if not max_pair:
+            self.log.error ( "Could not find a pixel pair!" )
+            return None, None
+
+        self.log.debug ( "max_pair = {}".format ( max_pair ) )
+        construction [ max_pair [ 0 ] [ 0 ] ] [ max_pair [ 0 ] [ 1 ] ] = 10
+        construction [ max_pair [ 1 ] [ 0 ] ] [ max_pair [ 1 ] [ 1 ] ] = 10
+
+        mid_point = ( ( max_pair [ 0 ] [ 0 ] + max_pair [ 1 ] [ 0 ] ) / 2,
+                      ( max_pair [ 0 ] [ 1 ] + max_pair [ 1 ] [ 1 ] ) / 2 )
+        construction [ mid_point [ 0 ] ] [ mid_point [ 1 ] ] = 10
+        
+        self.log.debug ( "mid_point = {}".format ( mid_point ) )
+        
+        min_distance = math.sqrt ( pixel_set.shape [ 0 ] ** 2 + pixel_set.shape [ 1 ] ** 2 )
+        for pixel in pixels:
+            distance = tuna.tools.calculate_distance ( pixel, mid_point )
+            if distance <= min_distance:
+                min_distance = distance
+                min_pixel = pixel
+        construction [ min_pixel [ 0 ] ] [ min_pixel [ 1 ] ] = 10
+        
+        self.log.debug ( "min_distance = {}".format ( min_distance ) )
+        self.log.debug ( "min_pixel = {}".format ( min_pixel ) )
+        ratio = min_distance / max_distance
+        self.log.debug ( "ratio = {}".format ( ratio ) )
+        try:
+            self.result [ 'construction' ].append ( construction )
+        except KeyError:
+            self.result [ 'construction' ] = [ construction ]
+    
+    def estimate_for_full_ring ( self, pixel_set ):
+        pixels = 0
+        center_col = 0
+        center_row = 0
+        for col in range ( pixel_set.shape [ 0 ] ):
+            for row in range ( pixel_set.shape [ 1 ] ):
+                if pixel_set [ col ] [ row ] == 1:
+                    pixels += 1
+                    center_col += col
+                    center_row += row
+        center_col /= pixels
+        center_row /= pixels
+        center = ( center_col, center_row )
+        self.log.debug ( "center = {}".format ( center ) )
+        radius = self.estimate_minimal_radius ( pixel_set, center )
+        self.log.debug ( "radius = {:.5f}".format ( radius ) )
+        return center, radius
+    
+    def check_set_is_ring ( self, pixel_set ):
+        for col in range ( pixel_set.shape [ 0 ] ):
+            for row in [ 0, pixel_set.shape [ 1 ] - 1 ]:
+                if pixel_set [ col ] [ row ] != 0:
+                    return False
+        for col in [ 0, pixel_set.shape [ 0 ] - 1 ]:
+            for row in range ( pixel_set.shape [ 1 ] ):
+                if pixel_set [ col ] [ row ] != 0:
+                    return False
+
+        for col in range ( pixel_set.shape [ 0 ] ):
+            for row in range ( pixel_set.shape [ 1 ] ):
+                if pixel_set [ col ] [ row ] != 1:
+                    continue
+                neighbours = tuna.tools.get_pixel_neighbours ( ( col, row ), pixel_set )
+                adjacent = 0
+                for neighbour in neighbours:
+                    if pixel_set [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] == 1:
+                        adjacent += 1
+                if adjacent < 2:
+                    return False
+                
+        return True
+
+    def estimate_minimal_radius ( self, pixel_set, center ):
+        western_point = ( pixel_set.shape [ 0 ] - 1, 0 )
+        eastern_point = ( 0, 0 )
+        northern_point = ( 0, pixel_set.shape [ 1 ] - 1 )
+        southern_point = ( 0, 0 )
+        for col in range ( pixel_set.shape [ 0 ] ):
+            for row in range ( pixel_set.shape [ 1 ] ):
+                if pixel_set [ col ] [ row ] != 1:
+                    continue
+                if col <= western_point [ 0 ]:
+                    western_point = ( col, row )
+                if col >= eastern_point [ 0 ]:
+                    eastern_point = ( col, row )
+                if row <= northern_point [ 1 ]:
+                    northern_point = ( col, row )
+                if row >= southern_point [ 1 ]:
+                    southern_point = ( col, row )
+                    points = [ western_point, eastern_point, northern_point, southern_point ]
+        self.log.debug ( "cardinal points: {}".format ( points ) )
+        distances = [ ]
+        for point in points:
+            distances.append ( tuna.tools.calculate_distance ( point, center ) )
+        self.log.debug ( "cardinal distances to center: {:.5f}, {:.5f}, {:.5f}, {:.5f}.".format (
+            distances [ 0 ], distances [ 1 ], distances [ 2 ], distances [ 3 ] ) )
+        radius = max ( distances )
+        self.log.debug ( "radius: {}".format ( radius ) )
+        return radius 
+    
     def separate_rings ( self ):
         array = self.result [ 'ridge' ]
         visited = numpy.zeros ( shape = array.shape )
@@ -294,9 +461,9 @@ def circle ( center, radius, shape ):
     #log.debug ( "returning result" )
     return distances
 
-def mountain ( array, factor = 0.99, minimum_target = 9e-1 ):
+def mountain ( array, factor = 0.9, minimum_target = 0.5 ):
     log = logging.getLogger ( __name__ )
-    log.debug ( "growing mountain with factor = {}".format ( factor ) )
+    log.debug ( "growing mountain with factor = {}, minimum_target = {}".format ( factor, minimum_target ) )
     target = 1
     result = numpy.copy ( array )
     mountain_pixels = 0
@@ -304,10 +471,11 @@ def mountain ( array, factor = 0.99, minimum_target = 9e-1 ):
     while ( target > minimum_target and mountain_pixels != total_pixels ):
         for col in range ( result.shape [ 0 ] ):
             for row in range ( result.shape [ 1 ] ):
-                if ( result [ col ] [ row ] == target or
-                     col == 0 or row == 0 or
-                     col == result.shape [ 0 ] - 1 or
-                     row == result.shape [ 1 ] - 1 ):
+                #if ( result [ col ] [ row ] == target or
+                #     col == 0 or row == 0 or
+                #     col == result.shape [ 0 ] - 1 or
+                #     row == result.shape [ 1 ] - 1 ):
+                if ( result [ col ] [ row ] == target ):
                     neighbours = tuna.tools.get_pixel_neighbours ( ( col, row ), result )
                     for neighbour in neighbours:
                         if result [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] == 0:
@@ -330,16 +498,17 @@ def least_circle ( p, args ):
     #log.debug ( "least_circle" )
     
     center_col, center_row, radius = p
-    shape, data = args
+    shape, data, function = args
     #log.debug ( "parameters and arguments parsed." )
     #log.debug ( "least_circle: center = ( {}, {} ), radius = {}.".format ( center_col, center_row, radius ) )
     
     try:
         #log.debug ( "least_circle calling circle function" )
-        calculated_circle = mountain_circle ( ( center_col,
-                                                center_row ),
-                                              radius,
-                                              shape )
+        #calculated_circle = mountain_circle ( ( center_col,
+        calculated_circle = function ( ( center_col,
+                                         center_row ),
+                                       radius,
+                                       shape )
     except Exception as e:
         log.error ( tuna.console.output_exception ( e ) )
 
@@ -361,13 +530,50 @@ def fit_circle ( center_col, center_row, radius, data, function ):
     
     # Constraints on parameters
     parinfo = [ ]
-    parbase = { 'fixed'  : False }
+    parbase = { #'deriv_debug' : True,
+                'fixed'  : False,
+                #'side'   : 2,
+                'step'   : radius / 10 }
     parinfo.append ( parbase )
-    parbase = { 'fixed'  : False }
-    #'step'   : 10 }
+    parbase = { 'fixed'  : False,
+                'step'   : radius / 10 }
     parinfo.append ( parbase )
-    parbase = { 'fixed'  : False }
-                #'step'   : 10 }
+    #parbase = { 'fixed'  : False,
+    #            'step'   : 1 }
+    parbase = { 'fixed'  : True }
+    parinfo.append ( parbase )
+    
+    for entry in parinfo:
+        log.debug ( "parinfo = %s" % str ( entry ) )
+            
+    try:
+        log.debug ( "fit_circle (fixed radius) input parameters = {}".format ( parameters ) )
+        fit_parameters, fit_result = mpyfit.fit ( least_circle,
+                                                  parameters,
+                                                  args = ( data.shape, data, function ),
+                                                  parinfo = parinfo,
+                                                  xtol = 1e-5 )
+    except Exception as e:
+        log.error ( tuna.console.output_exception ( e ) )
+        raise ( e )
+
+    #log.info ( "fit_parameters = {}".format ( fit_parameters ) )
+    log.debug ( "fit_circle (fixed radius) result = {}".format ( fit_result ) )
+
+    parameters = ( fit_parameters [ 0 ],
+                   fit_parameters [ 1 ],
+                   radius )
+    
+    # Constraints on parameters
+    parinfo = [ ]
+    parbase = { 'fixed'  : False,
+                'step'   : 1 }
+    parinfo.append ( parbase )
+    parbase = { 'fixed'  : False,
+                'step'   : 1 }
+    parinfo.append ( parbase )
+    parbase = { 'fixed'  : False,
+                'step'   : radius / 10 }
     parinfo.append ( parbase )
     
     for entry in parinfo:
@@ -377,7 +583,7 @@ def fit_circle ( center_col, center_row, radius, data, function ):
         log.debug ( "fit_circle input parameters = {}".format ( parameters ) )
         fit_parameters, fit_result = mpyfit.fit ( least_circle,
                                                   parameters,
-                                                  args = ( data.shape, data ),
+                                                  args = ( data.shape, data, function ),
                                                   parinfo = parinfo,
                                                   xtol = 1e-5 )
     except Exception as e:
@@ -387,5 +593,6 @@ def fit_circle ( center_col, center_row, radius, data, function ):
     #log.info ( "fit_parameters = {}".format ( fit_parameters ) )
     log.debug ( "fit_circle result = {}".format ( fit_result ) )
 
+    
     return fit_parameters, function (
         ( fit_parameters [ 0 ], fit_parameters [ 1 ] ), fit_parameters [ 2 ], data.shape )
