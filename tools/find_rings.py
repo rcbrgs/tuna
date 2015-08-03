@@ -7,7 +7,7 @@ import logging
 import math
 import mpyfit
 import numpy
-#import sympy
+import sympy
 import tuna
 
 class rings_finder ( object ):
@@ -151,36 +151,37 @@ class rings_finder ( object ):
         for pixel_set in self.result [ 'ring_pixel_sets' ]:
             self.log.debug ( "attempting to fit set {}".format ( count ) )
 
-            mountain_fit = mountain ( pixel_set, factor = 0.99, minimum_target = 1e-10 )
-            try:
-                self.result [ 'mountain_fit' ].append ( mountain_fit )
-            except KeyError:
-                self.result [ 'mountain_fit' ] = [ mountain_fit ]
-            if self.plot_log:
-                tuna.tools.plot ( mountain_fit, "mountain_fit {}".format ( count ), self.ipython )
+            #mountain_fit = mountain ( pixel_set, factor = 0.99, minimum_target = 1e-10 )
+            #try:
+            #    self.result [ 'mountain_fit' ].append ( mountain_fit )
+            #except KeyError:
+            #    self.result [ 'mountain_fit' ] = [ mountain_fit ]
+            #if self.plot_log:
+            #    tuna.tools.plot ( mountain_fit, "mountain_fit {}".format ( count ), self.ipython )
 
-            is_ring = self.check_set_is_ring ( pixel_set )
-            self.log.debug ( "check_set_is_ring = {}".format ( is_ring ) )
-            if is_ring:
-                minimal_point, minimal_radius = self.estimate_for_full_ring ( pixel_set )
-            else:
-                minimal_point, minimal_radius = self.estimate_center_from_curve ( pixel_set )
+            #is_ring = self.check_set_is_ring ( pixel_set )
+            #self.log.debug ( "check_set_is_ring = {}".format ( is_ring ) )
+            #if is_ring:
+            #    minimal_point, minimal_radius = self.estimate_for_full_ring ( pixel_set )
+            #else:
+            #    minimal_point, minimal_radius = self.estimate_center_from_curve ( pixel_set )
+
+            minimal_point, minimal_radius = self.construct_ring_center ( pixel_set )
                 
             ring_parameters, ring_fit = fit_circle ( minimal_point [ 0 ],
                                                      minimal_point [ 1 ],
                                                      minimal_radius,
-                                                     mountain_fit,
-                                                     #pixel_set,
-                                                     #circle )
-                                                     mountain_circle )
+                                                     #mountain_fit,
+                                                     pixel_set,
+                                                     circle )
+                                                     #mountain_circle )
             
             self.log.info ( "ring_parameters {} = {}".format ( count, ring_parameters ) )
-            self.construct_ring_center ( pixel_set )
             if self.plot_log:
                 tuna.tools.plot ( ring_fit, "ring fit {}".format ( count ), self.ipython )
                 tuna.tools.plot ( pixel_set - ring_fit, "pixel_set {} - ring_fit {}".format (
                     count, count ), self.ipython )
-                tuna.tools.plot ( self.result [ 'construction' ], "construction {}".format (
+                tuna.tools.plot ( self.result [ 'construction' ] [ count ], "construction {}".format (
                     count ), self.ipython )
             
 
@@ -281,12 +282,13 @@ class rings_finder ( object ):
             return None, None
 
         self.log.debug ( "max_pair = {}".format ( max_pair ) )
-        construction [ max_pair [ 0 ] [ 0 ] ] [ max_pair [ 0 ] [ 1 ] ] = 10
-        construction [ max_pair [ 1 ] [ 0 ] ] [ max_pair [ 1 ] [ 1 ] ] = 10
+        color = 2
+        construction [ max_pair [ 0 ] [ 0 ] ] [ max_pair [ 0 ] [ 1 ] ] = color
+        construction [ max_pair [ 1 ] [ 0 ] ] [ max_pair [ 1 ] [ 1 ] ] = color
 
         mid_point = ( ( max_pair [ 0 ] [ 0 ] + max_pair [ 1 ] [ 0 ] ) / 2,
                       ( max_pair [ 0 ] [ 1 ] + max_pair [ 1 ] [ 1 ] ) / 2 )
-        construction [ mid_point [ 0 ] ] [ mid_point [ 1 ] ] = 10
+        construction [ mid_point [ 0 ] ] [ mid_point [ 1 ] ] = color
         
         self.log.debug ( "mid_point = {}".format ( mid_point ) )
         
@@ -296,17 +298,64 @@ class rings_finder ( object ):
             if distance <= min_distance:
                 min_distance = distance
                 min_pixel = pixel
-        construction [ min_pixel [ 0 ] ] [ min_pixel [ 1 ] ] = 10
+        construction [ min_pixel [ 0 ] ] [ min_pixel [ 1 ] ] = color
         
         self.log.debug ( "min_distance = {}".format ( min_distance ) )
         self.log.debug ( "min_pixel = {}".format ( min_pixel ) )
         ratio = min_distance / max_distance
         self.log.debug ( "ratio = {}".format ( ratio ) )
+
+        chord_extreme_1 = sympy.Point ( max_pair [ 0 ] [ 0 ], max_pair [ 0 ] [ 1 ] )
+        chord_extreme_2 = sympy.Point ( max_pair [ 1 ] [ 0 ], max_pair [ 1 ] [ 1 ] )
+        chord_line = sympy.Line ( chord_extreme_1, chord_extreme_2 )
+        self.plot_sympy_line ( construction, chord_line, color )
+
+        concurrent_extreme_min = sympy.Point ( min_pixel [ 0 ], min_pixel [ 1 ] )
+        concurrent_extreme_mid = sympy.Point ( mid_point [ 0 ], mid_point [ 1 ] )
+        concurrent_line = sympy.Line ( concurrent_extreme_min, concurrent_extreme_mid )
+        self.plot_sympy_line ( construction, concurrent_line, color )
+
+        secondary_chord = sympy.Line ( chord_extreme_1, concurrent_extreme_min )
+        self.plot_sympy_line ( construction, secondary_chord, color )
+
+        secondary_angle = chord_line.angle_between ( secondary_chord )
+        self.log.debug ( "secondary_angle = {} radians".format ( secondary_angle ) )
+
+        thertiary_chord = secondary_chord.perpendicular_line ( chord_extreme_1 )
+        self.plot_sympy_line ( construction, thertiary_chord, color )
+
+        diameter_extremes_list = thertiary_chord.intersection ( concurrent_line )
+        diameter_extreme = diameter_extremes_list [ 0 ]
+
+        center = ( ( sympy.N ( diameter_extreme.x ) + min_pixel [ 0 ] ) / 2,
+                   ( sympy.N ( diameter_extreme.y ) + min_pixel [ 1 ] ) / 2 )
+        radius = tuna.tools.calculate_distance ( center, min_pixel )
+
+        for neighbour in tuna.tools.get_pixel_neighbours ( center ):
+            construction [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] = color
+        
         try:
             self.result [ 'construction' ].append ( construction )
         except KeyError:
             self.result [ 'construction' ] = [ construction ]
-    
+
+        return center, radius
+
+    def plot_sympy_line ( self, array, sympy_line, color ):
+        for col in range ( array.shape [ 0 ] ):
+            sympy_point_0 = sympy.Point ( col, 0 )
+            sympy_point_1 = sympy.Point ( col, array.shape [ 1 ] - 1 )
+            concurrent = sympy.Line ( sympy_point_0, sympy_point_1 )
+            if sympy.Line.is_parallel ( concurrent, sympy_line ):
+                self.log.warning ( "Line to plot parallel to 0 axis, aborting plot." )
+                return
+            intersections_list = sympy_line.intersection ( concurrent )
+            intersection = intersections_list [ 0 ]
+            if ( round ( intersection.y ) >= 0 and
+                 round ( intersection.y ) < array.shape [ 1 ] ):
+                array [ round ( intersection.x ) ] [ round ( intersection.y ) ] = color
+        
+            
     def estimate_for_full_ring ( self, pixel_set ):
         pixels = 0
         center_col = 0
@@ -524,56 +573,56 @@ def least_circle ( p, args ):
 def fit_circle ( center_col, center_row, radius, data, function ):
     log = logging.getLogger ( __name__ )
 
-    parameters = ( center_col,
-                   center_row,
-                   radius )
+    parameters = ( float ( center_col ),
+                   float ( center_row ),
+                   float ( radius ) )
     
     # Constraints on parameters
-    parinfo = [ ]
-    parbase = { #'deriv_debug' : True,
-                'fixed'  : False,
-                #'side'   : 2,
-                'step'   : radius / 10 }
-    parinfo.append ( parbase )
-    parbase = { 'fixed'  : False,
-                'step'   : radius / 10 }
-    parinfo.append ( parbase )
+    #parinfo = [ ]
+    #parbase = { #'deriv_debug' : True,
+    #            'fixed'  : False,
+    #            #'side'   : 2,
+    #            'step'   : radius / 10 }
+    #parinfo.append ( parbase )
+    #parbase = { 'fixed'  : False,
+    #            'step'   : radius / 10 }
+    #parinfo.append ( parbase )
     #parbase = { 'fixed'  : False,
     #            'step'   : 1 }
-    parbase = { 'fixed'  : True }
-    parinfo.append ( parbase )
+    #parbase = { 'fixed'  : True }
+    #parinfo.append ( parbase )
     
-    for entry in parinfo:
-        log.debug ( "parinfo = %s" % str ( entry ) )
+    #for entry in parinfo:
+    #    log.debug ( "parinfo = %s" % str ( entry ) )
             
-    try:
-        log.debug ( "fit_circle (fixed radius) input parameters = {}".format ( parameters ) )
-        fit_parameters, fit_result = mpyfit.fit ( least_circle,
-                                                  parameters,
-                                                  args = ( data.shape, data, function ),
-                                                  parinfo = parinfo,
-                                                  xtol = 1e-5 )
-    except Exception as e:
-        log.error ( tuna.console.output_exception ( e ) )
-        raise ( e )
+    #try:
+    #    log.debug ( "fit_circle (fixed radius) input parameters = {}".format ( parameters ) )
+    #    fit_parameters, fit_result = mpyfit.fit ( least_circle,
+    #                                              parameters,
+    #                                              args = ( data.shape, data, function ),
+    #                                              parinfo = parinfo,
+    #                                              xtol = 1e-5 )
+    #except Exception as e:
+    #    log.error ( tuna.console.output_exception ( e ) )
+    #    raise ( e )
 
     #log.info ( "fit_parameters = {}".format ( fit_parameters ) )
-    log.debug ( "fit_circle (fixed radius) result = {}".format ( fit_result ) )
+    #log.debug ( "fit_circle (fixed radius) result = {}".format ( fit_result ) )
 
-    parameters = ( fit_parameters [ 0 ],
-                   fit_parameters [ 1 ],
-                   radius )
+    #parameters = ( fit_parameters [ 0 ],
+    #               fit_parameters [ 1 ],
+    #               radius )
     
     # Constraints on parameters
     parinfo = [ ]
     parbase = { 'fixed'  : False,
-                'step'   : 1 }
+                'step'   : 2 }
     parinfo.append ( parbase )
     parbase = { 'fixed'  : False,
-                'step'   : 1 }
+                'step'   : 2 }
     parinfo.append ( parbase )
     parbase = { 'fixed'  : False,
-                'step'   : radius / 10 }
+                'step'   : 2 }
     parinfo.append ( parbase )
     
     for entry in parinfo:
