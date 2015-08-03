@@ -1,12 +1,23 @@
 import numpy
 
-def get_pixel_neighbours ( position = ( int, int ), array = numpy.ndarray ):
-    result = []
-    x = position[0]
-    y = position[1]
-    possible_neighbours = [ ( x-1, y+1 ), ( x, y+1 ), ( x+1, y+1 ),
-                            ( x-1, y   ),             ( x+1, y   ),
-                            ( x-1, y-1 ), ( x, y-1 ), ( x+1, y-1 ) ]
+def get_pixel_neighbours ( position = ( int, int ), array = numpy.ndarray, distance_threshold = 1 ):
+    __version__ = '0.1.0'
+    changelog = {
+        '0.1.0' : "Added distance_threshold_parameter, so users can get neighbours with arbitrary distance."
+        }
+    
+    result = [ ]
+    x = position [ 0 ]
+    y = position [ 1 ]
+
+    for col in range ( position [ 0 ] - distance_threshold, position [ 0 ] + distance_threshold + 1 ):
+        for row in range ( position [ 1 ] - distance_threshold, position [ 1 ] + distance_threshold + 1 ):
+            if ( col, row ) == position:
+                continue
+            try:
+                possible_neighbours.append ( ( col, row ) )
+            except UnboundLocalError:
+                possible_neighbours = [ ( col, row ) ]
 
     def is_valid_position ( position = ( int, int ), array = numpy.ndarray ):
         if ( position[0] >= 0 and 
