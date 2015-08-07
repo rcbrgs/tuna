@@ -1,4 +1,5 @@
 astropy
+ipython
 matplotlib
 psutil
 pyfits
