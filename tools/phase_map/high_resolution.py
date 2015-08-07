@@ -50,7 +50,7 @@ class high_resolution ( threading.Thread ):
         - noise_mask_radius : the distance from a noise pixel that will be marked as noise also (size of a circle around each noise pixel).
         """       
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.DEBUG )
+        self.log.setLevel ( logging.INFO )
         self.__version__ = '0.1.9'
         self.changelog = {
             '0.1.9' : "Improved auto Airy by letting intensity and continuum be free.",
