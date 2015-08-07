@@ -8,7 +8,7 @@ python:
 install:
   - "sudo apt-get install -y libopenblas-dev* liblapack-dev* gfortran"
   - "sudo apt-get install -y python3-numpy"
-  - "sudo apt-cache search scipy"
+  #- "sudo apt-cache search scipy"
   - "sudo apt-get install -y python3-scipy"	
   #  - "sudo apt_get install -y qt4-qmake"
   # It might be necessary to ln qt4-qmake into qmake; in Fedora 21 I had to.
