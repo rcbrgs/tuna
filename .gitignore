@@ -1,9 +1,10 @@
 .coverage
-*.pyc
-*.fits
 *.ad2
 *.AD2
 *.ad3
 *.AD3
+*.fits
+*.log
+*.pyc
 *#
 *~

@@ -6,7 +6,7 @@ import unittest
 
 class unit_test_get_pixel_neighbours ( unittest.TestCase ):
     def setUp ( self ):
-        tuna.log.set_path ( "/home/nix/nose.log" )
+        tuna.log.set_path ( "nose.log" )
         self.array = numpy.ones ( shape = ( 3, 3 ) )
 
     def test_normal_pixel ( self ):

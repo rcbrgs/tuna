@@ -5,7 +5,7 @@ import unittest
 
 class unit_test_io_adhoc ( unittest.TestCase ):
     def setUp ( self ):
-        tuna.log.set_path ( "/home/nix/nose.log" )
+        tuna.log.set_path ( "nose.log" )
 
     def test_empty_file ( self ):
         tuna.io.read ( "test/unit/unit_io/fake_adhoc.ada" )
