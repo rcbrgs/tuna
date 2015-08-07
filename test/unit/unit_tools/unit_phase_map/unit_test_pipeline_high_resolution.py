@@ -16,6 +16,7 @@ class unit_test_pipeline_high_resolution ( unittest.TestCase ):
 
         can = tuna.io.read ( file_name )
         from tuna.tools.phase_map import barycenter_fast
+        tuna.log.set_verbose ( "console", "INFO" )
         high_res = tuna.tools.phase_map.high_resolution ( calibration_wavelength = 6598.953125,
                                                           finesse = 15.,
                                                           free_spectral_range = 8.36522123894,
