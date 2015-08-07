@@ -16,7 +16,7 @@ class unit_test_pipeline_high_resolution ( unittest.TestCase ):
 
         can = tuna.io.read ( file_name )
         from tuna.tools.phase_map import barycenter_fast
-        tuna.log.set_verbose ( "console", "INFO" )
+        tuna.log.verbose ( "console", "INFO" )
         high_res = tuna.tools.phase_map.high_resolution ( calibration_wavelength = 6598.953125,
                                                           finesse = 15.,
                                                           free_spectral_range = 8.36522123894,
@@ -32,8 +32,8 @@ class unit_test_pipeline_high_resolution ( unittest.TestCase ):
         log = logging.getLogger ( __name__ )
         log.info ( "high_res.discontinuum.array [ 0 ] = %s" % str ( high_res.discontinuum.array [ 0 ] ) )
         log.info ( "high_res.wavelength_calibrated.array [ 0 ] [ 0 ] == %f" % high_res.wavelength_calibrated.array [ 0 ] [ 0 ] )
-        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] > 462. )
-        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] < 465. )
+        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] > 25. )
+        self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] < 30. )
         log.info ( "high_res.rings_center ==%s" % str ( high_res.rings_center ) )
         self.assertTrue ( high_res.rings_center [ 0 ] > 310 )
         self.assertTrue ( high_res.rings_center [ 0 ] < 340 )
