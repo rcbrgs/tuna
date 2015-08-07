@@ -33,4 +33,5 @@ script:
 after_success:
   coveralls
 
-sudo: required
+#sudo: required
+sudo: false
