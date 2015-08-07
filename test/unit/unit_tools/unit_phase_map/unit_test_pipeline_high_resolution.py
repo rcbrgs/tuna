@@ -10,7 +10,7 @@ class unit_test_pipeline_high_resolution ( unittest.TestCase ):
 
     def test_pipeline ( self ):
         #file_name = "test/unit/unit_io/partial_4_planes.fits"
-        file_name = "test/unit/unit_io/adhoc.ad3"
+        file_name = "test/unit/unit_io/adhoc_3_planes.fits"
         file_name_unpathed = file_name.split ( "/" ) [ -1 ]
         file_name_prefix = file_name_unpathed.split ( "." ) [ 0 ]
 
