@@ -28,7 +28,7 @@ install:
   - "cd mpyfit; python setup.py install; cd .."
 
 script:
-  nosetests --with-coverage --cover-package=tuna
+  nosetests -s --with-coverage --cover-package=tuna
 
 after_success:
   coveralls
