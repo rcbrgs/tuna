@@ -8,7 +8,7 @@ import tuna
 class ring_border_detector ( threading.Thread ):
     def __init__ ( self, data, center, noise ):
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.INFO )
+        self.log.setLevel ( logging.DEBUG )
         super ( self.__class__, self ).__init__ ( )
 
         self.data = data
@@ -25,6 +25,7 @@ class ring_border_detector ( threading.Thread ):
     def run ( self ):
         start = time.time ( )
 
+        self.log.debug ( "self.center = {}".format ( self.center ) )
         self.detect_discontinuities ( )
         self.map_distances ( )
         self.create_synthetic_borders ( )

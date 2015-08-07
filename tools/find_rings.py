@@ -16,18 +16,21 @@ class rings_finder ( object ):
     """
     def __init__ ( self, array, plane ):
         self.log = logging.getLogger ( __name__ )
-        self.__version__ = '0.1.5'
+        self.log.setLevel ( logging.DEBUG )
+        self.__version__ = '0.1.6'
         self.changelog = {
+            '0.1.6' : "Fixed calling ipython magic when unavailable.",
             '0.1.5' : "Use sympy to find median line, instead of relying on less precise pixelated logic.",
             '0.1.4' : "Clean up unnecessary code. Restrict algorithm only to sets with more than 10 pixels.",
             '0.1.3' : "Made plane a parameter of init.",
             '0.1.2' : "Added construct_ring_center function.",
             '0.1.1' : "check_is_circle now returns False if there is a pixel with less than two neighbours in the ring",
             '0.1.0' : "Initial version." }
-        self.plot_log = True
+        self.plot_log = False
         if self.plot_log:
             self.ipython = IPython.get_ipython()
-            self.ipython.magic("matplotlib qt")
+            if self.ipython:
+                self.ipython.magic("matplotlib qt")
 
         self.chosen_plane = plane
         self.ridge_threshold = 2

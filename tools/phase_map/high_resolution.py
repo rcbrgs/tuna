@@ -50,7 +50,7 @@ class high_resolution ( threading.Thread ):
         - noise_mask_radius : the distance from a noise pixel that will be marked as noise also (size of a circle around each noise pixel).
         """       
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.INFO )
+        self.log.setLevel ( logging.DEBUG )
         self.__version__ = '0.1.9'
         self.changelog = {
             '0.1.9' : "Improved auto Airy by letting intensity and continuum be free.",
@@ -140,21 +140,21 @@ class high_resolution ( threading.Thread ):
         noise_detector.join ( )
         self.noise = noise_detector.noise
 
-        if self.ring_minimal_percentile:
-            self.rings_center = tuna.tools.find_rings_2d ( self.tuna_can.array [ 0 ],
-                                                           ring_minimal_percentile = self.ring_minimal_percentile )
-        else:
-            self.rings_center = tuna.tools.find_rings_2d ( self.tuna_can.array [ 0 ] )
+        self.find_rings = tuna.tools.find_rings ( self.tuna_can.array, 2 )
+        center = ( self.find_rings [ 'ring_fit_parameters' ] [ 0 ] [ 0 ],
+                   self.find_rings [ 'ring_fit_parameters' ] [ 0 ] [ 1 ] )
+        self.rings_center = center
         
         if self.verify_center != None:
             true_center = self.verify_center [ 0 ]
             threshold = self.verify_center [ 1 ]
-            difference = math.sqrt ( ( self.rings_center [ 'probable_centers' ] [ 0 ] - true_center [ 0 ] ) ** 2 + \
-                                     ( self.rings_center [ 'probable_centers' ] [ 1 ] - true_center [ 1 ] ) ** 2 )
+            difference = math.sqrt ( ( center [ 0 ] - true_center [ 0 ] ) ** 2 + \
+                                     ( center [ 1 ] - true_center [ 1 ] ) ** 2 )
             if difference >= threshold:
                 return
 
         if self.dont_fit == False:
+            #self.rings_center = 
             sorted_radii = sorted ( self.rings_center [ 'radii' ] )
             self.log.info ( "sorted_radii = {}".format (
                 [ "{:.2f}".format ( radius ) for radius in sorted_radii ] ) )
@@ -170,11 +170,11 @@ class high_resolution ( threading.Thread ):
             parinfo_initial = [ ]
             parbase = { 'fixed' : False, 'limits' : ( initial_b_ratio * 0.9, initial_b_ratio * 1.1 ) }
             parinfo_initial.append ( parbase )
-            parbase = { 'fixed' : False, 'limits' : ( self.rings_center [ 'probable_centers' ] [ 0 ] - 50,
-                                                      self.rings_center [ 'probable_centers' ] [ 0 ] + 50 ) }
+            parbase = { 'fixed' : False, 'limits' : ( center [ 0 ] - 50,
+                                                      center [ 0 ] + 50 ) }
             parinfo_initial.append ( parbase )
-            parbase = { 'fixed' : False, 'limits' : ( self.rings_center [ 'probable_centers' ] [ 1 ] - 50,
-                                                      self.rings_center [ 'probable_centers' ] [ 1 ] + 50 ) }
+            parbase = { 'fixed' : False, 'limits' : ( center [ 1 ] - 50,
+                                                      center [ 1 ] + 50 ) }
             parinfo_initial.append ( parbase )
             parbase = { 'fixed' : False }
             parinfo_initial.append ( parbase )
@@ -187,8 +187,8 @@ class high_resolution ( threading.Thread ):
             parinfo_initial.append ( parbase )
 
             airy_fitter_0 = tuna.models.airy_fitter ( initial_b_ratio,
-                                                      self.rings_center [ 'probable_centers' ] [ 0 ],
-                                                      self.rings_center [ 'probable_centers' ] [ 1 ],
+                                                      center [ 0 ],
+                                                      center [ 1 ],
                                                       self.tuna_can.array [ 0 ],
                                                       self.finesse,
                                                       initial_gap,
@@ -278,15 +278,16 @@ class high_resolution ( threading.Thread ):
                 numpy.sum ( numpy.abs ( airy_fit_residue ) ) / airy_pixels ) )
 
 
-        ring_border_detector = tuna.tools.phase_map.ring_border_detector ( self.wrapped_phase_map,
-                                                                           self.rings_center [ 'probable_centers' ],
-                                                                           self.noise )
+        ring_border_detector = tuna.tools.phase_map.ring_border_detector (
+            self.wrapped_phase_map,
+            center,
+            self.noise )
         ring_border_detector.join ( )
         self.borders_to_center_distances = ring_border_detector.distances
 
         fsr_mapper = tuna.tools.phase_map.fsr_mapper ( self.borders_to_center_distances,
                                                        self.wrapped_phase_map,
-                                                       self.rings_center [ 'probable_centers' ] )
+                                                       center )
         fsr_mapper.join ( )
         self.fsr_map = fsr_mapper.fsr
         self.order_map = tuna.io.can ( array = self.fsr_map.astype ( dtype = numpy.float64 ) )
@@ -307,7 +308,7 @@ class high_resolution ( threading.Thread ):
                                                                               self.interference_order,
                                                                               self.interference_reference_wavelength,
                                                                               self.tuna_can.shape [ 0 ],
-                                                                              self.rings_center [ 'probable_centers' ],
+                                                                              center,
                                                                               self.scanning_wavelength )
 
 
@@ -325,6 +326,9 @@ class high_resolution ( threading.Thread ):
 
         wavelength_calibrator.join ( )
         self.wavelength_calibrated = wavelength_calibrator.calibrated
+
+        self.log.debug ( "wavelength_calibrated.array [ 0 ] [ 0 ] == {}".format (
+            self.wavelength_calibrated.array [ 0 ] [ 0 ] ) )
 
     def create_unwrapped_phase_map ( self ):
         """
