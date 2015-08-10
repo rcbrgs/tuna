@@ -36,7 +36,7 @@ class rings_finder ( object ):
                 self.ipython.magic("matplotlib qt")
 
         self.chosen_plane = plane
-        self.ridge_threshold = 2
+        self.ridge_threshold = 5
         self.upper_percentile = 90
             
         self.array = array
@@ -290,7 +290,7 @@ class rings_finder ( object ):
 
         self.log.debug ( "len connected_pixels_sets = {}".format ( len ( connected_pixels_sets ) ) )
 
-        min_len = math.ceil ( array.shape [ 0 ] * array.shape [ 1 ] * 0.005 )
+        min_len = math.ceil ( array.shape [ 0 ] * array.shape [ 1 ] * 0.01 )
         self.log.debug ( "min_len for a pixel set = {}".format ( min_len ) )
         for pixels_set in connected_pixels_sets:
             if len ( pixels_set ) < min_len:
@@ -303,7 +303,7 @@ class rings_finder ( object ):
             except KeyError:
                 self.result [ 'ring_pixel_sets' ] = [ set_array ]
 
-        self.log.debug ( "{} pixels_sets found.".format ( len ( self.result [ 'ring_pixel_sets' ] ) ) )
+        self.log.info ( "{} rings found.".format ( len ( self.result [ 'ring_pixel_sets' ] ) ) )
         if self.plot_log:
             count = 0
             for pixel_set in self.result [ 'ring_pixel_sets' ]:
