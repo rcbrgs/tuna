@@ -252,8 +252,12 @@ class rings_finder ( object ):
             sympy_point_1 = sympy.Point ( col, array.shape [ 1 ] - 1 )
             concurrent = sympy.Line ( sympy_point_0, sympy_point_1 )
             if sympy.Line.is_parallel ( concurrent, sympy_line ):
-                self.log.warning ( "Line to plot parallel to 0 axis, aborting plot." )
-                return
+                if sympy_line.contains ( sympy_point_0 ):
+                    self.log.warning ( "Line to plot parallel ({}) to col axis.".format ( sympy_point_0.x ) )
+                    for row in range ( array.shape [ 1 ] ):
+                        array [ sympy_point_0.x ] [ row ] = color
+                    return
+                continue
             intersections_list = sympy_line.intersection ( concurrent )
             intersection = intersections_list [ 0 ]
             if ( round ( intersection.y ) >= 0 and
@@ -286,8 +290,10 @@ class rings_finder ( object ):
 
         self.log.debug ( "len connected_pixels_sets = {}".format ( len ( connected_pixels_sets ) ) )
 
+        min_len = math.ceil ( array.shape [ 0 ] * array.shape [ 1 ] * 0.005 )
+        self.log.debug ( "min_len for a pixel set = {}".format ( min_len ) )
         for pixels_set in connected_pixels_sets:
-            if len ( pixels_set ) < 10:
+            if len ( pixels_set ) < min_len:
                 continue
             set_array = numpy.zeros ( shape = array.shape )
             for pixel in pixels_set:
