@@ -14,11 +14,14 @@ class rings_finder ( object ):
     """
     The responsibility of this class is to find all rings contained in a data cube.
     """
-    def __init__ ( self, array, plane ):
+    def __init__ ( self, array, plane, plot_log ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.DEBUG )
-        self.__version__ = '0.1.6'
+        self.__version__ = '0.1.9'
         self.changelog = {
+            '0.1.9' : "Remove a point and retry construct_ring_center.",
+            '0.1.8' : "Made array argument flexible for helper function.",
+            '0.1.7' : "Made plot_log a parameter.",
             '0.1.6' : "Fixed calling ipython magic when unavailable.",
             '0.1.5' : "Use sympy to find median line, instead of relying on less precise pixelated logic.",
             '0.1.4' : "Clean up unnecessary code. Restrict algorithm only to sets with more than 10 pixels.",
@@ -26,7 +29,7 @@ class rings_finder ( object ):
             '0.1.2' : "Added construct_ring_center function.",
             '0.1.1' : "check_is_circle now returns False if there is a pixel with less than two neighbours in the ring",
             '0.1.0' : "Initial version." }
-        self.plot_log = False
+        self.plot_log = plot_log
         if self.plot_log:
             self.ipython = IPython.get_ipython()
             if self.ipython:
@@ -116,6 +119,10 @@ class rings_finder ( object ):
             self.log.debug ( "attempting to fit set {}".format ( count ) )
 
             minimal_point, minimal_radius = self.construct_ring_center ( pixel_set )
+            if minimal_point == None or minimal_radius == None:
+                self.log.error ( "Could not find center or radius." )
+                minimal_point = ( 0, 0 )
+                minimal_radius = 1
                 
             ring_parameters, ring_fit = fit_circle ( minimal_point [ 0 ],
                                                      minimal_point [ 1 ],
@@ -187,26 +194,11 @@ class rings_finder ( object ):
         construction [ mid_point [ 0 ] ] [ mid_point [ 1 ] ] = color
         self.log.debug ( "mid_point = {}".format ( mid_point ) )
 
-        #min_distance = math.sqrt ( pixel_set.shape [ 0 ] ** 2 + pixel_set.shape [ 1 ] ** 2 )
-        #for pixel in pixels:
-        #    distance = tuna.tools.calculate_distance ( pixel, mid_point )
-        #    if distance <= min_distance:
-        #        min_distance = distance
-        #        min_pixel = pixel
-        #construction [ min_pixel [ 0 ] ] [ min_pixel [ 1 ] ] = color
-        
-        #self.log.debug ( "min_distance = {}".format ( min_distance ) )
-        #self.log.debug ( "min_pixel = {}".format ( min_pixel ) )
-        #ratio = min_distance / max_distance
-        #self.log.debug ( "ratio = {}".format ( ratio ) )
-
         chord_extreme_1 = sympy.Point ( max_pair [ 0 ] [ 0 ], max_pair [ 0 ] [ 1 ] )
         chord_extreme_2 = sympy.Point ( max_pair [ 1 ] [ 0 ], max_pair [ 1 ] [ 1 ] )
         chord_line = sympy.Line ( chord_extreme_1, chord_extreme_2 )
         self.plot_sympy_line ( construction, chord_line, color )
 
-        #concurrent_extreme_min = sympy.Point ( min_pixel [ 0 ], min_pixel [ 1 ] )
-        #concurrent_extreme_mid = sympy.Point ( mid_point [ 0 ], mid_point [ 1 ] )
         concurrent_line = chord_line.perpendicular_line ( sympy_mid_point )
         self.plot_sympy_line ( construction, concurrent_line, color )
 
@@ -231,6 +223,12 @@ class rings_finder ( object ):
         self.plot_sympy_line ( construction, thertiary_chord, color )
 
         diameter_extremes_list = thertiary_chord.intersection ( concurrent_line )
+        if len ( diameter_extremes_list ) == 0:
+            self.log.warning ( "Could not find intersection between thertiary_chord and concurrent_line. Will attempt to recursively find another set of segments, removing one of the points from current set." )
+            new_set = numpy.copy ( pixel_set )
+            new_set [ max_pair [ 0 ] [ 0 ] ] [ max_pair [ 0 ] [ 1 ] ] = 0
+            return self.construct_ring_center ( new_set )
+        
         diameter_extreme = diameter_extremes_list [ 0 ]
 
         center = ( ( sympy.N ( diameter_extreme.x ) + min_pixel [ 0 ] ) / 2,
@@ -306,25 +304,6 @@ class rings_finder ( object ):
                 tuna.tools.plot ( pixel_set, "pixel_set {}".format ( count ), self.ipython )
                 count += 1
             
-def find_rings ( array, plane ):
-    """
-    Attempts to find rings contained in a 3D numpy ndarray input.
-    Parameters:
-    - array is the 3D numpy array with the spectrograph.
-    - plane is the index in the cube for the spectrograph whose rings the user wants.
-
-    Returns a list of dicts, with the following keys:
-    'array'  : 2D numpy.ndarray where pixels in the ring have value 1 and other pixels have value 0.
-    'center' : a tuple of 2 floats, where the first is the column and the second is the row of the most probable locations for the center of that ring.
-    'radius' : a float with the average value of the distance of the ring pixels to its center.
-    'construction' : a list of numpy arrays containing the geometric construction that led to the estimated center and radius used in the fit.
-    'pixel_set' : a list of numpy arrays containing the segmented pixel sets corresponding to each identified ring.
-    """
-
-    finder = rings_finder ( array, plane )
-    finder.execute ( )
-    return finder.result
-
 def circle ( center, radius, shape ):
     log = logging.getLogger ( __name__ )
     log.debug ( "center = ( {:.5f}, {:.5f} ), radius = {:.5f}".format (
@@ -398,3 +377,30 @@ def fit_circle ( center_col, center_row, radius, data, function ):
     
     return fit_parameters, function (
         ( fit_parameters [ 0 ], fit_parameters [ 1 ] ), fit_parameters [ 2 ], data.shape )
+
+def find_rings ( array, plane = 0, plot_log = False ):
+    """
+    Attempts to find rings contained in a 3D numpy ndarray input.
+    Parameters:
+    - array is the 3D numpy array with the spectrograph. This parameter can also be a Tuna can.
+    - plane is the index in the cube for the spectrograph whose rings the user wants. It defaults to plane 0.
+    - plot_log defaults to False, which does not output plots of the intermediary products. Even then, all numpy arrays are accessible in the result structure.
+
+    Returns a list of dicts, with the following keys:
+    'array'  : 2D numpy.ndarray where pixels in the ring have value 1 and other pixels have value 0.
+    'center' : a tuple of 2 floats, where the first is the column and the second is the row of the most probable locations for the center of that ring.
+    'radius' : a float with the average value of the distance of the ring pixels to its center.
+    'construction' : a list of numpy arrays containing the geometric construction that led to the estimated center and radius used in the fit.
+    'pixel_set' : a list of numpy arrays containing the segmented pixel sets corresponding to each identified ring.
+    """
+
+    log = logging.getLogger ( __name__ )
+    
+    if isinstance ( array, tuna.io.can ):
+        log.debug ( "Using can's array as input." )
+        return find_rings ( array.array, plane, plot_log )
+    
+    finder = rings_finder ( array, plane, plot_log )
+    finder.execute ( )
+    return finder.result
+
