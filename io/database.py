@@ -9,8 +9,9 @@ import tuna
 class database ( threading.Thread ):
     def __init__ ( self ):
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = "0.1.9"
+        self.__version__ = "0.1.10"
         self.changelog = {
+            '0.1.10' : "Added a connection check before selecting a record.",
             '0.1.9' : "Added cursor.close calls in several points.",
             '0.1.8' : "Added a traceback print in exception handler for select_record.",
             '0.1.7' : "Added a lockable queue and diverted functions to enqueue requests.",
@@ -214,6 +215,10 @@ class database ( threading.Thread ):
         sql = "select * from {} where {}".format ( table, 
                                                    where_string )
         self.log.debug ( "sql = '{}'.".format ( sql ) )
+
+        if not self.check_mysql_connection ( ):
+            self.log.error ( "No SQL connection during select, aborting." )
+            return None, False
         
         try:
             cursor = self.connection.cursor ( )
