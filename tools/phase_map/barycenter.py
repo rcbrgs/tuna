@@ -13,7 +13,7 @@ class barycenter_detector ( threading.Thread ):
     """
     def __init__ ( self, data ):
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.INFO )
+        self.log.setLevel ( logging.DEBUG )
         super ( self.__class__, self ).__init__ ( )
 
         self.data = data
