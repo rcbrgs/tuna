@@ -17,8 +17,9 @@ class rings_finder ( object ):
     def __init__ ( self, array, plane, plot_log ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.DEBUG )
-        self.__version__ = '0.1.9'
+        self.__version__ = '0.1.10'
         self.changelog = {
+            '0.1.10' : "Dynamically find the min_len for having at least one ring.",
             '0.1.9' : "Remove a point and retry construct_ring_center.",
             '0.1.8' : "Made array argument flexible for helper function.",
             '0.1.7' : "Made plot_log a parameter.",
@@ -290,18 +291,21 @@ class rings_finder ( object ):
 
         self.log.debug ( "len connected_pixels_sets = {}".format ( len ( connected_pixels_sets ) ) )
 
-        min_len = math.ceil ( array.shape [ 0 ] * array.shape [ 1 ] * 0.01 )
-        self.log.debug ( "min_len for a pixel set = {}".format ( min_len ) )
-        for pixels_set in connected_pixels_sets:
-            if len ( pixels_set ) < min_len:
-                continue
-            set_array = numpy.zeros ( shape = array.shape )
-            for pixel in pixels_set:
-                set_array [ pixel [ 0 ] ] [ pixel [ 1 ] ] = 1
-            try:
+        min_len = math.ceil ( array.shape [ 0 ] * array.shape [ 1 ] * 0.1 )
+        self.result [ 'ring_pixel_sets' ] = [ ]
+        while len ( self.result [ 'ring_pixel_sets' ] ) == 0:
+            min_len /= 2
+            self.log.debug ( "min_len for a pixel set = {}".format ( min_len ) )
+            if min_len < 10:
+                self.log.error ( "min_len too small" )
+                break
+            for pixels_set in connected_pixels_sets:
+                if len ( pixels_set ) < min_len:
+                    continue
+                set_array = numpy.zeros ( shape = array.shape )
+                for pixel in pixels_set:
+                    set_array [ pixel [ 0 ] ] [ pixel [ 1 ] ] = 1
                 self.result [ 'ring_pixel_sets' ].append ( set_array )
-            except KeyError:
-                self.result [ 'ring_pixel_sets' ] = [ set_array ]
 
         self.log.info ( "{} rings found.".format ( len ( self.result [ 'ring_pixel_sets' ] ) ) )
         if self.plot_log:
