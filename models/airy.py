@@ -259,7 +259,8 @@ class airy_fitter ( threading.Thread ):
                                                       xtol = 1e-5 )
                                                       #stepfactor = 10 )
         except Exception as e:
-            print ( "Exception: %s" % str ( e ) )
+            self.log.error ( tuna.console.output_exception ( e ) )
+            self.log.error ( "Error was using parameters = {}".format ( parameters ) )
             raise ( e )
         
         self.log.debug ( "fit_result [ 'bestnorm' ] = %s" % str ( fit_result [ 'bestnorm' ] ) )

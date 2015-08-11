@@ -52,8 +52,9 @@ class high_resolution ( threading.Thread ):
         """       
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.13'
+        self.__version__ = '0.1.14'
         self.changelog = {
+            '0.1.14' : "Fixed gap limits logic for negative channel gap",
             '0.1.13' : "Since the plane gap is calculated, use it to get limits for per-plane airy fit.",
             '0.1.12' : "Adapting pipeline to new ring_find.",
             '0.1.11' : "Adapted sorted_rings to use new ring_find result.",
@@ -242,7 +243,6 @@ class high_resolution ( threading.Thread ):
             self.log.info ( "channel_gap = {} microns.".format ( channel_gap ) )
 
             latest_gap = airy_fitter_1.parameters [ 5 ]
-            airy_fitters = [ None, None ]
             for plane in range ( 2, self.tuna_can.planes ):
                 parinfo = [ ]
                 parbase = { 'fixed' : True }
@@ -259,8 +259,8 @@ class high_resolution ( threading.Thread ):
                 #            'limits' : ( initial_gap + plane * channel_gap - self.calibration_wavelength / 4,
                 #                         initial_gap + plane * channel_gap + self.calibration_wavelength / 4 ) }
                 parbase = { 'fixed'  : False,
-                            'limits' : ( latest_gap,
-                                         latest_gap + 2 * channel_gap ) }
+                            'limits' : ( latest_gap - 2 * abs ( channel_gap ),
+                                         latest_gap + 2 * abs ( channel_gap ) ) }
                 parinfo.append ( parbase )
                 parbase = { 'fixed' : False }
                 parinfo.append ( parbase )
@@ -273,11 +273,9 @@ class high_resolution ( threading.Thread ):
                                                         latest_gap + channel_gap,
                                                         self.calibration_wavelength,
                                                         mpyfit_parinfo = parinfo )
-                airy_fitters.append ( airy_fitter )
-                latest_gap = airy_fitters.parameters [ 5 ]
-            for plane in range ( 2, self.tuna_can.planes ):
-                airy_fitters [ plane ].join ( )
-                airy_fit [ plane ] = airy_fitters [ plane ].fit.array
+                airy_fitter.join ( )
+                latest_gap = airy_fitter.parameters [ 5 ]
+                airy_fit [ plane ] = airy_fitter.fit.array
                 self.log.debug ( "Plane {} fitted.".format ( plane ) ) 
                 
             self.airy_fit = tuna.io.can ( airy_fit )
