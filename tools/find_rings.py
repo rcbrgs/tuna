@@ -8,6 +8,7 @@ import math
 import mpyfit
 import numpy
 import sympy
+import time
 import tuna
 
 class rings_finder ( object ):
@@ -50,10 +51,16 @@ class rings_finder ( object ):
         2. Create a separate array for each individual ring.
         3. Calculate the center and the average radius.
         """
+        start_time = time.time ( )
         self.segment ( ) # self.result [ 'ridge' ] contains this subresult.
+        segment_time = time.time ( )
         self.separate_rings ( ) # self.result [ 'ring_pixel_sets' ] contains this subresult
+        separate_time = time.time ( )
         self.fit_circles ( )
-        self.log.debug ( "rings_finder finished." )
+        fit_time = time.time ( )
+        self.log.debug (
+            "rings_finder finished. segment() {:.1f}s, separate_rings() {:.1f}s, fit_circles() {:.1f}s.".format (
+                segment_time - start_time, separate_time - segment_time, fit_time - separate_time ) )
         
     def segment ( self ):
         if len ( self.array.shape ) != 3:
@@ -292,21 +299,28 @@ class rings_finder ( object ):
         self.log.debug ( "len connected_pixels_sets = {}".format ( len ( connected_pixels_sets ) ) )
 
         min_len = math.ceil ( array.shape [ 0 ] * array.shape [ 1 ] * 0.1 )
-        self.result [ 'ring_pixel_sets' ] = [ ]
-        while len ( self.result [ 'ring_pixel_sets' ] ) == 0:
+        ring_pixel_sets = [ ]
+        old_len = 0
+        while ( len ( ring_pixel_sets ) < len ( connected_pixels_sets ) ):
+            old_len = len ( ring_pixel_sets )
+            self.log.debug ( "old_len = {}".format ( old_len ) )
             min_len /= 2
             self.log.debug ( "min_len for a pixel set = {}".format ( min_len ) )
             if min_len < 10:
                 self.log.error ( "min_len too small" )
                 break
+            ring_pixel_sets = [ ]
             for pixels_set in connected_pixels_sets:
                 if len ( pixels_set ) < min_len:
                     continue
                 set_array = numpy.zeros ( shape = array.shape )
                 for pixel in pixels_set:
                     set_array [ pixel [ 0 ] ] [ pixel [ 1 ] ] = 1
-                self.result [ 'ring_pixel_sets' ].append ( set_array )
+                ring_pixel_sets.append ( set_array )
+            if old_len > 1 and old_len == len ( ring_pixel_sets ):
+                break
 
+        self.result [ 'ring_pixel_sets' ] = ring_pixel_sets
         self.log.info ( "{} rings found.".format ( len ( self.result [ 'ring_pixel_sets' ] ) ) )
         if self.plot_log:
             count = 0
@@ -377,7 +391,7 @@ def fit_circle ( center_col, center_row, radius, data, function ):
                                                   parameters,
                                                   args = ( data.shape, data, function ),
                                                   parinfo = parinfo,
-                                                  xtol = 1e-5 )
+                                                  xtol = 1e-1 )
     except Exception as e:
         log.error ( tuna.console.output_exception ( e ) )
         raise ( e )
