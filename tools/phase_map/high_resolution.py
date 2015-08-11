@@ -52,8 +52,10 @@ class high_resolution ( threading.Thread ):
         """       
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.11'
+        self.__version__ = '0.1.13'
         self.changelog = {
+            '0.1.13' : "Since the plane gap is calculated, use it to get limits for per-plane airy fit.",
+            '0.1.12' : "Adapting pipeline to new ring_find.",
             '0.1.11' : "Adapted sorted_rings to use new ring_find result.",
             '0.1.10' : "Added a plot() function as convenience to plot all subresults.",
             '0.1.9' : "Improved auto Airy by letting intensity and continuum be free.",
@@ -157,8 +159,6 @@ class high_resolution ( threading.Thread ):
                 return
 
         if self.dont_fit == False:
-            #self.rings_center = 
-            #sorted_radii = sorted ( self.rings_center [ 'radii' ] )
             sorted_radii = sorted ( [ self.find_rings [ 'ring_fit_parameters' ] [ 0 ] [ 2 ],
                                       self.find_rings [ 'ring_fit_parameters' ] [ 1 ] [ 2 ] ] )
             self.log.info ( "sorted_radii = {}".format (
@@ -169,7 +169,7 @@ class high_resolution ( threading.Thread ):
                                                               self.interference_order - 1 ] )
             self.log.debug ( "initial_b_ratio = {}".format ( initial_b_ratio ) )
             initial_gap = self.calibration_wavelength * self.interference_order * \
-                          math.sqrt ( 1 + initial_b_ratio**2 * self.rings_center [ 'radii' ] [ 0 ] **2 ) / 2
+                          math.sqrt ( 1 + initial_b_ratio**2 * sorted_radii [ 0 ] ** 2 ) / 2
             self.log.info ( "inital_gap = {:.2e} microns".format ( initial_gap ) )
             
             parinfo_initial = [ ]
@@ -239,7 +239,9 @@ class high_resolution ( threading.Thread ):
             airy_fit [ 1 ] = airy_fitter_1.fit.array
             
             channel_gap = airy_fitter_1.parameters [ 5 ] - airy_fitter_0.parameters [ 5 ]
+            self.log.info ( "channel_gap = {} microns.".format ( channel_gap ) )
 
+            latest_gap = airy_fitter_1.parameters [ 5 ]
             airy_fitters = [ None, None ]
             for plane in range ( 2, self.tuna_can.planes ):
                 parinfo = [ ]
@@ -253,9 +255,12 @@ class high_resolution ( threading.Thread ):
                 parinfo.append ( parbase )
                 parbase = { 'fixed' : True }
                 parinfo.append ( parbase )
+                #parbase = { 'fixed'  : False,
+                #            'limits' : ( initial_gap + plane * channel_gap - self.calibration_wavelength / 4,
+                #                         initial_gap + plane * channel_gap + self.calibration_wavelength / 4 ) }
                 parbase = { 'fixed'  : False,
-                            'limits' : ( initial_gap + plane * channel_gap - self.calibration_wavelength / 4,
-                                         initial_gap + plane * channel_gap + self.calibration_wavelength / 4 ) }
+                            'limits' : ( latest_gap,
+                                         latest_gap + 2 * channel_gap ) }
                 parinfo.append ( parbase )
                 parbase = { 'fixed' : False }
                 parinfo.append ( parbase )
@@ -265,10 +270,11 @@ class high_resolution ( threading.Thread ):
                                                         center_row,
                                                         self.tuna_can.array [ plane ],
                                                         finesse,
-                                                        initial_gap + plane * channel_gap,
+                                                        latest_gap + channel_gap,
                                                         self.calibration_wavelength,
                                                         mpyfit_parinfo = parinfo )
                 airy_fitters.append ( airy_fitter )
+                latest_gap = airy_fitters.parameters [ 5 ]
             for plane in range ( 2, self.tuna_can.planes ):
                 airy_fitters [ plane ].join ( )
                 airy_fit [ plane ] = airy_fitters [ plane ].fit.array
@@ -305,7 +311,8 @@ class high_resolution ( threading.Thread ):
             # It seems Astropy's fitters ain't thread safe, so the airy fit must be already joined.
             parabolic_fitter = tuna.models.parabolic_fitter ( self.noise,
                                                               self.unwrapped_phase_map,
-                                                              self.rings_center [ 'probable_centers' ] )
+                                                              center )
+                                                              #self.rings_center [ 'probable_centers' ] )
 
         wavelength_calibrator = tuna.tools.wavelength.wavelength_calibrator ( self.unwrapped_phase_map,
                                                                               self.calibration_wavelength,

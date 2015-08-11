@@ -137,8 +137,9 @@ class airy_fitter ( threading.Thread ):
                    
         self.log = logging.getLogger ( __name__ )
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = '0.1.1'
+        self.__version__ = '0.1.2'
         self.changelog = {
+            '0.1.2' : "Changedx xtol from 1e-10 to 1e-5 to improve speed.",
             '0.1.1' : "Refactored algorithm for getting lowest percentile into another module.",
             '0.1.0' : "Initial changelog."
             }
@@ -255,7 +256,8 @@ class airy_fitter ( threading.Thread ):
                                                                self.data,
                                                                flat ),
                                                       parinfo = parinfo,
-                                                      stepfactor = 10 )
+                                                      xtol = 1e-5 )
+                                                      #stepfactor = 10 )
         except Exception as e:
             print ( "Exception: %s" % str ( e ) )
             raise ( e )

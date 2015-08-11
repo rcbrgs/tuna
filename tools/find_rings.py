@@ -327,7 +327,7 @@ class rings_finder ( object ):
                 break
 
         self.result [ 'ring_pixel_sets' ] = ring_pixel_sets
-        self.log.info ( "{} rings found.".format ( len ( self.result [ 'ring_pixel_sets' ] ) ) )
+        self.log.debug ( "{} rings found.".format ( len ( self.result [ 'ring_pixel_sets' ] ) ) )
         if self.plot_log:
             count = 0
             for pixel_set in self.result [ 'ring_pixel_sets' ]:
