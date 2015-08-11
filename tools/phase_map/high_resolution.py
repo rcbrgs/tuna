@@ -1,3 +1,4 @@
+import IPython
 import logging
 import math
 import numpy
@@ -51,8 +52,10 @@ class high_resolution ( threading.Thread ):
         """       
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.9'
+        self.__version__ = '0.1.11'
         self.changelog = {
+            '0.1.11' : "Adapted sorted_rings to use new ring_find result.",
+            '0.1.10' : "Added a plot() function as convenience to plot all subresults.",
             '0.1.9' : "Improved auto Airy by letting intensity and continuum be free.",
             '0.1.8' : "Improved auto Airy fit by priming fitter with channel gap values.",
             '0.1.7' : "Changed method for airy fit to fit separately each plane.",
@@ -155,7 +158,9 @@ class high_resolution ( threading.Thread ):
 
         if self.dont_fit == False:
             #self.rings_center = 
-            sorted_radii = sorted ( self.rings_center [ 'radii' ] )
+            #sorted_radii = sorted ( self.rings_center [ 'radii' ] )
+            sorted_radii = sorted ( [ self.find_rings [ 'ring_fit_parameters' ] [ 0 ] [ 2 ],
+                                      self.find_rings [ 'ring_fit_parameters' ] [ 1 ] [ 2 ] ] )
             self.log.info ( "sorted_radii = {}".format (
                 [ "{:.2f}".format ( radius ) for radius in sorted_radii ] ) )
             
@@ -364,6 +369,24 @@ class high_resolution ( threading.Thread ):
         self.log.debug ( "Ratio between 2nd degree coefficients is: %f" % ( self.parabolic_model [ 'x2y0' ] / 
                                                                             self.parabolic_model [ 'x0y2' ] ) )
 
+    def plot ( self ):
+        ipython = IPython.get_ipython()
+        ipython.magic("matplotlib qt")
+
+        tuna.tools.plot ( self.tuna_can.array, "original", ipython )
+        tuna.tools.plot ( self.continuum.array, "continuum", ipython )
+        tuna.tools.plot ( self.discontinuum.array, "discontinuum", ipython )
+        tuna.tools.plot ( self.wrapped_phase_map.array, "wrapped_phase_map", ipython )
+        tuna.tools.plot ( self.noise.array, "noise", ipython )
+        tuna.tools.plot ( self.borders_to_center_distances.array, "borders_to_center_distances", ipython )
+        tuna.tools.plot ( self.order_map.array, "order_map", ipython )
+        tuna.tools.plot ( self.unwrapped_phase_map.array, "unwrapped_phase_map", ipython )
+        tuna.tools.plot ( self.parabolic_fit.array, "parabolic_fit", ipython )
+        tuna.tools.plot ( self.airy_fit.array, "airy_fit", ipython )
+        tuna.tools.plot ( self.airy_fit_residue.array, "airy_fit_residue", ipython )
+        tuna.tools.plot ( self.substituted_channels.array, "substituted_channels", ipython )
+        tuna.tools.plot ( self.wavelength_calibrated.array, "wavelength_calibrated", ipython )
+        
 def profile_processing_history ( high_resolution, pixel ):
     profile = { }
 
