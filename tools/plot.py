@@ -34,7 +34,7 @@ def plot ( data, title = "", ipython = None ):
         figure.suptitle ( title )
         
         for plane in range ( data.shape [ 0 ] ):
-            image = axes.flat [ plane ] .imshow ( data [ plane ] )
+            image = axes.flat [ plane ] .imshow ( data [ plane ], cmap = 'Greys' )
 
         figure.subplots_adjust( right = 0.8 )
         
