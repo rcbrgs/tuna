@@ -126,7 +126,9 @@ class rings_finder ( object ):
         for pixel_set in self.result [ 'ring_pixel_sets' ]:
             self.log.debug ( "attempting to fit set {}".format ( count ) )
 
+            start = time.time ( )
             minimal_point, minimal_radius = self.construct_ring_center ( pixel_set )
+            self.log.debug ( "construc_ting_center took {:.1f}s".format ( time.time ( ) - start ) )
             if minimal_point == None or minimal_radius == None:
                 self.log.error ( "Could not find center or radius." )
                 minimal_point = ( 0, 0 )
@@ -207,9 +209,11 @@ class rings_finder ( object ):
         chord_line = sympy.Line ( chord_extreme_1, chord_extreme_2 )
         self.plot_sympy_line ( construction, chord_line, color )
 
+        color = 3
         concurrent_line = chord_line.perpendicular_line ( sympy_mid_point )
         self.plot_sympy_line ( construction, concurrent_line, color )
 
+        color = 4
         min_distance = math.sqrt ( pixel_set.shape [ 0 ] ** 2 + pixel_set.shape [ 1 ] ** 2 )
         for pixel in pixels:
             sympy_point = sympy.Point ( pixel [ 0 ], pixel [ 1 ] )
@@ -227,9 +231,11 @@ class rings_finder ( object ):
         secondary_angle = chord_line.angle_between ( secondary_chord )
         self.log.debug ( "secondary_angle = {} radians".format ( secondary_angle ) )
 
+        color += 1
         thertiary_chord = secondary_chord.perpendicular_line ( chord_extreme_1 )
         self.plot_sympy_line ( construction, thertiary_chord, color )
 
+        color += 1
         diameter_extremes_list = thertiary_chord.intersection ( concurrent_line )
         if len ( diameter_extremes_list ) == 0:
             self.log.warning ( "Could not find intersection between thertiary_chord and concurrent_line. Will attempt to recursively find another set of segments, removing one of the points from current set." )
@@ -298,14 +304,14 @@ class rings_finder ( object ):
 
         self.log.debug ( "len connected_pixels_sets = {}".format ( len ( connected_pixels_sets ) ) )
 
+        shape_len = array.shape [ 0 ] * array.shape [ 1 ]
         min_len = math.ceil ( array.shape [ 0 ] * array.shape [ 1 ] * 0.1 )
         ring_pixel_sets = [ ]
         old_len = 0
         while ( len ( ring_pixel_sets ) < len ( connected_pixels_sets ) ):
-            old_len = len ( ring_pixel_sets )
-            self.log.debug ( "old_len = {}".format ( old_len ) )
-            min_len /= 2
-            self.log.debug ( "min_len for a pixel set = {}".format ( min_len ) )
+            #min_len -= shape_len * 0.005
+            min_len *= 0.9
+            self.log.debug ( "min_len for a pixel set = {:.0f}".format ( min_len ) )
             if min_len < 10:
                 self.log.error ( "min_len too small" )
                 break
@@ -317,7 +323,7 @@ class rings_finder ( object ):
                 for pixel in pixels_set:
                     set_array [ pixel [ 0 ] ] [ pixel [ 1 ] ] = 1
                 ring_pixel_sets.append ( set_array )
-            if old_len > 1 and old_len == len ( ring_pixel_sets ):
+            if len ( ring_pixel_sets ) > 1:
                 break
 
         self.result [ 'ring_pixel_sets' ] = ring_pixel_sets

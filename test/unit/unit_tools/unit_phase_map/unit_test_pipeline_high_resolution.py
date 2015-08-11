@@ -35,10 +35,10 @@ class unit_test_pipeline_high_resolution ( unittest.TestCase ):
         self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] > 25. )
         self.assertTrue ( high_res.wavelength_calibrated.array [ 0 ] [ 0 ] < 30. )
         log.info ( "high_res.rings_center ==%s" % str ( high_res.rings_center ) )
-        self.assertTrue ( high_res.rings_center [ 0 ] > 220 )
-        self.assertTrue ( high_res.rings_center [ 0 ] < 240 )
-        self.assertTrue ( high_res.rings_center [ 1 ] > 190 )
-        self.assertTrue ( high_res.rings_center [ 1 ] < 210 )
+        self.assertTrue ( high_res.rings_center [ 0 ] > 250 )
+        self.assertTrue ( high_res.rings_center [ 0 ] < 270 )
+        self.assertTrue ( high_res.rings_center [ 1 ] > 210 )
+        self.assertTrue ( high_res.rings_center [ 1 ] < 230 )
 
     def tearDown ( self ):
         pass
