@@ -228,22 +228,23 @@ class high_resolution ( threading.Thread ):
             parbase = { 'fixed' : False }
             parinfo.append ( parbase )
 
+            mid_plane = round ( self.tuna_can.shape [ 0 ] / 2 )
             airy_fitter_1 = tuna.models.airy_fitter ( b_ratio,
                                                       center_col,
                                                       center_row,
-                                                      self.tuna_can.array [ 1 ],
+                                                      self.tuna_can.array [ mid_plane ],
                                                       finesse,
                                                       initial_gap,
                                                       self.calibration_wavelength,
                                                       mpyfit_parinfo = parinfo )
             airy_fitter_1.join ( )
-            airy_fit [ 1 ] = airy_fitter_1.fit.array
+            #airy_fit [ 1 ] = airy_fitter_1.fit.array
             
-            channel_gap = airy_fitter_1.parameters [ 5 ] - airy_fitter_0.parameters [ 5 ]
+            channel_gap = ( airy_fitter_1.parameters [ 5 ] - airy_fitter_0.parameters [ 5 ] ) / mid_plane
             self.log.info ( "channel_gap = {} microns.".format ( channel_gap ) )
 
             latest_gap = airy_fitter_1.parameters [ 5 ]
-            for plane in range ( 2, self.tuna_can.planes ):
+            for plane in range ( 1, self.tuna_can.planes ):
                 parinfo = [ ]
                 parbase = { 'fixed' : True }
                 parinfo.append ( parbase )
@@ -259,11 +260,14 @@ class high_resolution ( threading.Thread ):
                 #            'limits' : ( initial_gap + plane * channel_gap - self.calibration_wavelength / 4,
                 #                         initial_gap + plane * channel_gap + self.calibration_wavelength / 4 ) }
                 parbase = { 'fixed'  : False,
-                            'limits' : ( latest_gap - 2 * abs ( channel_gap ),
-                                         latest_gap + 2 * abs ( channel_gap ) ) }
+                            'limits' : ( latest_gap - 10 * abs ( channel_gap ),
+                                         latest_gap + 10 * abs ( channel_gap ) ) }
                 parinfo.append ( parbase )
                 parbase = { 'fixed' : False }
                 parinfo.append ( parbase )
+
+                self.log.info ( "Fitting Airy plane {}: gap at {:.5f}.".format (
+                    plane, latest_gap ) )
                 
                 airy_fitter = tuna.models.airy_fitter ( b_ratio,
                                                         center_col,

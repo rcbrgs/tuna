@@ -77,7 +77,7 @@ def airy_plane ( b_ratio = 9.e-6,
                 % ( b_ratio, center_col, center_row, continuum, finesse, gap,
                     intensity, shape_cols, shape_rows, wavelength ) )
 
-    indices_rows, indices_cols = numpy.indices ( ( shape_rows, shape_cols ) )
+    indices_cols, indices_rows = numpy.indices ( ( shape_rows, shape_cols ) )
     distances = numpy.sqrt ( ( indices_rows - center_row ) ** 2 +
                              ( indices_cols - center_col ) ** 2 )
     log.debug ( "distances [ 0 ] [ 0 ] = %s" % str ( distances [ 0 ] [ 0 ] ) )
@@ -137,8 +137,9 @@ class airy_fitter ( threading.Thread ):
                    
         self.log = logging.getLogger ( __name__ )
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = '0.1.2'
+        self.__version__ = '0.1.3'
         self.changelog = {
+            '0.1.3' : "Tweaked xtol to 1e-6, works on some tests.",
             '0.1.2' : "Changedx xtol from 1e-10 to 1e-5 to improve speed.",
             '0.1.1' : "Refactored algorithm for getting lowest percentile into another module.",
             '0.1.0' : "Initial changelog."
@@ -256,7 +257,7 @@ class airy_fitter ( threading.Thread ):
                                                                self.data,
                                                                flat ),
                                                       parinfo = parinfo,
-                                                      xtol = 1e-5 )
+                                                      xtol = 1e-7 )
                                                       #stepfactor = 10 )
         except Exception as e:
             self.log.error ( tuna.console.output_exception ( e ) )
