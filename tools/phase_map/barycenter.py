@@ -46,7 +46,7 @@ class barycenter_detector ( threading.Thread ):
         gaussian = models.Gaussian1D ( amplitude = 1.0, mean = self.__array.shape [ 0 ] / 2, stddev = 1 )
         fitter = fitting.LevMarLSQFitter ( )
         for row in range (  self.__array.shape [ 1 ] ):
-            self.log.debug ( "barycenter at row %d" % row )
+            self.log.info ( "barycenter at row %d" % row )
             for col in range ( self.__array.shape [ 2 ] ):
                 profile = self.__array [ :, row, col ]
                 # Single peak: centering the largest signal should center the profile.
