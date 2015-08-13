@@ -6,14 +6,19 @@ import time
 import tuna
 
 class ring_border_detector ( threading.Thread ):
-    def __init__ ( self, data, center, noise ):
+    def __init__ ( self, data, center, noise, rings, log_level = logging.INFO ):
+        self.__version__ = '0.1.0'
+        self.changelog = {
+            '0.1.0' : "Adapted to use find_ring."
+            }
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.INFO )
+        self.log.setLevel ( log_level )
         super ( self.__class__, self ).__init__ ( )
 
         self.data = data
         self.center = center
         self.noise = noise
+        self.rings = rings
 
         self.borders = None
         self.discontinuities = None
@@ -54,6 +59,15 @@ class ring_border_detector ( threading.Thread ):
         self.discontinuities_distances = borders_to_center_distances
 
     def detect_discontinuities ( self ):
+        """
+        From the ridge of the find_ring results, and a noise map, create a zeroed numpy ndarray and attribute 1 to pixels if they are noisy or in the ridge.
+        """
+        self.log.debug ( "Producing ring borders map." )
+        ring_borders_map = numpy.copy ( self.rings [ 'ridge' ] )
+        ring_borders_map += self.noise.array
+        self.discontinuities = ring_borders_map
+
+    def detect_discontinuities_old ( self ):
         """
         From an unwrapped map and a noise map, create a map where pixels have 1 if they are noisy or have neighbours with a channel more distant than the channel distance threshold, 0 otherwise.
         """

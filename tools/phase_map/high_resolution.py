@@ -256,9 +256,6 @@ class high_resolution ( threading.Thread ):
                 parinfo.append ( parbase )
                 parbase = { 'fixed' : True }
                 parinfo.append ( parbase )
-                #parbase = { 'fixed'  : False,
-                #            'limits' : ( initial_gap + plane * channel_gap - self.calibration_wavelength / 4,
-                #                         initial_gap + plane * channel_gap + self.calibration_wavelength / 4 ) }
                 parbase = { 'fixed'  : False,
                             'limits' : ( latest_gap - 10 * abs ( channel_gap ),
                                          latest_gap + 10 * abs ( channel_gap ) ) }
@@ -294,7 +291,8 @@ class high_resolution ( threading.Thread ):
         ring_border_detector = tuna.tools.phase_map.ring_border_detector (
             self.wrapped_phase_map,
             center,
-            self.noise )
+            self.noise,
+            self.find_rings )
         ring_border_detector.join ( )
         self.borders_to_center_distances = ring_border_detector.distances
 

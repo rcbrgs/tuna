@@ -2,6 +2,7 @@
 The scope of this module is to find rings within 3D FP spectrographs.
 """
 
+import copy
 import IPython
 import logging
 import math
@@ -18,8 +19,9 @@ class rings_finder ( object ):
     def __init__ ( self, array, plane, plot_log ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.DEBUG )
-        self.__version__ = '0.1.10'
+        self.__version__ = '0.1.11'
         self.changelog = {
+            '0.1.11' : "Use a better method for finding minimal concurrent point, and a sampling method when the pixel_set has too many pixels (5k).",
             '0.1.10' : "Dynamically find the min_len for having at least one ring.",
             '0.1.9' : "Remove a point and retry construct_ring_center.",
             '0.1.8' : "Made array argument flexible for helper function.",
@@ -128,7 +130,7 @@ class rings_finder ( object ):
 
             start = time.time ( )
             minimal_point, minimal_radius = self.construct_ring_center ( pixel_set )
-            self.log.debug ( "construc_ting_center took {:.1f}s".format ( time.time ( ) - start ) )
+            self.log.debug ( "constructing_center took {:.1f}s".format ( time.time ( ) - start ) )
             if minimal_point == None or minimal_radius == None:
                 self.log.error ( "Could not find center or radius." )
                 minimal_point = ( 0, 0 )
@@ -173,21 +175,11 @@ class rings_finder ( object ):
 
         center, radius where center is a 2-tuple of floats and radius is a float.
         """
+        self.log.debug ( "construct_ring_center" )
         construction = numpy.copy ( pixel_set )
-        pixels = [ ]
-        for col in range ( pixel_set.shape [ 0 ] ):
-            for row in range ( pixel_set.shape [ 1 ] ):
-                if pixel_set [ col ] [ row ] == 1:
-                    pixels.append ( ( col, row ) )
-        
-        max_distance = 0
-        max_pair = None
-        for pixel in pixels:
-            for other in pixels:
-                distance = tuna.tools.calculate_distance ( pixel, other )
-                if distance >= max_distance:
-                    max_distance = distance
-                    max_pair = ( pixel, other )
+        self.log.debug ( "pixel_set copied" )
+
+        max_pair = self.find_max_pair ( pixel_set )
 
         if not max_pair:
             self.log.error ( "Could not find a pixel pair!" )
@@ -214,15 +206,7 @@ class rings_finder ( object ):
         self.plot_sympy_line ( construction, concurrent_line, color )
 
         color = 4
-        min_distance = math.sqrt ( pixel_set.shape [ 0 ] ** 2 + pixel_set.shape [ 1 ] ** 2 )
-        for pixel in pixels:
-            sympy_point = sympy.Point ( pixel [ 0 ], pixel [ 1 ] )
-            projection = concurrent_line.projection ( sympy_point )
-            distance = tuna.tools.calculate_distance ( pixel, ( projection.x, projection.y ) )
-            if distance <= min_distance:
-                min_distance = distance
-                min_pixel = pixel
-                concurrent_extreme_min = projection
+        min_pixel, concurrent_extreme_min = self.find_min_pixel ( pixel_set, concurrent_line )
         construction [ min_pixel [ 0 ] ] [ min_pixel [ 1 ] ] = color
         
         secondary_chord = sympy.Line ( chord_extreme_1, concurrent_extreme_min )
@@ -259,6 +243,75 @@ class rings_finder ( object ):
             self.result [ 'construction' ] = [ construction ]
 
         return center, radius
+
+    def find_min_pixel ( self, pixel_set, line ):
+        intersection_points = [ ]
+        for col in range ( pixel_set.shape [ 0 ] ):
+            point_A = sympy.Point ( col, 0 )
+            point_B = sympy.Point ( col, pixel_set.shape [ 1 ] - 1 )
+            col_line = sympy.Line ( point_A, point_B )
+            intersection = line.intersection ( col_line ) [ 0 ]
+            if intersection == None:
+                continue
+            if isinstance ( intersection, sympy.Point ):
+                if intersection.x < 0 or intersection.x >= pixel_set.shape [ 0 ]:
+                    continue
+                if intersection.y < 0 or intersection.y >= pixel_set.shape [ 1 ]:
+                    continue
+                intersection_points.append ( ( intersection.x, intersection.y ) )
+                continue
+            if isinstance ( intersection, sympy.Line ):
+                for row in range ( pixel_set.shape [ 1 ] ):
+                    intersection_points.append ( ( col, row ) )
+                continue
+            self.log.error ( "Intersection loop reached impossible condition!" )
+        self.log.debug ( "len ( intersection_points ) = {}".format ( len ( intersection_points ) ) )
+
+        pixel_set_intersections = [ ]
+        for intersection in intersection_points:
+            if pixel_set [ intersection [ 0 ] ] [ intersection [ 1 ] ] == 1:
+                pixel_set_intersections.append ( intersection )
+        self.log.debug ( "len ( pixel_set_intersections ) = {}".format ( len ( pixel_set_intersections ) ) )
+
+        pixels = pixel_set_intersections
+        self.log.debug ( "pixels list populated with {} pixels".format ( len ( pixels ) ) )
+        min_distance = math.sqrt ( pixel_set.shape [ 0 ] ** 2 + pixel_set.shape [ 1 ] ** 2 )
+        for pixel in pixels:
+            sympy_point = sympy.Point ( pixel [ 0 ], pixel [ 1 ] )
+            projection = line.projection ( sympy_point )
+            distance = tuna.tools.calculate_distance ( pixel, ( projection.x, projection.y ) )
+            if distance <= min_distance:
+                min_distance = distance
+                min_pixel = pixel
+                concurrent_extreme_min = projection
+        return min_pixel, concurrent_extreme_min
+    
+    def find_max_pair ( self, pixel_set ):
+        pixels = [ ]
+        for col in range ( pixel_set.shape [ 0 ] ):
+            for row in range ( pixel_set.shape [ 1 ] ):
+                if pixel_set [ col ] [ row ] == 1:
+                    pixels.append ( ( col, row ) )
+        self.log.debug ( "pixels list populated with {} pixels".format ( len ( pixels ) ) )
+
+        if len ( pixels ) > 5000:
+            old_pixels = copy.copy ( pixels )
+            pixels = [ ]
+            for count in range ( 5000 ):
+                index = random.randint ( 0, len ( old_pixels ) )
+                pixels.append ( old_pixels [ index ] )
+            self.log.debug ( "pixels list downgraded to {} pixels.".format ( len ( pixels ) ) )
+        
+        max_distance = 0
+        max_pair = None
+        for pixel in pixels:
+            for other in pixels:
+                distance = tuna.tools.calculate_distance ( pixel, other )
+                if distance >= max_distance:
+                    max_distance = distance
+                    max_pair = ( pixel, other )
+        return max_pair
+        
 
     def plot_sympy_line ( self, array, sympy_line, color ):
         for col in range ( array.shape [ 0 ] ):
