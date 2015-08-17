@@ -246,7 +246,7 @@ class high_resolution ( threading.Thread ):
             self.log.info ( "channel_gap = {} microns.".format ( channel_gap ) )
 
             latest_gap = airy_fitter_0.parameters [ 5 ] + channel_gap
-            for plane in range ( 0, self.tuna_can.planes ):
+            for plane in range ( 1, self.tuna_can.planes ):
                 parinfo = [ ]
                 parbase = { 'fixed' : True }
                 parinfo.append ( parbase )
@@ -270,7 +270,7 @@ class high_resolution ( threading.Thread ):
                 parbase = { 'fixed' : False }
                 parinfo.append ( parbase )
 
-                self.log.info ( "Fitting Airy plane {}: gap at {:.5f}.".format (
+                self.log.debug ( "Fitting Airy plane {}: gap at {:.5f}.".format (
                     plane, latest_gap ) )
                 
                 airy_fitter = tuna.models.airy_fitter ( b_ratio,
