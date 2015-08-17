@@ -52,8 +52,9 @@ class high_resolution ( threading.Thread ):
         """       
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.14'
+        self.__version__ = '0.1.15'
         self.changelog = {
+            '0.1.15' : "Fixed gap 'pulsating' by making gap change monotonic, and using 1st gap fit as seed for plane reconstruction.",
             '0.1.14' : "Fixed gap limits logic for negative channel gap",
             '0.1.13' : "Since the plane gap is calculated, use it to get limits for per-plane airy fit.",
             '0.1.12' : "Adapting pipeline to new ring_find.",
@@ -239,13 +240,13 @@ class high_resolution ( threading.Thread ):
                                                       self.calibration_wavelength,
                                                       mpyfit_parinfo = parinfo )
             airy_fitter_1.join ( )
-            #airy_fit [ 1 ] = airy_fitter_1.fit.array
+            airy_fit [ 1 ] = airy_fitter_1.fit.array
             
             channel_gap = ( airy_fitter_1.parameters [ 5 ] - airy_fitter_0.parameters [ 5 ] ) / mid_plane
             self.log.info ( "channel_gap = {} microns.".format ( channel_gap ) )
 
-            latest_gap = airy_fitter_1.parameters [ 5 ]
-            for plane in range ( 1, self.tuna_can.planes ):
+            latest_gap = airy_fitter_0.parameters [ 5 ] + channel_gap
+            for plane in range ( 0, self.tuna_can.planes ):
                 parinfo = [ ]
                 parbase = { 'fixed' : True }
                 parinfo.append ( parbase )
@@ -257,9 +258,14 @@ class high_resolution ( threading.Thread ):
                 parinfo.append ( parbase )
                 parbase = { 'fixed' : True }
                 parinfo.append ( parbase )
-                parbase = { 'fixed'  : False,
-                            'limits' : ( latest_gap - 10 * abs ( channel_gap ),
-                                         latest_gap + 10 * abs ( channel_gap ) ) }
+                if channel_gap >= 0:
+                    parbase = { 'fixed'  : False,
+                                'limits' : ( latest_gap,
+                                             latest_gap + 10 * abs ( channel_gap ) ) }
+                else:
+                    parbase = { 'fixed'  : False,
+                                'limits' : ( latest_gap - 10 * abs ( channel_gap ),
+                                             latest_gap ) }
                 parinfo.append ( parbase )
                 parbase = { 'fixed' : False }
                 parinfo.append ( parbase )
