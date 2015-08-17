@@ -202,6 +202,7 @@ class high_resolution ( threading.Thread ):
                                                       mpyfit_parinfo = parinfo_initial )
 
             airy_fitter_0.join ( )
+            self.log.debug ( "airy_fitter_0 joined" )
             airy_fit = numpy.ndarray ( shape = self.tuna_can.shape )
             airy_fit [ 0 ] = airy_fitter_0.fit.array
             

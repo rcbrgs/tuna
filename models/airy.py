@@ -77,9 +77,9 @@ def airy_plane ( b_ratio = 9.e-6,
                 % ( b_ratio, center_col, center_row, continuum, finesse, gap,
                     intensity, shape_cols, shape_rows, wavelength ) )
 
-    indices_cols, indices_rows = numpy.indices ( ( shape_rows, shape_cols ) )
-    distances = numpy.sqrt ( ( indices_rows - center_row ) ** 2 +
-                             ( indices_cols - center_col ) ** 2 )
+    indices_rows, indices_cols = numpy.indices ( ( shape_cols, shape_rows ) )
+    distances = numpy.sqrt ( ( indices_rows - center_col ) ** 2 +
+                             ( indices_cols - center_row ) ** 2 )
     log.debug ( "distances [ 0 ] [ 0 ] = %s" % str ( distances [ 0 ] [ 0 ] ) )
     
     log.debug ( "Calculating airy_function_I" )
@@ -110,16 +110,17 @@ def least_mpyfit ( p, args ):
                              shape_cols,
                              shape_rows,
                              wavelength )
-        log.debug ( "plane = %s" % str ( plane ) )
+        #log.debug ( "plane = %s" % str ( plane ) )
+        log.debug ( "plane.shape = {}, data.shape = {}".format ( plane.shape, data.shape ) )
     except Exception as e:
         print ( "Exception: %s" % str ( e ) )
 
     try:
         residue = ( plane - data ) * flat
     except Exception as e:
-        print ( "Exception: %s" % str ( e ) )
+        log.error ( tuna.console.output_exception ( e ) ) 
 
-    log.debug ( "residue = %s" % str ( residue ) )
+    #log.debug ( "residue = %s" % str ( residue ) )
     log.debug ( "numpy.sum ( residue ) = %f" % numpy.sum ( residue ) )
     log.debug ( "/least_mpyfit" )
     return ( residue.flatten ( ) )
@@ -149,6 +150,7 @@ class airy_fitter ( threading.Thread ):
         self.center_col = center_col
         self.center_row = center_row
         self.data = data
+        self.log.debug ( "self.data.shape = {}".format ( self.data.shape ) )
         self.finesse = finesse
         self.gap = gap
         self.mpyfit_parinfo = mpyfit_parinfo

@@ -8,6 +8,7 @@ import logging
 import math
 import mpyfit
 import numpy
+import random
 import sympy
 import time
 import tuna
@@ -19,8 +20,9 @@ class rings_finder ( object ):
     def __init__ ( self, array, plane, plot_log ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.DEBUG )
-        self.__version__ = '0.1.11'
+        self.__version__ = '0.1.12'
         self.changelog = {
+            '0.1.12' : "find_min_pixel was yielding Nones because sympy.N wasn't used to yield numerical values.",
             '0.1.11' : "Use a better method for finding minimal concurrent point, and a sampling method when the pixel_set has too many pixels (5k).",
             '0.1.10' : "Dynamically find the min_len for having at least one ring.",
             '0.1.9' : "Remove a point and retry construct_ring_center.",
@@ -207,6 +209,11 @@ class rings_finder ( object ):
 
         color = 4
         min_pixel, concurrent_extreme_min = self.find_min_pixel ( pixel_set, concurrent_line )
+        if min_pixel == None or concurrent_extreme_min == None:
+            self.log.error ( "min_pixel == {}, concurrent_extreme_min = {}".format (
+                min_pixel, concurrent_extreme_min ) )
+            return None, None
+        
         construction [ min_pixel [ 0 ] ] [ min_pixel [ 1 ] ] = color
         
         secondary_chord = sympy.Line ( chord_extreme_1, concurrent_extreme_min )
@@ -245,6 +252,11 @@ class rings_finder ( object ):
         return center, radius
 
     def find_min_pixel ( self, pixel_set, line ):
+        """
+        line is sympy.Line.
+        pixel_set is a numpy.ndarray.
+        intersection_points are the points where line intersects lines perpendicular to the columns.
+        """
         intersection_points = [ ]
         for col in range ( pixel_set.shape [ 0 ] ):
             point_A = sympy.Point ( col, 0 )
@@ -258,7 +270,8 @@ class rings_finder ( object ):
                     continue
                 if intersection.y < 0 or intersection.y >= pixel_set.shape [ 1 ]:
                     continue
-                intersection_points.append ( ( intersection.x, intersection.y ) )
+                intersection_points.append ( ( round ( sympy.N ( intersection.x ) ),
+                                               round ( sympy.N ( intersection.y ) ) ) )
                 continue
             if isinstance ( intersection, sympy.Line ):
                 for row in range ( pixel_set.shape [ 1 ] ):
@@ -271,20 +284,38 @@ class rings_finder ( object ):
         for intersection in intersection_points:
             if pixel_set [ intersection [ 0 ] ] [ intersection [ 1 ] ] == 1:
                 pixel_set_intersections.append ( intersection )
+        if len ( pixel_set_intersections ) == 0:
+            self.log.error ( "len ( pixel_set_intersections ) == 0, falling back to whole pixel_set" )
+            for col in range ( pixel_set.shape [ 0 ] ):
+                for row in range ( pixel_set.shape [ 1 ] ):
+                    if pixel_set [ col ] [ row ] == 1:
+                        pixel_set_intersections.append ( ( col, row ) )
         self.log.debug ( "len ( pixel_set_intersections ) = {}".format ( len ( pixel_set_intersections ) ) )
 
-        pixels = pixel_set_intersections
-        self.log.debug ( "pixels list populated with {} pixels".format ( len ( pixels ) ) )
-        min_distance = math.sqrt ( pixel_set.shape [ 0 ] ** 2 + pixel_set.shape [ 1 ] ** 2 )
-        for pixel in pixels:
+        min_distance = float ( "inf" )
+        min_pixel = None
+        concurrent_extreme_min = None
+        for pixel in pixel_set_intersections:
             sympy_point = sympy.Point ( pixel [ 0 ], pixel [ 1 ] )
+            self.log.debug ( "sympy_point.x = {}, sympy_point.y = {}".format ( sympy.N ( sympy_point.x ),
+                                                                              sympy.N ( sympy_point.y ) ) )
             projection = line.projection ( sympy_point )
-            distance = tuna.tools.calculate_distance ( pixel, ( projection.x, projection.y ) )
+            self.log.debug ( "projection.x = {}, projection.y = {}".format ( sympy.N ( projection.x ),
+                                                                            sympy.N ( projection.y ) ) )
+            distance = tuna.tools.calculate_distance ( ( round ( pixel [ 0 ] ),
+                                                         round ( pixel [ 1 ] ) ),
+                                                       ( sympy.N ( projection.x ),
+                                                         sympy.N ( projection.y ) ) )
+            self.log.debug ( "distance = {}".format ( distance ) )
             if distance <= min_distance:
                 min_distance = distance
-                min_pixel = pixel
-                concurrent_extreme_min = projection
-        return min_pixel, concurrent_extreme_min
+                min_pixel = ( round ( pixel [ 0 ] ), round ( pixel [ 1 ] ) )
+                concurrent_extreme_min = ( sympy.N ( projection.x ), sympy.N ( projection.y ) )
+                self.log.debug ( "current min_distance = {}, min_pixel = {}, concurrent_extreme_min = {}".format (
+                    min_distance, min_pixel, concurrent_extreme_min ) )
+        self.log.debug ( "final min_distance = {}, min_pixel = {}, concurrent_extreme_min = {}".format (
+            min_distance, min_pixel, concurrent_extreme_min ) )
+        return ( min_pixel, concurrent_extreme_min )
     
     def find_max_pair ( self, pixel_set ):
         pixels = [ ]
