@@ -20,8 +20,9 @@ class rings_finder ( object ):
     def __init__ ( self, array, plane, plot_log ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.DEBUG )
-        self.__version__ = '0.1.12'
+        self.__version__ = '0.1.13'
         self.changelog = {
+            '0.1.13' : "Added upper_percentile_regions to result.",
             '0.1.12' : "find_min_pixel was yielding Nones because sympy.N wasn't used to yield numerical values.",
             '0.1.11' : "Use a better method for finding minimal concurrent point, and a sampling method when the pixel_set has too many pixels (5k).",
             '0.1.10' : "Dynamically find the min_len for having at least one ring.",
@@ -84,6 +85,7 @@ class rings_finder ( object ):
         if self.plot_log:
             tuna.tools.plot ( upper_dep_gradient, "({}) upper_dep_gradient".format (
                 self.upper_percentile ), self.ipython )
+        self.result [ 'upper_percentile_regions' ] = upper_dep_gradient
 
         lower_percentile = tuna.tools.find_lowest_nonnull_percentile ( gradient )
         lower_percentile_value = numpy.percentile ( gradient, lower_percentile )
@@ -258,7 +260,7 @@ class rings_finder ( object ):
         intersection_points are the points where line intersects lines perpendicular to the columns.
         """
         intersection_points = [ ]
-        for col in range ( pixel_set.shape [ 0 ] ):
+        for col in range ( pixel_set.shape [ 0 ] - 1 ):
             point_A = sympy.Point ( col, 0 )
             point_B = sympy.Point ( col, pixel_set.shape [ 1 ] - 1 )
             col_line = sympy.Line ( point_A, point_B )
@@ -266,15 +268,16 @@ class rings_finder ( object ):
             if intersection == None:
                 continue
             if isinstance ( intersection, sympy.Point ):
-                if intersection.x < 0 or intersection.x >= pixel_set.shape [ 0 ]:
+                x = round ( sympy.N ( intersection.x ) )
+                y = round ( sympy.N ( intersection.y ) )
+                if x < 0 or x >= pixel_set.shape [ 0 ]:
                     continue
-                if intersection.y < 0 or intersection.y >= pixel_set.shape [ 1 ]:
+                if y < 0 or y >= pixel_set.shape [ 1 ]:
                     continue
-                intersection_points.append ( ( round ( sympy.N ( intersection.x ) ),
-                                               round ( sympy.N ( intersection.y ) ) ) )
+                intersection_points.append ( ( x, y ) )
                 continue
             if isinstance ( intersection, sympy.Line ):
-                for row in range ( pixel_set.shape [ 1 ] ):
+                for row in range ( pixel_set.shape [ 1 ] - 1 ):
                     intersection_points.append ( ( col, row ) )
                 continue
             self.log.error ( "Intersection loop reached impossible condition!" )
