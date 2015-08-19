@@ -34,6 +34,10 @@ class adhoc ( file_reader ):
         super ( adhoc, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
+        self.__version__ = '0.1.0'
+        self.changelog = {
+            '0.1.0' : "Initial changelog."
+            }
 
         self.__adhoc_type = adhoc_type
         self.__adhoc_trailer = adhoc_trailer
@@ -53,6 +57,10 @@ class adhoc ( file_reader ):
                 raise
 
             self.__file_object.seek ( 0, os.SEEK_END )
+            if self.__file_object.tell ( ) < 256:
+                self.log.error ( "File does not contain valid numpy array." )
+                self.__adhoc_type = None
+                return
             self.__array_size = ( self.__file_object.tell ( ) - 256 ) / 4  
             self.__file_object.close ( )
 
