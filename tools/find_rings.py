@@ -17,34 +17,23 @@ class rings_finder ( object ):
     """
     The responsibility of this class is to find all rings contained in a data cube.
     """
-    def __init__ ( self, array, plane, plot_log ):
+    def __init__ ( self, array, plane, ipython, plot_log ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.DEBUG )
-        self.__version__ = '0.1.13'
+        self.__version__ = '0.2.0'
         self.changelog = {
-            '0.1.13' : "Added upper_percentile_regions to result.",
-            '0.1.12' : "find_min_pixel was yielding Nones because sympy.N wasn't used to yield numerical values.",
-            '0.1.11' : "Use a better method for finding minimal concurrent point, and a sampling method when the pixel_set has too many pixels (5k).",
-            '0.1.10' : "Dynamically find the min_len for having at least one ring.",
-            '0.1.9' : "Remove a point and retry construct_ring_center.",
-            '0.1.8' : "Made array argument flexible for helper function.",
-            '0.1.7' : "Made plot_log a parameter.",
-            '0.1.6' : "Fixed calling ipython magic when unavailable.",
-            '0.1.5' : "Use sympy to find median line, instead of relying on less precise pixelated logic.",
-            '0.1.4' : "Clean up unnecessary code. Restrict algorithm only to sets with more than 10 pixels.",
-            '0.1.3' : "Made plane a parameter of init.",
-            '0.1.2' : "Added construct_ring_center function.",
-            '0.1.1' : "check_is_circle now returns False if there is a pixel with less than two neighbours in the ring",
-            '0.1.0' : "Initial version." }
+            '0.2.0' : "Added function to remove lumped sets from result. Added behaviour for exhaustive search for plane containing two rings."
+        }
         self.plot_log = plot_log
+        self.ipython = ipython
         if self.plot_log:
-            self.ipython = IPython.get_ipython()
-            if self.ipython:
+            if self.ipython == None:
+                self.ipython = IPython.get_ipython()
                 self.ipython.magic("matplotlib qt")
 
         self.chosen_plane = plane
-        self.ridge_threshold = 5
-        self.upper_percentile = 90
+        self.ridge_threshold = 6
+        #self.upper_percentile = 90
             
         self.array = array
         
@@ -79,7 +68,9 @@ class rings_finder ( object ):
             
         gradient = gradients [ 0 ] [ self.chosen_plane ]
         self.result [ 'gradient' ] = gradient
-            
+
+        self.upper_percentile = self.find_upper_percentile ( gradient )
+        
         upper_percentile_value = numpy.percentile ( gradient, self.upper_percentile ) 
         upper_dep_gradient = numpy.where ( gradient > upper_percentile_value, 1, 0 )
         if self.plot_log:
@@ -107,6 +98,22 @@ class rings_finder ( object ):
         self.log.debug ( "ridge found" )    
         self.result [ 'ridge' ] = ridge
 
+    def find_upper_percentile ( self, gradient ):
+        """
+        Tries to find the maximum percentile that contains at least 10 % of the pixels.
+        """
+        full = gradient.shape [ 0 ] * gradient.shape [ 1 ]
+        attempt = 99
+        ratio = 0
+        while ( ratio < 0.1 ):
+            attempt_value = numpy.percentile ( gradient, attempt )
+            ratio = numpy.sum ( numpy.where ( gradient > attempt_value, 1, 0 ) ) / full
+            attempt -= 1
+            if attempt < 3:
+                break
+        self.log.info ( "find_upper_percentile: {}".format ( attempt ) )
+        return attempt
+        
     def ridgeness ( self, upper, lower, col, row, threshold = 1 ):
         """
         Returns 1 if point at col, row has threshold neighbours that is 1 in both upper and lower arrays.
@@ -396,7 +403,6 @@ class rings_finder ( object ):
         ring_pixel_sets = [ ]
         old_len = 0
         while ( len ( ring_pixel_sets ) < len ( connected_pixels_sets ) ):
-            #min_len -= shape_len * 0.005
             min_len *= 0.9
             self.log.debug ( "min_len for a pixel set = {:.0f}".format ( min_len ) )
             if min_len < 10:
@@ -413,6 +419,8 @@ class rings_finder ( object ):
             if len ( ring_pixel_sets ) > 1:
                 break
 
+        ring_pixel_sets = self.remove_lumped_pixel_sets ( ring_pixel_sets )
+            
         self.result [ 'ring_pixel_sets' ] = ring_pixel_sets
         self.log.debug ( "{} rings found.".format ( len ( self.result [ 'ring_pixel_sets' ] ) ) )
         if self.plot_log:
@@ -420,6 +428,25 @@ class rings_finder ( object ):
             for pixel_set in self.result [ 'ring_pixel_sets' ]:
                 tuna.tools.plot ( pixel_set, "pixel_set {}".format ( count ), self.ipython )
                 count += 1
+
+    def remove_lumped_pixel_sets ( self, pixel_sets ):
+        """
+        For some cubes, in some planes, the central region has many pixels that do not belong to a ring, but are identified as part of the ridge. This is possibly due to a "nascent" ring in that plane.
+        This function identifies such regions and removes them from the returned set.
+        """
+
+        result = [ ]
+        for pixel_set in pixel_sets:
+            max_pair = self.find_max_pair ( pixel_set )
+            distance = tuna.tools.calculate_distance ( max_pair [ 0 ], max_pair [ 1 ] )
+            total_pixels = numpy.sum ( pixel_set )
+            ratio = distance / total_pixels
+            self.log.info ( "pixel_set max_distance / total_pixels ratio = {:.1f}".format ( ratio ) )
+            if ratio < 0.4:
+                self.log.info ( "pixel set probably does not contain an arc." )
+                continue
+            result.append ( pixel_set )
+        return result
             
 def circle ( center, radius, shape ):
     log = logging.getLogger ( __name__ )
@@ -495,12 +522,13 @@ def fit_circle ( center_col, center_row, radius, data, function ):
     return fit_parameters, function (
         ( fit_parameters [ 0 ], fit_parameters [ 1 ] ), fit_parameters [ 2 ], data.shape )
 
-def find_rings ( array, plane = 0, plot_log = False ):
+def find_rings ( array, plane = None, ipython = None, plot_log = False ):
     """
     Attempts to find rings contained in a 3D numpy ndarray input.
     Parameters:
     - array is the 3D numpy array with the spectrograph. This parameter can also be a Tuna can.
-    - plane is the index in the cube for the spectrograph whose rings the user wants. It defaults to plane 0.
+    - plane is the index in the cube for the spectrograph whose rings the user wants. If no plane is specified, all planes will be search (from 0 onwards) until at least two rings are found in a plane.
+    - ipython is a reference to the ipython object, in case it exists.
     - plot_log defaults to False, which does not output plots of the intermediary products. Even then, all numpy arrays are accessible in the result structure.
 
     Returns a list of dicts, with the following keys:
@@ -514,10 +542,28 @@ def find_rings ( array, plane = 0, plot_log = False ):
     log = logging.getLogger ( __name__ )
     
     if isinstance ( array, tuna.io.can ):
+        effective_array = array.array
         log.debug ( "Using can's array as input." )
-        return find_rings ( array.array, plane, plot_log )
-    
-    finder = rings_finder ( array, plane, plot_log )
-    finder.execute ( )
-    return finder.result
+    else:
+        effective_array = array
 
+    if plane != None:
+        finder = rings_finder ( effective_array, plane, ipython, plot_log )
+        finder.execute ( )
+        return finder.result
+
+    # no plane was specified
+    best_so_far = None
+    for effective_plane in range ( effective_array.shape [ 0 ] ):
+        finder = rings_finder ( effective_array, effective_plane, ipython, plot_log )
+        finder.execute ( )
+        if len ( finder.result [ 'ring_pixel_sets' ] ) >= 2:
+            return finder.result
+        elif len ( finder.result [ 'ring_pixel_sets' ] ) == 1:
+            best_so_far = finder.result
+
+    self.log.error ( "Could not find two rings in all of the cube!" )
+
+    if best_so_far != None:
+        self.log.info ( "Returning single ring result." )
+    return best_so_far

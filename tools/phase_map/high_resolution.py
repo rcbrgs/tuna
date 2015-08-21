@@ -2,6 +2,7 @@ import IPython
 import logging
 import math
 import numpy
+import random
 import threading
 import time
 import tuna
@@ -122,6 +123,8 @@ class high_resolution ( threading.Thread ):
         self.wavelength_calibrated = None
         self.wrapped_phase_map = None
         
+        self.ipython = IPython.get_ipython ( )
+        self.ipython.magic("matplotlib qt")
         self.start ( )
         
     def run ( self ):
@@ -138,7 +141,7 @@ class high_resolution ( threading.Thread ):
         wrapped_producer.join ( )
 
         self.wrapped_phase_map = wrapped_producer.result
-        self.log.debug ( "self.wrapped_phase_map.array.shape = %s" % str ( self.wrapped_phase_map.array.shape ) )
+        self.log.debug ( "self.wrapped_phase_map.array.shape = {}".format ( self.wrapped_phase_map.array.shape ) )
 
         noise_detector = tuna.tools.phase_map.noise_detector ( self.tuna_can,
                                                                self.wrapped_phase_map, 
@@ -147,7 +150,12 @@ class high_resolution ( threading.Thread ):
         noise_detector.join ( )
         self.noise = noise_detector.noise
 
-        self.find_rings = tuna.tools.find_rings ( self.tuna_can.array, 2 )
+        random.seed ()
+        random_plane = random.randint ( 0, self.tuna_can.array.shape [ 0 ] - 1 )
+        self.log.info ( "random_plane = {}".format ( random_plane ) )
+
+        self.find_rings = tuna.tools.find_rings (
+            self.tuna_can.array, random_plane, ipython = self.ipython, plot_log = True )
         center = ( self.find_rings [ 'ring_fit_parameters' ] [ 0 ] [ 0 ],
                    self.find_rings [ 'ring_fit_parameters' ] [ 0 ] [ 1 ] )
         self.rings_center = center
@@ -384,22 +392,19 @@ class high_resolution ( threading.Thread ):
                                                                             self.parabolic_model [ 'x0y2' ] ) )
 
     def plot ( self ):
-        ipython = IPython.get_ipython()
-        ipython.magic("matplotlib qt")
-
-        tuna.tools.plot ( self.tuna_can.array, "original", ipython )
-        tuna.tools.plot ( self.continuum.array, "continuum", ipython )
-        tuna.tools.plot ( self.discontinuum.array, "discontinuum", ipython )
-        tuna.tools.plot ( self.wrapped_phase_map.array, "wrapped_phase_map", ipython )
-        tuna.tools.plot ( self.noise.array, "noise", ipython )
-        tuna.tools.plot ( self.borders_to_center_distances.array, "borders_to_center_distances", ipython )
-        tuna.tools.plot ( self.order_map.array, "order_map", ipython )
-        tuna.tools.plot ( self.unwrapped_phase_map.array, "unwrapped_phase_map", ipython )
-        tuna.tools.plot ( self.parabolic_fit.array, "parabolic_fit", ipython )
-        tuna.tools.plot ( self.airy_fit.array, "airy_fit", ipython )
-        tuna.tools.plot ( self.airy_fit_residue.array, "airy_fit_residue", ipython )
-        tuna.tools.plot ( self.substituted_channels.array, "substituted_channels", ipython )
-        tuna.tools.plot ( self.wavelength_calibrated.array, "wavelength_calibrated", ipython )
+        tuna.tools.plot ( self.tuna_can.array, "original", self.ipython )
+        tuna.tools.plot ( self.continuum.array, "continuum", self.ipython )
+        tuna.tools.plot ( self.discontinuum.array, "discontinuum", self.ipython )
+        tuna.tools.plot ( self.wrapped_phase_map.array, "wrapped_phase_map", self.ipython )
+        tuna.tools.plot ( self.noise.array, "noise", self.ipython )
+        tuna.tools.plot ( self.borders_to_center_distances.array, "borders_to_center_distances", self.ipython )
+        tuna.tools.plot ( self.order_map.array, "order_map", self.ipython )
+        tuna.tools.plot ( self.unwrapped_phase_map.array, "unwrapped_phase_map", self.ipython )
+        tuna.tools.plot ( self.parabolic_fit.array, "parabolic_fit", self.ipython )
+        tuna.tools.plot ( self.airy_fit.array, "airy_fit", self.ipython )
+        tuna.tools.plot ( self.airy_fit_residue.array, "airy_fit_residue", self.ipython )
+        tuna.tools.plot ( self.substituted_channels.array, "substituted_channels", self.ipython )
+        tuna.tools.plot ( self.wavelength_calibrated.array, "wavelength_calibrated", self.ipython )
         
 def profile_processing_history ( high_resolution, pixel ):
     profile = { }
