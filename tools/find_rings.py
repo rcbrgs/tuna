@@ -20,8 +20,9 @@ class rings_finder ( object ):
     def __init__ ( self, array, plane, ipython, plot_log ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.DEBUG )
-        self.__version__ = '0.2.0'
+        self.__version__ = '0.2.1'
         self.changelog = {
+            '0.2.1' : "Added ridge_thickness to the fitted circles, improving fits' speed and precision.",
             '0.2.0' : "Added function to remove lumped sets from result. Added behaviour for exhaustive search for plane containing two rings."
         }
         self.plot_log = plot_log
@@ -33,7 +34,6 @@ class rings_finder ( object ):
 
         self.chosen_plane = plane
         self.ridge_threshold = 6
-        #self.upper_percentile = 90
             
         self.array = array
         
@@ -52,9 +52,9 @@ class rings_finder ( object ):
         separate_time = time.time ( )
         self.fit_circles ( )
         fit_time = time.time ( )
-        self.log.debug (
-            "rings_finder finished. segment() {:.1f}s, separate_rings() {:.1f}s, fit_circles() {:.1f}s.".format (
-                segment_time - start_time, separate_time - segment_time, fit_time - separate_time ) )
+        self.aggregate_fits ( )
+        aggregate_time = time.time ( )
+        self.log.debug ( "rings_finder finished. segment() {:.1f}s, separate_rings() {:.1f}s, fit_circles() {:.1f}s, aggregate_fits() {:.1f}s.".format ( segment_time - start_time, separate_time - segment_time, fit_time - separate_time, aggregate_time - fit_time ) )
         
     def segment ( self ):
         if len ( self.array.shape ) != 3:
@@ -98,22 +98,6 @@ class rings_finder ( object ):
         self.log.debug ( "ridge found" )    
         self.result [ 'ridge' ] = ridge
 
-    def find_upper_percentile ( self, gradient ):
-        """
-        Tries to find the maximum percentile that contains at least 10 % of the pixels.
-        """
-        full = gradient.shape [ 0 ] * gradient.shape [ 1 ]
-        attempt = 99
-        ratio = 0
-        while ( ratio < 0.1 ):
-            attempt_value = numpy.percentile ( gradient, attempt )
-            ratio = numpy.sum ( numpy.where ( gradient > attempt_value, 1, 0 ) ) / full
-            attempt -= 1
-            if attempt < 3:
-                break
-        self.log.info ( "find_upper_percentile: {}".format ( attempt ) )
-        return attempt
-        
     def ridgeness ( self, upper, lower, col, row, threshold = 1 ):
         """
         Returns 1 if point at col, row has threshold neighbours that is 1 in both upper and lower arrays.
@@ -136,7 +120,8 @@ class rings_finder ( object ):
             
     def fit_circles ( self ):
         count = 0
-        for pixel_set in self.result [ 'ring_pixel_sets' ]:
+        for pixel_set_tuple in self.result [ 'ring_pixel_sets' ]:
+            pixel_set = pixel_set_tuple [ 0 ]
             self.log.debug ( "attempting to fit set {}".format ( count ) )
 
             start = time.time ( )
@@ -151,7 +136,8 @@ class rings_finder ( object ):
                                                      minimal_point [ 1 ],
                                                      minimal_radius,
                                                      pixel_set,
-                                                     circle )
+                                                     circle,
+                                                     ridge_thickness = pixel_set_tuple [ 1 ] )
             
             self.log.info ( "ring_parameters {} = {}".format ( count, ring_parameters ) )
             if self.plot_log:
@@ -174,6 +160,55 @@ class rings_finder ( object ):
             count += 1
             
         self.log.debug ( "All sets fitted." )
+
+    def aggregate_fits ( self ):
+        """
+        After fitting circles to pixel sets, some fits will correspond to the same ring. These must be aggregated into single results.
+        """
+        if 'ring_fit' not in list ( self.result.keys ( ) ):
+            return
+        known_centers = [ ]
+        for pixel_set_index in range ( len ( self.result [ 'ring_fit' ] ) ):
+            distance_threshold = min ( self.result [ 'ring_fit' ] [ pixel_set_index ].shape [ 0 ],
+                                       self.result [ 'ring_fit' ] [ pixel_set_index ].shape [ 1 ] ) * 0.1
+            center_is_unknown = True
+            for structure in known_centers:
+                center = ( structure [ 0 ], structure [ 1 ] )
+                center_fit_index = structure [ 2 ] [ 0 ]
+                distance = tuna.tools.calculate_distance (
+                    ( self.result [ 'ring_fit_parameters' ] [ pixel_set_index ] [ 0 ],
+                      self.result [ 'ring_fit_parameters' ] [ pixel_set_index ] [ 1 ] ), center )
+                if distance < distance_threshold:
+                    self.log.info ( "ring_fit {} center close to ring_fit {} center".format (
+                        pixel_set_index, center_fit_index ) )
+                    if abs ( self.result [ 'ring_fit_parameters' ] [ pixel_set_index ] [ 2 ] - \
+                             self.result [ 'ring_fit_parameters' ] [ center_fit_index ] [ 2 ] ) < distance_threshold:
+                        self.log.info ( "ring_fit {} radius similar to ring_fit {} radius".format (
+                        pixel_set_index, center_fit_index ) )
+                        center_is_unknown = False
+                        structure [ 2 ].append ( pixel_set_index )
+            if center_is_unknown:
+                known_centers.append ( [ self.result [ 'ring_fit_parameters' ] [ pixel_set_index ] [ 0 ],
+                                         self.result [ 'ring_fit_parameters' ] [ pixel_set_index ] [ 1 ],
+                                         [ pixel_set_index ] ] )
+
+        rings = [ ]
+        for structure in known_centers:
+            center_col = 0
+            center_row = 0
+            radius = 0
+            for entry in structure [ 2 ]:
+                center_col += self.result [ 'ring_fit_parameters' ] [ entry ] [ 0 ]
+                center_row += self.result [ 'ring_fit_parameters' ] [ entry ] [ 1 ]
+                radius     += self.result [ 'ring_fit_parameters' ] [ entry ] [ 2 ]
+            center_col /= len ( structure [ 2 ] )
+            center_row /= len ( structure [ 2 ] )
+            radius     /= len ( structure [ 2 ] )
+
+            try:
+                self.result [ 'rings' ].append ( ( center_col, center_row, radius, structure [ 2 ] ) )
+            except KeyError:
+                self.result [ 'rings' ] =      [ ( center_col, center_row, radius, structure [ 2 ] ) ]
 
     def construct_ring_center ( self, pixel_set ):
         """
@@ -353,7 +388,22 @@ class rings_finder ( object ):
                     max_pair = ( pixel, other )
         return max_pair
         
-
+    def find_upper_percentile ( self, gradient ):
+        """
+        Tries to find the maximum percentile that contains at least 10 % of the pixels.
+        """
+        full = gradient.shape [ 0 ] * gradient.shape [ 1 ]
+        attempt = 99
+        ratio = 0
+        while ( ratio < 0.1 ):
+            attempt_value = numpy.percentile ( gradient, attempt )
+            ratio = numpy.sum ( numpy.where ( gradient > attempt_value, 1, 0 ) ) / full
+            attempt -= 1
+            if attempt < 3:
+                break
+        self.log.debug ( "find_upper_percentile: {}".format ( attempt ) )
+        return attempt
+        
     def plot_sympy_line ( self, array, sympy_line, color ):
         for col in range ( array.shape [ 0 ] ):
             sympy_point_0 = sympy.Point ( col, 0 )
@@ -426,7 +476,7 @@ class rings_finder ( object ):
         if self.plot_log:
             count = 0
             for pixel_set in self.result [ 'ring_pixel_sets' ]:
-                tuna.tools.plot ( pixel_set, "pixel_set {}".format ( count ), self.ipython )
+                tuna.tools.plot ( pixel_set [ 0 ], "pixel_set {}".format ( count ), self.ipython )
                 count += 1
 
     def remove_lumped_pixel_sets ( self, pixel_sets ):
@@ -437,18 +487,37 @@ class rings_finder ( object ):
 
         result = [ ]
         for pixel_set in pixel_sets:
-            max_pair = self.find_max_pair ( pixel_set )
-            distance = tuna.tools.calculate_distance ( max_pair [ 0 ], max_pair [ 1 ] )
-            total_pixels = numpy.sum ( pixel_set )
-            ratio = distance / total_pixels
-            self.log.info ( "pixel_set max_distance / total_pixels ratio = {:.1f}".format ( ratio ) )
-            if ratio < 0.4:
-                self.log.info ( "pixel set probably does not contain an arc." )
-                continue
-            result.append ( pixel_set )
+            # test: each column and row should have either none, one * thickness or two * thickness pixels in the set.
+            num_good_cols = 0
+            num_cols = 0
+            latest_thickness = 0
+            average_thickness = 0
+            for col in range ( pixel_set.shape [ 0 ] ):
+                per_col_pixels = ( numpy.sum ( pixel_set [ col ] ) )
+                if per_col_pixels == 0:
+                    continue
+                num_cols += 1
+                if latest_thickness == 0:
+                    num_good_cols += 1
+                    latest_thickness = per_col_pixels
+                    continue
+                ratio = round ( latest_thickness / per_col_pixels )
+                latest_thickness = per_col_pixels
+                average_thickness += latest_thickness
+                if ratio == 0.5 or ratio == 1 or ratio == 2:
+                    num_good_cols +=1
+                    continue
+            good_cols_ratio = num_good_cols / num_cols
+            average_thickness /= num_good_cols * 4
+            self.log.debug ( "good_cols_ratio = {:.2f}".format ( good_cols_ratio ) )
+            self.log.info ( "average_thickness = {:.2f}".format ( average_thickness ) )
+            if good_cols_ratio > 0.9:
+                self.log.info ( "pixel set probably contains a circle or arc." )
+                result.append ( ( pixel_set, average_thickness ) )
+                continue              
         return result
             
-def circle ( center, radius, shape ):
+def circle ( center, radius, thickness, shape ):
     log = logging.getLogger ( __name__ )
     log.debug ( "center = ( {:.5f}, {:.5f} ), radius = {:.5f}".format (
         center [ 0 ], center [ 1 ], radius, shape ) )
@@ -457,20 +526,21 @@ def circle ( center, radius, shape ):
     for col in range ( shape [ 0 ] ):
         for row in range ( shape [ 1 ] ):
             center_distance = tuna.tools.calculate_distance ( center, ( col, row ) )
-            if abs ( center_distance - radius ) < 1:
+            if abs ( center_distance - radius ) <= thickness:
                 distances [ col ] [ row ] = 1
 
     return distances
 
 def least_circle ( p, args ):
     log = logging.getLogger ( __name__ )
-    center_col, center_row, radius = p
+    center_col, center_row, radius, thickness = p
     shape, data, function = args
     
     try:
         calculated_circle = function ( ( center_col,
                                          center_row ),
                                        radius,
+                                       thickness,
                                        shape )
     except Exception as e:
         log.error ( tuna.console.output_exception ( e ) )
@@ -483,12 +553,13 @@ def least_circle ( p, args ):
     log.debug ( "residue = %f" % numpy.sum ( numpy.abs ( residue ) ) )
     return ( residue.flatten ( ) )
 
-def fit_circle ( center_col, center_row, radius, data, function ):
+def fit_circle ( center_col, center_row, radius, data, function, ridge_thickness = 1 ):
     log = logging.getLogger ( __name__ )
 
     parameters = ( float ( center_col ),
                    float ( center_row ),
-                   float ( radius ) )
+                   float ( radius ),
+                   float ( ridge_thickness ) )
     
     # Constraints on parameters
     parinfo = [ ]
@@ -500,6 +571,10 @@ def fit_circle ( center_col, center_row, radius, data, function ):
     parinfo.append ( parbase )
     parbase = { 'fixed'  : False,
                 'step'   : 2 }
+    parinfo.append ( parbase )
+    # ridge_thickness
+    parbase = { 'fixed'  : False,
+                'step'   : 0.1 }
     parinfo.append ( parbase )
     
     for entry in parinfo:
@@ -520,13 +595,14 @@ def fit_circle ( center_col, center_row, radius, data, function ):
 
     
     return fit_parameters, function (
-        ( fit_parameters [ 0 ], fit_parameters [ 1 ] ), fit_parameters [ 2 ], data.shape )
+        ( fit_parameters [ 0 ], fit_parameters [ 1 ] ), fit_parameters [ 2 ], ridge_thickness, data.shape )
 
-def find_rings ( array, plane = None, ipython = None, plot_log = False ):
+def find_rings ( array, min_rings = 1, plane = None, ipython = None, plot_log = False ):
     """
     Attempts to find rings contained in a 3D numpy ndarray input.
     Parameters:
     - array is the 3D numpy array with the spectrograph. This parameter can also be a Tuna can.
+    - min_rings is the minimal number of rings expected to be found.
     - plane is the index in the cube for the spectrograph whose rings the user wants. If no plane is specified, all planes will be search (from 0 onwards) until at least two rings are found in a plane.
     - ipython is a reference to the ipython object, in case it exists.
     - plot_log defaults to False, which does not output plots of the intermediary products. Even then, all numpy arrays are accessible in the result structure.
@@ -557,13 +633,17 @@ def find_rings ( array, plane = None, ipython = None, plot_log = False ):
     for effective_plane in range ( effective_array.shape [ 0 ] ):
         finder = rings_finder ( effective_array, effective_plane, ipython, plot_log )
         finder.execute ( )
-        if len ( finder.result [ 'ring_pixel_sets' ] ) >= 2:
+        if 'rings' not in list ( finder.result.keys ( ) ):
+            continue
+        if len ( finder.result [ 'rings' ] ) >= min_rings:
             return finder.result
-        elif len ( finder.result [ 'ring_pixel_sets' ] ) == 1:
+        elif best_so_far == None:
+            best_so_far = finder.result
+        elif len ( finder.result [ 'rings' ] ) > len ( best_so_far [ 'rings' ] ):
             best_so_far = finder.result
 
-    self.log.error ( "Could not find two rings in all of the cube!" )
+    self.log.warning ( "Could not find a plane with two rings on the cube!" )
 
     if best_so_far != None:
-        self.log.info ( "Returning single ring result." )
+        self.log.warning ( "Returning single ring result." )
     return best_so_far

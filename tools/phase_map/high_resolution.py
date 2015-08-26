@@ -39,6 +39,7 @@ class high_resolution ( threading.Thread ):
                    dont_fit = False,
                    noise_mask_radius = 1,
                    noise_threshold = None,
+                   plot_log = False,
                    ring_minimal_percentile = None,
                    unwrapped_only = False,
                    verify_center = None ):
@@ -50,11 +51,13 @@ class high_resolution ( threading.Thread ):
         ---
         - array : the raw data. Must be a 3D numpy.ndarray.
         - noise_mask_radius : the distance from a noise pixel that will be marked as noise also (size of a circle around each noise pixel).
+        - plot_log : boolean that specifies whether to matplotlib plot the partial results (which will be always available as ndarrays). Defaults to False.
         """       
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.15'
+        self.__version__ = '0.1.16'
         self.changelog = {
+            '0.1.16' : "Adapted to use refined version of ring finder.",
             '0.1.15' : "Fixed gap 'pulsating' by making gap change monotonic, and using 1st gap fit as seed for plane reconstruction.",
             '0.1.14' : "Fixed gap limits logic for negative channel gap",
             '0.1.13' : "Since the plane gap is calculated, use it to get limits for per-plane airy fit.",
@@ -122,7 +125,8 @@ class high_resolution ( threading.Thread ):
         self.unwrapped_phase_map = None
         self.wavelength_calibrated = None
         self.wrapped_phase_map = None
-        
+
+        self.plot_log = plot_log
         self.ipython = IPython.get_ipython ( )
         self.ipython.magic("matplotlib qt")
         self.start ( )
@@ -150,14 +154,10 @@ class high_resolution ( threading.Thread ):
         noise_detector.join ( )
         self.noise = noise_detector.noise
 
-        random.seed ()
-        random_plane = random.randint ( 0, self.tuna_can.array.shape [ 0 ] - 1 )
-        self.log.info ( "random_plane = {}".format ( random_plane ) )
-
         self.find_rings = tuna.tools.find_rings (
-            self.tuna_can.array, random_plane, ipython = self.ipython, plot_log = True )
-        center = ( self.find_rings [ 'ring_fit_parameters' ] [ 0 ] [ 0 ],
-                   self.find_rings [ 'ring_fit_parameters' ] [ 0 ] [ 1 ] )
+            self.tuna_can.array, min_rings = 2, ipython = self.ipython, plot_log = self.plot_log )
+        center = ( self.find_rings [ 'rings' ] [ 0 ] [ 0 ],
+                   self.find_rings [ 'rings' ] [ 0 ] [ 1 ] )
         self.rings_center = center
         
         if self.verify_center != None:
@@ -168,9 +168,13 @@ class high_resolution ( threading.Thread ):
             if difference >= threshold:
                 return
 
+        if len ( self.find_rings [ 'rings' ] ) < 2 and self.dont_fit == False:
+            self.log.error ( "Airy fitting requires at least 2 concentric rings. Blocking request to fit data." )
+            self.dont_fit = True
+            
         if self.dont_fit == False:
-            sorted_radii = sorted ( [ self.find_rings [ 'ring_fit_parameters' ] [ 0 ] [ 2 ],
-                                      self.find_rings [ 'ring_fit_parameters' ] [ 1 ] [ 2 ] ] )
+            sorted_radii = sorted ( [ self.find_rings [ 'ring_fit_parameters' ] [ self.find_rings [ 'rings' ] [ 0 ] [ 3 ] [ 0 ] ] [ 2 ],
+                                      self.find_rings [ 'ring_fit_parameters' ] [ self.find_rings [ 'rings' ] [ 1 ] [ 3 ] [ 0 ] ] [ 2 ] ] )
             self.log.info ( "sorted_radii = {}".format (
                 [ "{:.2f}".format ( radius ) for radius in sorted_radii ] ) )
             
