@@ -13,7 +13,11 @@ class fsr_mapper ( threading.Thread ):
     """
     Responsible for computing and storing a 2D array of integers with the number of FSRs from the axis until each pixel.
     """
-    def __init__ ( self, distances, wrapped, center ):
+    def __init__ ( self, distances, wrapped, center, concentric_rings ):
+        self.__version__ = '0.1.0'
+        self.changelog = {
+            '0.1.0' : "First changeloged version."
+            }
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
         super ( self.__class__, self ).__init__ ( )
@@ -21,6 +25,7 @@ class fsr_mapper ( threading.Thread ):
         self.distances = distances.array
         self.center = center
         self.wrapped = wrapped.array
+        self.concentric_rings = concentric_rings
 
         self.max_rows = distances.shape [ 0 ]
         self.max_cols = distances.shape [ 1 ]
@@ -32,10 +37,50 @@ class fsr_mapper ( threading.Thread ):
     def run ( self ):
         start = time.time ( )
 
-        self.create_fsr_map ( )
+        #self.create_fsr_map ( )
+        self.create_fsr_map_from_rings ( )
 
         self.log.debug ( "create_fsr_map() took %ds." % ( time.time ( ) - start ) )
 
+    def create_fsr_map_from_rings ( self ):
+        thickness = 10
+        half_channels = numpy.max ( self.wrapped ) / 2
+        max_order = len ( self.concentric_rings [ 1 ] )
+        sorted_radii = sorted ( self.concentric_rings [ 1 ] )
+        sorted_radii.append ( float ( 'inf' ) )
+        self.fsr = numpy.ndarray ( shape = self.wrapped.shape )
+        for col in range ( self.wrapped.shape [ 0 ] ):
+            for row in range ( self.wrapped.shape [ 1 ] ):
+                order = None
+                distance = tuna.tools.calculate_distance ( ( col, row ), self.concentric_rings [ 0 ] )
+                # treat "border pixels"
+                for radius_index in range ( len ( sorted_radii ) ):
+                    border_distance = abs ( distance - sorted_radii [ radius_index ] )
+                    if border_distance <= thickness:
+                        if self.wrapped [ col ] [ row ] > half_channels:
+                            order = radius_index
+                        else:
+                            order = radius_index + 1
+                        break
+                if order != None:
+                    self.fsr [ col ] [ row ] = order
+                    continue
+
+                # treat "band pixels"
+                order = max_order
+                for radius_index in range ( len ( sorted_radii ) ):
+                    if distance < sorted_radii [ radius_index ]:
+                        self.fsr [ col ] [ row ] = radius_index
+                        break
+                    
+                #if self.distances [ col ] [ row ] == 0:
+                #    self.fsr [ col ] [ row ] = order
+                #    continue
+                #if self.wrapped [ col ] [ row ] < 1:
+                #    self.fsr [ col ] [ row ] = radius_index
+                #    continue
+
+        
     def create_fsr_map ( self ):
         """
         FSR distance array creation method.

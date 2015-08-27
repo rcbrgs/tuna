@@ -156,8 +156,7 @@ class high_resolution ( threading.Thread ):
 
         self.find_rings = tuna.tools.find_rings (
             self.tuna_can.array, min_rings = 2, ipython = self.ipython, plot_log = self.plot_log )
-        center = ( self.find_rings [ 'rings' ] [ 0 ] [ 0 ],
-                   self.find_rings [ 'rings' ] [ 0 ] [ 1 ] )
+        center = self.find_rings [ 'concentric_rings' ] [ 0 ]
         self.rings_center = center
         
         if self.verify_center != None:
@@ -168,13 +167,12 @@ class high_resolution ( threading.Thread ):
             if difference >= threshold:
                 return
 
-        if len ( self.find_rings [ 'rings' ] ) < 2 and self.dont_fit == False:
+        if len ( self.find_rings [ 'concentric_rings' ] [ 1 ] ) < 2 and self.dont_fit == False:
             self.log.error ( "Airy fitting requires at least 2 concentric rings. Blocking request to fit data." )
             self.dont_fit = True
             
         if self.dont_fit == False:
-            sorted_radii = sorted ( [ self.find_rings [ 'ring_fit_parameters' ] [ self.find_rings [ 'rings' ] [ 0 ] [ 3 ] [ 0 ] ] [ 2 ],
-                                      self.find_rings [ 'ring_fit_parameters' ] [ self.find_rings [ 'rings' ] [ 1 ] [ 3 ] [ 0 ] ] [ 2 ] ] )
+            sorted_radii = sorted ( self.find_rings [ 'concentric_rings' ] [ 1 ] )
             self.log.info ( "sorted_radii = {}".format (
                 [ "{:.2f}".format ( radius ) for radius in sorted_radii ] ) )
             
@@ -317,7 +315,8 @@ class high_resolution ( threading.Thread ):
 
         fsr_mapper = tuna.tools.phase_map.fsr_mapper ( self.borders_to_center_distances,
                                                        self.wrapped_phase_map,
-                                                       center )
+                                                       center,
+                                                       self.find_rings [ 'concentric_rings' ] )
         fsr_mapper.join ( )
         self.fsr_map = fsr_mapper.fsr
         self.order_map = tuna.io.can ( array = self.fsr_map.astype ( dtype = numpy.float64 ) )

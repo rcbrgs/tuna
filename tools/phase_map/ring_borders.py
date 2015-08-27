@@ -17,7 +17,7 @@ class ring_border_detector ( threading.Thread ):
 
         self.data = data
         self.center = center
-        self.noise = noise
+        self.noise = noise.array
         self.rings = rings
 
         self.borders = None
@@ -31,12 +31,53 @@ class ring_border_detector ( threading.Thread ):
         start = time.time ( )
 
         self.log.debug ( "self.center = {}".format ( self.center ) )
-        self.detect_discontinuities ( )
-        self.map_distances ( )
-        self.create_synthetic_borders ( )
+        #self.detect_discontinuities ( )
+        #self.map_distances ( )
+        #self.create_synthetic_borders ( )
+        self.aggregate_fits_into_borders ( )
+        self.map_distances_onto_borders ( )
         self.distances = tuna.io.can ( self.borders )
 
         self.log.debug ( "ring_border_detector took %ds." % ( time.time ( ) - start ) )
+
+    def aggregate_fits_into_borders ( self ):
+        self.borders = numpy.zeros ( shape = self.data.shape )
+        #for fit in self.rings [ 'ring_fit' ]:
+        #    self.borders += fit
+        for index in self.rings [ 'concentric_rings' ] [ 2 ]:
+            self.borders += self.rings [ 'ring_fit' ] [ index ]
+    def map_distances_onto_borders ( self ):
+        for ring in self.rings [ 'ring_fit_parameters' ]:
+            try:
+                radii.append ( ring [ 2 ] )
+            except:
+                radii = [ ring [ 2 ] ]
+        for col in range ( self.borders.shape [ 0 ] ):
+            for row in range ( self.borders.shape [ 1 ] ):
+                if self.borders [ col ] [ row ] == 0:
+                    continue
+                distance = tuna.tools.calculate_distance ( self.center, ( col, row ) )
+                nearest_ring = 0
+                nearest_distance = abs ( distance - radii [ 0 ] )
+                for entry in range ( len ( radii ) ):
+                    entry_distance = abs ( distance - radii [ entry ] )
+                if entry_distance < nearest_distance:
+                    nearest_distance = entry_distance
+                    nearest_ring = entry
+                self.borders [ col ] [ row ] = radii [ nearest_ring ]
+        
+    def detect_discontinuities ( self ):
+        """
+        From the ridge of the find_ring results, and a noise map, create a zeroed numpy ndarray and attribute 1 to pixels if they are noisy or in the ridge.
+        """
+        self.log.debug ( "Producing ring borders map." )
+        ring_borders_map = numpy.copy ( self.rings [ 'ridge' ] )
+        for col in range ( ring_borders_map.shape [ 0 ] ):
+            for row in range ( ring_borders_map.shape [ 1 ] ):
+                if ring_borders_map [ col ] [ row ] == 0:
+                    if self.noise.array [ col ] [ row ] == 1:
+                        ring_borders_map [ col ] [ row ] = 1
+        self.discontinuities = ring_borders_map
 
     def map_distances ( self ):
         """
@@ -57,15 +98,6 @@ class ring_border_detector ( threading.Thread ):
         self.log.info ( "Distances array created." )
 
         self.discontinuities_distances = borders_to_center_distances
-
-    def detect_discontinuities ( self ):
-        """
-        From the ridge of the find_ring results, and a noise map, create a zeroed numpy ndarray and attribute 1 to pixels if they are noisy or in the ridge.
-        """
-        self.log.debug ( "Producing ring borders map." )
-        ring_borders_map = numpy.copy ( self.rings [ 'ridge' ] )
-        ring_borders_map += self.noise.array
-        self.discontinuities = ring_borders_map
 
     def detect_discontinuities_old ( self ):
         """

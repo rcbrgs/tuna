@@ -20,8 +20,9 @@ class rings_finder ( object ):
     def __init__ ( self, array, plane, ipython, plot_log ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.DEBUG )
-        self.__version__ = '0.2.1'
+        self.__version__ = '0.2.2'
         self.changelog = {
+            '0.2.2' : "Added aggregation of concentric rings into a return structure.",
             '0.2.1' : "Added ridge_thickness to the fitted circles, improving fits' speed and precision.",
             '0.2.0' : "Added function to remove lumped sets from result. Added behaviour for exhaustive search for plane containing two rings."
         }
@@ -54,7 +55,9 @@ class rings_finder ( object ):
         fit_time = time.time ( )
         self.aggregate_fits ( )
         aggregate_time = time.time ( )
-        self.log.debug ( "rings_finder finished. segment() {:.1f}s, separate_rings() {:.1f}s, fit_circles() {:.1f}s, aggregate_fits() {:.1f}s.".format ( segment_time - start_time, separate_time - segment_time, fit_time - separate_time, aggregate_time - fit_time ) )
+        self.aggregate_concentric_rings ( )
+        concentric_time = time.time ( )
+        self.log.debug ( "rings_finder finished. segment() {:.1f}s, separate_rings() {:.1f}s, fit_circles() {:.1f}s, aggregate_fits() {:.1f}s, aggregate_concentric_rings() {:.1f}s..".format ( segment_time - start_time, separate_time - segment_time, fit_time - separate_time, aggregate_time - fit_time, concentric_time - aggregate_time ) )
         
     def segment ( self ):
         if len ( self.array.shape ) != 3:
@@ -139,7 +142,7 @@ class rings_finder ( object ):
                                                      circle,
                                                      ridge_thickness = pixel_set_tuple [ 1 ] )
             
-            self.log.info ( "ring_parameters {} = {}".format ( count, ring_parameters ) )
+            self.log.debug ( "ring_parameters {} = {}".format ( count, ring_parameters ) )
             if self.plot_log:
                 tuna.tools.plot ( ring_fit, "ring fit {}".format ( count ), self.ipython )
                 tuna.tools.plot ( pixel_set - ring_fit, "pixel_set {} - ring_fit {}".format (
@@ -179,7 +182,7 @@ class rings_finder ( object ):
                     ( self.result [ 'ring_fit_parameters' ] [ pixel_set_index ] [ 0 ],
                       self.result [ 'ring_fit_parameters' ] [ pixel_set_index ] [ 1 ] ), center )
                 if distance < distance_threshold:
-                    self.log.info ( "ring_fit {} center close to ring_fit {} center".format (
+                    self.log.debug ( "ring_fit {} center close to ring_fit {} center".format (
                         pixel_set_index, center_fit_index ) )
                     if abs ( self.result [ 'ring_fit_parameters' ] [ pixel_set_index ] [ 2 ] - \
                              self.result [ 'ring_fit_parameters' ] [ center_fit_index ] [ 2 ] ) < distance_threshold:
@@ -191,6 +194,7 @@ class rings_finder ( object ):
                 known_centers.append ( [ self.result [ 'ring_fit_parameters' ] [ pixel_set_index ] [ 0 ],
                                          self.result [ 'ring_fit_parameters' ] [ pixel_set_index ] [ 1 ],
                                          [ pixel_set_index ] ] )
+        self.log.debug ( "known_centers = {}".format ( known_centers ) )
 
         rings = [ ]
         for structure in known_centers:
@@ -204,12 +208,76 @@ class rings_finder ( object ):
             center_col /= len ( structure [ 2 ] )
             center_row /= len ( structure [ 2 ] )
             radius     /= len ( structure [ 2 ] )
-
+        
             try:
                 self.result [ 'rings' ].append ( ( center_col, center_row, radius, structure [ 2 ] ) )
             except KeyError:
                 self.result [ 'rings' ] =      [ ( center_col, center_row, radius, structure [ 2 ] ) ]
+        # at this point, aggregated all pixel_sets that share the same radius and center.
 
+    def aggregate_concentric_rings ( self ):
+        """
+        The most abstract and relevant information is the following structure: ( center, radii ), where center is a tuple of floats and radii is a list of floats.
+        Each spectrograph should have a single result of this kind, and that is generated here and stored in the member self.concentric_rings.
+
+        """
+
+        self.log.debug ( "self.result [ 'rings' ] = {}".format ( self.result [ 'rings' ] ) )
+        distance_threshold = min ( self.result [ 'ring_fit' ] [ 0 ].shape [ 0 ],
+                                   self.result [ 'ring_fit' ] [ 0 ].shape [ 1 ] ) * 0.1
+
+        concentric_rings = [ ]
+        for structure in self.result [ 'rings' ]:
+            struct_center = ( structure [ 0 ], structure [ 1 ] )
+            struct_fits = structure [ 3 ]
+            struct_radius = structure [ 2 ]
+
+            center_is_unknown = True
+            for another in concentric_rings:
+                another_fits = another [ 3 ]
+                if another_fits [ 0 ] == struct_fits [ 0 ]:
+                    continue
+                another_center = ( another [ 0 ], another [ 1 ] )
+                another_radius = another [ 2 ]
+                distance = tuna.tools.calculate_distance ( struct_center, another_center )
+                if distance < distance_threshold:
+                    center_is_unknown = False
+                    another [ 3 ].append ( struct_fits [ 0 ] )
+                    break
+                    
+            if center_is_unknown:
+                concentric_rings.append ( ( struct_center [ 0 ], struct_center [ 1 ], [ struct_radius ], [ struct_fits [ 0 ] ] ) )
+        self.log.debug ( "concentric_rings = {}".format ( concentric_rings ) )
+
+        # select best structure (with the most rings, with the most pixels )
+        max_num = 0
+        max_structure = None
+        for structure in concentric_rings:
+            num_fits = len ( structure [ 3 ] )
+            if num_fits > max_num:
+                max_num = num_fits
+                max_structure = structure
+        self.log.debug ( "max_structure = {}".format ( max_structure ) )
+
+        # generate averaged result
+        averaged_col = 0
+        averaged_row = 0
+        averaged_num = 0
+        radii = [ ]
+        sets = [ ]
+        for index in max_structure [ 3 ]:
+            averaged_col += self.result [ 'ring_fit_parameters' ] [ index ] [ 0 ]
+            averaged_row += self.result [ 'ring_fit_parameters' ] [ index ] [ 1 ]
+            averaged_num += 1
+            radii.append ( self.result [ 'ring_fit_parameters' ] [ index ] [ 2 ] )
+            sets.append ( index )
+        averaged_col /= averaged_num
+        averaged_row /= averaged_num
+        averaged_concentric_rings = ( ( averaged_col, averaged_row ), radii, sets )
+        
+        self.log.info ( "averaged_concentric_rings = {}".format ( averaged_concentric_rings ) )
+        self.result [ 'concentric_rings' ] = averaged_concentric_rings
+ 
     def construct_ring_center ( self, pixel_set ):
         """
         Returns estimats for the center and radius of a circle that is osculatory to the curve contained in the pixel_set.
@@ -450,13 +518,14 @@ class rings_finder ( object ):
 
         shape_len = array.shape [ 0 ] * array.shape [ 1 ]
         min_len = math.ceil ( array.shape [ 0 ] * array.shape [ 1 ] * 0.1 )
+        min_threshold = math.ceil ( array.shape [ 0 ] * array.shape [ 1 ] * 0.001 )
         ring_pixel_sets = [ ]
         old_len = 0
         while ( len ( ring_pixel_sets ) < len ( connected_pixels_sets ) ):
             min_len *= 0.9
             self.log.debug ( "min_len for a pixel set = {:.0f}".format ( min_len ) )
-            if min_len < 10:
-                self.log.error ( "min_len too small" )
+            if min_len < min_threshold:
+                self.log.debug ( "min_len below min_threshold" )
                 break
             ring_pixel_sets = [ ]
             for pixels_set in connected_pixels_sets:
@@ -466,7 +535,7 @@ class rings_finder ( object ):
                 for pixel in pixels_set:
                     set_array [ pixel [ 0 ] ] [ pixel [ 1 ] ] = 1
                 ring_pixel_sets.append ( set_array )
-            if len ( ring_pixel_sets ) > 1:
+            if len ( ring_pixel_sets ) == len ( connected_pixels_sets ):
                 break
 
         ring_pixel_sets = self.remove_lumped_pixel_sets ( ring_pixel_sets )
@@ -510,9 +579,9 @@ class rings_finder ( object ):
             good_cols_ratio = num_good_cols / num_cols
             average_thickness /= num_good_cols * 4
             self.log.debug ( "good_cols_ratio = {:.2f}".format ( good_cols_ratio ) )
-            self.log.info ( "average_thickness = {:.2f}".format ( average_thickness ) )
+            self.log.debug ( "average_thickness = {:.2f}".format ( average_thickness ) )
             if good_cols_ratio > 0.9:
-                self.log.info ( "pixel set probably contains a circle or arc." )
+                self.log.debug ( "pixel set probably contains a circle or arc." )
                 result.append ( ( pixel_set, average_thickness ) )
                 continue              
         return result
@@ -633,13 +702,15 @@ def find_rings ( array, min_rings = 1, plane = None, ipython = None, plot_log = 
     for effective_plane in range ( effective_array.shape [ 0 ] ):
         finder = rings_finder ( effective_array, effective_plane, ipython, plot_log )
         finder.execute ( )
-        if 'rings' not in list ( finder.result.keys ( ) ):
+        if 'concentric_rings' not in list ( finder.result.keys ( ) ):
+            self.log.warning ( "No concentric rings on plane {}.".format ( effective_plane ) )
             continue
-        if len ( finder.result [ 'rings' ] ) >= min_rings:
+        log.debug ( "concentric_rings [ 1 ] = {}".format ( finder.result [ 'concentric_rings' ] [ 1 ] ) )
+        if len ( finder.result [ 'concentric_rings' ] [ 1 ] ) >= min_rings:
             return finder.result
         elif best_so_far == None:
             best_so_far = finder.result
-        elif len ( finder.result [ 'rings' ] ) > len ( best_so_far [ 'rings' ] ):
+        elif len ( finder.result [ 'concentric_rings' ] [ 1 ] ) > len ( best_so_far [ 'concentric_rings' ] [ 1 ] ):
             best_so_far = finder.result
 
     self.log.warning ( "Could not find a plane with two rings on the cube!" )
