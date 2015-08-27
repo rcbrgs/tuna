@@ -37,4 +37,4 @@ def write ( array       = None,
         log.info ( "FITS file written at %s." % str ( file_name ) )
         return
 
-    self.log.error ( "No file_format '{}' known.".format ( file_format ) )
+    log.error ( "No file_format '{}' known.".format ( file_format ) )
