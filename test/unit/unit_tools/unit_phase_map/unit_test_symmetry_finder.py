@@ -14,10 +14,10 @@ class unit_test_symmetry_center_finder ( unittest.TestCase ):
         barycenter_detector.join ( )
         wrapped = barycenter_detector.result
         center = tuna.tools.phase_map.find_image_center_by_symmetry ( data = wrapped.array )
-        self.assertTrue ( center [ 0 ] > 250 )
-        self.assertTrue ( center [ 0 ] < 270 )
-        self.assertTrue ( center [ 1 ] > 210 )
-        self.assertTrue ( center [ 1 ] < 230 )
+        self.assertTrue ( center [ 1 ] > 250 )
+        self.assertTrue ( center [ 1 ] < 270 )
+        self.assertTrue ( center [ 0 ] > 210 )
+        self.assertTrue ( center [ 0 ] < 230 )
 
     def tearDown ( self ):
         pass

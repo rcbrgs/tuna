@@ -128,7 +128,8 @@ class high_resolution ( threading.Thread ):
 
         self.plot_log = plot_log
         self.ipython = IPython.get_ipython ( )
-        self.ipython.magic("matplotlib qt")
+        if self.ipython != None:
+            self.ipython.magic ( "matplotlib qt" )
         self.start ( )
         
     def run ( self ):
