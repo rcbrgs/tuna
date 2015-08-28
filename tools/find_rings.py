@@ -186,7 +186,7 @@ class rings_finder ( object ):
                         pixel_set_index, center_fit_index ) )
                     if abs ( self.result [ 'ring_fit_parameters' ] [ pixel_set_index ] [ 2 ] - \
                              self.result [ 'ring_fit_parameters' ] [ center_fit_index ] [ 2 ] ) < distance_threshold:
-                        self.log.info ( "ring_fit {} radius similar to ring_fit {} radius".format (
+                        self.log.debug ( "ring_fit {} radius similar to ring_fit {} radius".format (
                         pixel_set_index, center_fit_index ) )
                         center_is_unknown = False
                         structure [ 2 ].append ( pixel_set_index )
