@@ -35,6 +35,9 @@ class fsr_mapper ( threading.Thread ):
         self.start ( )
 
     def run ( self ):
+        """
+        Thread run method.
+        """
         start = time.time ( )
 
         #self.create_fsr_map ( )
@@ -43,6 +46,9 @@ class fsr_mapper ( threading.Thread ):
         self.log.debug ( "create_fsr_map() took %ds." % ( time.time ( ) - start ) )
 
     def create_fsr_map_from_rings ( self ):
+        """
+        Using the ring map and the wrapped phase map, this method will create a numpy.ndarray with the same dimensions as these inputs, where each pixel will have an integer value corresponding to how many times the spectrum has been "wrapped" at that pixel. 
+        """
         thickness = 10
         half_channels = numpy.max ( self.wrapped ) / 2
         max_order = len ( self.concentric_rings [ 1 ] )
@@ -132,6 +138,9 @@ class fsr_mapper ( threading.Thread ):
         self.fsr = fsr
 
     def estimate_ring_thickness ( self ):
+        """
+        Attempts to guess the "thickness" of a ring, that is, how far apart the concentric rings are.
+        """
         distances = numpy.unique ( self.distances.astype ( numpy.int16 ) )
         self.log.debug ( "distances = %s" % str ( distances ) )
 
@@ -165,6 +174,9 @@ class fsr_mapper ( threading.Thread ):
         return int ( max ( min ( thicknesses ) * 0.25, 20 ) )
         
     def estimate_ring_thickness_old ( self ):
+        """
+        Deprecated version.
+        """
         distances = numpy.unique ( self.distances.astype ( numpy.int16 ) )
         self.log.debug ( "distances = %s" % str ( distances ) )
 

@@ -10,7 +10,9 @@ import tuna
 class high_resolution ( threading.Thread ):
     """
     Creates and stores an unwrapped phase map, taking as input a raw data cube.
+
     Intermediary products are:
+
     - continuum
     - discontinuum
     - wrapped_phase_map
@@ -48,7 +50,7 @@ class high_resolution ( threading.Thread ):
         Creates the phase map from raw data obtained with a Fabry-Perot instrument.
 
         Parameters:
-        ---
+
         - array : the raw data. Must be a 3D numpy.ndarray.
         - noise_mask_radius : the distance from a noise pixel that will be marked as noise also (size of a circle around each noise pixel).
         - plot_log : boolean that specifies whether to matplotlib plot the partial results (which will be always available as ndarrays). Defaults to False.
@@ -133,6 +135,10 @@ class high_resolution ( threading.Thread ):
         self.start ( )
         
     def run ( self ):
+        """
+        :ref:`threading_label` method for starting execution.
+        """
+        
         continuum_detector = tuna.tools.phase_map.continuum_detector ( self.tuna_can,
                                                                        self.continuum_to_FSR_ratio )
         continuum_detector.join ( )
@@ -392,10 +398,16 @@ class high_resolution ( threading.Thread ):
         self.log.debug ( "create_unwrapped_phase_map() took %ds." % ( time.time ( ) - start ) )
 
     def verify_parabolic_model ( self ):
+        """
+        Since the parabolic model fits a second-degree equation in two variables to the data, which we expect to have a circular symmetry, the coefficients for each second-degree element in the fitted equation should be "close". This can be quantified as the ratio between these coefficients, which this method prints on the log.
+        """
         self.log.debug ( "Ratio between 2nd degree coefficients is: %f" % ( self.parabolic_model [ 'x2y0' ] / 
                                                                             self.parabolic_model [ 'x0y2' ] ) )
-
+        
     def plot ( self ):
+        """
+        This method relies on matplotlib and ipython being available, and renders the intermediary products of this pipeline as plots.
+        """
         tuna.tools.plot ( self.tuna_can.array, "original", self.ipython )
         tuna.tools.plot ( self.continuum.array, "continuum", self.ipython )
         tuna.tools.plot ( self.discontinuum.array, "discontinuum", self.ipython )
@@ -411,6 +423,26 @@ class high_resolution ( threading.Thread ):
         tuna.tools.plot ( self.wavelength_calibrated.array, "wavelength_calibrated", self.ipython )
         
 def profile_processing_history ( high_resolution, pixel ):
+    """
+    This function will return a structure containing the data for a given "position" throughout the pipeline. Since objects can have 2 or 3 dimensions, the data structure returns either a value or a 1 dimensional array for each product.
+
+    Parameters:
+
+    - high_resolution, a reference to the pipeline object;
+    - pixel, a tuple containing the values for column and row of the point to be investigated.
+
+    Returns a dictionary with 8 fields (each field corresponds to the result of a method of the high_resolution class):
+
+    - 'Original data', a numpy.ndarray;
+    - 'Discontinuum', a numpy.ndarray;
+    - 'wrapped phase map', a float;
+    - 'Order map', a float;
+    - 'Unwrapped phase map', a float;
+    - 'Parabolic fit', a float;
+    - 'Airy fit', a numpy.ndarray;
+    - 'Wavelength', a float.
+    """
+    
     profile = { }
 
     profile [ 0 ] = ( 'Original data', high_resolution.tuna_can.array [ :, pixel [ 0 ], pixel [ 1 ] ] )

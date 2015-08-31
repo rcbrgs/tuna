@@ -7,7 +7,20 @@ import tuna
 
 class wavelength_calibrator ( threading.Thread ):
     """
-    Responsible for producing the wavelength calibrated cube from the phase map cube.
+    This class is responsible for producing the wavelength calibrated cube from the phase map cube.
+
+    It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
+
+    Its constructor expects the following parameters:
+
+    - unwrapped_phase_map,
+    - calibration_wavelength,
+    - free_spectral_range,
+    - interference_order,
+    - interference_reference_wavelength,
+    - number_of_channels,
+    - rings_center,
+    - scanning_wavelength.
     """
     def __init__ ( self,
                    unwrapped_phase_map,
@@ -21,9 +34,10 @@ class wavelength_calibrator ( threading.Thread ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = '0.1.0'
+        self.__version__ = '0.1.1'
         self.changelog = {
-            '0.1.0'  : "First changelog version."
+            '0.1.1' : "Improved docstrings for Sphinx documentation.",
+            '0.1.0' : "First changelog version."
             }
 
         self.unwrapped_phase_map = unwrapped_phase_map
@@ -44,7 +58,7 @@ class wavelength_calibrator ( threading.Thread ):
 
     def calibrate ( self ):
         """
-        Goal is to discover the value of the wavelength at the apex of the parabola that fits the data.
+        This method's goal is to discover the value of the wavelength at the apex of the parabola that fits the data.
         """
         self.log.debug ( "self.interference_order = %f" % self.interference_order )
         self.log.debug ( "self.interference_reference_wavelength = %f" % self.interference_reference_wavelength )
@@ -88,6 +102,9 @@ class wavelength_calibrator ( threading.Thread ):
         self.calibrated = tuna.io.can ( array = calibrated )
 
     def run ( self ):
+        """
+        Method required by :ref:`threading_label`, which allows parallel exection in a separate thread.
+        """
         start = time.time ( )
 
         self.calibrate ( )

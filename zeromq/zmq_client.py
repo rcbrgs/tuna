@@ -1,9 +1,5 @@
 """
-Tuna's ZeroMQ client module.
-
-Classes:
-zmq_client -- zmq client that uses (stub) proxy for communication.
-Utilizing the lazy pirate pattern from 0MQ documentation.
+This module's scope is: ZeroMQ client.
 """
 
 import logging
@@ -11,10 +7,9 @@ import zmq
 
 class zmq_client ( object ):
     """
-    Sets zmq context, connects to (stub) proxy and sends messages.
+    This class' responsibility is to define a ZeroMQ client that connects to a proxy to mediate communication with other clients.
 
-    Public methods:
-    log -- sends message to logging server.
+    Utilizes the `lazy pirate pattern <http://zguide.zeromq.org/page:all#Client-Side-Reliability-Lazy-Pirate-Pattern>`_.
     """
 
     def __init__ ( self ):
@@ -26,13 +21,22 @@ class zmq_client ( object ):
         self.poller = None
         
     def close_socket ( self ):
+        """
+        This method's goal is to gracefully close the client connection with the proxy.
+        """
         self.zmq_socket_req.setsockopt ( zmq.LINGER, 0 )
         self.zmq_socket_req.close ( )
         self.poller.unregister ( self.zmq_socket_req )
 
     def send ( self, message ):
         """
-        Sends (byte string) message to ZMQ server.
+        This method's goal is to sends a message to the proxy.
+
+        Parameters:
+
+        - message, a string.
+
+        Returns a string, containing the answer, which should be "ACK".
         """
         self.open_socket ( )
         self.register_poller ( )
@@ -61,17 +65,16 @@ class zmq_client ( object ):
         return answer
 
     def open_socket ( self ):
+        """
+        This method's goal is to gracefully open the connection with the ZeroMQ proxy.
+        """
         self.zmq_socket_req = self.zmq_context.socket ( zmq.REQ )
         self.zmq_socket_req.connect ( "tcp://127.0.0.1:5000" )
 
     def register_poller ( self ):
+        """
+        This method's goal is to create a polling mechanism so that message passing is non-blocking.
+        """
         self.poller = zmq.Poller ( )
         self.poller.register ( self.zmq_socket_req,
                                zmq.POLLIN )
-
-
-def main ( ):
-    pass
-
-if __name__ == "__main__":
-    main ( )

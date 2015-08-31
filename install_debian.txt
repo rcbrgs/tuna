@@ -1,0 +1,16 @@
+# This is a command list to install Tuna's dependencies on Debian.
+# You can copy and paste these commands on your terminal, or just source this file.
+
+# To answer yes to every apt-get confirmation, uncomment the following line:
+#APT_OPT="-y"
+
+sudo apt-get $APT_OPT install python3
+sudo apt-get $APT_OPT install python3-astropy
+sudo apt-get $APT_OPT install python3-matplotlib
+sudo apt-get $APT_OPT install python3-numpy
+sudo apt-get $APT_OPT install python3-psutil
+sudo apt-get $APT_OPT install python3-pyfits
+sudo apt-get $APT_OPT install python3-pyqt4
+sudo apt-get $APT_OPT install python3-scipy
+sudo apt_get $APT_OPT install python3-sympy
+sudo apt-get $APT_OPT install python3-zmq

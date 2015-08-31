@@ -1,6 +1,5 @@
-
 """
-Plot the numpy array using matplotlib.
+The scope of this module is related to plotting data graphically.
 """
 
 import IPython
@@ -9,6 +8,13 @@ import matplotlib.pyplot as plt
 import numpy
 
 def log ( message ):
+    """
+    This function prints a input message if its debug value is True, otherwise it does nothing.
+
+    Parameters:
+
+    - message, a string.
+    """
     debug = False
     if debug:
         print ( message )
@@ -17,6 +23,12 @@ def plot ( data, title = "", ipython = None ):
     """
     Function that attempts to plot a numpy ndarray argument.
     Will plot a mosaic if data is 3D, a simple plot if 2D.
+
+    Parameters:
+
+    - data, a numpy.ndarray;
+    - title, a string;
+    - ipython, a reference to the running ipython environment.
     """
     if not ipython:
         ipython = IPython.get_ipython()
@@ -53,6 +65,10 @@ def plot_high_res ( high_res ):
     """
     Expects a high_res object.
     Will plot each of the intermediary products.
+
+    Parameters:
+
+    high_res, a reference to a :ref:`tuna_tools_phase_map_high_resolution_label` object.
     """
     
     ipython = IPython.get_ipython()

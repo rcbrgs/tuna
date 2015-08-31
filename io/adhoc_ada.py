@@ -12,8 +12,7 @@ class ada ( file_reader ):
     """
     Class for reading files in ADHOC format ADA.
 
-    The ADHOC file formats were developed for use with the ADHOC software solution,
-    developed at LAM by Jacques Boulesteix.
+    The ADHOC file formats were developed for use with the ADHOC software solution, developed at LAM by Jacques Boulesteix.
     """
 
     def __init__ ( self, 
@@ -22,6 +21,11 @@ class ada ( file_reader ):
         """
         Create ada object.
         """
+        self.__version__ = "0.1.0"
+        self.__changelog = {
+            '0.1.0' : "Initial changelogged version."
+            }
+        
         super ( ada, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
@@ -44,6 +48,9 @@ class ada ( file_reader ):
         return self.__metadata
 
     def get_photons ( self ):
+        """
+        Return __photons.
+        """
         return self.__photons
 
     def read ( self ):

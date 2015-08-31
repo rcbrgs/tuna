@@ -1,30 +1,42 @@
-# coding: latin-1
 """
 Tuna
 ====
 
-Is a data reduction solution for Fabry-Perot interferometer data, specially for astrophysics applications.
+Tuna is a data "reduction" solution for Fabry-Pérot interferometer data, specially for astrophysics applications.
+
+As of version v0.11.0 of Tuna, the scope of reduction that is processed covers the transformation of raw interferometer data into wavelength-calibrated data.
+
+Tuna is highly modular, and its modules are organized in subpackages.
 
 Subpackages
 -----------
 
+console
+    Modules related to background processes of Tuna.
 io
-    Wrappers for file formats typical in astrophysics (FITS, ADHOC) and the Tuna can file format, which is a Python pickle containing the numpy array with data and a dictionary with the metadata.
+    Wrappers for file formats typical in astrophysics (FITS, ADHOC) and the Tuna .can file format, which is a Python pickle containing a numpy array with image data and a Python dictionary with the metadata.
+log
+    Contains modules for creating and handling log destinations. Uses Python's logging module.
 models
     Models relevant for synthesizing and fitting Fabry-Pérot data.
+repo
+    Modules for remote access to files.
+test
+    Code for the testing of Tuna, using Python's unittest and nose.
 tools
     Modules with individual tasks, and modules with pre-designed pipelines for data reduction pipelines that use the tasks.
 zeromq
     Hub and client for accessing and processing data remotely.
 
-Indexing order
---------------
+Numpy indexing order
+--------------------
 
-From Tuna v0.11 onwards, we are adopting the convention mentioned in: http://docs.scipy.org/doc/numpy/reference/internals.html, so that rows will be the last item indexed. Therefore, cubes in tuna should be indexed as [ planes, columns, rows ].
+From Tuna v0.11.0 onwards, we are adopting the convention mentioned in: http://docs.scipy.org/doc/numpy/reference/internals.html, so that rows will be the last item indexed. Therefore, cubes in tuna should be indexed as [ planes, columns, rows ].
 """
 
-__version__ = '0.10.4'
+__version__ = '0.10.5'
 changelog = {
+    '0.10.5'  : "Docstring.",
     '0.10.4'  : "Added db link through the daemons.",
     '0.10.3'  : "Even less spammy.",
     '0.10.2'  : "Tweaked logging to be less spammy for user.",
@@ -44,6 +56,9 @@ import tuna.tools
 import tuna.zeromq
 
 class daemons ( object ):
+    """
+    This class allows to create a wrapper object for the console.backend class.
+    """
     def __init__ ( self ):
         super ( daemons, self ).__init__ ( )
         self.tuna_daemons = console.backend ( )

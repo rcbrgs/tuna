@@ -3,12 +3,23 @@ import math
 import tuna
 
 class b_ratio_estimator ( object ):
+    """
+    Estimator object for finding the b-ratio. 
+
+    The b-ratio is the ratio between the pixel size (of the interferometer pixel detector) and the focal length of the interferometers. In the absence of this information, it can be estimated by a geometrical relation between two "consecutive" rings in the same interferogram, which is what this estimator does.
+
+    Parameters:
+
+      - radii: list of concentric radii, sorted with smallest radius first.
+      - orders: list of interference orders corresponding to the listed radii.
+    """
     def __init__ ( self, radii, orders ):
         self.log = logging.getLogger ( __name__ )
-        self.__version__ = '0.1.1'
+        self.__version__ = '0.1.2'
         self.changelog = {
-            '0.1.1'  : "Error: was returning b**2 instead of its radix.",
-            '0.1.0'  : "First changelogged version."
+            '0.1.2' : "Added docstring.",
+            '0.1.1' : "Error: was returning b**2 instead of its radix.",
+            '0.1.0' : "First changelogged version."
             }
         
         self.orders = orders
@@ -18,6 +29,14 @@ class b_ratio_estimator ( object ):
         """
         The self.radii list should contain at least two radii.
         The innermost radii is of order "p", and the next one is of order "p-1".
+
+        The estimate is calculated as:
+
+        .. math::
+          b^2 = \dfrac { 2 p_c - 1 } { p_c^2 ( r_{c-1}^2 - r_c^2 ) - 2 p_c r_{c-1}^2 + r_{c-1}^2 }
+
+        (Thanks to Mr. Benoît Epinat for this model.)
+
         """
         if not isinstance ( self.radii, list ):
             self.log.error ( "radii should be a list!" )

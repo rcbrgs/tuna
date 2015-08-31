@@ -29,6 +29,9 @@ class barycenter_detector ( threading.Thread ):
         self.start ( )
 
     def run ( self ):
+        """
+        Method that wraps execution to be called from the thread's .start ( ) method.
+        """
         start = time.time ( )
 
         result = self.create_barycenter ( )
@@ -39,6 +42,9 @@ class barycenter_detector ( threading.Thread ):
         self.log.info ( "Barycenter detection took %ds." % ( time.time ( ) - start ) )
 
     def create_barycenter ( self ):
+        """
+        Attempts to find the barycenter for each pixel by fitting a 1D gaussian model to each pixel's spectral data, and then calculating the barycenter of the gaussian.
+        """
         barycenter = numpy.zeros ( shape = ( self.__array.shape [ 1 ],
                                              self.__array.shape [ 2 ] ) )
         planes_indexes = numpy.mgrid [ 0 : self.__array.shape [ 0 ] ]      
@@ -87,6 +93,13 @@ class barycenter_detector ( threading.Thread ):
         return barycenter
 
     def get_center_of_mass ( self, peak ):
+        """
+        Calculates the center-of-mass of an array, assuming as the distance one "unit" of distance per column.
+
+        Parameters:
+
+        - peak: a 1D numpy.ndarray.
+        """
         total_mass = numpy.sum ( peak )
         if ( total_mass == 0 or
              peak == [ ] ):
@@ -115,6 +128,9 @@ class barycenter_fast ( threading.Thread ):
         self.start ( )
 
     def run ( self ):
+        """
+        Method called by this object's threading.Thread.start ( ) method.
+        """
         start = time.time ( )
 
         result = self.create_barycenter_using_peak ( )
@@ -127,15 +143,17 @@ class barycenter_fast ( threading.Thread ):
     def create_barycenter_using_peak ( self ):
         """
         Returns a barycenter array from the input array, using the shoulder-to-shoulder peak channels as the relevant signals.
-        Consider the profile of a pixel has the following appearance:
-                   _   _
-                 _/ \_/ \
-        __      /        \    _
-          \    /          \__/ \    /
-           \__/                 \__/
 
-        01234567890123456789012345678
-                  1111111111222222222
+        Consider the profile of a pixel has the following appearance::
+          
+                      _   _
+                    _/ \_/ \ 
+           __      /        \    _
+             \    /          \__/ \    /
+              \__/                 \__/
+          
+           01234567890123456789012345678
+                     1111111111222222222
 
         The FWHH channels would encompass the channels 8 to 17.
         But we want more signal, so we extend the channel interval until the first channel that would belong to another "peak", so the channels considered for the barycenter are actually the channels 4 to 20, inclusive.
@@ -289,6 +307,13 @@ class barycenter_fast ( threading.Thread ):
             return channel + 1
 
     def print_fwhh ( self, fwhh_dict ):
+        """
+        Will output to the current logger, with debug priority, the values contained in the fwhh_dict parameter.
+
+        Parameters:
+
+        - fwhh_dict: structure with the same fields as specified in the self.get_fwhh method.
+        """
         self.log.debug ( "max_height = %d" % fwhh_dict['max_height'] )
         self.log.debug ( "half_height = %d" % fwhh_dict['half_height'] )
         self.log.debug ( "max_height_index = %d" % fwhh_dict['max_height_index'] )

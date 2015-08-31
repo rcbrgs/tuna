@@ -1,7 +1,5 @@
 """
-backend.py
-
-This program is a wrapper, meant to allow Tuna to be used in the Python interpreter or inside Python console programs.
+This module defines classes useful for running as background processes when Tuna is used.
 """
 
 import logging
@@ -11,6 +9,11 @@ import tuna
 from tuna.zeromq.zmq_proxy import zmq_proxy
 
 class zmq_daemon ( threading.Thread ):
+    """
+    This class encapsulates a ZeroMQ proxy running as an independent thread.
+
+    It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
+    """
     def __init__ ( self ):
         super ( zmq_daemon, self ).__init__ ( )
         self.daemon = True
@@ -21,6 +24,9 @@ class zmq_daemon ( threading.Thread ):
         self.zmq_proxy_instance.run ( )
 
 class backend ( object ):
+    """
+    This class wraps calls for all necessary background processes for Tuna.
+    """
     def __init__ ( self ):
         super ( backend, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )

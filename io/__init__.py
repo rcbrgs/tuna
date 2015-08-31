@@ -1,5 +1,5 @@
 """
-Provides access to Tuna's file_format namespace.
+This subpackage contains Tuna's file format namespace, io. Its scope is to collect modules that are mainly concerned with file formats, storage and metadata.
 """
 
 from .adhoc           import adhoc

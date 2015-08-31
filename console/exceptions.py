@@ -1,5 +1,5 @@
 """
-Module scope: handle exceptions' side effects.
+This module's scope contains: exceptions.
 """
 
 import inspect
@@ -8,7 +8,13 @@ import traceback
 
 def output_exception ( error ):
     """
-    Print information about the error raised as exception.
+    This method's goal is: to print information about the error raised as exception.
+
+    Parameters:
+
+    - *error*, a exception.
+
+    Returns: message, a string.
     """
     __version__ = '0.1.0'
     changelog = {

@@ -4,6 +4,11 @@ from .can import can
 from .fits import fits
 
 def read ( file_name ):
+    """
+    Will create a tuna can, and attempt to read the specified file_name using the can.read method.
+
+    Returns a tuna can.
+    """
     log = logging.getLogger ( __name__ )
     log.setLevel ( logging.INFO )
     log.debug ( "Creating a tuna can for file name %s." % file_name )
@@ -18,8 +23,18 @@ def write ( array       = None,
             file_name   = None, 
             metadata    = None,
             photons   = None ):
-    __version__ = '0.1.1'
+    """
+    Attempts to write a file using the specified input:
+
+    - array: a numpy.ndarray,
+    - file_format: a string specifying one of Tuna's known write formats (only "fits" is implemented so far),
+    - file_name: a string containing the destiny file path and name.
+    - metadata: a structure containing the metadata to be saved as fits headers.
+    - photons: a structure containing photon descriptions, in the same format as specified in tuna.io.can.convert_ndarray_into_table.    
+    """
+    __version__ = '0.1.2'
     changelog = {
+        '0.1.2' : "Added docstring.",
         '0.1.1' : "Added error message when file format is unknown."
         }
     log = logging.getLogger ( __name__ )

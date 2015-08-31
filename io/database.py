@@ -7,10 +7,15 @@ import traceback
 import tuna
 
 class database ( threading.Thread ):
+    """
+    Responsible for creating and maintaining a connection to a system's MySQL database. It is also the gateway through which queries are to be made.
+    
+    """
     def __init__ ( self ):
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = "0.1.10"
+        self.__version__ = "0.1.11"
         self.changelog = {
+            '0.1.11' : "Added docstrings.",
             '0.1.10' : "Added a connection check before selecting a record.",
             '0.1.9' : "Added cursor.close calls in several points.",
             '0.1.8' : "Added a traceback print in exception handler for select_record.",
@@ -45,6 +50,9 @@ class database ( threading.Thread ):
         self.stop ( )
 
     def run ( self ):
+        """
+        Executes once this object's thread is started. Will attempt to connect to a MySQL daemon, verify that it has the appropriate tables and keep the connection open until the object is stopped.
+        """
         self.log.debug ( "<%s>" % ( sys._getframe ( ).f_code.co_name ) )
                              
         # Check database connection is up.
@@ -84,22 +92,34 @@ class database ( threading.Thread ):
         self.log.debug ( "<%s>" % ( sys._getframe ( ).f_code.co_name ) )
 
     def stop ( self ):
+        """
+        Initiates shutdown sequence of the object, which will disconnect from the MySQL daemon and stop the thread.
+        """
         self.shutdown = True
         self.close_mysql_connection ( )
 
     # Connection methods.
 
     def check_mysql_connection ( self ):
+        """
+        Returns a boolean value that is False is the self.connection object is not True.
+        """
         if not self.connection:
             return False
         return True
 
     def close_mysql_connection ( self ):
+        """
+        Closes the connection to the MySQL daemon if it is existing.
+        """
         if self.check_mysql_connection ( ):
             self.connection.close ( )
             self.connection = None
 
     def open_mysql_connection ( self ):
+        """
+        Attempts to connect to the MySQL daemon. It expects the MySQL server to reside on the 'localhost', have a database 'tuna' and a user 'tuna' that has all rights on the database 'tuna', using the password 'tuna'.
+        """
         try:
             self.connection = pymysql.connect ( host        = 'localhost',
                                                 user        = 'tuna',
@@ -115,6 +135,9 @@ class database ( threading.Thread ):
     # Config methods. They suppose connection is fine.
 
     def check_tables ( self ):
+        """
+        Will verify that the database connected to contains the proper tables for running Tuna.
+        """
         try:
             cursor = self.connection.cursor ( )
             cursor.execute ( "show tables" )
@@ -271,12 +294,18 @@ class database ( threading.Thread ):
     # queue
            
     def enqueue ( self, data ):
+        """
+        Append a query to the query poller.
+        """
         self.log.debug ( "enqueue: {}.".format ( data ) )
         self.queue_lock.get ( )
         self.queue.append ( data )
         self.queue_lock.let ( )
 
     def dequeue ( self ):
+        """
+        Pop the first entry on the query queue, and attempt to process it.
+        """
         self.queue_lock.get ( )
         data = None
         if len ( self.queue ) > 0:
@@ -287,6 +316,10 @@ class database ( threading.Thread ):
             self.process ( data )
 
     def process ( self, data ):
+        """
+        Process the query request.
+        """
+        
         try:
             data [ 'function' ] ( *data [ 'args' ], **data [ 'kwargs' ] )
         except Exception as e:

@@ -6,6 +6,16 @@ import time
 import tuna
 
 class continuum_detector ( threading.Thread ):
+    """
+    This class is responsible for detecting the continuum at each pixel, for a given input data cube.
+
+    It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
+
+    Its constructor expects the following parameters:
+
+    - can, a :ref:`tuna_io_can_label` containing data from a spectrograph;
+    - continuum_to_FSR_ratio, a float encoding the ratio below which values are to be ignored.
+    """
     def __init__ ( self, can, continuum_to_FSR_ratio = 0.25 ):
         self.log = logging.getLogger ( __name__ )
         super ( self.__class__, self ).__init__ ( )
@@ -18,6 +28,10 @@ class continuum_detector ( threading.Thread ):
         self.start ( )
 
     def run ( self ):
+        """
+        Method required by :ref:`threading_label`, which allows parallel exection in a separate thread.
+        """
+
         start = time.time ( )
 
         continuum_array = numpy.zeros ( shape = ( self.can.array.shape [ 1 ], 
@@ -48,8 +62,6 @@ def median_of_lowest_channels ( continuum_to_FSR_ratio = 0.25,
     log = logging.getLogger ( __name__ )
 
     channels = max ( 1, int ( continuum_to_FSR_ratio * spectrum.shape [ 0 ] ) )
-    #log.debug ( "Using %d (out of %d) channels to compute the continuum." % ( channels,
-    #                                                                          spectrum.shape [ 0 ] ) )
 
     lowest = [ ]
     auxiliary = spectrum
@@ -67,6 +79,15 @@ def median_of_lowest_channels ( continuum_to_FSR_ratio = 0.25,
 def suppress_channel ( replacement,
                        array = numpy.ndarray,
                        channels = list ):
+    """
+    This function creates a copy of the input array, substituting the input channels list with the channels from the input replacement.
+
+    Parameters:
+
+    - replacement, a numpy.ndarray with the signal where channels are going to be replaced from;
+    - array, a numpy.ndarray that is going to be copied, and the original data is from;
+    - channels, a list of integers with the indexes of the channels to be substituted.
+    """
     result = numpy.copy ( array )
     for channel in channels:
         result [ channel ] = numpy.copy ( replacement.array [ channel ] )

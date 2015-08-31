@@ -6,9 +6,23 @@ import time
 import tuna
 
 class ring_border_detector ( threading.Thread ):
+    """
+    This class is responsible for detecting the "borders" of the rings contained in a interferogram. 
+
+    It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
+
+    Its constructor expects the following parameters:
+
+    - data, a numpy.ndarray;
+    - center, a tuple of 2 integers;
+    - noise, a :ref:`tuna_io_can_label` containing the noise map for data;
+    - rings, a dictionary, such as the one produced by  :ref:`tuna_tools_find_rings_2d_label` or equivalent. ;
+    - log_level, a valid :ref:`logging_label` level.
+    """
     def __init__ ( self, data, center, noise, rings, log_level = logging.INFO ):
-        self.__version__ = '0.1.0'
+        self.__version__ = '0.1.1'
         self.changelog = {
+            '0.1.1' : "Improved dosctrings for Sphinx documentation.",
             '0.1.0' : "Adapted to use find_ring."
             }
         self.log = logging.getLogger ( __name__ )
@@ -28,12 +42,14 @@ class ring_border_detector ( threading.Thread ):
         self.start ( )
 
     def run ( self ):
+        """
+        Method required by :ref:`threading_label`, which allows parallel exection in a separate thread.
+        
+        First, this tool will aggregate all circles contained in the input rings dictionary. Then, it will map the distances from each pixel in the borders to the center of the rings structure. This is saved as the distances numpy.ndarray.
+        """
         start = time.time ( )
 
         self.log.debug ( "self.center = {}".format ( self.center ) )
-        #self.detect_discontinuities ( )
-        #self.map_distances ( )
-        #self.create_synthetic_borders ( )
         self.aggregate_fits_into_borders ( )
         self.map_distances_onto_borders ( )
         self.distances = tuna.io.can ( self.borders )
@@ -41,12 +57,17 @@ class ring_border_detector ( threading.Thread ):
         self.log.debug ( "ring_border_detector took %ds." % ( time.time ( ) - start ) )
 
     def aggregate_fits_into_borders ( self ):
+        """
+        This method begins creating a zero-filled numpy.ndarray of the same shape as the input data. Then each ring_fit in the input rings dictionary is added to this numpy.ndarray, which is saved as self.borders.
+        """
         self.borders = numpy.zeros ( shape = self.data.shape )
-        #for fit in self.rings [ 'ring_fit' ]:
-        #    self.borders += fit
         for index in self.rings [ 'concentric_rings' ] [ 2 ]:
             self.borders += self.rings [ 'ring_fit' ] [ index ]
+            
     def map_distances_onto_borders ( self ):
+        """
+        This method will map the pixels belonging to the border with the value of the radius of its nearest ring. Essentially, the objective is to have every pixel that belongs to a certain "border" to have the same non-zero value, and for different ring borders to have different values.
+        """
         for ring in self.rings [ 'ring_fit_parameters' ]:
             try:
                 radii.append ( ring [ 2 ] )
@@ -66,39 +87,6 @@ class ring_border_detector ( threading.Thread ):
                     nearest_ring = entry
                 self.borders [ col ] [ row ] = radii [ nearest_ring ]
         
-    def detect_discontinuities ( self ):
-        """
-        From the ridge of the find_ring results, and a noise map, create a zeroed numpy ndarray and attribute 1 to pixels if they are noisy or in the ridge.
-        """
-        self.log.debug ( "Producing ring borders map." )
-        ring_borders_map = numpy.copy ( self.rings [ 'ridge' ] )
-        for col in range ( ring_borders_map.shape [ 0 ] ):
-            for row in range ( ring_borders_map.shape [ 1 ] ):
-                if ring_borders_map [ col ] [ row ] == 0:
-                    if self.noise.array [ col ] [ row ] == 1:
-                        ring_borders_map [ col ] [ row ] = 1
-        self.discontinuities = ring_borders_map
-
-    def map_distances ( self ):
-        """
-        Supposing there is an array for the discontinuities, and the center has been found, produce an array with the distances from each discontinuity pixel to the center.
-        """
-        borders_to_center_distances = self.discontinuities - self.noise.array
-        self.log.debug ( "distances array 0% created." )
-        last_percentage_logged = 0
-        for row in range ( borders_to_center_distances.shape [ 0 ] ):
-            percentage = 10 * int ( row / borders_to_center_distances.shape [ 0 ] * 10 )
-            if percentage > last_percentage_logged:
-                self.log.debug ( "distances array %d%% created." % percentage )
-                last_percentage_logged = percentage
-            for col in range ( borders_to_center_distances.shape [ 1 ] ):
-                if borders_to_center_distances [ row ] [ col ] == 1:
-                    borders_to_center_distances [ row ] [ col ] = sqrt ( ( row - self.center [ 0 ] ) ** 2 +
-                                                                         ( col - self.center [ 1 ] ) ** 2 )
-        self.log.info ( "Distances array created." )
-
-        self.discontinuities_distances = borders_to_center_distances
-
     def detect_discontinuities_old ( self ):
         """
         From an unwrapped map and a noise map, create a map where pixels have 1 if they are noisy or have neighbours with a channel more distant than the channel distance threshold, 0 otherwise.
@@ -124,32 +112,3 @@ class ring_border_detector ( threading.Thread ):
                             break
 
         self.discontinuities = ring_borders_map
-
-    def create_synthetic_borders ( self ):
-        """
-        From the distances map, find all distance ranges, simplify them to a single value per range, and produce a map with all pixels in that distance.
-        """
-        array = numpy.zeros ( shape = self.discontinuities_distances.shape )
-        # collect all distinct radii values in a list
-        distinct_radii = [ ]
-        for row in range ( array.shape [ 0 ] ):
-            for col in range ( array.shape [ 1 ] ):
-                element = int ( self.discontinuities_distances [ row ] [ col ] )
-                if element != 0:
-                    if element not in distinct_radii:
-                        distinct_radii.append ( element )
-        sorted_radii = sorted ( distinct_radii )
-
-        # Produce an array where pixels distant any sorted radii from the center have a value of 1.
-        for row in range ( array.shape [ 0 ] ):
-            for col in range ( array.shape [ 1 ] ):
-                distance = sqrt ( ( self.center [ 0 ] - row ) ** 2 +
-                                  ( self.center [ 1 ] - col ) ** 2 )
-                #for radius in collapsed_radii:
-                for radius in sorted_radii:
-                    # These values were chosen so that the border will necessarily fall within a "band" with halfwidth of 2^1/2 pixels.
-                    if ( ( distance > radius - 1.5 ) and
-                         ( distance < radius + 1.5 ) ):
-                        array [ row ] [ col ] = radius
-
-        self.borders = array

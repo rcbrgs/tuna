@@ -29,12 +29,21 @@ class fits ( file_reader ):
         self.__photons = photons
 
     def get_array ( self ):
+        """
+        Returns self.__array.
+        """
         return self.__array
 
     def get_metadata ( self ):
+        """
+        Returns self.__metadata
+        """        
         return self.__metadata
 
     def read ( self ):
+        """
+        Attempts to read the file specified in the constructor's file_name as a FITS file.
+        """
         self.log.debug ( tuna.log.function_header ( ) )
 
         if self.__file_name == None:
@@ -62,6 +71,13 @@ class fits ( file_reader ):
             self._is_readable = False
 
     def write ( self, file_name = None ):
+        """
+        Attempts to write the object's current self.__array and self.__metadata as a FITS file named file_name.
+
+        Parameters:
+
+        file_name: a string, containing a valid path for an yet non-existing file.
+        """
         self.log.debug ( tuna.log.function_header ( ) )
 
         if self.__file_name:
@@ -104,6 +120,9 @@ class fits ( file_reader ):
                     sys.exit ( 1 )
 
     def write_metadata_table ( self ):
+        """
+        Attempts to write self.__metadata as a FITS table file.
+        """
         self.log.debug ( tuna.log.function_header ( ) )
 
         if not self.__metadata:
@@ -133,6 +152,9 @@ class fits ( file_reader ):
         hdu_list.writeto ( "metadata_" + self.__file_name )
 
     def write_photons_table ( self ):
+        """
+        Attempts to write self.__photons as a FITS table file.
+        """
         self.log.debug ( tuna.log.function_header ( ) )
 
         if self.__photons == None:

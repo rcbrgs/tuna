@@ -1,6 +1,15 @@
 import numpy
 
 def get_pixel_neighbours ( position = ( int, int ), array = numpy.ndarray, distance_threshold = 1 ):
+    """
+    This function will return a list of tuples of 2 integers where each tuple encodes the position of a neighbour of the input position in the input array.
+
+    Parameters:
+
+    - position, a tuple of 2 integers;
+    - array, a numpy.ndarray;
+    - distance_threshold, a integer with default value of 1.
+    """
     __version__ = '0.1.0'
     changelog = {
         '0.1.0' : "Added distance_threshold_parameter, so users can get neighbours with arbitrary distance."

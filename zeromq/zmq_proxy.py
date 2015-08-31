@@ -1,10 +1,5 @@
 """
-Tuna's ZeroMQ proxy module.
-
-Its main responsibility is to forward messages, be it to other Tuna modules, or to external services.
-
-Classes:
-zmq_bus -- (stub) zmq proxy
+This module's scope is: to mediate communication between ZeroMQ clients.
 """
 
 import time
@@ -12,10 +7,8 @@ import zmq
 
 class zmq_proxy ( ):
     """
-    (stub) zmq proxy: sets zmq context, binds to port 5000, and orchestrates tuna messages.
-
-    Public methods:
-    run -- enters the orchestration loop.
+    This class' responsibility is to setup a ZeroMQ proxy and mediate message passing between its clients.
+    It binds to port 5000.
     """
 
     def __init__ ( self ):
@@ -29,7 +22,11 @@ class zmq_proxy ( ):
 
     def __call_log ( self, msg ):
         """
-        Dispatch msg to log server.
+        This method's goal is to dispatch the input message to a log server.
+
+        Parameters:
+
+        - msg, a string.
         """
         self.__zmq_socket_req = self.__zmq_context.socket ( zmq.REQ )
         self.__zmq_socket_req.setsockopt ( zmq.LINGER, 0 )
@@ -46,26 +43,32 @@ class zmq_proxy ( ):
 
     def __call_print ( self, msg ):
         """
-        Print received message.
+        This method's goal is to print a received message. It is meant as a fallback in case the log server is unavailable.
         """
         print ( "zmq_proxy received the message '%s'." % msg )
 
 
     def check_ACK ( self, ack_msg ):
+        """
+        This method's goal is to verify that the input ZeroMQ message contains the string "ACK".
+
+        Parameters:
+
+        - *ack_msg*, a byte string.
+        """
         if ack_msg.decode ( "utf-8" ) != 'ACK':
             print ( u'Something is fishy!' )
             print ( u'Received: "%s" from %s.' % answer.decode("utf-8"), msg_destination )
             print ( u"Expected: 'ACK'" )
 
     def close ( self ):
+        """
+        This method's goal is to gracefully shutdown the ZeroMQ proxy.
+        """
         print ( "Shutting down zmq_proxy." )
         self.__lock = False
 
     def __del__ ( self ):
-        """
-        Gracefully shutdown this process.
-        """
-
         self.__lock = False
 
         self.__zmq_socket_req = self.__zmq_context.socket ( zmq.REQ )
@@ -80,11 +83,10 @@ class zmq_proxy ( ):
 
     def run ( self ):
         """
-        Orchestrate incoming messages.
-
-        This method will run in loop, listening to messages and dispatching them as appropriated.
-
-        destination_call_table is a dictionary associating target strings with the functions to be run. The services responsible for a given target can be changed here without changing the clients.
+        This method's goal is to orchestrate incoming messages.
+        It  will run in loop, listening to messages and dispatching them as appropriated.
+        
+        Note to developers: destination_call_table is a dictionary associating target strings with the functions to be run. The services responsible for a given target can be changed here without changing the clients.
         """
 
         started = False
@@ -117,9 +119,3 @@ class zmq_proxy ( ):
                 destination_call_table [ msg_destination ] ( msg_contents )
                 self.__zmq_socket_rep.send ( b'ACK' )
 
-def main ( ):
-    standalone_zmq_proxy = zmq_proxy ( )
-    standalone_zmq_proxy.run ( )
-
-if __name__ == "__main__":
-    main ( )

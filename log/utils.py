@@ -51,6 +51,13 @@ def script_name ( ):
     return sys._getframe ( ).f_back.f_code.co_filename.split ( "/" ) [ -1 ]
 
 def set_path ( file_name ):
+    """
+    Configures the path and file name where the log output will be saved.
+
+    Parameters:
+
+    - file_name: string, containing a valid path and file name for a text file, where new log entries will be appended.
+    """
     log = logging.getLogger ( __name__ )
     log.setLevel ( logging.INFO )
 

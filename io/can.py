@@ -10,6 +10,9 @@ import time
 import tuna
 
 class can ( file_reader ):
+    """
+    The Tuna can is a image and metadata file format. It consists of a serializable object (instantiated from this class), where convenience methods (such as algebraic procedures on its arrays) are defined.
+    """
     def __init__ ( self, 
                    array = None,
                    file_name = None,
@@ -19,8 +22,9 @@ class can ( file_reader ):
         super ( can, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.2'
+        self.__version__ = '0.1.3'
         self.changelog = {
+            '0.1.3' : "Docstrings added.",
             '0.1.2' : "Do not update db if that is going to update a file_name to None.",
             '0.1.1' : "Feed info into db upon update, added file_type property.",
             '0.1.0' : "Initial changelogged version."
@@ -59,6 +63,26 @@ class can ( file_reader ):
         return result
 
     def convert_ndarray_into_table ( self ):
+        """
+        Converts a numpy.ndarray into a photon table, where the value contained in the array, for each voxel, is considered as a photon count. 
+        
+        The result is saved in self.photons, which has the following structure (example):
+
+| self.photons = [ { 'channel' : 10,
+|                   'row'     : 128,
+|                   'col'     : 1,
+|                   'photons' : 1024 },
+|                 { 'channel' : 11,
+|                   'row'     : 128,
+|                   'col'     : 1,
+|                   'photons' : 700 },
+|                 ...
+|                 { 'channel' : 30,
+|                   'row'     : 128,
+|                   'col'     : 128,
+|                   'photons' : 0 } ]
+
+        """
         self.log.debug ( tuna.log.function_header ( ) )
 
         start = time.time ( )
@@ -88,6 +112,11 @@ class can ( file_reader ):
         self.log.debug ( "debug: convert_ndarray_into_table() took %ds." % ( time.time ( ) - start ) )
 
     def convert_table_into_ndarray ( self ):
+        """
+        Accumulates values from a table (required to be in the same structure as specified in the method convert_ndarray_into_table) into a numpy array.
+
+        It will create an array with the minimal dimensions necessary to hold all photons; therefore if you have "photonless" regions in a data cube, and convert it to a table, then back into a cube, you might end with a numpy.ndarray with a different shape than you started.
+        """
         self.log.debug ( tuna.log.function_header ( ) )
 
         planes = 0
@@ -139,18 +168,27 @@ class can ( file_reader ):
                                  'file_type' : file_type } )
 
     def fliplr ( self ):
+        """
+        Wrapper around numpy.fliplr, which flips a 2D array from left to right (the rightmost column becomes the leftmost one). This is applied to each plane of a cube.
+        """
         result = numpy.ndarray ( shape = self.array.shape )
         for plane in range ( self.array.shape [ 0 ] ):
             result [ plane ] = numpy.fliplr ( self.array [ plane ] )
         self.array = result
 
     def flipud ( self ):
+        """
+        Wrapper around numpy.flipud, which flips a 2D array from up to down (the last line becomes the first). This is applied to each plane of a cube.
+        """
         result = numpy.ndarray ( shape = self.array.shape )
         for plane in range ( self.array.shape [ 0 ] ):
             result [ plane ] = numpy.flipud ( self.array [ plane ] )
         self.array = result
 
     def info ( self ):
+        """
+        Outputs (to the current logging.info handler) some metadata about the current can.
+        """
         self.log.debug ( tuna.log.function_header ( ) )
 
         self.log.info ( "file_name = %s" % self.file_name )
@@ -163,6 +201,10 @@ class can ( file_reader ):
         self.log.info ( "interference_reference_wavelength = %s" % str ( self.interference_reference_wavelength ) )
 
     def read ( self ):
+        """
+        Convenience function to read a file content's into a can. 
+        Will sequentially attempt to read the file as an .ADT, .fits, .AD2 and .AD3 formatted file. The first attempt to succeed is used.
+        """
         self.log.debug ( tuna.log.function_header ( ) )
 
         self.log.debug ( "line %d, before attempting to read file, %s" % ( tuna.log.line_number ( ),
@@ -202,6 +244,9 @@ class can ( file_reader ):
         self.log.debug ( "After attempting to read file, " + tuna.io.system.status ( ) )
 
     def update ( self ):
+        """
+        Clears current metadata, and regenerates this information based on the current contents of the can's array and photon table.
+        """
         self.log.debug ( tuna.log.function_header ( ) )
 
         if ( ( not isinstance ( self.array, numpy.ndarray ) ) and

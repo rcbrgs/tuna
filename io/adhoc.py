@@ -1,14 +1,20 @@
+"""
+This module is responsible for opening ADHOC files, which typically have the .AD2 (for two-dimensional data) and .AD3 (for tri-dimensional data).
+
+It is based on a module provided by Benoît Epinat, and integrated into Tuna in 2015.
+"""
+
 import logging
 import os
 import numpy
 import numpy as np
-#from scipy import constants as cst
 import pyfits as pf
 from pyfits import Column
 import sys
 from time import sleep
 import matplotlib as mpl
 from matplotlib import pyplot as plt
+
 from .file_reader import file_reader
 import tuna
 
@@ -21,9 +27,7 @@ class adhoc ( file_reader ):
     Class for reading files in one of the ADHOC file formats (AD2 or AD3).
 
     First implemented by Benoit Epinat from LAM.
-    The ADHOC file formats were developed for use with the ADHOC software solution,
-    developed at LAM by Jacques Boulesteix.
-    Please check the file adhoc_file_format.eml for documentation regarding this format.
+    The ADHOC file formats were developed for use with the ADHOC software solution, developed at LAM by Jacques Boulesteix.
     """
 
     def __init__ ( self, 
@@ -34,8 +38,9 @@ class adhoc ( file_reader ):
         super ( adhoc, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.0'
+        self.__version__ = '0.1.1'
         self.changelog = {
+            '0.1.1' : "Improved docstrings.",
             '0.1.0' : "Initial changelog."
             }
 
@@ -46,6 +51,10 @@ class adhoc ( file_reader ):
         self.__file_object = None
 
     def discover_adhoc_type ( self ):
+        """
+        This method will attempt to open the file named file_name, get the first 256 bytes as its trailer, and cast its remaining contents into a numpy array of numpy.float32 values.
+        Since the trailer contains information regarding the dimensionality of the data, this information is also retrieved from the file.
+        """
         self.log.debug ( tuna.log.function_header ( ) )
 
         if self.__file_name:
@@ -82,9 +91,15 @@ class adhoc ( file_reader ):
             self.__adhoc_type = adhoc_file['trailer']['number_of_dimensions'][0]            
 
     def get_array ( self ):
+        """
+        This method returns the current value for self.__array.
+        """
         return self.__array
 
     def read ( self ):
+        """
+        This method will attempt to discover the ADHOC type (which corresponds to its dimensionality), and when possible call the appropriate method to read its contents.
+        """
         self.log.debug ( tuna.log.function_header ( ) )
 
         if self.__file_name == None:
@@ -116,7 +131,6 @@ class adhoc ( file_reader ):
     def read_adhoc_2d ( self ):
         """
         Attempts to read the contents of __file_object as a 2D ADHOC file.
-
         """
         self.log.debug ( tuna.log.function_header ( ) )
 
@@ -174,12 +188,18 @@ class adhoc ( file_reader ):
 
     def read_adhoc_3d ( self, xyz = True ):
         """
-        Parameters
-        ----------
+        Attempts to read the contents of __file_object as a tri-dimensional ADHOC file.
+
+        Parameters:
+
         filename: string, Name of the input file
+
         xyz = True: boolean (optional)
+
               False to return data in standard zxy adhoc format
+
               True  to return data in xyz format (default)
+
         """
         self.log.debug ( tuna.log.function_header ( ) )
 

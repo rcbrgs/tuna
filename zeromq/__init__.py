@@ -1,7 +1,5 @@
 """
-zeromq.py
-
-Provides access to Tuna's zeromq namespace.
+This namespace aggregates the scopes: ZeroMQ client, ZeroMQ proxy.
 """
 
 from .zmq_client import zmq_client

@@ -1,14 +1,13 @@
-"""
-This tool tries to find the center of an image by finding the row and the column that split the image with the highest degree of symmetry.
-
-If a cube is received, it will use the first plane as its input.
-"""
-
 import logging
 import numpy
 import time
 
 class image_center_by_symmetry ( object ):
+    """
+    This tool tries to find the center of an image by finding the row and the column that split the image with the highest degree of symmetry.
+    
+    If a cube is received, it will use the first plane as its input.
+    """
     def __init__ ( self, array = numpy.ndarray ):
         super ( image_center_by_symmetry, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )

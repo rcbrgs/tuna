@@ -42,6 +42,8 @@ class rings_finder ( object ):
         
     def execute ( self ):
         """
+        This is the main algorithm.
+
         1. segment the image in ring and non-ring regions.
         2. Create a separate array for each individual ring.
         3. Calculate the center and the average radius.

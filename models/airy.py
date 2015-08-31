@@ -1,17 +1,3 @@
-# coding: latin-1
-"""
-Airy function and fit.
-
-The Airy function (or as Wikipedia calls it, the transmittance function of a Fabry-Pérot interferometer) modeled here is:
-
-T = 1 / ( 1 + F sin^2 ( delta / 2 ) )
-
-The airy_function will return a dataset containing the values for an Airy function with the given parameters.
-
-The airy_fitter will spawn a thread that will fit the Airy function to the given data, using the given parameters as initial guesses.
-
-"""
-
 import copy
 import logging
 import math
@@ -34,33 +20,36 @@ def airy_plane ( b_ratio = 9.e-6,
     """
     The Airy function being modeled is:
 
-    I = C + I_0 / ( 1 + ( 4F^2 / pi^2 ) * sin^2 ( phi / 2 )
+    .. math::
+      I = C + \dfrac{I_0}{1 + \dfrac{4F^2}{\pi^2} \sin^2 (\phi/2)}
 
     From the input parameters, this function will return a dataset with the value for I calculated on each point. The intention is to produce a tridimensional array where each plane is an image with rings equivalent to the ones in Fabry-Pérot interferograms.
 
     To calculate phi:
 
-    phi = 2 pi * ( 2 n e_i cos ( theta ) ) / lambda_c
+    .. math::
+      \phi = 2 \pi \dfrac{ 2 n e_i \cos (theta)} {\lambda_c }
 
     Where:
 
-    n e_i = n ( e + i delta_e )
-
-    theta = tan^-1 ( b r ), b = s / f
+    .. math::
+      n e_i = n ( e + i \delta_e )
+      
+      theta = tan^{-1} ( b r ), b = s / f
 
 
     Parameters: (In parentheses, the equation variable the paremeter corresponds to)
-    -----------
-    b_ratio:      the ratio between the pixel size and the camera focal length (b).
-    center_col:   the column for the center of the rings, in pixels.
-    center_row:   the row for the center of the rings, in pixels.
-    continuum:    the value of the background intensity.
-    finesse:      (F).
-    gap:          the distance between the étalons, in microns (n e_i).
-    intensity:    the beam maximum intensity (I_0).
-    shape_cols:   the number of columns for the 2D shape (columns, rows) to be generated. 
-    shape_rows:   the number of rows for the 2D shape (columns, rows) to be generated. 
-    wavelength:   in microns ( lambda_c ).
+
+    - b_ratio:      the ratio between the pixel size and the camera focal length (b).
+    - center_col:   the column for the center of the rings, in pixels.
+    - center_row:   the row for the center of the rings, in pixels.
+    - continuum:    the value of the background intensity.
+    - finesse:      (F).
+    - gap:          the distance between the étalons, in microns (n e_i).
+    - intensity:    the beam maximum intensity (I_0).
+    - shape_cols:   the number of columns for the 2D shape (columns, rows) to be generated. 
+    - shape_rows:   the number of rows for the 2D shape (columns, rows) to be generated. 
+    - wavelength:   in microns ( lambda_c ).
     """
 
     log = logging.getLogger ( __name__ )
@@ -93,6 +82,14 @@ def airy_plane ( b_ratio = 9.e-6,
     return result
 
 def least_mpyfit ( p, args ):
+    """
+    Wrapper function around the airy function proper, so that the API for using mpyfit is obeyed.
+
+    Parameters:
+
+    - p: tuple, containing the b_ratio, center_col, center_row, continuum, finesse, gap and intensity values.
+    - args: tuple, containing the shape_cols, shape_rows, wavelength, data and flat values.
+    """
     log = logging.getLogger ( __name__ )
     log.debug ( "least_mpyfit" )
     
@@ -126,6 +123,10 @@ def least_mpyfit ( p, args ):
     return ( residue.flatten ( ) )
 
 class airy_fitter ( threading.Thread ):
+    """
+    Airy function fitter. It will spawn a thread that will fit the Airy function to the given data, using the given parameters as initial guesses.
+    """
+
     def __init__ ( self,
                    b_ratio,
                    center_col,
@@ -138,8 +139,9 @@ class airy_fitter ( threading.Thread ):
                    
         self.log = logging.getLogger ( __name__ )
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = '0.1.3'
+        self.__version__ = '0.1.4'
         self.changelog = {
+            '0.1.4' : "Added docstrings.",
             '0.1.3' : "Tweaked xtol to 1e-6, works on some tests.",
             '0.1.2' : "Changedx xtol from 1e-10 to 1e-5 to improve speed.",
             '0.1.1' : "Refactored algorithm for getting lowest percentile into another module.",

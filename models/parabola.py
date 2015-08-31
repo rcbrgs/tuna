@@ -66,4 +66,7 @@ class parabolic_fitter ( threading.Thread ):
         self.model = polynomial_fit ( iia_x_dimension, iia_y_dimension )
 
     def get_center ( self ):
+        """
+        Returns the coordinates for the minimun value on each axis, which should correspond to the center.
+        """
         return ( numpy.argmin ( self.model [ :, 0 ] ), numpy.argmin ( self.model [ 0, : ] ) )

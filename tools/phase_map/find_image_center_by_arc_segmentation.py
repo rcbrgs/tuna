@@ -1,9 +1,3 @@
-"""
-This tool tries to find the center of an image by finding the intersection of rays computed from arc segments.
-
-If a cube is received, it will use the first plane as its input.
-"""
-
 import logging
 from math import acos, sqrt
 import numpy
@@ -14,6 +8,11 @@ import time
 import tuna
 
 class arc_segmentation_center_finder ( threading.Thread ):
+    """
+    This tool tries to find the center of an image by finding the intersection of rays computed from arc segments.
+    
+    If a cube is received, it will use the first plane as its input.
+    """
     def __init__ ( self, wrapped, noise ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
@@ -200,6 +199,15 @@ class arc_segmentation_center_finder ( threading.Thread ):
             return ( self.__center_row, self.__center_col )
 
     def get_most_distant_points ( self, tl_points = [ ] ):
+        """
+        Finds the pair of points that are most distant in a list of points, by calculating the distance between each possible pair.
+
+        Parameters:
+
+        - tl_points: list, containing tuples containing 2 integers each.
+
+        Returns the first two points that are separated by the largest distance.
+        """
         max_distance = 0
         max_origin = 0
         max_destiny = 0
@@ -214,6 +222,11 @@ class arc_segmentation_center_finder ( threading.Thread ):
         return [ tl_points [ max_origin ], tl_points [ max_destiny ] ]
 
     def get_random_chord_bisector ( self ):
+        """
+        Attempts to find a perpendicular bisector for line segments determined from two random points from the current border.
+
+        Returns a sympy.Line, or None.
+        """
         random_points = set ( [ ] )
         while ( len ( random_points ) < 3 ):
             self.log.debug ( "len ( random_points ) = %d" % len ( random_points ) )
@@ -230,6 +243,9 @@ class arc_segmentation_center_finder ( threading.Thread ):
         return chord_segment.perpendicular_bisector ( )
 
     def get_random_point_in_border ( self ):
+        """
+        Returns a tuple of 2 integers, corresponding to a random point from the current border.
+        """
         random_row = random.randint ( 0, self.wrapped.shape [ 0 ] - 1 )
         random_col = random.randint ( 0, self.wrapped.shape [ 1 ] - 1 )
         random_color = self.__ring_borders [ random_row ] [ random_col ]
