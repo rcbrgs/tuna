@@ -4,8 +4,12 @@ The scope of this module is related to plotting data graphically.
 
 import IPython
 import math
-import matplotlib.pyplot as plt
 import numpy
+
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    raise ImportError ( "This module requires matplotlib." )
 
 def log ( message ):
     """
@@ -92,3 +96,4 @@ def plot_high_res ( high_res ):
         plot ( high_res.airy_fit_residue.array, title = "airy fit residue", ipython = ipython )
     plot ( high_res.substituted_channels.array, title = "substituted channels", ipython = ipython )
     plot ( high_res.wavelength_calibrated.array, title = "wavelength calibrated", ipython = ipython )
+

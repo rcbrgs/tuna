@@ -6,11 +6,13 @@ import unittest
 
 class unit_test_pipeline_high_resolution ( unittest.TestCase ):
     def setUp ( self ):
-        tuna.log.set_path ( "nose.log" )
+        self.here = os.getcwd ( )
+        self.home = os.path.expanduser ( "~" )
+        tuna.log.set_path ( self.home + "/nose.log" )
 
     def test_pipeline ( self ):
         #file_name = "test/unit/unit_io/partial_4_planes.fits"
-        file_name = "test/unit/unit_io/adhoc_3_planes.fits"
+        file_name = self.here + "/tuna/test/unit/unit_io/adhoc_3_planes.fits"
         file_name_unpathed = file_name.split ( "/" ) [ -1 ]
         file_name_prefix = file_name_unpathed.split ( "." ) [ 0 ]
 

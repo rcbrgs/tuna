@@ -1,0 +1,11 @@
+astropy
+ipython
+matplotlib
+numpy
+psutil
+pyfits
+pymysql
+#PySide
+pyzmq
+scipy
+sympy

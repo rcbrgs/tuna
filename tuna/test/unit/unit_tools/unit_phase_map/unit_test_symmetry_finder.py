@@ -6,10 +6,12 @@ import unittest
 
 class unit_test_symmetry_center_finder ( unittest.TestCase ):
     def setUp ( self ):
-        tuna.log.set_path ( "nose.log" )
+        self.here = os.getcwd ( )
+        self.home = os.path.expanduser ( "~" )
+        tuna.log.set_path ( self.home + "/nose.log" )
 
     def test_barycenter_creation ( self ):
-        raw = tuna.io.read ( "test/unit/unit_io/adhoc.ad3" )
+        raw = tuna.io.read ( self.here + "/tuna/test/unit/unit_io/adhoc.ad3" )
         barycenter_detector = tuna.tools.phase_map.barycenter_fast ( raw )
         barycenter_detector.join ( )
         wrapped = barycenter_detector.result

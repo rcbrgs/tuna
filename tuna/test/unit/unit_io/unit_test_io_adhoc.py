@@ -1,13 +1,18 @@
 import logging
+import os
 import tuna
 import unittest
 
 class unit_test_io_adhoc ( unittest.TestCase ):
     def setUp ( self ):
-        tuna.log.set_path ( "nose.log" )
+        self.here = os.getcwd ( )
+        self.home = os.path.expanduser ( "~" )
+        tuna.log.set_path ( self.home + "/nose.log" )
+        self.log = logging.getLogger ( __name__ )
+        self.log.error ( "here = {}".format ( self.here ) )
 
     def test_empty_file ( self ):
-        tuna.io.read ( "test/unit/unit_io/fake_adhoc.ad2" )
+        tuna.io.read ( self.here + "/tuna/test/unit/unit_io/fake_adhoc.ad2" )
 
     def test_no_file_name ( self ):
         ad = tuna.io.adhoc ( )
@@ -30,13 +35,13 @@ class unit_test_io_adhoc ( unittest.TestCase ):
         self.assertRaises ( OSError, tuna.io.read, file_name )
 
     def test_valid_2d_file ( self ):
-        tuna.io.read ( "test/unit/unit_io/adhoc.ad2" )
+        tuna.io.read ( self.here + "/tuna/test/unit/unit_io/adhoc.ad2" )
 
     def test_valid_3d_file ( self ):
-        tuna.io.read ( "test/unit/unit_io/adhoc.ad3" )
+        tuna.io.read ( self.here + "/tuna/test/unit/unit_io/adhoc.ad3" )
 
     def test_wrong_dimenson ( self ):
-        ad = tuna.io.adhoc ( file_name = "test/unit/unit_io/adhoc.ad3" )
+        ad = tuna.io.adhoc ( file_name = self.here + "/tuna/test/unit/unit_io/adhoc.ad3" )
         ad.discover_adhoc_type ( )
         self.assertRaises ( ValueError, ad.read_adhoc_2d )
 

@@ -15,11 +15,6 @@ addons:
     - python3-scipy
 
 install:
-  #- "sudo apt-get install -y libopenblas-dev* liblapack-dev* gfortran"
-  #- "sudo apt-get install -y python3-numpy"
-  #- "sudo apt-get install -y python3-scipy"	
-  #  - "sudo apt_get install -y qt4-qmake"
-  # It might be necessary to ln qt4-qmake into qmake; in Fedora 21 I had to.
   - "pip install --upgrade pip"
   - "pip install coveralls"
   - "pip install -r pip_packages.txt"

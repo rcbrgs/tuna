@@ -15,5 +15,8 @@ from .get_connected_points import get_connected_points
 from .get_connected_region import get_connected_region
 from .get_pixel_neighbours import get_pixel_neighbours
 from .hash_functions       import get_hash_from_array
-from .plot                 import ( plot,
-                                    plot_high_res )
+try:
+    from .plot                 import ( plot,
+                                        plot_high_res )
+except ImportError:
+    pass

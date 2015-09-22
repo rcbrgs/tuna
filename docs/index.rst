@@ -1,7 +1,7 @@
 Documentation
 =============
 
-This is the documentation for Tuna |version|.
+This is the documentation for Tuna |version|. The source for code and documentation can be obtained at `github <https://github.com/rcbrgs/tuna>`_.
 
 Tuna is a Python package for reduction of data cubes produced using Fabry-Pérot interferometers. If you are in doubt whether Tuna would be useful to you, please read our :ref:`overview_label`. You can also browse our :ref:`examples_label`.
 

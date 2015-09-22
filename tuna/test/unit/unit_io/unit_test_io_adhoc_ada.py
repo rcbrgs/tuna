@@ -3,12 +3,14 @@ import os
 import tuna
 import unittest
 
-class unit_test_io_adhoc ( unittest.TestCase ):
+class unit_test_io_adhoc_ada ( unittest.TestCase ):
     def setUp ( self ):
-        tuna.log.set_path ( "nose.log" )
+        self.here = os.getcwd ( )
+        self.home = os.path.expanduser ( "~" )
+        tuna.log.set_path ( self.home + "/nose.log" )
 
     def test_empty_file ( self ):
-        tuna.io.read ( "test/unit/unit_io/fake_adhoc.ada" )
+        tuna.io.read ( self.here + "/tuna/test/unit/unit_io/fake_adhoc.ada" )
 
     def test_no_file_name ( self ):
         ad = tuna.io.ada ( )
@@ -32,7 +34,7 @@ class unit_test_io_adhoc ( unittest.TestCase ):
 
     def test_valid_adt_file ( self ):
         log = logging.getLogger ( __name__ )
-        g093 = tuna.io.read ( "test/unit/unit_io/G093/G093.ADT" )
+        g093 = tuna.io.read ( self.here + "/tuna/test/unit/unit_io/G093/G093.ADT" )
         tuna.io.write ( file_name = "g093_fits.fits",
                         array = g093.array,
                         metadata = g093.metadata,
