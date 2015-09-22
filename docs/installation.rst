@@ -6,7 +6,16 @@ Tuna is built as a Python package, and to have it working in your system, you ne
 - The code for Tuna in a directory inside one of the locations listed in your environment's $PYTHONPATH.
    
 - The following third-party Python modules must be installed:
-   
+
+- Optionally, if a MySQL server is installed, Tuna will use it to store cross-references between its numpy arrays' hashes.
+
+In the current version, Tuna is not yet part of PyPI, but this should be corrected very soon. Therefore, the installation procedure consists of cloning the repository and using the setup.py script directly.
+
+Dependencies
+------------
+
+Tuna depends on the following packages, and will install them if they are not yet installed in your system (or virtual environment):
+
    #. `Astropy <http://www.astropy.org/>`_
      
    #. `Matplotlib <http://matplotlib.org/>`_
@@ -27,8 +36,6 @@ Tuna is built as a Python package, and to have it working in your system, you ne
       
    #. ZeroMQ
 
-- Optionally, if a MySQL server is installed, Tuna will use it to store cross-references between its numpy arrays' hashes.
-
 Virtualenv
 ----------
 
@@ -46,58 +53,39 @@ Once activated, the Python interpreter and the modules it uses are loaded from t
 
 Also, packages installed by downloading the code from github (such as Mpyfit), work by simply cloning the repo inside the virtualenv directory.
 
-Pip
----
-
-Using Python's pip is the preferred installation method, since it is homogeneous across all Linux distributions. In the root of Tuna's project there is a file (pip_packages.txt) which can be read directly into pip to install most dependencies::
-
-  pip install -r tuna/pip_packages.txt
-
-Since Scipy is quite a large installation, it is not done this way; otherwise the automatic testing of packages would fail.
-
 Python versions
 ---------------
 
 Tuna is compatible with Python 2 and Python 3, but it is developed under Python 3, and if eventually we have to choose between remaining compatible with Python 2 or including an incompatible feature, we will choose the feature. Therefore, we highly recommend that Tuna be installed and ran using Python 3.
 
-Fedora installation
--------------------
+Linux installation - with virtualenv
+------------------------------------
 
-This is a step-by-step guide to installing Tuna in Fedora 21. It uses Python 3 and virtual environments. We install in the directory ~/tuna, so if you install in another directory, please adjust your commands accordingly.
+This is a step-by-step guide to installing Tuna in Fedora 21. It uses Python 3 and virtual environments. We install in the directory ~/vtuna, so if you install in another directory, please adjust your commands accordingly.
 
 #. Create the virtual environment that will contain Tuna::
 
-     ~ $ virtualenv -p python3 tuna
+     ~ $ virtualenv -p python3 vtuna
 
 #. Activate the virtual environment::
 
-     ~ $ cd tuna
+     ~ $ cd vtuna
      
-     tuna $ source bin/activate
+     vtuna $ source bin/activate
 
 #. Obtain the source code for Tuna::
 
-     (tuna)tuna $ git clone https://github.com/rcbrgs/tuna.git tuna
+     (vtuna)vtuna $ git clone https://github.com/rcbrgs/tuna.git
 
-#. Install the dependencies using pip::
+#. Install the package::
 
-     (tuna)tuna $ pip install -r tuna/pip_packages.txt
+     (vtuna)vtuna $ python tuna/setup.py install
 
    This could take some time to install, since some of the packages are large (dozens of MB).
 
-#. Install Scipy using pip::
-
-     (vtun)vtun $ pip install scipy
-
-   (The reason for Scipy being installed in a separate step is because it takes a very long time to install - and this breaks the automated building of Tuna in Travis, which has a limit of 20 minutes before declaring a build "stalled".)
-   
-#. Download mpyfit::
-
-     (tuna)tuna $ git clone https://github.com/evertrol/mpyfit.git mpyfit
-
 #. Use Tuna::
 
-     (tuna)tuna $ ipython
+     (vtuna)vtuna $ ipython
      Python 3.4.1 (default, Nov  3 2014, 14:38:10)
      Type "copyright", "credits" or "license" for more information.
 
@@ -116,8 +104,8 @@ Using Tuna once it has already been installed in a virtual environment
 
 Once Tuna is installed, you must always load the virtual environment where it resides before using it. The commands are::
 
-  ~ $ cd tuna
-  tuna $ source bin/activate
+  ~ $ cd vtuna
+  vtuna $ source bin/activate
   (tuna)tuna $ ipython
   Python 3.4.1 (default, Nov  3 2014, 14:38:10)
   Type "copyright", "credits" or "license" for more information.
@@ -133,3 +121,34 @@ Once Tuna is installed, you must always load the virtual environment where it re
   In [2]:
 
 Of course, if you created your virtual environment in a directory other than ~/tuna, you should adjust your commands accordingly.
+
+Linux installation - without virtualenv
+---------------------------------------
+
+This is a step-by-step guide to installing Tuna in Fedora 21. It uses Python 3.
+
+#. Obtain the source code for Tuna::
+
+     $ git clone https://github.com/rcbrgs/tuna.git
+
+#. Install the package::
+
+     $ python tuna/setup.py install
+
+   This could take some time to install, since some of the packages are large (dozens of MB).
+
+#. Use Tuna::
+
+     $ ipython
+     Python 3.4.1 (default, Nov  3 2014, 14:38:10)
+     Type "copyright", "credits" or "license" for more information.
+
+     IPython 4.0.0 -- An enhanced Interactive Python.
+     ?         -> Introduction and overview of IPython's features.
+     %quickref -> Quick reference.
+     help      -> Python's own help system.
+     object?   -> Details about 'object', use 'object??' for extra details.
+
+     In [1]: import tuna
+
+     In [2]:

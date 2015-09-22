@@ -6,7 +6,9 @@ import unittest
 
 class unit_test_io_can ( unittest.TestCase ):
     def setUp ( self ):
-        tuna.log.set_path ( "nose.log" )
+        self.here = os.getcwd ( )
+        self.home = os.path.expanduser ( "~" )
+        tuna.log.set_path ( self.home + "/nose.log" )
 
     def test_add ( self ):
         z1 = numpy.zeros ( shape = ( 1, 2, 3 ) )
@@ -15,7 +17,7 @@ class unit_test_io_can ( unittest.TestCase ):
         self.assertTrue ( numpy.array_equal ( z3, z2 ) )
 
     def test_convert_to_table ( self ):
-        file_name = "test/unit/unit_io/adhoc.ad2"
+        file_name = self.here + "/tuna/test/unit/unit_io/adhoc.ad2"
         can = tuna.io.read ( file_name )
         table = can.convert_ndarray_into_table ( )
 
