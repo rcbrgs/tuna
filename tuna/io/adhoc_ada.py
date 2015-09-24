@@ -1,4 +1,8 @@
-# coding: latin-1
+# -*- coding: utf-8 -*-
+"""
+This module's scope are operations related to ADHOC ADA files.
+"""
+
 from .file_reader import file_reader
 
 import logging
@@ -10,19 +14,35 @@ import tuna
 
 class ada ( file_reader ):
     """
-    Class for reading files in ADHOC format ADA.
+    This class's responsibility is to read files in ADHOC format ADA.
 
     The ADHOC file formats were developed for use with the ADHOC software solution, developed at LAM by Jacques Boulesteix.
+
+    Its constructor has the following signature:
+
+    Parameters:
+
+    * array : numpy.ndarray, defaults to None
+        An array containing the image data; this parameter is useful to convert a known array to a photon table.
+
+    * file_name : string, defaults to None
+        To obtain data from a file, it must contain the path to a valid ADT file, which will contain the metadata and the names for the individual ADA files.
+
+    Example usage::
+
+        import tuna
+        raw = tuna.io.ada ( file_name = "tuna/tuna/test/unit/unit_io/G093/G093.ADT" )
+        raw.read ( )
+        raw.get_array ( )
+        raw.get_metadata ( )
     """
 
     def __init__ ( self, 
                    array = None, 
                    file_name = None ):
-        """
-        Create ada object.
-        """
-        self.__version__ = "0.1.0"
+        self.__version__ = "0.1.1"
         self.__changelog = {
+            "0.1.1" : "Updated docstrings to new style documentation.",
             '0.1.0' : "Initial changelogged version."
             }
         
@@ -37,53 +57,62 @@ class ada ( file_reader ):
 
     def get_array ( self ):
         """
-        Return the input array.
+        This method's goal is to return the input array.
+
+        Returns:
+
+        * self.__array : numpy.ndarray
+            The array containing the current data.
         """
         return self.__array
 
     def get_metadata ( self ):
         """
-        Return the metadata structure.
+        This method's goal is to return the metadata structure.
+
+        Returns:
+
+        * self.__metadata : dictionary
+            A dictionary containing the metadata as read from the file.
         """
         return self.__metadata
 
     def get_photons ( self ):
         """
-        Return __photons.
+        This method's goal is to Return a photon table corresponding to the data read.
+
+        Returns:
+
+        * self.__photons : dictionary
+            A dictionary containing a row for each photon count.
         """
         return self.__photons
 
     def read ( self ):
         """
-        Validates input and starts the reading procedure.
+        This method's goal is to validate input and start the reading procedure.
         """
         self.log.debug ( tuna.log.function_header ( ) )
 
         if self.__file_name != None:
             if ( self.__file_name.lower ( ).startswith ( ".adt", -4 ) ):
-                self.read_adt ( )
+                self._read_adt ( )
         else:
             self.log.warning ( "File name %s does not have .ADT or .adt suffix, aborting." % ( self.__file_name ) )
 
-    def read_adt ( self ):
+    def _read_adt ( self ):
         """
-        Reads a file as an ADT file.
+        This method's goal is to read a file as an ADT file.
         """
         self.log.debug ( tuna.log.function_header ( ) )
 
         self.__file_path = dirname ( self.__file_name )
         self.log.debug ( "self.__file_path = %s." % ( self.__file_path ) )
         
-        self.read_adt_metadata ( )
+        self._read_adt_metadata ( )
 
         adt = open ( self.__file_name, "r" )
 
-        #number_of_channels = 0
-        #known_channels = [ ]        
-        #for channel in self.__metadata [ 'channel' ] [ 0 ]:
-        #    if channel not in known_channels:
-        #        known_channels.append ( channel )
-        #        number_of_channels += 1
         number_of_channels = len ( set ( self.__metadata [ 'channel' ] [ 0 ] ) )
         self.log.debug ( "number_of_channels = %s." % ( number_of_channels ) )
 
@@ -127,16 +156,22 @@ class ada ( file_reader ):
                 self.log.info ( "Adding photon counts into numpy array: %3d" % ( percentage_done * 10 ) + '%')
                 last_printed = percentage_done
 
-            file_result = self.read_ada ( file_name = file_name_entry, channel = channel )
+            file_result = self._read_ada ( file_name = file_name_entry, channel = channel )
             files_processed += 1
                 
-    def read_ada ( self, channel = -1, file_name = None ):
+    def _read_ada ( self, channel = -1, file_name = None ):
         """
-        Attempts to read an ADHOC .ADA file containing photon counts.
-
-        Returns a two-dimensional numpy array.
+        This method's goal is to read an ADHOC .ADA file containing photon counts.
 
         Originally developed by Benoît Epinat, modified by Renato Borges.
+
+        Parameters:
+
+        * channel : integer (defaults to -1)
+            An ADA file will often encode the photon counts for a given channel. This channel number must be specified so that the photon table can be constructed with this information. If the default value of -1 is used, the method will return immediately.
+
+        * file_name : string (defaults to None)
+            The file_name must represent a valid ADA file.
         """
         self.log.debug ( tuna.log.function_header ( ) )
         
@@ -167,10 +202,9 @@ class ada ( file_reader ):
         #it seems that the first frame is duplicated
         #it would be nice to be able to display the creation of the image photon by photon
 
-
-    def read_adt_metadata ( self ):
+    def _read_adt_metadata ( self ):
         """
-        Extracts metadata from an ADT file.
+        This method's goal is to extract metadata from an ADT file.
         """
         self.log.debug ( tuna.log.function_header ( ) )
 

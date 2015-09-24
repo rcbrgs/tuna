@@ -1,3 +1,7 @@
+"""
+This module's scope contains tools that make data access more convenient.
+"""
+
 import logging
 
 from .can import can
@@ -5,10 +9,27 @@ from .fits import fits
 
 def read ( file_name ):
     """
-    Will create a tuna can, and attempt to read the specified file_name using the can.read method.
+    This function's goal is to create a tuna can, and attempt to read the specified file_name using the can.read ( ) method.
 
-    Returns a tuna can.
+    Parameters:
+
+    * file_name : string
+        Specifies an existing file, containing data in a format Tuna understands.
+
+    Returns:
+
+    * tuna_can : tuna.io.can
+        Containing the data read from the input file.
+
+    Example::
+
+        import tuna
+        tuna.io.read ( "data_file.fits" )
     """
+    __version__ = "0.1.0"
+    changelog = {
+        "0.1.0" : "Tuna 0.13.0 : Added example to docstring."
+        }
     log = logging.getLogger ( __name__ )
     log.setLevel ( logging.INFO )
     log.debug ( "Creating a tuna can for file name %s." % file_name )
@@ -24,16 +45,32 @@ def write ( array       = None,
             metadata    = None,
             photons   = None ):
     """
-    Attempts to write a file using the specified input:
+    This method's goal is to write a file using the specified input.
 
-    - array: a numpy.ndarray,
-    - file_format: a string specifying one of Tuna's known write formats (only "fits" is implemented so far),
-    - file_name: a string containing the destiny file path and name.
-    - metadata: a structure containing the metadata to be saved as fits headers.
-    - photons: a structure containing photon descriptions, in the same format as specified in tuna.io.can.convert_ndarray_into_table.    
+    Parameters:
+
+    * array : numpy.ndarray
+        The data to be saved in the file.
+    * file_format: string 
+        Specifies one of Tuna's known write formats (only "fits" is implemented so far).
+    * file_name: string 
+        Must contain a valid file path and name.
+    * metadata: dictionary
+        A structure containing the metadata to be saved as fits headers.
+    * photons: dictionary
+        A structure containing photon descriptions, in the same format as specified in tuna.io.can.convert_ndarray_into_table ( ).    
+
+    Example::
+
+        import tuna
+        import numpy
+
+        zeros_array = numpy.zeros ( shape = ( 2, 3, 3 ) )
+        tuna.io.write ( array = zeros_array, file_name = "zeros.fits", file_format = "fits" )
     """
-    __version__ = '0.1.2'
+    __version__ = '0.1.3'
     changelog = {
+        "0.1.3" : "Tuna 0.13.0 : Added example to docstring.",
         '0.1.2' : "Added docstring.",
         '0.1.1' : "Added error message when file format is unknown."
         }

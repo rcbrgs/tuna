@@ -10,3 +10,4 @@ These examples were all produced using Tuna to reduce the raw data into the cali
 
    example_g092
    example_t251norm
+   example_Dor30_SOAR

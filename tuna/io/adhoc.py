@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
 """
-This module is responsible for opening ADHOC files, which typically have the .AD2 (for two-dimensional data) and .AD3 (for tri-dimensional data).
+This module scope contains: ADHOC files' operations. 
+
+ADHOC files typically have the .AD2 (for two-dimensional data) and .AD3 (for tri-dimensional data).
 
 It is based on a module provided by Benoît Epinat, and integrated into Tuna in 2015.
 """
@@ -12,8 +15,6 @@ import pyfits as pf
 from pyfits import Column
 import sys
 from time import sleep
-import matplotlib as mpl
-from matplotlib import pyplot as plt
 
 from .file_reader import file_reader
 import tuna
@@ -24,10 +25,36 @@ import tuna
 
 class adhoc ( file_reader ):
     """
-    Class for reading files in one of the ADHOC file formats (AD2 or AD3).
+    This class' responsibilities include: reading files in one of the ADHOC file formats (AD2 or AD3).
 
     First implemented by Benoit Epinat from LAM.
     The ADHOC file formats were developed for use with the ADHOC software solution, developed at LAM by Jacques Boulesteix.
+
+    It inherits from :ref:`tuna_io_file_reader_label`.
+
+    Its constructor has the following signature:
+
+    Parameters:
+
+    * adhoc_type : int, defaults to None.
+        Valid types are 2 and 3.
+
+    * adhoc_trailer : numpy.ndarray, defaults to None.
+        The trailer of an ADHOC file are the last 256 bytes of the file, and contain metadata.
+
+    * file_name : string, defaults to None.
+        Must correspond to an existing ADHOC file.
+
+    * array : numpy.ndarray, defaults to None.
+        Will be read from the file, and its size is the file size minus 256 bytes, and each field has 32 bytes and is encoded as a float.
+
+    Example usage::
+
+        import tuna
+        raw = tuna.io.adhoc ( file_name = "tuna/tuna/test/unit/unit_io/adhoc.ad3" )
+        raw.read ( )
+        raw.get_array ( )
+        raw.get_trailer ( )
     """
 
     def __init__ ( self, 
@@ -38,8 +65,9 @@ class adhoc ( file_reader ):
         super ( adhoc, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.1'
+        self.__version__ = '0.1.2'
         self.changelog = {
+            '0.1.2' : "Documentation: module, class and function docstrings.", 
             '0.1.1' : "Improved docstrings.",
             '0.1.0' : "Initial changelog."
             }
@@ -50,9 +78,9 @@ class adhoc ( file_reader ):
         self.__array = array
         self.__file_object = None
 
-    def discover_adhoc_type ( self ):
+    def _discover_adhoc_type ( self ):
         """
-        This method will attempt to open the file named file_name, get the first 256 bytes as its trailer, and cast its remaining contents into a numpy array of numpy.float32 values.
+        This method's goal is to open the file named file_name, get the first 256 bytes as its trailer, and cast its remaining contents into a numpy array of numpy.float32 values.
         Since the trailer contains information regarding the dimensionality of the data, this information is also retrieved from the file.
         """
         self.log.debug ( tuna.log.function_header ( ) )
@@ -92,13 +120,18 @@ class adhoc ( file_reader ):
 
     def get_array ( self ):
         """
-        This method returns the current value for self.__array.
+        This method's goal is to return the current value of the data array.
+
+        Returns:
+
+        * self.__array : numpy.ndarray
+            Containing the current data array.
         """
         return self.__array
 
     def read ( self ):
         """
-        This method will attempt to discover the ADHOC type (which corresponds to its dimensionality), and when possible call the appropriate method to read its contents.
+        This method's goal is to discover the ADHOC type (which corresponds to the data array dimensionality), and when possible call the appropriate method to read its contents.
         """
         self.log.debug ( tuna.log.function_header ( ) )
 
@@ -107,7 +140,7 @@ class adhoc ( file_reader ):
             return
 
         if self.__adhoc_type == None:
-            self.discover_adhoc_type ( )
+            self._discover_adhoc_type ( )
             if self.__adhoc_type == None:
                 self._is_readable = False
                 return
@@ -123,14 +156,14 @@ class adhoc ( file_reader ):
             self.__array_size = ( self.__file_object.tell ( ) - 256 ) / 4  
 
         if self.__adhoc_type == 2:
-            self.read_adhoc_2d ( )
+            self._read_adhoc_2d ( )
 
         if self.__adhoc_type == 3 or self.__adhoc_type == -3:
-            self.read_adhoc_3d ( )
+            self._read_adhoc_3d ( )
 
-    def read_adhoc_2d ( self ):
+    def _read_adhoc_2d ( self ):
         """
-        Attempts to read the contents of __file_object as a 2D ADHOC file.
+        This method's goal is to read the contents of self.__file_object as a 2D ADHOC file.
         """
         self.log.debug ( tuna.log.function_header ( ) )
 
@@ -186,20 +219,15 @@ class adhoc ( file_reader ):
 
         self.log.info ( "Successfully read adhoc 2d object from file %s." % str ( self.__file_name ) )
 
-    def read_adhoc_3d ( self, xyz = True ):
+    def _read_adhoc_3d ( self, xyz = True ):
         """
-        Attempts to read the contents of __file_object as a tri-dimensional ADHOC file.
+        This method's goal is to read the contents of self.__file_object as a tri-dimensional ADHOC file.
 
         Parameters:
 
-        filename: string, Name of the input file
-
-        xyz = True: boolean (optional)
-
-              False to return data in standard zxy adhoc format
-
-              True  to return data in xyz format (default)
-
+        * xyz : boolean, defaults to True.
+            False to return data in standard zxy adhoc format,
+            True  to return data in xyz format (default).
         """
         self.log.debug ( tuna.log.function_header ( ) )
 
@@ -271,4 +299,12 @@ class adhoc ( file_reader ):
         self.log.info ( "Successfully read adhoc 3d object from file %s." % str ( self.__file_name ) )
 
     def get_trailer ( self ):
+        """
+        This method's goal is to return the current trailer.
+
+        Returns:
+
+        * self.__trailer : numpy.ndarray
+            Containing the current values for the trailer.
+        """
         return self.__trailer

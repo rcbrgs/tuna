@@ -5,11 +5,14 @@ The scope of this module is related to plotting data graphically.
 import IPython
 import math
 import numpy
+import warnings
 
 try:
-    import matplotlib.pyplot as plt
+    with warnings.catch_warnings ( ):
+        warnings.simplefilter ( "ignore" )
+        import matplotlib.pyplot as plt
 except ImportError:
-    raise ImportError ( "This module requires matplotlib." )
+    raise ImportError ( "Tuna requires matplotlib. Please install it." )
 
 def log ( message ):
     """
@@ -36,7 +39,7 @@ def plot ( data, title = "", ipython = None ):
     """
     if not ipython:
         ipython = IPython.get_ipython()
-        ipython.magic("matplotlib qt")
+        ipython.magic ( "matplotlib qt" )
 
     if len ( data.shape ) == 3:
         subplots = data.shape [ 0 ]

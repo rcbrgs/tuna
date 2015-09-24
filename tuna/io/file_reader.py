@@ -1,11 +1,21 @@
+"""
+This module's scope encompasses abstractions related to file format readers.
+"""
+
 import logging
 
 class file_reader ( object ):
     """
-    Class where commonalities between the multiple file formats can be reused.
+    This class is responsible for abstracting common features of the file readers in a single code artifact.
+
+    It is not meant to be user-serviceable.
     """
     def __init__ ( self, *args, **kwargs ):
         super ( file_reader, self ).__init__ ( *args, **kwargs )
+        self.__version__ = "0.1.0"
+        self.changelog = {
+            "0.1.0" : "Tuna 0.13.0 : improved documentation."
+            }
         self.log = logging.getLogger ( __name__ )
 
         self._image_ndarray = None
@@ -13,7 +23,12 @@ class file_reader ( object ):
 
     def get_image_ndarray ( self ):
         """
-        Return the array containing the image data.
+        This method's goal is to offer access to the array containing the image data.
+
+        Returns:
+
+        * self._image_ndarray : numpy.ndarray
+            Contains the current data for this reader. Defaults to None, must be set by derived classes.
         """
         self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
                                      sys._getframe ( ).f_code.co_varnames ) )
@@ -22,6 +37,11 @@ class file_reader ( object ):
 
     def is_readable ( self ):
         """
-        Returns True if the specified file is readable.
+        This method's goal is to check if the input file is readable.
+
+        Returns:
+
+        * self._is_readable : bool
+            True if the file is readable; defaults to False, must be set by derived classes.
         """
         return self._is_readable

@@ -1,6 +1,13 @@
+"""
+This module's scope are operations related to the FITS file format.
+
+As much as possible, operations are deferred to astropy.io.fits.
+"""
+
 import astropy.io.fits as astrofits
 import copy
 import logging
+import math
 import numpy
 import sys
 from tuna.io.file_reader import file_reader
@@ -9,9 +16,36 @@ import warnings
 
 class fits ( file_reader ):
     """
-    Class for reading FITS files.
+    This class' responsibility is to operate on FITS files.
 
-    Consists mostly of a wrapper around Astropy's io.fits module.
+    Its constructors signature is:
+
+    Parameters:
+
+    * array : numpy.ndarray, defaults to None
+        Contains the data to be written to a file.
+    
+    * file_name : string, defaults to None
+        Contains the full location of a file to be read, or to be written to.
+
+    * metadata : dictionary, defaults to { }
+        Contains metadata to be written as a FITS header, or the metadata read from a FITS header.
+
+    * photons : dictionary, defaults to None
+        Contains the table of photon counts and positions. It is either supplied to be saved to a file, or generated from the data on a file.
+
+    Example::
+
+        import tuna
+        import numpy
+
+        zeros_array = numpy.zeros ( shape = ( 3, 3, 3 ) )
+        zeros_file = tuna.io.fits ( array = zeros_array )
+        zeros_file.write ( file_name = "test_file.fits" )
+        fits_file = tuna.io.fits ( file_name = "test_file.fits" )
+        fits_file.read ( )
+        fits_file.get_array ( )
+        fits_file.get_metadata ( )
     """
 
     def __init__ ( self, 
@@ -19,9 +53,13 @@ class fits ( file_reader ):
                    file_name = None, 
                    metadata = { },
                    photons = None ):
+        super ( fits, self ).__init__ ( )
+        self.__version__ = "0.1.0"
+        self.changelog = {
+            "0.1.0" : "Tuna 0.13.0 : handling None data sections from astrofits.open. Improved documentation"
+            }
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        super ( fits, self ).__init__ ( )
 
         self.__file_name = file_name
         self.__array = array
@@ -30,19 +68,31 @@ class fits ( file_reader ):
 
     def get_array ( self ):
         """
-        Returns self.__array.
+        This method's goal is to access the current array in this object.
+
+        Returns:
+
+        * self.__array : numpy.ndarray
+            Contains the current data stored in this object's array.
         """
         return self.__array
 
     def get_metadata ( self ):
         """
-        Returns self.__metadata
+        This method's goal is to access the current metadata in this object.
+
+        Returns:
+
+        * self.__metadata : dictionary
+            Contains the current metadata stored in this object.
         """        
         return self.__metadata
 
     def read ( self ):
         """
-        Attempts to read the file specified in the constructor's file_name as a FITS file.
+        This method's goal is to read the file specified in the constructor's file_name as a FITS file.
+
+        It will inspect the FITS header and try to do the "best thing" according to how many image HDU lists it finds; if there is only one list, that will be the data. If there are multiple lists, and these lists can be arranged as a mosaic (i.e., there are a "quadratic" number of images - 4, 9, 25, etc) they will. This is done in a counter-clockwise order, if we assume the 0th row and column is the top left of the image.
         """
         self.log.debug ( tuna.log.function_header ( ) )
 
@@ -53,12 +103,65 @@ class fits ( file_reader ):
         self.log.debug ( "Trying to read file %s as FITS file." % self.__file_name )
         try:
             with warnings.catch_warnings ( ):
-                warnings.simplefilter ( "ignore" )
+                warnings.simplefilter ( "error" )
                 hdu_list = astrofits.open ( self.__file_name )
             self.log.info ( "File %s opened as a FITS file." % self.__file_name )
-            self.__array = hdu_list[0].data
-            self.log.debug ( "Assigned data section of first HDU as the image ndarray." )
-            self.log.debug ( "self.__array.ndim == %d" % self.__array.ndim )
+
+            # The file might have many HDU lists. If there are no arrays, then the file is invalid.
+            hdu_info = hdu_list.info ( output = False )
+            self.log.debug ( "hdu_info = {}".format ( hdu_info ) )
+            invalid_flag = True
+            for entry in hdu_info:
+                if entry [ 4 ] != ( ):
+                    invalid_flag = False
+                    break
+            if invalid_flag:
+                self.log.error ( "File is invalid: no dimensions found in its HDU list." )
+                return
+
+            # If the file has a single array, that is its data.
+            possible_arrays = [ ]
+            for entry_index in range ( len ( hdu_info ) ):
+                if hdu_info [ entry_index ] [ 4 ] != ( ):
+                    possible_arrays.append ( entry_index )
+            if len ( possible_arrays ) == 1:
+                self.__array = hdu_list [ possible_arrays [ 0 ] ].data
+
+            # If the file has several arrays, then possibly a mosaic is its data.
+            if len ( possible_arrays ) % 4 == 0:
+                mosaic = True
+                common_ndims = hdu_info [ possible_arrays [ 0 ] ] [ 4 ]
+                for entry_index in possible_arrays:
+                    if hdu_info [ entry_index ] [ 4 ] != common_ndims:
+                        self.log.info ( "Cannot build a mosaic since HDU lists have different sizes." )
+                        mosaic = False
+                if mosaic:
+                    self.log.debug ( "Creating a mosaic from the multiple HDU lists of the file." )
+                    multiplier = math.sqrt ( len ( possible_arrays ) )
+                    cols = common_ndims [ 1 ] * multiplier
+                    rows = common_ndims [ 0 ] * multiplier
+                    self.__array = numpy.zeros ( shape = ( cols, rows ) )
+                    cursor_col = 0
+                    cursor_row = 0
+                    for entry in possible_arrays:
+                        self.log.debug ( "Adding HDU list {} to position ( {}, {} ).".format (
+                            entry, cursor_col, cursor_row ) )
+                        self.log.debug ( "Splicing array {} into {}, {}".format (
+                            hdu_list [ entry ].data.shape, cursor_col, cursor_row ) )
+                        self.__array [ cursor_col : cursor_col + common_ndims [ 1 ],
+                                       cursor_row : cursor_row + common_ndims [ 0 ] ] = hdu_list [ entry ].data
+                        cursor_row += common_ndims [ 0 ]
+                        if cursor_row >= common_ndims [ 0 ] * multiplier:
+                            cursor_row = 0
+                            cursor_col += common_ndims [ 1 ]
+                
+            if type ( self.__array ) == None:
+                if len ( possible_arrays ) > 1:
+                    self.log.error ( "File has several distinct entries for data, and Tuna doesn't know how to parse it." )
+                self.log.error ( "Data section of the file is None!" )
+            else:
+                self.log.debug ( "Assigned data section of first HDU as the image ndarray." )
+                self.log.debug ( "self.__array.ndim == %d" % self.__array.ndim )
             metadata = { }
             for key in hdu_list [ 0 ].header.keys ( ):
                 metadata_value   = hdu_list [ 0 ].header [ key ]
@@ -72,11 +175,12 @@ class fits ( file_reader ):
 
     def write ( self, file_name = None ):
         """
-        Attempts to write the object's current self.__array and self.__metadata as a FITS file named file_name.
+        This method's goal is to write the object's current array and metadata as a FITS file named file_name.
 
         Parameters:
 
-        file_name: a string, containing a valid path for an yet non-existing file.
+        * file_name: string
+            Contains a valid path for an yet non-existing file.
         """
         self.log.debug ( tuna.log.function_header ( ) )
 
@@ -121,7 +225,9 @@ class fits ( file_reader ):
 
     def write_metadata_table ( self ):
         """
-        Attempts to write self.__metadata as a FITS table file.
+        This method's goal is to write the object's metadata as a FITS table file.
+
+        It will write the file at the path "metadata\_" + self.__file_name.
         """
         self.log.debug ( tuna.log.function_header ( ) )
 
@@ -153,7 +259,9 @@ class fits ( file_reader ):
 
     def write_photons_table ( self ):
         """
-        Attempts to write self.__photons as a FITS table file.
+        This method's goal is to write the object's photons dictionary as a FITS table file.
+
+        It will write the file at the path "photons\_" + self.__file_name.
         """
         self.log.debug ( tuna.log.function_header ( ) )
 

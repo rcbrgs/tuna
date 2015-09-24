@@ -5,6 +5,10 @@ import unittest
 
 class unit_test_io_adhoc ( unittest.TestCase ):
     def setUp ( self ):
+        self.__version__ = "0.1.0"
+        self.changelog = {
+            "0.1.0" : "Tuna 0.13.0, updated test_wrong_dimension to use newly protected method _discover_adhoc_type of tuna.io.adhoc."
+        }
         self.here = os.getcwd ( )
         self.home = os.path.expanduser ( "~" )
         tuna.log.set_path ( self.home + "/nose.log" )
@@ -42,8 +46,8 @@ class unit_test_io_adhoc ( unittest.TestCase ):
 
     def test_wrong_dimenson ( self ):
         ad = tuna.io.adhoc ( file_name = self.here + "/tuna/test/unit/unit_io/adhoc.ad3" )
-        ad.discover_adhoc_type ( )
-        self.assertRaises ( ValueError, ad.read_adhoc_2d )
+        ad._discover_adhoc_type ( )
+        self.assertRaises ( ValueError, ad._read_adhoc_2d )
 
     def tearDown ( self ):
         pass
