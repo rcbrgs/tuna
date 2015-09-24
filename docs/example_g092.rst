@@ -5,7 +5,7 @@ Calibration lamp NGC772 G092
 
 This data cube was supplied by Benoît Epinat and corresponds to the spectrograph of a calibration lamp imaged before data aquisition in a run made to observe NGC772.
 
-The reduction was made using Tuna v0.11.0.
+The reduction was made using Tuna v0.12.2.
 
 The code for reducing it was::
 
@@ -18,13 +18,13 @@ The code for reducing it was::
       file_object = tuna.io.read ( file_name )
       start = time.time ( )
       reducer = tuna.tools.phase_map.high_resolution (
-          calibration_wavelength = 65989.53125,
+          calibration_wavelength = 6598.953125,
           finesse = 12,
           free_spectral_range = 8.36522123894,
           interference_order = 791,
-          interference_reference_wavelength = 65627.797852,
+          interference_reference_wavelength = 6562.7797852,
           pixel_size = 9,
-          scanning_wavelength = 66168.9,
+          scanning_wavelength = 6616.89,
           tuna_can = file_object,
           wrapped_algorithm = tuna.tools.phase_map.barycenter_fast,
           channel_subset = [ 0, 1, 2, 5 ],
@@ -37,9 +37,30 @@ The code for reducing it was::
       print ( "Tuna took {:.1f}s to reduce.".format ( time.time ( ) - start ) )
       reducer.plot ( )
       return reducer
-      
-      test = reduce_test ( "/home/nix/cold_store/fpdata_NGC772_Benoit_Epinat_2014-11-05/G092/G092.AD3" )
+  
+  test = reduce_test ( "/home/nix/cold_store/fpdata_NGC772_Benoit_Epinat_2014-11-05/G092/G092.AD3" )
 
+The output from running it was::
+
+  (vtuna7)vtuna7 $ ipython -i reduce_tests.py
+  Log file set to test.log.
+  Handler <logging.FileHandler object at 0x7fc15f8566d8> set to 10.
+  Successfully read adhoc 3d object from file /home/nix/cold_store/fpdata_NGC772_Benoit_Epinat_2014-11-05/G092/G092.AD3.
+  Starting high_resolution pipeline.
+  Continuum array created.
+  Barycenter done.
+  Noise map created with lower_value = 4.0.
+  averaged_concentric_rings = ((216.70845070644381, 256.06969280465921), [231.99294249957384, 109.89700028991167, 310.27998456965793], [0, 1, 2])
+  sorted_radii = ['109.90', '231.99', '310.28']
+  b_ratio = 2.463581e-04
+  inital_gap = 2.61e+06 microns
+  channel_gap = 31.5815982991933 microns.
+  Airy <|residue|> = 35.4 photons / pixel
+  Phase map unwrapped.
+  Wavelength calibration done.
+  Parabolic model fitted.
+  Tuna took 385.7s to reduce. 
+  
 .. image:: images/example_g092_1.png
 .. image:: images/example_g092_2.png
 .. image:: images/example_g092_3.png

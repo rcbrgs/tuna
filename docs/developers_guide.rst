@@ -33,5 +33,5 @@ Since Sphinx is used to also include more free-form documentation, such as long 
 * New module's documentations should be created using the automodule extension of Sphinx, in a file with full Python module name resolution with dots substituted for underlines, in the docs/ directory of the source code. For example: if a new module tuna.io.hdfs is introduced, its documentation should be created using autodoc in a file named docs/tuna_io_hdfs.rst.
 * Each module should be included in the toctree of its parent package. Following the above example, the toctree in docs/tuna_io.rst should be expanded to include an entry for tuna_io_hdfs.
 * New entries in lists of packages, modules, classes and functions should follow alphabetical order.
-* Titles and subtitles' are underlined with the same number of characters as the (sub)title itself. For example: fsr is udnerlined with === in docs/tuna_tools_phase_map_fsr.rst.
+* Titles and subtitles' are underlined with the same number of characters as the (sub)title itself. For example: fsr is underlined with === in docs/tuna_tools_phase_map_fsr.rst.
   

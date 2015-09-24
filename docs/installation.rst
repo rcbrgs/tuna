@@ -9,7 +9,7 @@ Tuna is built as a Python package, and to have it working in your system, you ne
 
 - Optionally, if a MySQL server is installed, Tuna will use it to store cross-references between its numpy arrays' hashes.
 
-In the current version, Tuna is not yet part of PyPI, but this should be corrected very soon. Therefore, the installation procedure consists of cloning the repository and using the setup.py script directly.
+In the current version, Tuna is not yet part of PyPI, but this should be corrected very soon. Therefore, the installation procedure consists of cloning the repository and using the setup.py script directly. Also, we have not been able to generalize the directory name for the installation; you *must* clone the repository in a directory named "tuna".
 
 Dependencies
 ------------
@@ -26,16 +26,21 @@ Tuna depends on the following packages, and will install them if they are not ye
       
    #. `Psutil <https://github.com/giampaolo/psutil>`_
       
-   #. Pyfits
+   #. `Pyfits <http://www.stsci.edu/institute/software_hardware/pyfits/>`_
       
-   #. Pyqt4
+   #. `PySide <https://wiki.qt.io/PySide>`_
       
-   #. Scipy
+   #. `Scipy <https://www.scipy.org/>`_
       
-   #. Sympy
+   #. `Sympy <http://www.sympy.org/en/index.html>`_
       
-   #. ZeroMQ
+   #. `ZeroMQ <https://github.com/zeromq/pyzmq>`_
 
+Permissions
+-----------
+
+You need read, write and execution permissions on the directories where you intend to install Tuna. This is taken care for you if you use a virtual environment in your $HOME directory in a Linux system. In case you intend to not use virtualenv, an option must be set during installation, and will be noted on the installation recipe, below.
+      
 Virtualenv
 ----------
 
@@ -63,7 +68,7 @@ Linux installation - with virtualenv
 
 This is a step-by-step guide to installing Tuna in Fedora 21. It uses Python 3 and virtual environments. We install in the directory ~/vtuna, so if you install in another directory, please adjust your commands accordingly.
 
-#. Create the virtual environment that will contain Tuna::
+#. Create the virtual environment that will contain Tuna (this must be run in a directory where you have read, write and execute permissions)::
 
      ~ $ virtualenv -p python3 vtuna
 
@@ -77,11 +82,19 @@ This is a step-by-step guide to installing Tuna in Fedora 21. It uses Python 3 a
 
      (vtuna)vtuna $ git clone https://github.com/rcbrgs/tuna.git
 
+#. Install NumPy, which is currently not well-behaved in PyPI (and so must be installed separatedly)::
+
+     (vtuna)vtuna $ pip install numpy
+
+#. Install PySide, which is currently not well supported by readthedocs.org (and therefore must be installed separatedly)::
+
+     (vtuna)vtuna $ pip install PySide
+     
 #. Install the package::
 
      (vtuna)vtuna $ python tuna/setup.py install
 
-   This could take some time to install, since some of the packages are large (dozens of MB).
+   This could take some time to install, since some of the dependencies are large (dozens of MB).
 
 #. Use Tuna::
 
@@ -131,9 +144,17 @@ This is a step-by-step guide to installing Tuna in Fedora 21. It uses Python 3.
 
      $ git clone https://github.com/rcbrgs/tuna.git
 
-#. Install the package::
+#. Install NumPy::
 
-     $ python tuna/setup.py install
+     $ pip install numpy
+
+#. Install PySide, which is currently not well supported by readthedocs.org (and therefore must be installed separatedly)::
+
+     $ pip install PySide
+
+#. Install the package, selecting a directory where you have read, write and execute rights::
+
+     $ python tuna/setup.py install --home=~
 
    This could take some time to install, since some of the packages are large (dozens of MB).
 

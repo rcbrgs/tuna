@@ -5,7 +5,7 @@ Calibration lamp T251 (normalized)
 
 This data cube was supplied by Benoît Epinat and corresponds to the calibration lamp imaged before data aquisition in a run made to observe T251. The image was normalized (flattened).
 
-The reduction was made using Tuna v0.11.0. The code to reduce the image was::
+The reduction was made using Tuna version 0.12.2. The code to reduce the image was::
 
   import time
   import tuna
@@ -16,13 +16,13 @@ The reduction was made using Tuna v0.11.0. The code to reduce the image was::
       file_object = tuna.io.read ( file_name )
       start = time.time ( )
       reducer = tuna.tools.phase_map.high_resolution (
-          calibration_wavelength = 65989.53125,
+          calibration_wavelength = 6598.953125,
           finesse = 12,
           free_spectral_range = 8.36522123894,
           interference_order = 791,
-          interference_reference_wavelength = 65627.797852,
+          interference_reference_wavelength = 6562.7797852,
           pixel_size = 9,
-          scanning_wavelength = 66168.9,
+          scanning_wavelength = 6616.89,
           tuna_can = file_object,
           wrapped_algorithm = tuna.tools.phase_map.barycenter_fast,
           channel_subset = [ 0, 1, 2, 5 ],
@@ -31,16 +31,20 @@ The reduction was made using Tuna v0.11.0. The code to reduce the image was::
           dont_fit = False,
           unwrapped_only = False,
           verify_center = None )
-      reducer.join ( )
-      print ( "Tuna took {:.1f}s to reduce.".format ( time.time ( ) - start ) )
-      reducer.plot ( )
-      return reducer
+  reducer.join ( )
+  print ( "Tuna took {:.1f}s to reduce.".format ( time.time ( ) - start ) )
+  reducer.plot ( )
+  return reducer
   
   test = reduce_test ( "/home/nix/cold_store/fpdata_T251_Benoit_Epinat_2015-07-22/T251_norm.fits" )
 
 Output from ipython was::
 
-  (vtuna)vtuna $ ipython -i reduce_tests.py
+  $ ipython -i reduce_tests.py
+  Log file set to test.log.
+  Handler <logging.FileHandler object at 0x7f1652fda6d8> set to 10.
+  File /home/nix/cold_store/fpdata_T251_Benoit_Epinat_2015-07-22/T251_norm.fits opened as a FITS file.
+  Starting high_resolution pipeline.
   Continuum array created.
   Barycenter done.
   Noise map created with lower_value = 18615.99609375.
@@ -49,14 +53,14 @@ Output from ipython was::
   averaged_concentric_rings = ((241.17854922347954, 244.66439418626365), [284.61367712165372, 214.18521084339031, 106.81156850738181], [0, 2, 3])
   sorted_radii = ['106.81', '214.19', '284.61']
   b_ratio = 2.711343e-04
-  inital_gap = 2.61e+07 microns
-  channel_gap = 291.7815009986516 microns.
+  inital_gap = 2.61e+06 microns
+  channel_gap = 29.178117539267987 microns.
   Airy <|residue|> = 80.3 photons / pixel
   Phase map unwrapped.
   Wavelength calibration done.
   Parabolic model fitted.
-  Tuna took 428.3s to reduce.
-  
+  Tuna took 437.1s to reduce.
+
 .. image:: images/example_t251norm_1.png
 .. image:: images/example_t251norm_2.png
 .. image:: images/example_t251norm_3.png

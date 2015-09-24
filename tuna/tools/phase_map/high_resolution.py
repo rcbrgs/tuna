@@ -25,6 +25,31 @@ class high_resolution ( threading.Thread ):
     - airy_fit_residue
     - substituted_channels
     - wavelength_calibrated
+
+    Its constructor parameters are:
+
+    - *calibration_wavelength*, a float encoding the magnitude of the calibration wavelength, in Angstroms.
+    - *finesse*,
+    - *free_spectral_range*,
+    - *interference_order*,
+    - *interference_order_wavelength*,
+    - *pixel_size*,
+    - *scanning_wavelength*,
+    - *tuna_can*, the raw data. Must be a :ref:`tuna_io_can_label` object;
+    - *wrapped_algorithm*,
+    - *channel_subset*,
+    - *continuum_to_FSR_ratio*,
+
+    Keyworded parameters:
+
+    - *dont_fit*, 
+    - *noise_mask_radius*, the distance from a noise pixel that will be marked as noise also (size of a circle around each noise pixel);
+    - *noise_threshold*,
+    - *plot_log*, boolean, that specifies whether to matplotlib plot the partial results (which will be always available as ndarrays). Defaults to False;
+    - *ring_minimal_percentile*,
+    - *unwrapped_only*,
+    - *verify_center*.
+
     """
     def __init__ ( self,
                    calibration_wavelength,
@@ -46,19 +71,11 @@ class high_resolution ( threading.Thread ):
                    unwrapped_only = False,
                    verify_center = None ):
 
-        """
-        Creates the phase map from raw data obtained with a Fabry-Perot instrument.
-
-        Parameters:
-
-        - array : the raw data. Must be a 3D numpy.ndarray.
-        - noise_mask_radius : the distance from a noise pixel that will be marked as noise also (size of a circle around each noise pixel).
-        - plot_log : boolean that specifies whether to matplotlib plot the partial results (which will be always available as ndarrays). Defaults to False.
-        """       
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.16'
+        self.__version__ = '0.1.17'
         self.changelog = {
+            '0.1.17' : "Improved docstring for class.",
             '0.1.16' : "Adapted to use refined version of ring finder.",
             '0.1.15' : "Fixed gap 'pulsating' by making gap change monotonic, and using 1st gap fit as seed for plane reconstruction.",
             '0.1.14' : "Fixed gap limits logic for negative channel gap",
@@ -353,7 +370,7 @@ class high_resolution ( threading.Thread ):
             substituted_channels = numpy.copy ( self.tuna_can.array )
             for channel in range ( self.tuna_can.planes ):
                 if channel in self.channel_subset:
-                    substituted_channels [ plane ] = numpy.copy ( self.airy_fit.array [ plane ] )
+                    substituted_channels [ channel ] = numpy.copy ( self.airy_fit.array [ channel ] )
             self.substituted_channels = tuna.io.can ( array = substituted_channels )
 
             parabolic_fitter.join ( )
