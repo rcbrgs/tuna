@@ -1,5 +1,5 @@
 """
-This module's scope encompasses abstractions related to file format readers.
+This module's scope covers abstractions related to file format readers.
 """
 
 import logging
@@ -27,8 +27,8 @@ class file_reader ( object ):
 
         Returns:
 
-        * self._image_ndarray : numpy.ndarray
-            Contains the current data for this reader. Defaults to None, must be set by derived classes.
+        * self._image_ndarray : numpy.ndarray : defaults to None
+            Contains the current data for this reader. This should be set by derived classes.
         """
         self.log.debug ( "%s %s" % ( sys._getframe ( ).f_code.co_name,
                                      sys._getframe ( ).f_code.co_varnames ) )
@@ -41,7 +41,7 @@ class file_reader ( object ):
 
         Returns:
 
-        * self._is_readable : bool
-            True if the file is readable; defaults to False, must be set by derived classes.
+        * self._is_readable : bool : defaults to False
+            True if the file is readable; should be set by derived classes.
         """
         return self._is_readable

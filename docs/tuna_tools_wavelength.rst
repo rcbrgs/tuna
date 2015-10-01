@@ -1,6 +1,9 @@
 wavelength
 ==========
-		
+
+.. automodule:: tuna.tools.wavelength
+   :members:
+
 .. toctree::
    :maxdepth: 2
 

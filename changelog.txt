@@ -1,3 +1,29 @@
+Tuna 0.13.0:
+- Documentation: added a requirements file pip_readthedocs.txt.
+- Documentation: added paths to have the possible tuna dirs in readthedocs.
+- Documentation: Modified installation instructions to reflect new setuptool method.
+- Documentation: added mocks to docs/conf.py, wrote explanation about tuna namespaces and modules.
+- Documentation: added style guidelines for header docstrings of namespaces, modules, classes and functions/methods.
+- Documentation: updated tuna.console.backend docstrings.
+- Documentation: updated tuna.io to new style.
+- Documentation: updated tuna.io.adhoc to new style.
+- Documentation: updated tuna.io.adhoc_ada to new style.
+- Documentation: updated tuna.io.adhoc_ada to new style.
+- Documentation: updated tuna.io.can to new style.
+- Documentation: updated tuna.io.convenience to new style.
+- Documentation: updated the tuna.io.database to new style.
+- Documentation: added example run 001 of 30 Doradus SOAR dataset.
+- Documentation: updated README to have recent installation recipe.
+- Documentation: updated tuna.io.file_format to new style.
+- Documentation: updated tuna.io.convenience to new style.
+- Documentation: updated tuna.io.fits to new style.
+- git: Major restructuring. Moved code to a directory named tuna, to comply with setup.py 'packages' methodology.
+- io: FITS reader will now automatically detect "mosaicable" FITS composites, and extract data accordingly.
+- Packaging: Added external dependency on mpyfit.
+- Testing: Fixed new paths for sample files.
+- Testing: updated adhoc test to use newly protected version.
+- Visualization: hid the warning about PySide not being a valid matplotlib backend.
+
 Tuna v0.10:
 - Multithreaded pipeline (done).
 - Wavelength calibration works correctly.

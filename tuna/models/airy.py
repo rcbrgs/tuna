@@ -1,3 +1,7 @@
+"""
+This module's scope is the modeling and fitting of Airy functions to data.
+"""
+
 import copy
 import logging
 import math
@@ -18,7 +22,7 @@ def airy_plane ( b_ratio = 9.e-6,
                  shape_rows = 512,
                  wavelength = 0.6563 ):
     """
-    The Airy function being modeled is:
+    This function's goal is to model the Airy function as:
 
     .. math::
       I = C + \dfrac{I_0}{1 + \dfrac{4F^2}{\pi^2} \sin^2 (\phi/2)}
@@ -40,16 +44,40 @@ def airy_plane ( b_ratio = 9.e-6,
 
     Parameters: (In parentheses, the equation variable the paremeter corresponds to)
 
-    - b_ratio:      the ratio between the pixel size and the camera focal length (b).
-    - center_col:   the column for the center of the rings, in pixels.
-    - center_row:   the row for the center of the rings, in pixels.
-    - continuum:    the value of the background intensity.
-    - finesse:      (F).
-    - gap:          the distance between the étalons, in microns (n e_i).
-    - intensity:    the beam maximum intensity (I_0).
-    - shape_cols:   the number of columns for the 2D shape (columns, rows) to be generated. 
-    - shape_rows:   the number of rows for the 2D shape (columns, rows) to be generated. 
-    - wavelength:   in microns ( lambda_c ).
+    * b_ratio : float : defaults to 9.e-6
+        The ratio between the pixel size and the camera focal length (b).
+
+    * center_col : integer : defaults to 256
+        The column for the center of the rings, in pixels.
+
+    * center_row : integer : defaults to 256
+        The row for the center of the rings, in pixels.
+
+    * continuum : float : defaults to 1
+        The value of the background intensity.
+
+    * finesse : float : defaults to 15
+        (F).
+
+    * gap : float : defaults to 250
+        The distance between the étalons, in microns (n e_i).
+
+    * intensity : float : defaults to 100
+        The beam maximum intensity (I_0).
+
+    * shape_cols : integer : defaults to 512
+        The number of columns for the 2D shape (columns, rows) to be generated. 
+
+    * shape_rows : integer : defaults to 512
+        The number of rows for the 2D shape (columns, rows) to be generated. 
+
+    * wavelength : float : defaults to 0.6563
+        Wavelength in microns ( lambda_c ).
+
+    Returns:
+
+    * result : numpy.ndarray
+        Contains the data for the Airy model, given the input parameters.
     """
 
     log = logging.getLogger ( __name__ )
@@ -83,12 +111,15 @@ def airy_plane ( b_ratio = 9.e-6,
 
 def least_mpyfit ( p, args ):
     """
-    Wrapper function around the airy function proper, so that the API for using mpyfit is obeyed.
+    This function's goal is to wrap the airy function proper, so that the API for using mpyfit is obeyed.
 
     Parameters:
 
-    - p: tuple, containing the b_ratio, center_col, center_row, continuum, finesse, gap and intensity values.
-    - args: tuple, containing the shape_cols, shape_rows, wavelength, data and flat values.
+    * p : tuple
+        Containing the b_ratio, center_col, center_row, continuum, finesse, gap and intensity values.
+
+    * args : tuple
+        Containing the shape_cols, shape_rows, wavelength, data and flat values.
     """
     log = logging.getLogger ( __name__ )
     log.debug ( "least_mpyfit" )
@@ -124,7 +155,37 @@ def least_mpyfit ( p, args ):
 
 class airy_fitter ( threading.Thread ):
     """
-    Airy function fitter. It will spawn a thread that will fit the Airy function to the given data, using the given parameters as initial guesses.
+    This class' responsibility is to fit the Airy function. It will use the given parameters as initial guesses. The fit will stop when the fitter converges.
+
+    It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
+
+    Its constructor signature is:
+
+    Parameters:
+
+    * b_ratio : float
+        The ratio between the pixel size and the camera focal length (b).
+
+    * center_col : integer
+        The column for the center of the rings, in pixels.
+
+    * center_row : integer
+        The row for the center of the rings, in pixels.
+
+    * data : numpy.ndarray
+        Contains the data to be fitted.
+
+    * finesse : float
+        (F).
+
+    * gap : float
+        The distance between the étalons, in microns (n e_i).
+    
+    * wavelength : float 
+        Wavelength in microns ( lambda_c ).
+
+    * mpyfit_parinfo : list : defaults to [ ]
+        List of parameters' boundaries, and whether they are fixed or not. Must respect mpyfit's specification.
     """
 
     def __init__ ( self,
@@ -139,13 +200,14 @@ class airy_fitter ( threading.Thread ):
                    
         self.log = logging.getLogger ( __name__ )
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = '0.1.4'
+        self.__version__ = "0.1.5"
         self.changelog = {
-            '0.1.4' : "Added docstrings.",
-            '0.1.3' : "Tweaked xtol to 1e-6, works on some tests.",
-            '0.1.2' : "Changedx xtol from 1e-10 to 1e-5 to improve speed.",
-            '0.1.1' : "Refactored algorithm for getting lowest percentile into another module.",
-            '0.1.0' : "Initial changelog."
+            "0.1.5" : "Tuna 0.14.0 : updated docstrings to new style.",
+            "0.1.4" : "Added docstrings.",
+            "0.1.3" : "Tweaked xtol to 1e-6, works on some tests.",
+            "0.1.2" : "Changedx xtol from 1e-10 to 1e-5 to improve speed.",
+            "0.1.1" : "Refactored algorithm for getting lowest percentile into another module.",
+            "0.1.0" : "Initial changelog."
             }
 
         self.b_ratio = b_ratio
@@ -167,7 +229,7 @@ class airy_fitter ( threading.Thread ):
 
     def run ( self ):
         """
-        Interface function to fit an Airy model to a given input.
+        This method's goal is to fit an Airy model to a given input.
         """
         start = time.time ( )
 

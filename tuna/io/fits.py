@@ -1,5 +1,5 @@
 """
-This module's scope are operations related to the FITS file format.
+This module's scope covers operations related to the FITS file format.
 
 As much as possible, operations are deferred to astropy.io.fits.
 """
@@ -22,16 +22,16 @@ class fits ( file_reader ):
 
     Parameters:
 
-    * array : numpy.ndarray, defaults to None
+    * array : numpy.ndarray : defaults to None
         Contains the data to be written to a file.
     
-    * file_name : string, defaults to None
+    * file_name : string : defaults to None
         Contains the full location of a file to be read, or to be written to.
 
-    * metadata : dictionary, defaults to { }
+    * metadata : dictionary : defaults to { }
         Contains metadata to be written as a FITS header, or the metadata read from a FITS header.
 
-    * photons : dictionary, defaults to None
+    * photons : dictionary : defaults to None
         Contains the table of photon counts and positions. It is either supplied to be saved to a file, or generated from the data on a file.
 
     Example::
@@ -54,8 +54,9 @@ class fits ( file_reader ):
                    metadata = { },
                    photons = None ):
         super ( fits, self ).__init__ ( )
-        self.__version__ = "0.1.0"
+        self.__version__ = "0.1.1"
         self.changelog = {
+            "0.1.1" : "Tuna 0.14.0 : improved docstrings.",
             "0.1.0" : "Tuna 0.13.0 : handling None data sections from astrofits.open. Improved documentation"
             }
         self.log = logging.getLogger ( __name__ )
@@ -95,6 +96,7 @@ class fits ( file_reader ):
         It will inspect the FITS header and try to do the "best thing" according to how many image HDU lists it finds; if there is only one list, that will be the data. If there are multiple lists, and these lists can be arranged as a mosaic (i.e., there are a "quadratic" number of images - 4, 9, 25, etc) they will. This is done in a counter-clockwise order, if we assume the 0th row and column is the top left of the image.
         """
         self.log.debug ( tuna.log.function_header ( ) )
+        found = False
 
         if self.__file_name == None:
             self.log.debug ( "No file_name for FITS read." )
@@ -105,17 +107,21 @@ class fits ( file_reader ):
             with warnings.catch_warnings ( ):
                 warnings.simplefilter ( "error" )
                 hdu_list = astrofits.open ( self.__file_name )
-            self.log.info ( "File %s opened as a FITS file." % self.__file_name )
+            self.log.debug ( "File %s opened as a FITS file." % self.__file_name )
 
             # The file might have many HDU lists. If there are no arrays, then the file is invalid.
             hdu_info = hdu_list.info ( output = False )
             self.log.debug ( "hdu_info = {}".format ( hdu_info ) )
+            if len ( hdu_info ) == 1:
+                self.__array = hdu_list [ 0 ].data
+                found = True
+                
             invalid_flag = True
             for entry in hdu_info:
                 if entry [ 4 ] != ( ):
                     invalid_flag = False
                     break
-            if invalid_flag:
+            if not found and invalid_flag:
                 self.log.error ( "File is invalid: no dimensions found in its HDU list." )
                 return
 
@@ -128,7 +134,7 @@ class fits ( file_reader ):
                 self.__array = hdu_list [ possible_arrays [ 0 ] ].data
 
             # If the file has several arrays, then possibly a mosaic is its data.
-            if len ( possible_arrays ) % 4 == 0:
+            if not found and len ( possible_arrays ) % 4 == 0:
                 mosaic = True
                 common_ndims = hdu_info [ possible_arrays [ 0 ] ] [ 4 ]
                 for entry_index in possible_arrays:

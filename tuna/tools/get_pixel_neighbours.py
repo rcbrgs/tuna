@@ -1,17 +1,32 @@
+"""
+This module's scope are algorithms related to obtaining the list of neighbours for a given position in an array.
+
+Example:
+
+    >>> import tuna
+    >>> import numpy
+    >>> z = numpy.zeros ( shape = ( 30, 30 ) )
+    >>> tuna.tools.get_pixel_neighbours ( position = ( 10, 20 ), array = z )
+    [(9, 19), (9, 20), (9, 21), (10, 19), (10, 21), (11, 19), (11, 20), (11, 21)]
+"""
+
 import numpy
 
 def get_pixel_neighbours ( position = ( int, int ), array = numpy.ndarray, distance_threshold = 1 ):
     """
-    This function will return a list of tuples of 2 integers where each tuple encodes the position of a neighbour of the input position in the input array.
+    This function's goal is to produce a list of tuples of 2 integers where each tuple encodes the position of a neighbour of the input position in the input array.
 
     Parameters:
 
-    - position, a tuple of 2 integers;
-    - array, a numpy.ndarray;
-    - distance_threshold, a integer with default value of 1.
+    * position : tuple of 2 integers
+
+    * array : numpy.ndarray
+
+    * distance_threshold : integer : 1
     """
-    __version__ = '0.1.0'
+    __version__ = '0.1.1'
     changelog = {
+        "0.1.1" : "Tuna 0.14.0 : updated documentation to new style.",
         '0.1.0' : "Added distance_threshold_parameter, so users can get neighbours with arbitrary distance."
         }
     

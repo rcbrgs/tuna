@@ -1,3 +1,19 @@
+# -*- coding: utf-8 -*-
+"""
+This module's scope are tools relying on numpy.percentile.
+
+Example::
+
+    >>> import numpy
+    >>> import tuna
+    >>> data = numpy.zeros ( shape = ( 10, 100, 100 ) )
+    >>> tuna.tools.find_lowest_nonnull_percentile ( data )
+    1
+    >>> data [ 0, :, : ] = numpy.ones ( shape = ( 100, 100 ) )
+    >>> tuna.tools.find_lowest_nonnull_percentile ( data )
+    90
+"""
+
 import numpy
 
 def find_lowest_nonnull_percentile ( array ):
@@ -6,7 +22,13 @@ def find_lowest_nonnull_percentile ( array ):
 
     Parameters:
 
-    - array, a numpy.ndarray containing the data.
+    * array : numpy.ndarray
+        Containing the data to apply the percentile to.
+
+    Returns:
+
+    * lower_percentile : integer
+        The lowest percentile that is not null; if all data is null, this return value will be 1.
     """
     lower_percentile = 1
     lower_percentile_value = numpy.percentile ( array, lower_percentile )

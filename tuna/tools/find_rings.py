@@ -1,5 +1,17 @@
+# -*- coding: utf-8 -*-
 """
-The scope of this module is to find rings within 3D FP spectrographs.
+This module's scope is to find rings within tridimensional Fabry-Pérot spectrographs.
+
+Example::
+
+    >>> import tuna
+    >>> raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
+    >>> rings = tuna.tools.find_rings ( raw )
+    >>> sorted ( list ( rings.keys ( ) ) )
+    ['concentric_rings', 'construction', 'gradient', 'gradients', 'lower_percentile_regions', 'ridge', 'ring_fit', 'ring_fit_parameters', 'ring_pixel_sets', 'rings', 'upper_percentile_regions']
+    >>> rings [ 'rings' ]
+    [(218.56306556317449, 256.97877557329144, 231.82699113784105, [0]), (219.14654183804043, 254.87497666726719, 110.1292761603854, [1]), (190.48575616356123, 248.81898301262672, 338.64377512691351, [2, 3])]
+
 """
 
 import copy
@@ -15,13 +27,28 @@ import tuna
 
 class rings_finder ( object ):
     """
-    The responsibility of this class is to find all rings contained in a data cube.
+    This class' responsibility is to find all rings contained in a data cube.
+
+    Its constructor expects the following parameters:
+
+    * array : numpy.ndarray
+        Containing the data where ring structures are to be found.
+
+    * plane : integer
+        The index for the plane where to search for the ring.
+
+    * ipython : object
+        A reference to a ipython object, so plots produced by this module won't suppress previous plots.
+
+    * plot_log : boolean
+        If set to True, will spawn plots of intermediary products, as they are produced.
     """
     def __init__ ( self, array, plane, ipython, plot_log ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.DEBUG )
-        self.__version__ = '0.2.2'
+        self.__version__ = '0.2.3'
         self.changelog = {
+            "0.2.3" : "Tuna 0.14.0 : updated documentation to new style.",
             '0.2.2' : "Added aggregation of concentric rings into a return structure.",
             '0.2.1' : "Added ridge_thickness to the fitted circles, improving fits' speed and precision.",
             '0.2.0' : "Added function to remove lumped sets from result. Added behaviour for exhaustive search for plane containing two rings."
@@ -42,11 +69,13 @@ class rings_finder ( object ):
         
     def execute ( self ):
         """
-        This is the main algorithm.
+        This method's goal is to run the main algorithm:
 
-        1. segment the image in ring and non-ring regions.
-        2. Create a separate array for each individual ring.
-        3. Calculate the center and the average radius.
+        #. segment the image in ring and non-ring regions.
+
+        #. Create a separate array for each individual ring.
+
+        #. Calculate the center and the average radius.
         """
         start_time = time.time ( )
         self.segment ( ) # self.result [ 'ridge' ] contains this subresult.
@@ -62,6 +91,13 @@ class rings_finder ( object ):
         self.log.debug ( "rings_finder finished. segment() {:.1f}s, separate_rings() {:.1f}s, fit_circles() {:.1f}s, aggregate_fits() {:.1f}s, aggregate_concentric_rings() {:.1f}s..".format ( segment_time - start_time, separate_time - segment_time, fit_time - separate_time, aggregate_time - fit_time, concentric_time - aggregate_time ) )
         
     def segment ( self ):
+        """
+        This method's goal is to segment the image in ring and non-ring regions.
+
+        This is accomplished applying the numpy.gradient method on the input array; and then obtaining the lower percentile region (the regions in the data where the gradient is minimal) and the higher percentile region.
+
+        The very "middle" of each ring will consist of the pixels where the gradient is in the process of changing sign; and therefore, finding these pixels (the "ridge"), is equivalent to finding the "middle" of the rings.
+        """
         if len ( self.array.shape ) != 3:
             self.log.info ( "This procedure expects a 3D numpy ndarray as input." )
         
@@ -106,6 +142,28 @@ class rings_finder ( object ):
     def ridgeness ( self, upper, lower, col, row, threshold = 1 ):
         """
         Returns 1 if point at col, row has threshold neighbours that is 1 in both upper and lower arrays.
+
+        Parameters:
+
+        * upper : numpy.ndarray
+            Should contain the array with a higher percentile gradient region.
+
+        * lower : numpy.ndarray
+            Should contain the array with a lower percentile gradient region.
+
+        * col : integer
+            The column where the pixel's ridgeness is to be assessed.
+
+        * row : integer
+            The row where the pixel's ridgeness is to be assessed.
+
+        * threshold : integer : 1
+            The minimum number of neighbours in each region that a pixel must possess to be considered a "ridge" pixel.
+
+        Returns:
+
+        * unnamed variable : integer
+            Will be 0 for pixels in the "ridge" and 0 otherwise.
         """
         neighbours = tuna.tools.get_pixel_neighbours ( ( col, row ), upper, distance_threshold = 2 )
         upper_neighbour = 0
@@ -124,6 +182,9 @@ class rings_finder ( object ):
         return 0    
             
     def fit_circles ( self ):
+        """
+        This method's goal is to fit circles to the data.
+        """
         count = 0
         for pixel_set_tuple in self.result [ 'ring_pixel_sets' ]:
             pixel_set = pixel_set_tuple [ 0 ]
@@ -168,6 +229,8 @@ class rings_finder ( object ):
 
     def aggregate_fits ( self ):
         """
+        This method's goal is to coalesce all circles fitted in the minimum number of geometric entities.
+        
         After fitting circles to pixel sets, some fits will correspond to the same ring. These must be aggregated into single results.
         """
         if 'ring_fit' not in list ( self.result.keys ( ) ):
@@ -219,9 +282,11 @@ class rings_finder ( object ):
 
     def aggregate_concentric_rings ( self ):
         """
-        The most abstract and relevant information is the following structure: ( center, radii ), where center is a tuple of floats and radii is a list of floats.
-        Each spectrograph should have a single result of this kind, and that is generated here and stored in the member self.concentric_rings.
+        This method's goal is to construct the geometric description of the concentric ring structure.
 
+        The most abstract and relevant information is the following structure: ( center, radii ), where center is a tuple of floats and radii is a list of floats.
+
+        Each spectrograph should have a single result of this kind, which is generated here and stored in self.concentric_rings.
         """
 
         self.log.debug ( "self.result [ 'rings' ] = {}".format ( self.result [ 'rings' ] ) )
@@ -282,14 +347,20 @@ class rings_finder ( object ):
  
     def construct_ring_center ( self, pixel_set ):
         """
-        Returns estimats for the center and radius of a circle that is osculatory to the curve contained in the pixel_set.
+        This method's goal is to estimate the center and radius of a circle that is osculatory to the curve contained in the pixel_set.
         
-        Arguments:
-        - pixel_set is a 2D numpy array where each pixel has either a 0 or a 1 as value.
+        Parameters:
+
+        * pixel_set : numpy.ndarray
+            Bidimensional array, where each pixel has either a 0 or a 1 as value.
 
         Returns:
 
-        center, radius where center is a 2-tuple of floats and radius is a float.
+        * center : tuple of 2 floats
+            Containing the column and row "coordinates" for the center.
+
+        * radius : float 
+            The radius of this center.
         """
         self.log.debug ( "construct_ring_center" )
         construction = numpy.copy ( pixel_set )
@@ -367,9 +438,23 @@ class rings_finder ( object ):
 
     def find_min_pixel ( self, pixel_set, line ):
         """
-        line is sympy.Line.
-        pixel_set is a numpy.ndarray.
-        intersection_points are the points where line intersects lines perpendicular to the columns.
+        This method's goal is to find the pixel that has the minimal distance to the input line.
+
+        Parameters:
+
+        * line : sympy.Line
+            The line regarding which we want to find the closest pixel in a set.
+
+        * pixel_set : numpy.ndarray
+            The set of pixels of which we want the one closest to the input line.
+
+        Returns:
+
+        * min_pixel : tuple of 2 integers
+            Containing the column and row coordinates for the pixel in the input set that is closest to the input line.
+
+        * concurrent_extreme_min : sympy.Point
+            The point on the input line where is the projection of the pixel in the input pixel_set that is closest to the input line.
         """
         intersection_points = [ ]
         for col in range ( pixel_set.shape [ 0 ] - 1 ):
@@ -433,6 +518,19 @@ class rings_finder ( object ):
         return ( min_pixel, concurrent_extreme_min )
     
     def find_max_pair ( self, pixel_set ):
+        """
+        This method's goal is to find the two pixels in the input set that are maximally distant to each other.
+
+        Parameters:
+
+        * pixel_set : numpy.ndarray
+            An array where zeros indicate lack of points, and ones indicate presence of points.
+
+        Returns:
+
+        * max_pair : tuple of 2 tuples, of 2 integers each
+            Contains the coordinates of the two points maximally distant.
+        """
         pixels = [ ]
         for col in range ( pixel_set.shape [ 0 ] ):
             for row in range ( pixel_set.shape [ 1 ] ):
@@ -475,6 +573,22 @@ class rings_finder ( object ):
         return attempt
         
     def plot_sympy_line ( self, array, sympy_line, color ):
+        """
+        This method's goal is to add a line to an array.
+        It expects to receive an array where pixels that have points have non-null value.
+        From a line specified as a Sympy object, it will color pixels in the array using the value for color.
+
+        Parameters:
+
+        * array : numpy.ndarray
+            Containing the data where the line will be drawn in-place.
+
+        * sympy_line : sympy.Line
+            An object describing the geometry of the line to be drawn.
+
+        * color : integer
+            The value to attribute to each pixel in the input array that is crossed by the geometric input line.
+        """
         for col in range ( array.shape [ 0 ] ):
             sympy_point_0 = sympy.Point ( col, 0 )
             sympy_point_1 = sympy.Point ( col, array.shape [ 1 ] - 1 )
@@ -493,6 +607,9 @@ class rings_finder ( object ):
                 array [ round ( intersection.x ) ] [ round ( intersection.y ) ] = color
             
     def separate_rings ( self ):
+        """
+        This method's goal is to create distinct array objects for each disjoint pixel set in the current self.result [ 'ridge' ] array.
+        """
         array = self.result [ 'ridge' ]
         visited = numpy.zeros ( shape = array.shape )
         connected_pixels_sets = [ ]
@@ -554,6 +671,11 @@ class rings_finder ( object ):
         """
         For some cubes, in some planes, the central region has many pixels that do not belong to a ring, but are identified as part of the ridge. This is possibly due to a "nascent" ring in that plane.
         This function identifies such regions and removes them from the returned set.
+
+        Parameters:
+
+        * pixel_sets : list of numpy.ndarrays
+            Containing disjoint pixel sets.
         """
 
         result = [ ]
@@ -589,6 +711,22 @@ class rings_finder ( object ):
         return result
             
 def circle ( center, radius, thickness, shape ):
+    """
+    This function's goal is to generate an array with the value 1 for every pixel that is "thickness" distant to a circle with the input radius and center.
+
+    Parameters:
+
+    * center : tuple of two floats
+        Containing the coordinates for the circle center.
+
+    * radius : float
+        
+    * thickness : float
+        Each pixel's distance to the center is calculated; if this distance minus the radius is less than or equal to the thickness, then the pixel receives the value 1.
+
+    * shape : tuple of integers
+        The dimensions for the resulting array.
+    """
     log = logging.getLogger ( __name__ )
     log.debug ( "center = ( {:.5f}, {:.5f} ), radius = {:.5f}".format (
         center [ 0 ], center [ 1 ], radius, shape ) )
@@ -603,6 +741,22 @@ def circle ( center, radius, thickness, shape ):
     return distances
 
 def least_circle ( p, args ):
+    """
+    This function's goal is to wrap around a call to the function circle, so that it is called according to mpyfit's API.
+
+    Parameters:
+
+    * p : tuple
+        Contains parameters used to call the function.
+
+    * args : tuple
+        Contains parameters used to call the function.
+
+    Returns:
+
+    * residue.flatten ( ) : numpy.ndarray
+        With the fitted circle.
+    """
     log = logging.getLogger ( __name__ )
     center_col, center_row, radius, thickness = p
     shape, data, function = args
@@ -625,6 +779,27 @@ def least_circle ( p, args ):
     return ( residue.flatten ( ) )
 
 def fit_circle ( center_col, center_row, radius, data, function, ridge_thickness = 1 ):
+    """
+    This function's goal is to fit a circle to the input data.
+
+    Parameters:
+
+    * center_col : float 
+        The column coordinate of the center.
+
+    * center_row : float
+        The row coordinate of the center.
+
+    * radius : float
+
+    * data : numpy.ndarray
+
+    * function : object
+        A reference to the function to be used for fitting.
+
+    * ridge_thickness : float : 1
+        The thickness of the ring to be fitted to the data.
+    """
     log = logging.getLogger ( __name__ )
 
     parameters = ( float ( center_col ),
@@ -671,19 +846,34 @@ def fit_circle ( center_col, center_row, radius, data, function, ridge_thickness
 def find_rings ( array, min_rings = 1, plane = None, ipython = None, plot_log = False ):
     """
     Attempts to find rings contained in a 3D numpy ndarray input.
-    Parameters:
-    - array is the 3D numpy array with the spectrograph. This parameter can also be a Tuna can.
-    - min_rings is the minimal number of rings expected to be found.
-    - plane is the index in the cube for the spectrograph whose rings the user wants. If no plane is specified, all planes will be search (from 0 onwards) until at least two rings are found in a plane.
-    - ipython is a reference to the ipython object, in case it exists.
-    - plot_log defaults to False, which does not output plots of the intermediary products. Even then, all numpy arrays are accessible in the result structure.
 
-    Returns a list of dicts, with the following keys:
-    'array'  : 2D numpy.ndarray where pixels in the ring have value 1 and other pixels have value 0.
-    'center' : a tuple of 2 floats, where the first is the column and the second is the row of the most probable locations for the center of that ring.
-    'radius' : a float with the average value of the distance of the ring pixels to its center.
-    'construction' : a list of numpy arrays containing the geometric construction that led to the estimated center and radius used in the fit.
-    'pixel_set' : a list of numpy arrays containing the segmented pixel sets corresponding to each identified ring.
+    Parameters:
+
+    * array : numpy.ndarray 
+        A tridimensional spectrogram. This parameter can also be a Tuna can.
+
+    * min_rings : integer
+        This is the minimal number of rings expected to be found.
+
+    * plane : integer : None
+        This is the index in the cube for the spectrograph whose rings the user wants. If no plane is specified, all planes will be search (from 0 onwards) until at least two rings are found in a plane.
+
+    * ipython : object : None
+        Contains a reference to the ipython object, in case it exists.
+
+    * plot_log : boolean : False
+        Flags whether to output plots of the intermediary products. Even when not plotting, all numpy arrays are accessible in the result structure.
+
+    Returns:
+
+    * finder.result : list of dictionaries
+        With the following keys: 
+
+        * 'array' : 2D numpy.ndarray where pixels in the ring have value 1 and other pixels have value 0.
+        * 'center' : a tuple of 2 floats, where the first is the column and the second is the row of the most probable locations for the center of that ring.
+        * 'radius' : a float with the average value of the distance of the ring pixels to its center.
+        * 'construction' : a list of numpy arrays containing the geometric construction that led to the estimated center and radius used in the fit.
+        * 'pixel_set' : a list of numpy arrays containing the segmented pixel sets corresponding to each identified ring.
     """
 
     log = logging.getLogger ( __name__ )

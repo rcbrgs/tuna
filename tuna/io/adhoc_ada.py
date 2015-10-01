@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-This module's scope are operations related to ADHOC ADA files.
+This module's scope covers operations related to ADHOC ADA files.
 """
 
 from .file_reader import file_reader
@@ -22,10 +22,10 @@ class ada ( file_reader ):
 
     Parameters:
 
-    * array : numpy.ndarray, defaults to None
+    * array : numpy.ndarray : defaults to None
         An array containing the image data; this parameter is useful to convert a known array to a photon table.
 
-    * file_name : string, defaults to None
+    * file_name : string : defaults to None
         To obtain data from a file, it must contain the path to a valid ADT file, which will contain the metadata and the names for the individual ADA files.
 
     Example usage::
@@ -40,8 +40,9 @@ class ada ( file_reader ):
     def __init__ ( self, 
                    array = None, 
                    file_name = None ):
-        self.__version__ = "0.1.1"
+        self.__version__ = "0.2.0"
         self.__changelog = {
+            "0.2.0" : "Tuna 0.14.0 : improved docstrings.",
             "0.1.1" : "Updated docstrings to new style documentation.",
             '0.1.0' : "Initial changelogged version."
             }
@@ -167,10 +168,10 @@ class ada ( file_reader ):
 
         Parameters:
 
-        * channel : integer (defaults to -1)
+        * channel : integer : defaults to -1
             An ADA file will often encode the photon counts for a given channel. This channel number must be specified so that the photon table can be constructed with this information. If the default value of -1 is used, the method will return immediately.
 
-        * file_name : string (defaults to None)
+        * file_name : string : defaults to None
             The file_name must represent a valid ADA file.
         """
         self.log.debug ( tuna.log.function_header ( ) )

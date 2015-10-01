@@ -1,3 +1,30 @@
+# -*- coding: utf-8 -*-
+"""
+This module's scope are the operations required to reduce data from a high resolution spectrograph.
+
+Example::
+
+    >>> import tuna
+    >>> file_object = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
+    >>> reducer = tuna.tools.phase_map.high_resolution ( \
+            calibration_wavelength = 6598.953125, \
+            finesse = 12, \
+            free_spectral_range = 8.36522123894, \
+            interference_order = 791, \
+            interference_reference_wavelength = 6562.7797852, \
+            pixel_size = 9, \
+            scanning_wavelength = 6616.89, \
+            tuna_can = file_object, \
+            wrapped_algorithm = tuna.tools.phase_map.barycenter_fast, \
+            channel_subset = [ 0, 1, 2, 5 ], \
+            continuum_to_FSR_ratio = 0.125, \
+            noise_mask_radius = 8, \
+            dont_fit = False, \
+            unwrapped_only = False, \
+            verify_center = None ); reducer.join ( )
+    >>> reducer.wavelength_calibrated.array [ 10 ] [ 10 ]
+    103.18638370414156
+"""
 import IPython
 import logging
 import math
@@ -10,6 +37,8 @@ import tuna
 class high_resolution ( threading.Thread ):
     """
     Creates and stores an unwrapped phase map, taking as input a raw data cube.
+
+    It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
 
     Intermediary products are:
 
@@ -28,28 +57,61 @@ class high_resolution ( threading.Thread ):
 
     Its constructor parameters are:
 
-    - *calibration_wavelength*, a float encoding the magnitude of the calibration wavelength, in Angstroms.
-    - *finesse*,
-    - *free_spectral_range*,
-    - *interference_order*,
-    - *interference_order_wavelength*,
-    - *pixel_size*,
-    - *scanning_wavelength*,
-    - *tuna_can*, the raw data. Must be a :ref:`tuna_io_can_label` object;
-    - *wrapped_algorithm*,
-    - *channel_subset*,
-    - *continuum_to_FSR_ratio*,
+    * calibration_wavelength : float
+        Encodes the magnitude of the calibration wavelength, in Angstroms.
+
+    * finesse : float
+        Containing the value of the Finesse for this spectrographer.
+
+    * free_spectral_range : float
+        Containing the value in Angstroms for the bandwidth that corresponds to one interference order.
+
+    * interference_order : integer
+        The order of the interference pattern from the spectrograph for this wavelength, and étalon separation.
+    
+    * interference_reference_wavelength : float
+        The order of the interference pattern for the reference wavelength.
+
+    * pixel_size : float
+        The size in micrometers of the separation between each pixel center in the CCD.
+
+    * scanning_wavelength : float
+        The value in Angstroms for the wavelength used for scanning.
+
+    * tuna_can : can
+        The raw interferograph data. Must be a :ref:`tuna_io_can_label` object.
+
+    * wrapped_algorithm : reference to a function
+        The function to be called, to produce the wrapped phase map.
+
+    * channel_subset : list of integers
+        A list of the channels to be substituted by their fitted model's data.
+
+    * continuum_to_FSR_ratio : float
+        The ratio between the number of channels expected to have a continuum-dominated signal, and the channels expected to have a line-dominated signal. This is used to produce a continuum map; larger ratios means more data belongs to the continuum.
 
     Keyworded parameters:
 
-    - *dont_fit*, 
-    - *noise_mask_radius*, the distance from a noise pixel that will be marked as noise also (size of a circle around each noise pixel);
-    - *noise_threshold*,
-    - *plot_log*, boolean, that specifies whether to matplotlib plot the partial results (which will be always available as ndarrays). Defaults to False;
-    - *ring_minimal_percentile*,
-    - *unwrapped_only*,
-    - *verify_center*.
+    * dont_fit : bool : False
+        Specifies whether to fit models to the data.
 
+    * noise_mask_radius : integer : 1
+        The distance from a noise pixel that will be marked as noise also (size of a circle around each noise pixel);
+    
+    * noise_threshold : float : None
+        The minimal value for a pixel content to be marked as signal, instead of noise. If None, this value will be automatically computed.
+
+    * plot_log : boolean : False
+        Specifies whether to matplotlib plot the partial results (which will be always available as ndarrays).
+
+    * ring_minimal_percentile : integer : None
+        The value for the minimal percentile that contains some data on the dataset. If None, will be determined automatically.
+
+    * unwrapped_only : boolean : False
+        If True, will avoid computing the model fits and the wavelength calibration.
+
+    * verify_center : tuple of 2 integers : None
+        If not None, the center calculated by the pipeline will be validated against the input value.
     """
     def __init__ ( self,
                    calibration_wavelength,
@@ -73,8 +135,9 @@ class high_resolution ( threading.Thread ):
 
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.17'
+        self.__version__ = "0.1.18"
         self.changelog = {
+            "0.1.18" : "Tuna 0.14.0 : updated documentation.",
             '0.1.17' : "Improved docstring for class.",
             '0.1.16' : "Adapted to use refined version of ring finder.",
             '0.1.15' : "Fixed gap 'pulsating' by making gap change monotonic, and using 1st gap fit as seed for plane reconstruction.",
@@ -441,23 +504,41 @@ class high_resolution ( threading.Thread ):
         
 def profile_processing_history ( high_resolution, pixel ):
     """
-    This function will return a structure containing the data for a given "position" throughout the pipeline. Since objects can have 2 or 3 dimensions, the data structure returns either a value or a 1 dimensional array for each product.
+    This function's goal is to conveniently return a structure containing the data for a given "position" throughout the pipeline. Since objects can have 2 or 3 dimensions, the data structure returns either a value or a 1 dimensional array for each product.
 
     Parameters:
 
-    - high_resolution, a reference to the pipeline object;
-    - pixel, a tuple containing the values for column and row of the point to be investigated.
+    * high_resolution : reference to a pipeline object
+        Should be set to the (already run) pipeline.
+
+    * pixel : tuple of 2 integers
+        Containing the values for column and row of the point to be investigated.
 
     Returns a dictionary with 8 fields (each field corresponds to the result of a method of the high_resolution class):
 
-    - 'Original data', a numpy.ndarray;
-    - 'Discontinuum', a numpy.ndarray;
-    - 'wrapped phase map', a float;
-    - 'Order map', a float;
-    - 'Unwrapped phase map', a float;
-    - 'Parabolic fit', a float;
-    - 'Airy fit', a numpy.ndarray;
-    - 'Wavelength', a float.
+    * 'Original data' : numpy.ndarray
+        Contains the spectrum for the input pixel.
+
+    * 'Discontinuum' : numpy.ndarray
+        The value of the continuum for the input pixel.
+
+    * 'wrapped phase map' : float
+        The value of the wrapped phase map at the input pixel.
+
+    * 'Order map' : float
+        The order to which the pixel belongs to (relative to the order at the center of the ring structure).
+
+    * 'Unwrapped phase map' : float
+        The value of the unwrapped phase map at the input pixel.
+
+    * 'Parabolic fit' : float
+        The value of the fitted parabolic model at the input pixel.
+
+    * 'Airy fit' : numpy.ndarray
+        The value of the fitted Airy model at the input pixel.
+
+    * 'Wavelength' : float
+        The value of the wavelength-calibrated map at the input pixel.
     """
     
     profile = { }

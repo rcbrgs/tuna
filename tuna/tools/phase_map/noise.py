@@ -1,3 +1,19 @@
+# -*- coding: utf-8 -*-
+"""
+This module's scope is the detection of noise in Fabry-Pérot interferographs.
+
+Example::
+
+    >>> import tuna
+    >>> raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
+    >>> barycenter = tuna.tools.phase_map.barycenter_fast ( raw ); barycenter.join ( )
+    >>> noise = tuna.tools.phase_map.noise_detector ( raw = raw, \
+                                                      wrapped = barycenter.result, \
+                                                      noise_mask_radius = 1, \
+                                                      noise_threshold = 1 ); noise.join ( )
+    >>> noise.noise.array [ 500 : 511, 500 ]
+    array([ 1.,  0.,  1.,  1.,  0.,  1.,  1.,  1.,  1.,  1.,  1.])
+"""
 import logging
 import math
 import numpy
@@ -7,31 +23,37 @@ import tuna
 
 class noise_detector ( threading.Thread ):
     """
-    This class is responsible for detecting noise from a raw Fabry-Pérot interferogram.
+    This class is responsible for detecting noise from a raw Fabry-Pérot interferograph.
 
     It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
 
-    Its constructor expects the following parameters:
-
-    - raw, a numpy.ndarray containing the raw interferometry data;
-    - wrapped, a numpy.ndarray containing the wrapped phase map;
-    - noise_mask_radius, an integer encoding the radius (in pixels) of the circle to be marked as noisy around each pixel detected as noisy;
-    - noise_threshold, a float encoding the minimum value to be considered noise.
-
-    Usage:
+    The algorithm consists of creating a temporary array, summing the data on "depth" or spectra, for each pixel. If a threshold is passed on the input, it is the minimal value for a pixel be considered "non noisy". If no threshold was supplied by the user, the algorithm will search for the smallest percentile on the temporary array which is non-null. The value that corresponds to this percentile will be used as the threshold.
 
     The noise_mask_radius is useful to "fill" small gaps inside noise regions. Some tools (such as the ones used to produce fsr maps) relie on the noise being made of "continuous" pixel sets. By increasing this parameter, it is possible to force noisy regions to overlap and become "continuous", if they aren't.
+
+    Its constructor expects the following parameters:
+
+    * raw : numpy.ndarray 
+        Containing the raw interferometry data.
+
+    * wrapped : numpy.ndarray
+        Containing the wrapped phase map.
+
+    * noise_mask_radius : integer : 1
+        Encoding the radius (in pixels) of the circle to be marked as noisy around each pixel detected as noisy.
+
+    * noise_threshold : float : None
+        Encoding the minimum value to be considered signal.
     """
     def __init__ ( self,
                    raw,
                    wrapped,
-                   noise_mask_radius,
-                   noise_threshold ):
-        
-        self.log = logging.getLogger ( __name__ )
-        super ( self.__class__, self ).__init__ ( )
-        self.__version__ = '0.1.5'
+                   noise_mask_radius = 1,
+                   noise_threshold = None ):
+        super ( self.__class__, self ).__init__ ( )        
+        self.__version__ = "0.1.6"
         self.changelog = {
+            "0.1.6" : "Tuna 0.14.0 : updated documentation.",
             '0.1.5' : "Imroved docstrings for Sphinx.",
             '0.1.4' : "Added hook to update noise table on db.",
             '0.1.3' : "Simplified noise radius loop to fix it.",
@@ -39,6 +61,7 @@ class noise_detector ( threading.Thread ):
             '0.1.1' : "Completed support for noise_threhsold parameter.",
             '0.1.0' : "First changelogged version."
             }
+        self.log = logging.getLogger ( __name__ )
 
         self.raw = raw
         self.wrapped = wrapped
@@ -65,6 +88,11 @@ class noise_detector ( threading.Thread ):
         This method will mask out pixels whose total signal (the curve below its profile) is less than X % of the average total signal per pixel.
         Observing the profiles for pixels on the edges of a interferogram, one notices that there is much less signal in these regions, when the observable is centered on the field of view.
         This causes these regions to be highly susceptible to noise. To detect them, one finds the average value for the flux for a pixel, and masks out the pixels that are much lower than that. By default, much lower means less than 10% the flux.
+
+        Parameters:
+
+        * threshold : float
+            Sets the minimal value for a pixel data be considered signal.
         """
         start = time.time ( )
 
@@ -120,9 +148,14 @@ def include_noise_circle ( position = ( int, int ), radius = int, array = numpy.
 
     Parameters:
 
-    - position, a tuple of 2 integers, corresponding to the center of the circle to be masked;
-    - radius, an integer with the length (in pixels) of the circle to be masked;
-    - array, a numpy.ndarray where the mask is to be drawn.
+    * position : tuple of 2 integers
+        Corresponding to the center of the circle to be masked.
+
+    * radius : integer
+        Containing the length (in pixels) of the circle to be masked.
+
+    * array : numpy.ndarray
+        Specifies where the mask is to be drawn.
     """
     for     col in range ( position [ 0 ] - radius, position [ 0 ] + radius ):
         for row in range ( position [ 1 ] - radius, position [ 1 ] + radius ):
@@ -136,8 +169,11 @@ def position_is_valid_pixel_address ( position = ( int, int ), array = numpy.arr
 
     Parameters:
 
-    - position, a tuple of 2 integers encoding a possible coordinate of the input array;
-    - array, a numpy.ndarray.
+    * position : tuple of 2 integers
+        Encoding a possible coordinate of the input array.
+
+    * array : numpy.ndarray
+        The array where the position validness is to be probed.
     """
     if ( position[0] >= 0 and
          position[0] < array.shape[0] and

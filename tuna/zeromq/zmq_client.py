@@ -1,5 +1,5 @@
 """
-This module's scope is: ZeroMQ client.
+This module's scope is the ZeroMQ client.
 """
 
 import logging
@@ -30,13 +30,16 @@ class zmq_client ( object ):
 
     def send ( self, message ):
         """
-        This method's goal is to sends a message to the proxy.
+        This method's goal is to send a message to the proxy.
 
         Parameters:
 
-        - message, a string.
+        * message : string
 
-        Returns a string, containing the answer, which should be "ACK".
+        Returns:
+
+        * string
+            Containing the answer, which should be "ACK".
         """
         self.open_socket ( )
         self.register_poller ( )

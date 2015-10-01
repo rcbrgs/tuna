@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 """
-The scope of this module is to find rings within 2D FP spectrographs.
+The scope of this module is to find rings within bidimensional Fabry-Pérot spectrographs.
 """
 
 import logging
@@ -10,13 +11,21 @@ import tuna
 class rings_2d_finder ( object ):
     """
     The responsibility of this class is to find all rings contained in a bidimensional numpy array provided by the user. It should return ndarrays containing the pixels, and lists of the rings centers and radii.
+
+    Its constructor expects the following parameters:
+
+    * array : numpy.ndarray
+
+    * ring_minimal_percentile : integer
+        The minimal percentile for values being considered below the ridge threshold.
     """
 
     def __init__ ( self, array, ring_minimal_percentile ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.4'
+        self.__version__ = '0.1.5'
         self.changelog = {
+            "0.1.5" : "Tuna 0.14.0 : updated documentation to new style.",
             '0.1.4' : "Parameterized percentile for ring / inter ring decision.",
             '0.1.3' : "There should be a single center being considered, so the average of the found centers is used.",
             '0.1.2' : "Moved percentile on threshold to 10% to 'get' more rings.",
@@ -31,12 +40,16 @@ class rings_2d_finder ( object ):
     def execute ( self ):
         """
         Attempt to find a ring by:
-        - get the map of the largest finite difference for each point and its neighbours. The idea being that for circular symmetry, such as found on FP spectrographs, pixels on the same "ring" should have similar intensities ( and therefore small finite differences when they are neighbours), while pixels from the "next" or "previous" ring should have different intensities, and therefore relatively greater finite differences.
-        - segment the image according to a threshold on the differences (ring borders should have large differences). This results in an image with the rings, and a "ridge" precisely where the finite difference changes signal along the direction.
-        
-        - find a center. 
-        - calculate the distances to center.
-        - populate and dispatch the result.
+
+        #. Get the map of the largest finite difference for each point and its neighbours. The idea being that for circular symmetry, such as found on FP spectrographs, pixels on the same "ring" should have similar intensities ( and therefore small finite differences when they are neighbours), while pixels from the "next" or "previous" ring should have different intensities, and therefore relatively greater finite differences.
+
+        #. Segment the image according to a threshold on the differences (ring borders should have large differences). This results in an image with the rings, and a "ridge" precisely where the finite difference changes signal along the direction.
+
+        #. Find a center. 
+
+        #. Calculate the distances to center.
+
+        #. Populate and dispatch the result.
         """
 
         cols = self.array.shape [ 0 ]
@@ -296,28 +309,39 @@ class rings_2d_finder ( object ):
 
 def find_rings_2d ( array, ring_minimal_percentile = 50 ):
     """
-    - ring_minimal_percentile is the percentile of the array that pixels with values below that percentile belong to inter-ring regions, while values on or above that percentile belong to rings. Default is 50.
+    This function's goal is to conveniently return a ring structure for an input array, which sould contain the raw data of a Fabry-Pérot spectrograph.
+
+    Parameters:
+
+    * array : numpy.ndarray
+
+    * ring_minimal_percentile : integer : 50
+        It is the percentile of the array that pixels with values below that percentile belong to inter-ring regions, while values on or above that percentile belong to rings. 
 
     Attempts to find rings contained in a 2D numpy ndarray input.
-    Returns a structure with the following format:
 
-|    result = { 
-|  'radii'   : [ ],  # list of radii for rings
-|  'ndarray' : { 
-|    'max', # array where each pixel has the value of the max difference between itself and its neighbours, in the original array.
-|    'nw', # array where pixels have max difference with regards to their nw neighbour
-|    'nn',
-|    'ne',
-|    'ww',
-|    'ee',
-|    'sw',
-|    'ss',
-|    'se',
-|    'threshold', # array where inter-rings are 0s and rings are 1s
-|    'fill',
-|    'continuous' } 
-|  'rings',
-|  'probable_centers' }
+    Returns:
+
+    * finder.result : dict
+        This is a structure with the following format:
+
+|        result = { 
+|            'radii'   : [ ],  # list of radii for rings
+|            'ndarray' : { 
+|                'max', # array where each pixel has the value of the max difference between itself and its neighbours, in the original array.
+|                'nw', # array where pixels have max difference with regards to their nw neighbour
+|                'nn',
+|                'ne',
+|                'ww',
+|                'ee',
+|                'sw',
+|                'ss',
+|                'se',
+|                'threshold', # array where inter-rings are 0s and rings are 1s
+|                'fill',
+|                'continuous' } 
+|            'rings',
+|            'probable_centers' }
 
     """
 

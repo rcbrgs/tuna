@@ -1,7 +1,5 @@
 """
-tools.py
-
-Provides access to Tuna's tools namespace.
+This namespace aggregates modules that are meant to be called as library routines; in other words, if the user is expected to use some tool "X" contained in Tuna, he is expected to call it as "tuna.tools.X", or a shorthand form of that if the user creates an alias for it.
 """
 
 import tuna.tools.phase_map

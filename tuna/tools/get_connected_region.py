@@ -1,9 +1,30 @@
+"""
+This module's scope are algorithms to obtain regions of connected points in an array.
+
+Example::
+
+    >>> import tuna
+    >>> import numpy
+    >>> z = numpy.zeros ( shape = ( 2, 2 ) )
+    >>> tuna.tools.get_connected_region ( ( 1, 1 ), z, z )
+    [(1, 1), (1, 0), (0, 1), (0, 0), (0, 0), (0, 1), (0, 0)]
+"""
+
 import tuna
 
 def get_connected_region ( point, array, already ):
     """
-    Returns a list of all points that have the same value as point, and that are connected to it.
+    This function's goal is to generate a list of all points that have the same value as the input point, and that are connected to it.
+
     Values come from array, and the array already will be updated with the points taken in consideration having the value 1, and ignoring all points that have value 1.
+
+    Parameters:
+
+    * point : tuple of 2 integers
+
+    * array : numpy.ndarray
+
+    * already : numpy.ndarray
     """
     region = [ ]
     to_consider = [ point ]

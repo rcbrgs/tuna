@@ -1,5 +1,11 @@
 """
-The scope of this module is related to plotting data graphically.
+This module's scope is related to plotting data graphically.
+
+Example::
+
+    import tuna
+    raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
+    tuna.tools.plot ( raw )
 """
 
 import IPython
@@ -16,11 +22,11 @@ except ImportError:
 
 def log ( message ):
     """
-    This function prints a input message if its debug value is True, otherwise it does nothing.
+    This function's goal is to output the input message if its debug value is True, otherwise it does nothing. It is a poor substitute for writing proper support to the logging module.
 
     Parameters:
 
-    - message, a string.
+    * message : string
     """
     debug = False
     if debug:
@@ -28,14 +34,17 @@ def log ( message ):
 
 def plot ( data, title = "", ipython = None ):
     """
-    Function that attempts to plot a numpy ndarray argument.
+    This function's goal is to plot a numpy ndarray argument.
     Will plot a mosaic if data is 3D, a simple plot if 2D.
 
     Parameters:
 
-    - data, a numpy.ndarray;
-    - title, a string;
-    - ipython, a reference to the running ipython environment.
+    * data : numpy.ndarray
+
+    * title : string
+
+    * ipython : object
+        A reference to the running ipython environment.
     """
     if not ipython:
         ipython = IPython.get_ipython()
@@ -70,12 +79,12 @@ def plot ( data, title = "", ipython = None ):
 
 def plot_high_res ( high_res ):
     """
-    Expects a high_res object.
-    Will plot each of the intermediary products.
+    This function's goal is to plot the intermediary products of a tuna.tools.phase_map.high_res object.
 
     Parameters:
 
-    high_res, a reference to a :ref:`tuna_tools_phase_map_high_resolution_label` object.
+    * high_res : object
+        A reference to a :ref:`tuna_tools_phase_map_high_resolution_label` object.
     """
     
     ipython = IPython.get_ipython()

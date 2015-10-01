@@ -1,7 +1,8 @@
 log
 ===
 
-This subpackage's scope contains modules responsible for features related to logging.
+.. automodule:: tuna.log
+   :members:
 
 .. toctree::
    :maxdepth: 2

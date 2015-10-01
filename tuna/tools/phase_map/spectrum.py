@@ -1,3 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+This module's scope are per-spectra operations.
+
+Example::
+
+    >>> import tuna
+    >>> raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
+    >>> continuum_detector = tuna.tools.phase_map.continuum_detector ( can = raw ); continuum_detector.join ( )
+    >>> continuum_detector.continuum.array [ 100 ] [ 100 ]
+    3.0
+"""
 import logging
 import math
 import numpy
@@ -13,8 +25,11 @@ class continuum_detector ( threading.Thread ):
 
     Its constructor expects the following parameters:
 
-    - can, a :ref:`tuna_io_can_label` containing data from a spectrograph;
-    - continuum_to_FSR_ratio, a float encoding the ratio below which values are to be ignored.
+    * can : :ref:`tuna_io_can_label`
+        Containing data from a spectrograph.
+
+    * continuum_to_FSR_ratio : float
+        Encoding the ratio below which values are to be ignored.
     """
     def __init__ ( self, can, continuum_to_FSR_ratio = 0.25 ):
         self.log = logging.getLogger ( __name__ )
@@ -57,7 +72,15 @@ class continuum_detector ( threading.Thread ):
 def median_of_lowest_channels ( continuum_to_FSR_ratio = 0.25,
                                 spectrum = numpy.ndarray ):
     """
-    Returns the median of the three lowest channels of the input profile.
+    This function's goal is to obtain the median of the three lowest channels of the input profile.
+
+    Parameters:
+
+    * continuum_to_FSR_ratio : float : 0.25
+        The ratio of signal that is expected to be part of the continuum.
+
+    * spectrum : numpy.ndarray
+        The spectral data.
     """
     log = logging.getLogger ( __name__ )
 
@@ -84,9 +107,14 @@ def suppress_channel ( replacement,
 
     Parameters:
 
-    - replacement, a numpy.ndarray with the signal where channels are going to be replaced from;
-    - array, a numpy.ndarray that is going to be copied, and the original data is from;
-    - channels, a list of integers with the indexes of the channels to be substituted.
+    * replacement: numpy.ndarray
+        Contains the signal where channels are going to be replaced from.
+
+    * array : numpy.ndarray
+        The data that is going to be copied, and the original data is from.
+
+    * channels : list
+        Lists the indexes of the channels to be substituted.
     """
     result = numpy.copy ( array )
     for channel in channels:

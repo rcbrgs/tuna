@@ -1,5 +1,5 @@
 """
-This module's scope contains tools that make data access more convenient.
+This module's scope covers tools that make data access more convenient.
 """
 
 import logging

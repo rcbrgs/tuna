@@ -1,13 +1,31 @@
+"""
+This module's scope are algorithms to obtain connected regions of a array.
+
+Example::
+
+    >>> import tuna
+    >>> import numpy
+    >>> z = numpy.zeros ( shape = ( 2, 2 ) )
+    >>> tuna.tools.get_connected_points ( ( 1, 1 ), z )
+    [(1, 1), (1, 0), (0, 1), (0, 0), (0, 0), (0, 1), (0, 0)]
+"""
+
 import tuna
 
 def get_connected_points ( position, array ):
     """
-    This function returns a list of tuples of 2 integers, each one encoding the coordinates for pixels in the input array that have the same value as the one store at the input position, and that have a "direct path" to the position that only contain pixels with the same value.
+    This function's goal is to generate a list of the coordinates for pixels in the input array that have the same value as the one store at the input position, and that have a "direct path" to the position that only contain pixels with the same value.
 
     Parameters:
 
-    - position, a tuple of 2 integers;
-    - array, a numpy.ndarray containing the data.
+    * position : tuple of 2 integers
+        The position of the seed of the region.
+
+    * array : numpy.ndarray
+
+    Returns:
+
+    * list of tuples of 2 integers each.
     """
     to_verify = [ position ]
     verified = [ ]

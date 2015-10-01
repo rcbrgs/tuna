@@ -1,6 +1,9 @@
 phase_map
 =========
 
+.. automodule:: tuna.tools.phase_map
+   :members:
+
 .. toctree::
    :maxdepth: 1
 

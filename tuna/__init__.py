@@ -6,7 +6,7 @@ Tuna is a data "reduction" solution for Fabry-Pérot interferometer data, specia
 
 As of version v0.11.0 of Tuna, the scope of reduction that is processed covers the transformation of raw interferometer data into wavelength-calibrated data.
 
-Tuna is highly modular, and its modules are organized in subpackages.
+Tuna is highly modular, and its modules are organized in trees of namespaces and modules, where each non-terminalnode is a namespace and leafs are modules.
 
 Subpackages
 -----------
@@ -34,8 +34,9 @@ Numpy indexing order
 From Tuna v0.11.0 onwards, we are adopting the convention mentioned in: http://docs.scipy.org/doc/numpy/reference/internals.html, so that rows will be the last item indexed. Therefore, cubes in tuna should be indexed as [ planes, columns, rows ].
 """
 
-__version__ = '0.10.5'
+__version__ = '0.10.6'
 changelog = {
+    "0.10.6" : "Tuna 0.14.0 : improved documentation.",
     '0.10.5'  : "Docstring.",
     '0.10.4'  : "Added db link through the daemons.",
     '0.10.3'  : "Even less spammy.",

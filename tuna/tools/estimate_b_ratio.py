@@ -1,3 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+This module's scope is the estimation of the b-ratio (the ratio between the size of the pixels in the CCD and the focal length). 
+
+Example::
+
+    >>> import tuna
+    >>> estimate = tuna.tools.estimate_b_ratio ( radii = [ 100, 200 ], orders = [ 800, 801 ] )
+    >>> estimate
+    0.00028933783055714126
+"""
+
 import logging
 import math
 import tuna
@@ -10,13 +22,17 @@ class b_ratio_estimator ( object ):
 
     Parameters:
 
-      - radii: list of concentric radii, sorted with smallest radius first.
-      - orders: list of interference orders corresponding to the listed radii.
+    * radii : list of floats
+        Contains the concentric radii, sorted with smallest radius first.
+
+    * orders : list of integers
+        Contains the interference orders corresponding to the listed radii.
     """
     def __init__ ( self, radii, orders ):
         self.log = logging.getLogger ( __name__ )
-        self.__version__ = '0.1.2'
+        self.__version__ = '0.1.3'
         self.changelog = {
+            "0.1.3" : "Tuna 0.14.0 : updated documentation to new style.",
             '0.1.2' : "Added docstring.",
             '0.1.1' : "Error: was returning b**2 instead of its radix.",
             '0.1.0' : "First changelogged version."
@@ -36,7 +52,6 @@ class b_ratio_estimator ( object ):
           b^2 = \dfrac { 2 p_c - 1 } { p_c^2 ( r_{c-1}^2 - r_c^2 ) - 2 p_c r_{c-1}^2 + r_{c-1}^2 }
 
         (Thanks to Mr. Benoît Epinat for this model.)
-
         """
         if not isinstance ( self.radii, list ):
             self.log.error ( "radii should be a list!" )
@@ -63,13 +78,26 @@ class b_ratio_estimator ( object ):
 
         b_squared = 2 * pc_1 / ( pc**2 * ( r_1**2 - r**2 ) - 2 * pc * r_1**2 + r_1**2 )
         b = math.sqrt ( b_squared )
-        self.log.info ( "b_ratio = {:e}".format ( b ) )
+        self.log.debug ( "b_ratio = {:e}".format ( b ) )
 
         return b
 
 def estimate_b_ratio ( radii, orders ):
     """
     From a list of radii, supposing each radius corresponds to the distance from a ring to the center, calculates b.
+
+    Parameters:
+
+    * radii : list of floats
+        Contains the concentric radii, sorted with smallest radius first.
+
+    * orders : list of integers
+        Contains the interference orders corresponding to the listed radii.
+    
+    Returns:
+
+    * estimate : float
+        The value estimated for the b-ratio.
     """
 
     estimator = b_ratio_estimator ( radii, orders )

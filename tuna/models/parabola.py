@@ -1,3 +1,7 @@
+"""
+This module's scope is to model and fit a parabolic dsitribution to data.
+"""
+
 from astropy.modeling import models
 from astropy.modeling.fitting import LevMarLSQFitter
 import logging
@@ -10,12 +14,32 @@ import warnings
 
 class parabolic_fitter ( threading.Thread ):
     """
-    Responsible for generating parabolic models and the fitting of models to data.
+    This class's responsibility is to generate parabolic models and the fitting of models to data.
+
+    It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
+
+    Its constructor signature is:
+
+    Parameters:
+
+    * center : tuple of 2 floats
+        Containing the expected center of the interferograph.
+
+    * noise : can
+        Contains the noise corresponding to the data.
+
+    * unwrapped : can
+        Contains the data to be fitted.
     """
     def __init__ ( self, noise, unwrapped, center ):
+        super ( self.__class__, self ).__init__ ( )
+        self.__version__ = "0.1.0"
+        self.changelog = {
+            "0.1.0" : "Tuna 0.14.0 : updated docstrings to new style."
+            }
+        
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        super ( self.__class__, self ).__init__ ( )
 
         self.center = center
         self.noise = noise.array
@@ -29,7 +53,7 @@ class parabolic_fitter ( threading.Thread ):
 
     def run ( self ):
         """
-        Interface function to fit a parabolic model to a given input.
+        This method's goal is to fit a parabolic model to a given input.
         """
         start = time.time ( )
 
@@ -42,7 +66,7 @@ class parabolic_fitter ( threading.Thread ):
 
     def create_model_map_by_Polynomial2D ( self ):
         """
-        Generate a numpy array with the current parameters.
+        This method's goal is to generate a numpy array with the current parameters.
         """
         i_max_rows = self.unwrapped.shape [ 0 ]
         i_max_cols = self.unwrapped.shape [ 1 ]
@@ -67,6 +91,11 @@ class parabolic_fitter ( threading.Thread ):
 
     def get_center ( self ):
         """
-        Returns the coordinates for the minimun value on each axis, which should correspond to the center.
+        This method's goal is to access the coordinates for the minimum value on each axis, which should correspond to the center.
+
+        Returns:
+
+        * unnamed variable : tuple of 2 integers
+            Containing the column and row (respectively) of the center.
         """
         return ( numpy.argmin ( self.model [ :, 0 ] ), numpy.argmin ( self.model [ 0, : ] ) )

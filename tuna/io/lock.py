@@ -1,3 +1,7 @@
+"""
+This module's scope covers operations related to mutexes, especially locks.
+"""
+
 import inspect
 import logging
 import time
@@ -5,14 +9,17 @@ import tuna
 
 class lock ( object ):
     """
-    Object to mediate access to resource from competing threads.
+    This class' responsibility is to provide a lock mechanism to mediate access to resource from competing threads.
+
+    It is not meant to be user-serviceable.
     """
     def __init__ ( self ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.0'
+        self.__version__ = '0.1.1'
         self.changelog = {
-            '0.1.0'  : "Added changelog, logging."
+            "0.1.1" : "Tuna 0.14.0 : improved docstrings.",
+            "0.1.1" : "Added changelog, logging."
             }
         
         self.callee  = None
@@ -20,7 +27,7 @@ class lock ( object ):
 
     def get ( self ):
         """
-        Returns the lock to the requestor. If the lock is set, will block the call until the lock is unset, or the timeout elapses.
+        This method's goal is to give the lock to the requestor. If the lock is set, will block the call until the lock is unset, or the timeout elapses.
         """
         callee = inspect.stack ( ) [ 1 ] [ 0 ].f_code.co_name
         begin = time.time ( )
@@ -34,7 +41,7 @@ class lock ( object ):
 
     def let ( self ):
         """
-        Unlocks this lock. Since a timeout may have released this lock before it is properly unlocked, a warning is sent to the log facility, so the user may adjust its code.
+        This method's goal is to unlocks the lock. Since a timeout may have released this lock before it is properly unlocked, a warning is sent to the log facility, so the user may adjust the relevant code.
         """
         callee = inspect.stack ( ) [ 1 ] [ 0 ].f_code.co_name
         if self.callee != callee:

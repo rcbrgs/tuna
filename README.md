@@ -23,9 +23,9 @@ Tuna is currently tested to run in Linux and OSX. The general procedure to insta
 Fedora 21
 ---------
 
-These is a recipe to install in Fedora 21.
+This is a recipe to install in Fedora 21.
 
-Inside a directory in your $PYTHONPATH (and preferrably inside a virtualenv), run:
+Inside a directory in your $PYTHONPATH (and preferably inside a virtualenv), run:
 
 $ git clone https://github.com/rcbrgs/tuna.git tuna
 

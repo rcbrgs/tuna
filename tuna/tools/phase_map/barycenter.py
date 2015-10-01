@@ -1,3 +1,18 @@
+"""
+This module's scope is the creation of barycenter "maps" from Fabry-Pérot interferogram data.
+
+The barycenter map is one of the so-called "wrapped" phase map types.
+
+Example:
+
+    >>> import tuna
+    >>> import numpy
+    >>> raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc_small.fits" )
+    >>> barycenter_detector_object = tuna.tools.phase_map.barycenter_detector ( raw ); barycenter_detector_object.join ( )
+    >>> barycenter_detector_object.result.shape
+    (10, 10)
+"""
+
 from astropy.modeling import models, fitting
 import logging
 import math
@@ -9,12 +24,26 @@ import warnings
 
 class barycenter_detector ( threading.Thread ):
     """
-    Class to generate and store barycenter maps from spectral cubes.
+    This class' responsibility is to generate barycenter maps from spectral cubes.
+
+    Its algorithm utilizes a fitter to fit a parabola to each pixel, and find the barycenter from the fit parameters.
+
+    It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
+
+    Its constructor expects the following parameters:
+
+    * data : can
+        Containing the interferograph data.    
     """
     def __init__ ( self, data ):
+        super ( self.__class__, self ).__init__ ( )
+        self.__version__ = "0.1.0"
+        self.changelog = {
+            "0.1.0" : "Tuna 0.14.0 : updated docstrings to new style."
+            }
+        
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.DEBUG )
-        super ( self.__class__, self ).__init__ ( )
 
         self.data = data
         self.__array = self.data.array
@@ -30,20 +59,28 @@ class barycenter_detector ( threading.Thread ):
 
     def run ( self ):
         """
-        Method that wraps execution to be called from the thread's .start ( ) method.
+        This method's goal is to wrap execution to be called from the thread's .start ( ) method.
         """
         start = time.time ( )
 
         result = self.create_barycenter ( )
         self.log.debug ( "result.shape = %s" % str ( result.shape ) )
-        self.result = tuna.io.can ( array = result )
+        try:
+            self.result = tuna.io.can ( array = result )
+        except TypeError:
+            self.result = tuna.io.can.can ( array = result )
         self.log.debug ( "self.result.array.shape = %s" % str ( self.result.array.shape ) )
 
-        self.log.info ( "Barycenter detection took %ds." % ( time.time ( ) - start ) )
+        self.log.debug ( "Barycenter detection took %ds." % ( time.time ( ) - start ) )
 
     def create_barycenter ( self ):
         """
-        Attempts to find the barycenter for each pixel by fitting a 1D gaussian model to each pixel's spectral data, and then calculating the barycenter of the gaussian.
+        This method's goal is to find the barycenter for each pixel by fitting a 1D gaussian model to each pixel's spectral data, and then calculating the barycenter of the gaussian.
+
+        Returns:
+
+        * barycenter : numpy.ndarray
+            Containing the generated barycenter map.
         """
         barycenter = numpy.zeros ( shape = ( self.__array.shape [ 1 ],
                                              self.__array.shape [ 2 ] ) )
@@ -52,7 +89,7 @@ class barycenter_detector ( threading.Thread ):
         gaussian = models.Gaussian1D ( amplitude = 1.0, mean = self.__array.shape [ 0 ] / 2, stddev = 1 )
         fitter = fitting.LevMarLSQFitter ( )
         for row in range (  self.__array.shape [ 1 ] ):
-            self.log.info ( "barycenter at row %d" % row )
+            self.log.debug ( "barycenter at row %d" % row )
             for col in range ( self.__array.shape [ 2 ] ):
                 profile = self.__array [ :, row, col ]
                 # Single peak: centering the largest signal should center the profile.
@@ -85,7 +122,7 @@ class barycenter_detector ( threading.Thread ):
                     self.log.debug ( "(%d, %3d) rcen = %f" % ( row, col, rolled_center_of_mass ) )
                     self.log.debug ( "(%d, %3d) ucen = %f" % ( row, col, unrolled_center_of_mass ) )
                     self.log.debug ( "(%d, %3d) mcen = %f" % ( row, col, moduled_center_of_mass ) )
-                    self.log.info ( "(%d, %d) barycenter detected at %.3f using %.1f%% of the spectrum." %
+                    self.log.debug ( "(%d, %d) barycenter detected at %.3f using %.1f%% of the spectrum." %
                                     ( row, col, moduled_center_of_mass,
                                       peak.shape [ 0 ] / self.__array.shape [ 0 ] * 100 ) )
 
@@ -94,11 +131,17 @@ class barycenter_detector ( threading.Thread ):
 
     def get_center_of_mass ( self, peak ):
         """
-        Calculates the center-of-mass of an array, assuming as the distance one "unit" of distance per column.
+        This method's goal is to calculate the center-of-mass of an array, assuming as the distance one "unit" of distance per column.
 
         Parameters:
 
-        - peak: a 1D numpy.ndarray.
+        * peak: numpy.ndarray
+            One dimensional data (spectra) corresponding to 1 pixel's "depth" in the cube.
+
+        Returns:
+
+        * center_of_mass : float
+            The value of the "pseudo channel" where the center of mass resider, for this spectra.
         """
         total_mass = numpy.sum ( peak )
         if ( total_mass == 0 or
@@ -111,7 +154,16 @@ class barycenter_detector ( threading.Thread ):
     
 class barycenter_fast ( threading.Thread ):
     """
-    Class to generate and store barycenter maps from spectral cubes.
+    This class' responsibility is to generate and store barycenter maps from spectral cubes. 
+
+    Its algorithm uses geometric considerations to determine where is the center of mass for each spectrum, and is generally much faster than the algorithm using fitted data, with very similar numerical results. However, some pixelation is observed, when using this algorithm instead of the "slow" one.
+
+    It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
+
+    Its constructor expects the following parameters:
+
+    * data : can
+        Containing the interferograph data.    
     """
     def __init__ ( self, data ):
         self.log = logging.getLogger ( __name__ )
@@ -129,7 +181,7 @@ class barycenter_fast ( threading.Thread ):
 
     def run ( self ):
         """
-        Method called by this object's threading.Thread.start ( ) method.
+        This method's goal is to execute the main algorithm, when called by this object's threading.Thread.start ( ) method.
         """
         start = time.time ( )
 
@@ -142,9 +194,8 @@ class barycenter_fast ( threading.Thread ):
 
     def create_barycenter_using_peak ( self ):
         """
-        Returns a barycenter array from the input array, using the shoulder-to-shoulder peak channels as the relevant signals.
-
-        Consider the profile of a pixel has the following appearance::
+        This method's goal is to generate the barycenter map using the peak method. 
+        Will find the center of mass of each spectrum, using the shoulder-to-shoulder peak channels as the relevant signals. To understand what is meant by this, consider the profile of a pixel has the following appearance::
           
                       _   _
                     _/ \_/ \ 
@@ -158,6 +209,12 @@ class barycenter_fast ( threading.Thread ):
         The FWHH channels would encompass the channels 8 to 17.
         But we want more signal, so we extend the channel interval until the first channel that would belong to another "peak", so the channels considered for the barycenter are actually the channels 4 to 20, inclusive.
 
+        Once this "peak" is found, the center of mass for it is calculated, and the result is mapped onto the complete spectra, which yields the barycenter for that spectrum.
+
+        Returns:
+
+        * barycenter_array : numpy.ndarray
+            Containing the barycenter map as calculated above, for each pixel in the input data.        
         """
 
         if self.__array.ndim != 3:
@@ -223,12 +280,33 @@ class barycenter_fast ( threading.Thread ):
 
     def get_fwhh ( self, profile = numpy.ndarray ):
         """
-        Returns a dict containing the indices of the FWHH channels in the profile, and the relevant data for FWHH calculation.
+        This method's goal is to map "geometrical" features of the input spectra.        
+        The features are the indices of the FWHH channels in the profile, and the relevant data for FWHH calculation.
 
         This is done using auxiliary methods to get the next channel to the right or left, wrapping around the end of the array as appropriate.
         First the FWHH values are found, by searching the first channel that has the maximal value in the profile, and adding channels left and right while their values are greater or equal to the half height of the maximal channel.
 
         Then this region is increased in both directions as long as the channels adjacent to the current spectral ROI have values smaller or equal to the "border" channels of the ROI. This extends the FWHH region to the "base" of the peak set that contains the FWHH.
+
+        Parameters:
+
+        * profile : numpy.ndarray
+            Containing the spectrum to be mapped.
+
+        Returns:
+
+        * fwhh_dict : dictionary
+            Containing the following entries::
+
+                max_height          : The value contained in the channel with maximum signal.
+                half_height         : Half of max_height.
+                max_height_index    : The index of the channel with maximum signal.
+                leftmost_hh         : The "leftmost" channel that has signal >= half_height.
+                rightmost_hh        : The "rightmost" channel that has signal >= half_height.
+                profile_indices     : All indices of the spectra that are contained in the "half height peak".
+                i_left_shoulder     : The index of the leftmost channel of the peak.
+                i_right_shoulder    : The index of the rightmost channel of the peak.
+                il_shoulder_indices : All indices of the spectra that are contained in the peak.
         """
 
         max_height = numpy.amax ( profile )
@@ -290,7 +368,21 @@ class barycenter_fast ( threading.Thread ):
         
     def get_left_channel ( self, channel = int,  profile = numpy.ndarray ):
         """
-        Returns the next channel 'to the left' in the profile.
+        This method's goal is to find the next channel 'to the left' in the profile. 
+        If the channel is the leftmost channel in the profile, consider the last channel as its left neighbour.
+
+        Parameters:
+
+        * channel : int
+            The channel for which we want to find the left "neighbour".
+
+        * profile : numpy.ndarray
+            The unidimensional profile.
+
+        Returns:
+
+        * unnamed variable : integer
+            The index of the channel to the "left" of the input channel.
         """
         if channel == 0:
             return self.__array.shape [ 0 ] - 1
@@ -299,7 +391,21 @@ class barycenter_fast ( threading.Thread ):
 
     def get_right_channel ( self, channel = int,  profile = numpy.ndarray ):
         """
-        Returns the next channel 'to the right' in the profile.
+        This method's goal is to find the next channel 'to the right' in the profile. 
+        If the channel is the last channel in the profile, consider the first channel as its right neighbour.
+
+        Parameters:
+
+        * channel : int
+            The channel for which we want to find the right "neighbour".
+
+        * profile : numpy.ndarray
+            The unidimensional profile.
+
+        Returns:
+
+        * unnamed variable : integer
+            The index of the channel to the "right" of the input channel.
         """
         if ( channel == self.__array.shape [ 0 ] - 1 ):
             return 0
@@ -308,11 +414,12 @@ class barycenter_fast ( threading.Thread ):
 
     def print_fwhh ( self, fwhh_dict ):
         """
-        Will output to the current logger, with debug priority, the values contained in the fwhh_dict parameter.
+        This method's goal is to output to the current logger, with debug priority, the values contained in the fwhh_dict parameter.
 
         Parameters:
 
-        - fwhh_dict: structure with the same fields as specified in the self.get_fwhh method.
+        * fwhh_dict : dictionary
+             Structure with the same fields as specified in the self.get_fwhh ( ) method.
         """
         self.log.debug ( "max_height = %d" % fwhh_dict['max_height'] )
         self.log.debug ( "half_height = %d" % fwhh_dict['half_height'] )

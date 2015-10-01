@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 """
-Provides access to Tuna's phase_map_creation namespace.
+This namespace aggregates modules related to the creation of phase maps for Fabry-Pérot interferographs.
 """
 
 from .barycenter                            import ( barycenter_detector,

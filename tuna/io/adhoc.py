@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-This module scope contains: ADHOC files' operations. 
+This module scope coves ADHOC files' operations. 
 
 ADHOC files typically have the .AD2 (for two-dimensional data) and .AD3 (for tri-dimensional data).
 
@@ -36,16 +36,16 @@ class adhoc ( file_reader ):
 
     Parameters:
 
-    * adhoc_type : int, defaults to None.
+    * adhoc_type : int : defaults to None.
         Valid types are 2 and 3.
 
-    * adhoc_trailer : numpy.ndarray, defaults to None.
+    * adhoc_trailer : numpy.ndarray : defaults to None.
         The trailer of an ADHOC file are the last 256 bytes of the file, and contain metadata.
 
-    * file_name : string, defaults to None.
+    * file_name : string : defaults to None.
         Must correspond to an existing ADHOC file.
 
-    * array : numpy.ndarray, defaults to None.
+    * array : numpy.ndarray : defaults to None.
         Will be read from the file, and its size is the file size minus 256 bytes, and each field has 32 bytes and is encoded as a float.
 
     Example usage::
@@ -65,8 +65,9 @@ class adhoc ( file_reader ):
         super ( adhoc, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.1.2'
+        self.__version__ = '0.2.0'
         self.changelog = {
+            '0.2.0' : "Tuna 0.14.0 : improved docstrings.",
             '0.1.2' : "Documentation: module, class and function docstrings.", 
             '0.1.1' : "Improved docstrings.",
             '0.1.0' : "Initial changelog."
@@ -225,7 +226,7 @@ class adhoc ( file_reader ):
 
         Parameters:
 
-        * xyz : boolean, defaults to True.
+        * xyz : boolean : defaults to True.
             False to return data in standard zxy adhoc format,
             True  to return data in xyz format (default).
         """

@@ -1,15 +1,38 @@
+"""
+This module's scope is the method of finding the image center exploiting its symmetry. Therefore its applicability is limited to highly symmetric images.
+
+Example::
+
+    >>> import tuna
+    >>> barycenter = tuna.io.read ( "tuna/test/unit/unit_io/G094_03_wrapped_phase_map.fits" )
+    >>> tuna.tools.phase_map.find_image_center_by_symmetry ( data = barycenter.array )
+    (219, 256)
+"""
+
 import logging
 import numpy
 import time
 
 class image_center_by_symmetry ( object ):
     """
-    This tool tries to find the center of an image by finding the row and the column that split the image with the highest degree of symmetry.
+    This class responsibility is to find the center of an image by finding the row and the column that split the image with the highest degree of symmetry.
     
     If a cube is received, it will use the first plane as its input.
+
+    Its constructor signature is:
+
+    Parameters:
+
+    * array : numpy.ndarray
+        Containing the image whose center we intend to find.
     """
     def __init__ ( self, array = numpy.ndarray ):
         super ( image_center_by_symmetry, self ).__init__ ( )
+        self.__version__ = "0.1.0"
+        self.changelog = {
+            "0.1.0" : "Tuna 0.14.0 : improved documentation."
+            }
+        
         self.log = logging.getLogger ( __name__ )
 
         self.__input_array = None
@@ -24,7 +47,12 @@ class image_center_by_symmetry ( object ):
 
     def get_center ( self ):
         """
-        Returns the center coordinates. Will trigger a find if the center is yet unknown.
+        This method's goal is to access the center coordinates. Will trigger a find if the center is yet unknown.
+
+        Returns:
+
+        * unnamed variable : tuple of 2 integers
+            Containing the column and row indexes for the center.
         """
         if ( ( self.__center_row is not None ) and
              ( self.__center_col is not None ) ):
@@ -35,12 +63,12 @@ class image_center_by_symmetry ( object ):
 
     def find_center ( self ):
         """
-        Tries to find the center of the image, by splitting the image into same-sized chunks, where the relative distances to the center are the same. The center will have circular symmetry, and therefore these chunks will be very similar.
+        This method's goal is to find the center of the image, by splitting the image into same-sized chunks, where the relative distances to the center are the same. The center will have circular symmetry, and therefore these chunks will be very similar.
         """
 
         input = self.__input_array
         
-        #print ( "Searching for most symmetric by-row split." )
+        self.log.debug ( "Searching for most symmetric by-row split." )
         row_results = numpy.ndarray ( shape = ( input.shape[0] ) )
         row_results.fill ( numpy.inf )
         sixteenth = int ( input.shape [ 0 ] / 16 )
@@ -50,10 +78,10 @@ class image_center_by_symmetry ( object ):
             top    = top   [ : : -1, : ]
             difference = bottom - top
             row_results [ row ] = numpy.sum ( numpy.abs ( difference ) )
-        #print ( row_results )
+        self.log.debug ( row_results )
         self.__center_row = numpy.argmin ( row_results )
 
-        #print ( "Searching for most symmetric columnar split." )
+        self.log.debug ( "Searching for most symmetric columnar split." )
         col_results = numpy.ndarray ( shape = ( input.shape[1] ) )
         col_results.fill ( numpy.inf )
         sixteenth = int ( input.shape [ 1 ] / 16 )
@@ -63,14 +91,24 @@ class image_center_by_symmetry ( object ):
             right  = right [ : , : : -1 ]
             difference = left - right
             col_results [ col ] = numpy.sum ( numpy.abs ( difference ) )
-        #print ( col_results )
+        self.log.debug ( col_results )
         self.__center_col = numpy.argmin ( col_results )
 
-        #print ( "Center near ( %d, %d )." % ( self.__center_row, self.__center_col ) )
+        self.log.debug ( "Center near ( %d, %d )." % ( self.__center_row, self.__center_col ) )
         
 def find_image_center_by_symmetry ( data = numpy.ndarray ):
     """
-    Try to find the center of the rings.
+    This function's goal is to conveniently wrap the search for the center of the input image.
+
+    Parameters:
+
+    * data : numpy.ndarray
+        Should receive the data where a highly symmetric image can be found.
+
+    Returns:
+
+    * iit_center : tuple of 2 integers
+        Containing the column and row of the found center.
     """
     start = time.time ( )
 
@@ -78,7 +116,7 @@ def find_image_center_by_symmetry ( data = numpy.ndarray ):
 
     o_finder = image_center_by_symmetry ( array = data )
     iit_center = o_finder.get_center ( )
-    log.info ( "iit_center = %s" % str ( iit_center ) )
+    log.debug ( "iit_center = %s" % str ( iit_center ) )
 
-    log.info ( "find_image_center_by_symmetry() took %ds." % ( time.time ( ) - start ) )
+    log.debug ( "find_image_center_by_symmetry() took %ds." % ( time.time ( ) - start ) )
     return iit_center

@@ -1,5 +1,30 @@
+# -*- coding: utf-8 -*-
 """
 Module fsr is responsible for computing the relative number of FSRs from the axis until each pixel.
+
+Example usage::
+
+    >>> import tuna
+    >>> raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
+    >>> barycenter = tuna.tools.phase_map.barycenter_fast ( raw ); barycenter.join ( )
+    >>> noise_detector = tuna.tools.phase_map.noise_detector ( raw, barycenter.result, 1, 1 ); noise_detector.join ( )
+    >>> rings = tuna.tools.find_rings ( raw.array, min_rings = 2 )
+    >>> borders = tuna.tools.phase_map.ring_border_detector ( barycenter.result, ( 219, 255 ), noise_detector.noise, rings ); borders.join ( )
+    >>> fsr = tuna.tools.phase_map.fsr_mapper ( distances = borders.distances, wrapped = barycenter.result, center = ( 219, 255 ), concentric_rings = rings [ 'concentric_rings' ] ); fsr.join ( )
+    >>> fsr.distances [ 0 ] [ 150 : 200 ]
+    array([   0.        ,    0.        ,    0.        ,    0.        ,
+              0.        ,    0.        ,    0.        ,    0.        ,
+              0.        ,    0.        ,    0.        ,    0.        ,
+              0.        ,    0.        ,    0.        ,    0.        ,
+              0.        ,    0.        ,    0.        ,    0.        ,
+              0.        ,    0.        ,    0.        ,    0.        ,
+              0.        ,  231.82699114,  231.82699114,  231.82699114,
+            231.82699114,  231.82699114,  231.82699114,  231.82699114,
+            231.82699114,  231.82699114,  231.82699114,    0.        ,
+              0.        ,    0.        ,    0.        ,    0.        ,
+              0.        ,    0.        ,    0.        ,    0.        ,
+              0.        ,    0.        ,    0.        ,    0.        ,
+              0.        ,    0.        ])
 """
 
 import logging
@@ -12,15 +37,34 @@ import tuna
 class fsr_mapper ( threading.Thread ):
     """
     Responsible for computing and storing a 2D array of integers with the number of FSRs from the axis until each pixel.
+
+    It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
+
+    Its constructor has the following signature:
+
+    Parameters:
+
+    * distances : can
+        Containing the map of border distances to the center.
+
+    * wrapped : can
+        Containing the wrapped phase map.
+
+    * center : tuple of 2 integers
+        Containing the column and row of the center.
+
+    * concentric_rings : dictionary
+        A structure describing the geometry of the concentric rings characteristic of a Fabry-Pérot interferogram.
     """
     def __init__ ( self, distances, wrapped, center, concentric_rings ):
-        self.__version__ = '0.1.0'
+        super ( self.__class__, self ).__init__ ( )
+        self.__version__ = '0.1.1'
         self.changelog = {
+            "0.1.1" : "Tuna 0.14.0 : improved documentation.",
             '0.1.0' : "First changeloged version."
             }
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        super ( self.__class__, self ).__init__ ( )
 
         self.distances = distances.array
         self.center = center
@@ -79,14 +123,6 @@ class fsr_mapper ( threading.Thread ):
                         self.fsr [ col ] [ row ] = radius_index
                         break
                     
-                #if self.distances [ col ] [ row ] == 0:
-                #    self.fsr [ col ] [ row ] = order
-                #    continue
-                #if self.wrapped [ col ] [ row ] < 1:
-                #    self.fsr [ col ] [ row ] = radius_index
-                #    continue
-
-        
     def create_fsr_map ( self ):
         """
         FSR distance array creation method.
@@ -112,11 +148,9 @@ class fsr_mapper ( threading.Thread ):
                     if possible_new_ring:
                         rings.append ( self.distances [ row ] [ col ] )
         self.log.info ( "fsr array created." )
-        #self.log ( "fl_rings = %s" % str ( rings ) )
 
         # order rings by distance
         ordered_rings = sorted ( rings )
-        #self.log ( "fl_ordered_rings = %s" % str ( ordered_rings ) )
 
         # attribute FSR by verifying ring-relative "position"
         median_channel = int ( numpy.amax ( self.wrapped ) / 2 )
@@ -172,35 +206,3 @@ class fsr_mapper ( threading.Thread ):
         self.log.debug ( "thicknesses = %s" % str ( thicknesses ) )
 
         return int ( max ( min ( thicknesses ) * 0.25, 20 ) )
-        
-    def estimate_ring_thickness_old ( self ):
-        """
-        Deprecated version.
-        """
-        distances = numpy.unique ( self.distances.astype ( numpy.int16 ) )
-        self.log.debug ( "distances = %s" % str ( distances ) )
-
-        distances_sequences = [ ]
-        ranges = [ ]
-        for col in range ( distances.shape [ 0 ] ):
-            this_distance = distances [ col ]
-            if this_distance != 0:
-                if distances_sequences == [ ]:
-                    distances_sequences.append ( this_distance )
-                    continue
-                last_distance = distances_sequences [ -1 ]
-                if ( this_distance == last_distance + 1 ):
-                    distances_sequences.append ( this_distance )
-                    continue
-                else:
-                    ranges.append ( distances_sequences )
-                    distances_sequences = [ this_distance ]
-        if distances_sequences not in ranges:
-            ranges.append ( distances_sequences )
-        self.log.debug ( "ranges = %s" % str ( ranges ) )
-        thicknesses = [ ]
-        for range in ranges:
-            thicknesses.append ( len ( range ) )
-        self.log.debug ( "thicknesses = %s" % str ( thicknesses ) )
-        return max ( thicknesses )
-        

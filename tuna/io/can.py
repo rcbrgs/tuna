@@ -1,5 +1,5 @@
 """
-This module's scope are the operations related to the can file format.
+This module's scope covers operations related to the can file format.
 
 The Tuna can is a image and metadata file format. It consists of a serializable object (instantiated from the tuna.io.can.can class), where convenience methods (such as algebraic procedures on its arrays) are defined.
 """
@@ -25,19 +25,19 @@ class can ( file_reader ):
 
     Parameters:
 
-    * array : numpy.ndarray (defaults to None)
+    * array : numpy.ndarray : defaults to None
         The data to be stored in the can.
 
-    * file_name : string (defaults to None)
+    * file_name : string : defaults to None
         The name of the file containing the data.
 
-    * interference_order : integer (defaults to None)
+    * interference_order : integer : defaults to None
         The value of the interference order of the observed light on the data.
 
-    * interference_order_wavelength : integer (defaults to None)
+    * interference_order_wavelength : integer : defaults to None
         The wavelength, in Angstroms, of the observed light on the data.
 
-    * photons : dictionary (defaults to None)
+    * photons : dictionary : defaults to None
         A dictionary containing the description of each photon count on the data.
 
 
@@ -65,8 +65,9 @@ class can ( file_reader ):
         super ( can, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = "0.1.4"
+        self.__version__ = "0.1.5"
         self.changelog = {
+            "0.1.5" : "Tuna 0.14.0 : improved docstrings.",
             "0.1.4" : "Updated docstring to new documentation style.",
             "0.1.3" : "Docstrings added.",
             "0.1.2" : "Do not update db if that is going to update a file_name to None.",

@@ -50,7 +50,7 @@ Since Sphinx is used to also include more free-form documentation, such as long 
 
     Parameters:
 
-    \* variable_name : variable type[, defaults to <default value>]
+    \* variable_name : variable type[ : defaults to <default value>]
         Description of the variable.
 
 * A function that has a return value must document this return like this::

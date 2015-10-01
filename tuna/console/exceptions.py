@@ -1,5 +1,5 @@
 """
-This module's scope is: exceptions.
+This module's scope covers exceptions.
 """
 
 import inspect

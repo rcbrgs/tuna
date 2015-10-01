@@ -1,3 +1,22 @@
+# -*- coding: utf-8 -*-
+"""
+This module's scope is the detection and mapping of borders in a wrapped phase map.
+
+Example::
+
+    >>> import tuna
+    >>> raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
+    >>> barycenter = tuna.tools.phase_map.barycenter_fast ( raw ); barycenter.join ( )
+    >>> noise_detector = tuna.tools.phase_map.noise_detector ( raw, barycenter.result, 1, 1 ); noise_detector.join ( )
+    >>> rings = tuna.tools.find_rings ( raw.array, min_rings = 2 )
+    >>> borders = tuna.tools.phase_map.ring_border_detector ( barycenter.result, ( 219, 255 ), noise_detector.noise, rings ); borders.join ( )
+    >>> borders.distances.array [ 0 ] [ 170 : 190 ]
+    array([   0.        ,    0.        ,    0.        ,    0.        ,
+              0.        ,  231.82699114,  231.82699114,  231.82699114,
+            231.82699114,  231.82699114,  231.82699114,  231.82699114,
+            231.82699114,  231.82699114,  231.82699114,    0.        ,
+              0.        ,    0.        ,    0.        ,    0.        ])
+"""
 import logging
 from math import sqrt
 import numpy
@@ -11,17 +30,29 @@ class ring_border_detector ( threading.Thread ):
 
     It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
 
-    Its constructor expects the following parameters:
+    Its constructor has the following signature:
 
-    - data, a numpy.ndarray;
-    - center, a tuple of 2 integers;
-    - noise, a :ref:`tuna_io_can_label` containing the noise map for data;
-    - rings, a dictionary, such as the one produced by  :ref:`tuna_tools_find_rings_2d_label` or equivalent. ;
-    - log_level, a valid :ref:`logging_label` level.
+    Parameters:
+
+    * data : numpy.ndarray
+        Containing the wrapped phase map.
+
+    * center : tuple of 2 integers
+        Which correspond to the pixel center of the interferograph.
+
+    * noise : :ref:`tuna_io_can_label`
+        Containing the noise map for data.
+
+    * rings : dictionary
+        Such as the one produced by  :ref:`tuna_tools_find_rings_2d_label` or equivalent.
+
+    * log_level : valid :ref:`logging_label` level : logging.INFO
+        Will set the log output to the specified level.
     """
     def __init__ ( self, data, center, noise, rings, log_level = logging.INFO ):
-        self.__version__ = '0.1.1'
+        self.__version__ = '0.1.2'
         self.changelog = {
+            "0.1.2" : "Tuna 0.14.0 : Updated docstrings to new style.",
             '0.1.1' : "Improved dosctrings for Sphinx documentation.",
             '0.1.0' : "Adapted to use find_ring."
             }

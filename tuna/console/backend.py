@@ -1,5 +1,5 @@
 """
-This module's scope is: background processes.
+This module's scope covers background processes.
 """
 
 import logging
@@ -10,12 +10,13 @@ from tuna.zeromq.zmq_proxy import zmq_proxy
 
 class backend ( object ):
     """
-    This class wraps calls for all necessary background processes for Tuna.
+    This class' responsability is to wrap calls for all necessary background processes for Tuna.
     """
     def __init__ ( self ):
         super ( backend, self ).__init__ ( )
-        self.__version__ = "0.1.0"
+        self.__version__ = "0.2.0"
         self.changelog = {
+            "0.2.0" : "Tuna 0.14.0 : improved docstrings.",
             "0.1.0" : "Initial changelog version."
             }
         self.log = logging.getLogger ( __name__ )

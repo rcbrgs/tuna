@@ -20,7 +20,7 @@ with open ( path.join ( here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read ( )
 
 api_version = 0
-feature_version = 13
+feature_version = 14
 bug_version = 0
     
 setup (

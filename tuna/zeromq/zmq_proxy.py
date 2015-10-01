@@ -1,5 +1,5 @@
 """
-This module's scope is: to mediate communication between ZeroMQ clients.
+This module's scope is to mediate communication between ZeroMQ clients.
 """
 
 import time
@@ -26,7 +26,7 @@ class zmq_proxy ( ):
 
         Parameters:
 
-        - msg, a string.
+        * msg : string
         """
         self.__zmq_socket_req = self.__zmq_context.socket ( zmq.REQ )
         self.__zmq_socket_req.setsockopt ( zmq.LINGER, 0 )
@@ -44,6 +44,10 @@ class zmq_proxy ( ):
     def __call_print ( self, msg ):
         """
         This method's goal is to print a received message. It is meant as a fallback in case the log server is unavailable.
+
+        Parameters:
+
+        * msg : string
         """
         print ( "zmq_proxy received the message '%s'." % msg )
 
@@ -54,7 +58,7 @@ class zmq_proxy ( ):
 
         Parameters:
 
-        - *ack_msg*, a byte string.
+        * ack_msg : (byte) string
         """
         if ack_msg.decode ( "utf-8" ) != 'ACK':
             print ( u'Something is fishy!' )
@@ -118,4 +122,3 @@ class zmq_proxy ( ):
                 msg_contents = msg_partition[2]
                 destination_call_table [ msg_destination ] ( msg_contents )
                 self.__zmq_socket_rep.send ( b'ACK' )
-

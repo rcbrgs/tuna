@@ -1,5 +1,5 @@
 """
-This module's scope are database operations.
+This module's scope covers database operations.
 """
 
 import logging

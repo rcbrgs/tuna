@@ -1,7 +1,8 @@
 models
 ======
 
-This subpackage's scope contains modules that are responsible for modeling and fitting data.
+.. automodule:: tuna.models
+   :members:
 
 .. toctree::
    :maxdepth: 2
