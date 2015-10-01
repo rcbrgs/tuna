@@ -20,8 +20,8 @@ with open ( path.join ( here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read ( )
 
 api_version = 0
-feature_version = 12
-bug_version = 2
+feature_version = 13
+bug_version = 0
     
 setup (
     name='tuna',

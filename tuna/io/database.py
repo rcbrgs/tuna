@@ -1,3 +1,7 @@
+"""
+This module's scope are database operations.
+"""
+
 import logging
 import pymysql
 import sys
@@ -8,13 +12,17 @@ import tuna
 
 class database ( threading.Thread ):
     """
-    Responsible for creating and maintaining a connection to a system's MySQL database. It is also the gateway through which queries are to be made.
-    
+    This class' responsibilities are creating and maintaining a connection to a system's MySQL database. It is also the gateway through which queries are to be made.
+
+    It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
+
+    This module is part of the "guts" of Tuna and is not meant as a user-serviceable module.
     """
     def __init__ ( self ):
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = "0.1.11"
+        self.__version__ = "0.1.12"
         self.changelog = {
+            '0.1.12' : "Tuna 0.13.0: Updated documentation to new style.",
             '0.1.11' : "Added docstrings.",
             '0.1.10' : "Added a connection check before selecting a record.",
             '0.1.9' : "Added cursor.close calls in several points.",
@@ -51,7 +59,9 @@ class database ( threading.Thread ):
 
     def run ( self ):
         """
-        Executes once this object's thread is started. Will attempt to connect to a MySQL daemon, verify that it has the appropriate tables and keep the connection open until the object is stopped.
+        This method is required by :ref:`threading_label`, which allows parallel exection in a separate thread.
+
+        This method's goal is to connect to a MySQL daemon, verify that it has the appropriate tables and keep the connection open until the object is stopped.
         """
         self.log.debug ( "<%s>" % ( sys._getframe ( ).f_code.co_name ) )
                              
@@ -93,7 +103,7 @@ class database ( threading.Thread ):
 
     def stop ( self ):
         """
-        Initiates shutdown sequence of the object, which will disconnect from the MySQL daemon and stop the thread.
+        This method's goal is to initiate a shutdown sequence of the object, which will disconnect from the MySQL daemon and stop the thread.
         """
         self.shutdown = True
         self.close_mysql_connection ( )
@@ -102,15 +112,20 @@ class database ( threading.Thread ):
 
     def check_mysql_connection ( self ):
         """
-        Returns a boolean value that is False is the self.connection object is not True.
+        This method's goal is to verify that the connection to the database manager is working.
+
+        Returns:
+        
+        unnamed variable : bool
+            This value corresponds to the self.connection object being None or existing.
         """
-        if not self.connection:
+        if self.connection == None:
             return False
         return True
 
     def close_mysql_connection ( self ):
         """
-        Closes the connection to the MySQL daemon if it is existing.
+        This method's goal is to close the connection to the database manager.
         """
         if self.check_mysql_connection ( ):
             self.connection.close ( )
@@ -118,7 +133,7 @@ class database ( threading.Thread ):
 
     def open_mysql_connection ( self ):
         """
-        Attempts to connect to the MySQL daemon. It expects the MySQL server to reside on the 'localhost', have a database 'tuna' and a user 'tuna' that has all rights on the database 'tuna', using the password 'tuna'.
+        This method's goal is to connect to the database manager. Which should reside on the 'localhost', have a database 'tuna' and a user 'tuna' that has all rights on the database 'tuna', using the password 'tuna'.
         """
         try:
             self.connection = pymysql.connect ( host        = 'localhost',
@@ -136,7 +151,7 @@ class database ( threading.Thread ):
 
     def check_tables ( self ):
         """
-        Will verify that the database connected to contains the proper tables for running Tuna.
+        This method's goal is to verify that the database connected to contains the proper tables for running Tuna.
         """
         try:
             cursor = self.connection.cursor ( )
@@ -160,7 +175,7 @@ class database ( threading.Thread ):
 
     def configure_tables ( self ):
         """
-        If the db is empty, populate it with a structure defined in self.expected_tables.
+        This method's goal is to populate an empty database with a structure defined in self.expected_tables.
         """
         try:
             cursor = self.connection.cursor ( )
@@ -189,7 +204,14 @@ class database ( threading.Thread ):
 
     def insert_record ( self, table, columns_values ):
         """
-        Enqueues request to insert_record_processor.
+        This method's goal is to enqueue a request to self.insert_record_processor ( ).
+
+        Parameters:
+
+        * table : string
+            Must contain a name for a valid table on the database.
+        * columns_values : dictionary
+            A dictionary where keys must contain valid column identifiers for the specified table, and the dictionary values must be valid values of the type the database specifies for that column, in that table.
         """
         self.enqueue ( { 'function' : self.insert_record_processor,
                          'args' : ( table, columns_values ),
@@ -197,7 +219,14 @@ class database ( threading.Thread ):
         
     def insert_record_processor ( self, table, columns_values ):
         """
-        columns_values must be a dict with columns as keys.
+        This method's goal is to process a insert statement in the database manager. 
+
+        Parameters:
+
+        * table : string
+            Must contain a name for a valid table on the database.
+        * columns_values : dictionary
+            A dictionary where keys must contain valid column identifiers for the specified table, and the dictionary values must be valid values of the type the database specifies for that column, in that table.
         """
         columns_string = "( "
         for column in columns_values.keys ( ):
@@ -227,7 +256,21 @@ class database ( threading.Thread ):
         
     def select_record ( self, table, columns_values ):
         """
-        columns_values must be a dict with columns as keys.
+        This method's goal is to process a select statement in the database manager.
+
+        Parameters:
+
+        * table : string
+            Must contain a name for a valid table on the database.
+        * columns_values : dictionary
+            A dictionary where keys must contain valid column identifiers for the specified table, and the dictionary values must be valid values of the type the database specifies for that column, in that table.
+
+        Returns:
+
+        * unnamed variable : list
+            The same structure as returned by pymysql.cursor.fetchall ( ).
+        * unnamed variable : bool
+            Will be True if the connection is open, and data was retrieved without raising an exception. Otherwise, will return False.
         """
         for key in columns_values.keys ( ):
             try:
@@ -257,7 +300,14 @@ class database ( threading.Thread ):
 
     def update_record ( self, table, columns_values ):
         """
-        Enqueues request to update_record_processor.
+        This method's goal is to enqueue a request to update_record_processor ( ).
+
+        Parameters:
+
+        * table : string
+            Must contain a name for a valid table on the database.
+        * columns_values : dictionary
+            A dictionary where keys must contain valid column identifiers for the specified table, and the dictionary values must be valid values of the type the database specifies for that column, in that table.
         """
         self.enqueue ( { 'function' : self.update_record_processor,
                          'args' : ( table, columns_values ),
@@ -265,7 +315,14 @@ class database ( threading.Thread ):
         
     def update_record_processor ( self, table, columns_values ):
         """
-        columns_values must be a dict with columns as keys.
+        This method's goal is to process an update statement in the database manager.
+
+        Parameters:
+
+        * table : string
+            Must contain a name for a valid table on the database.
+        * columns_values : dictionary
+            A dictionary where keys must contain valid column identifiers for the specified table, and the dictionary values must be valid values of the type the database specifies for that column, in that table.
         """
         for key in columns_values.keys ( ):
             if key == "hash":
@@ -295,7 +352,12 @@ class database ( threading.Thread ):
            
     def enqueue ( self, data ):
         """
-        Append a query to the query poller.
+        This method's goal is to add a request to the queue.
+
+        Parameters:
+
+        * data : dictionary
+            Must contain valid entries for the following keys: function, args and kwargs.
         """
         self.log.debug ( "enqueue: {}.".format ( data ) )
         self.queue_lock.get ( )
@@ -304,7 +366,7 @@ class database ( threading.Thread ):
 
     def dequeue ( self ):
         """
-        Pop the first entry on the query queue, and attempt to process it.
+        This method's goal is to pop the first entry on the query queue, and attempt to process it.
         """
         self.queue_lock.get ( )
         data = None
@@ -317,7 +379,12 @@ class database ( threading.Thread ):
 
     def process ( self, data ):
         """
-        Process the query request.
+        This method's goal is to process a query request.
+
+        Parameters:
+
+        * data : dictionary
+            Must contain valid entries for the following keys: function, args and kwargs.
         """
         
         try:

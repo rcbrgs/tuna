@@ -1,5 +1,5 @@
 """
-This subpackage contains Tuna's file format namespace, io. Its scope is to collect modules that are mainly concerned with file formats, storage and metadata.
+This namespace contains: io operations, file formats, data storage and metadata.
 """
 
 from .adhoc           import adhoc

@@ -63,6 +63,12 @@ Python versions
 
 Tuna is compatible with Python 2 and Python 3, but it is developed under Python 3, and if eventually we have to choose between remaining compatible with Python 2 or including an incompatible feature, we will choose the feature. Therefore, we highly recommend that Tuna be installed and ran using Python 3.
 
+*Caveats using Python 2*:
+
+- Matplotlib will throw a warning when started, about pyside not being a valid backend. This warning can be ignored.
+- IPython will throw a warning when started, about its kernel module name being deprecated. This warning can be ignored.
+- Before installing Tuna, it is necessary to update setuptools, otherwise PySide may not install.
+
 Linux installation - with virtualenv
 ------------------------------------
 
@@ -82,9 +88,17 @@ This is a step-by-step guide to installing Tuna in Fedora 21. It uses Python 3 a
 
      (vtuna)vtuna $ git clone https://github.com/rcbrgs/tuna.git
 
+#. Update pip to its most recent version::
+
+     (vtuna)vtuna $ pip install -U pip
+
 #. Install NumPy, which is currently not well-behaved in PyPI (and so must be installed separatedly)::
 
      (vtuna)vtuna $ pip install numpy
+
+#. (Only required for Python 2) update setuptools::
+
+     (vtuna)vtuna $ pip install -U setuptools
 
 #. Install PySide, which is currently not well supported by readthedocs.org (and therefore must be installed separatedly)::
 
@@ -144,9 +158,17 @@ This is a step-by-step guide to installing Tuna in Fedora 21. It uses Python 3.
 
      $ git clone https://github.com/rcbrgs/tuna.git
 
+#. Update pip to its most recent version::
+
+     $ pip install -U pip
+
 #. Install NumPy::
 
      $ pip install numpy
+
+#. (Only required for Python 2) update setuptools::
+
+     $ pip install -U setuptools
 
 #. Install PySide, which is currently not well supported by readthedocs.org (and therefore must be installed separatedly)::
 
@@ -173,3 +195,26 @@ This is a step-by-step guide to installing Tuna in Fedora 21. It uses Python 3.
      In [1]: import tuna
 
      In [2]:
+
+Steps necessary to build the documentation locally
+--------------------------------------------------
+
+In case you wish to build the documentation yourself, it is necessary to install and configure Sphinx.
+
+#. Supposing you already installed Tuna, enter its virtualenv::
+
+     $ cd vtuna
+     vtuna $ source bin/activate
+
+#. Install Sphinx::
+
+     (vtuna)vtuna $ pip install sphinx
+
+#. Create a directory to store your documentation::
+
+     (vtuna)vtuna $ mkdir sphinx
+     
+#. Build the package, then the documentation. you must re-run this step every time you change the documentation sources::
+
+     (vtuna)vtuna $ python tuna/setup.py install
+     (vtuna)vtuna $ sphinx-build -b html tuna/docs/ sphinx

@@ -9,8 +9,14 @@ The online documentation can be found on:
 
 https://tuna.readthedocs.org
 
+Tuna is a Python library module. It has no GUI, and no interactive text interface. It is meant to be imported and used as a collection of tools and recipes in your own programs.
+
 Installation
 ------------
+
+Complete installation instructions can be found at:
+
+https://tuna.readthedocs.org/en/stable/installation.html
 
 Tuna is currently tested to run in Linux and OSX. The general procedure to install it is to clone the repo in a directory within your $PYTHONPATH, and then import it in Python, which will probably result in an error, regarding a missing library. Once you install all libraries, Tuna should work.
 
@@ -23,11 +29,15 @@ Inside a directory in your $PYTHONPATH (and preferrably inside a virtualenv), ru
 
 $ git clone https://github.com/rcbrgs/tuna.git tuna
 
-$ pip install -r tuna/pip_packages.txt
+$ pip install -U pip
 
-$ pip install scipy
+$ pip install numpy
 
-$ git clone https://github.com/evertrol/mpyfit.git mpyfit
+$ pip install -U setuptools
+
+$ pip install PySide
+
+$ python tuna/setup.py install
 
 How to use Tuna
 ---------------
