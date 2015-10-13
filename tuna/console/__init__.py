@@ -1,5 +1,5 @@
 """
-The console namespace is for used by modules related to background processes.
+The console namespace is for modules related to background processes.
 """
 
 from .backend import backend

@@ -19,6 +19,10 @@ log
     Contains modules for creating and handling log destinations. Uses Python's logging module.
 models
     Models relevant for synthesizing and fitting Fabry-Pérot data.
+pipelines
+    Recipes tieing together Tuna's tools and framework to attain some "standard" reduction goal.
+plugins
+    Tuna's modular system allow for parts of its pipelines to be changed, either by rewriting the code or by calling external executables. This is done through the plugin system.
 repo
     Modules for remote access to files.
 test
@@ -34,10 +38,11 @@ Numpy indexing order
 From Tuna v0.11.0 onwards, we are adopting the convention mentioned in: http://docs.scipy.org/doc/numpy/reference/internals.html, so that rows will be the last item indexed. Therefore, cubes in tuna should be indexed as [ planes, columns, rows ].
 """
 
-__version__ = '0.10.6'
+__version__ = "0.10.7"
 changelog = {
+    "0.10.7" : "Tuna 0.15.0 : added pipelines, plugins namespaces.",
     "0.10.6" : "Tuna 0.14.0 : improved documentation.",
-    '0.10.5'  : "Docstring.",
+    "0.10.5" : "Docstring.",
     '0.10.4'  : "Added db link through the daemons.",
     '0.10.3'  : "Even less spammy.",
     '0.10.2'  : "Tweaked logging to be less spammy for user.",
@@ -53,7 +58,9 @@ from tuna.io.convenience import ( read,
                                   write )
 import tuna.log
 import tuna.models
+import tuna.pipelines
 import tuna.tools
+import tuna.plugins
 import tuna.zeromq
 
 class daemons ( object ):

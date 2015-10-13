@@ -6,13 +6,17 @@ Example::
 
     >>> import tuna
     >>> raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
-    >>> rings = tuna.tools.find_rings ( raw )
+    >>> rings = tuna.plugins.run ( "Ring center finder" ) ( data = raw )
     >>> sorted ( list ( rings.keys ( ) ) )
     ['concentric_rings', 'construction', 'gradient', 'gradients', 'lower_percentile_regions', 'ridge', 'ring_fit', 'ring_fit_parameters', 'ring_pixel_sets', 'rings', 'upper_percentile_regions']
     >>> rings [ 'rings' ]
     [(218.56306556317449, 256.97877557329144, 231.82699113784105, [0]), (219.14654183804043, 254.87497666726719, 110.1292761603854, [1]), (190.48575616356123, 248.81898301262672, 338.64377512691351, [2, 3])]
-
 """
+
+__version__ = "0.1.0"
+__changelog__ = {
+    "0.1.0" : { "Tuna" : "0.15.0", "Change" : "Refactored to use 'data' argument of 'Ring center finder' plugin." }
+    }
 
 import copy
 import IPython
@@ -46,8 +50,9 @@ class rings_finder ( object ):
     def __init__ ( self, array, plane, ipython, plot_log ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.DEBUG )
-        self.__version__ = '0.2.3'
+        self.__version__ = '0.2.4'
         self.changelog = {
+            "0.2.4" : "Tuna 0.15.0 : refactored into a plugin.",
             "0.2.3" : "Tuna 0.14.0 : updated documentation to new style.",
             '0.2.2' : "Added aggregation of concentric rings into a return structure.",
             '0.2.1' : "Added ridge_thickness to the fitted circles, improving fits' speed and precision.",
@@ -843,13 +848,17 @@ def fit_circle ( center_col, center_row, radius, data, function, ridge_thickness
     return fit_parameters, function (
         ( fit_parameters [ 0 ], fit_parameters [ 1 ] ), fit_parameters [ 2 ], ridge_thickness, data.shape )
 
-def find_rings ( array, min_rings = 1, plane = None, ipython = None, plot_log = False ):
+def find_rings ( data : numpy.ndarray,
+                 min_rings : int = 1,
+                 plane : int = None,
+                 ipython : object = None,
+                 plot_log : bool = False ) -> dict:
     """
     Attempts to find rings contained in a 3D numpy ndarray input.
 
     Parameters:
 
-    * array : numpy.ndarray 
+    * data : numpy.ndarray 
         A tridimensional spectrogram. This parameter can also be a Tuna can.
 
     * min_rings : integer
@@ -866,7 +875,7 @@ def find_rings ( array, min_rings = 1, plane = None, ipython = None, plot_log = 
 
     Returns:
 
-    * finder.result : list of dictionaries
+    * dict
         With the following keys: 
 
         * 'array' : 2D numpy.ndarray where pixels in the ring have value 1 and other pixels have value 0.
@@ -875,14 +884,18 @@ def find_rings ( array, min_rings = 1, plane = None, ipython = None, plot_log = 
         * 'construction' : a list of numpy arrays containing the geometric construction that led to the estimated center and radius used in the fit.
         * 'pixel_set' : a list of numpy arrays containing the segmented pixel sets corresponding to each identified ring.
     """
-
+    __version__ = "0.1.0"
+    __changelog__ = {
+        "0.1.0" : { "Tuna" : "0.15.0", "Change" : "Changed name of input variable to data." }
+        }
+    
     log = logging.getLogger ( __name__ )
     
-    if isinstance ( array, tuna.io.can ):
-        effective_array = array.array
+    if isinstance ( data, tuna.io.can ):
+        effective_array = data.array
         log.debug ( "Using can's array as input." )
     else:
-        effective_array = array
+        effective_array = data
 
     if plane != None:
         finder = rings_finder ( effective_array, plane, ipython, plot_log )

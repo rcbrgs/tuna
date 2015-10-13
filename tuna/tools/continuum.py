@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-This module's scope are per-spectra operations.
+This module's scope are operations to calculate the continuum in a data cube.
 
 Example::
 
     >>> import tuna
     >>> raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
-    >>> continuum_detector = tuna.tools.phase_map.continuum_detector ( can = raw ); continuum_detector.join ( )
-    >>> continuum_detector.continuum.array [ 100 ] [ 100 ]
+    >>> continuum_detector = tuna.tools.continuum_detector ( raw = raw )
+    >>> continuum_detector.array [ 100 ] [ 100 ]
     3.0
 """
 import logging
@@ -17,7 +17,7 @@ import threading
 import time
 import tuna
 
-class continuum_detector ( threading.Thread ):
+class detector ( threading.Thread ):
     """
     This class is responsible for detecting the continuum at each pixel, for a given input data cube.
 
@@ -31,10 +31,16 @@ class continuum_detector ( threading.Thread ):
     * continuum_to_FSR_ratio : float
         Encoding the ratio below which values are to be ignored.
     """
-    def __init__ ( self, can, continuum_to_FSR_ratio = 0.25 ):
-        self.log = logging.getLogger ( __name__ )
+    def __init__ ( self,
+                   can : tuna.io.can,
+                   continuum_to_FSR_ratio : float = 0.25 ) -> None:
         super ( self.__class__, self ).__init__ ( )
+        self.__version__ = "0.1.0"
+        self.changelog = {
+            "0.1.0" : "Tuna 0.15.0 : Added changelog. Moved to tuna.tools.continuum. Refactored as a plugin."
+            }
 
+        self.log = logging.getLogger ( __name__ )
         self.can = can
         self.continuum_to_FSR_ratio = continuum_to_FSR_ratio
 
@@ -120,3 +126,22 @@ def suppress_channel ( replacement,
     for channel in channels:
         result [ channel ] = numpy.copy ( replacement.array [ channel ] )
     return result
+
+def continuum_detector ( raw : tuna.io.can,
+                         continuum_to_FSR_ratio : float = 0.25 ) -> tuna.io.can:
+    """
+    This function's goal is to conveniently return a Tuna can containing the continuum data for the given input.
+
+    Parameters:
+
+    * raw : :ref:`tuna_io_can_label`
+        Containing data from a spectrograph.
+
+    * continuum_to_FSR_ratio : float
+        Encoding the ratio below which values are to be ignored.
+    """
+
+    continuum_detector_object = detector ( can = raw,
+                                           continuum_to_FSR_ratio = continuum_to_FSR_ratio )
+    continuum_detector_object.join ( )
+    return continuum_detector_object.continuum

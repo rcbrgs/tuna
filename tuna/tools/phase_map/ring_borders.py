@@ -6,10 +6,14 @@ Example::
 
     >>> import tuna
     >>> raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
-    >>> barycenter = tuna.tools.phase_map.barycenter_fast ( raw ); barycenter.join ( )
-    >>> noise_detector = tuna.tools.phase_map.noise_detector ( raw, barycenter.result, 1, 1 ); noise_detector.join ( )
-    >>> rings = tuna.tools.find_rings ( raw.array, min_rings = 2 )
-    >>> borders = tuna.tools.phase_map.ring_border_detector ( barycenter.result, ( 219, 255 ), noise_detector.noise, rings ); borders.join ( )
+    >>> barycenter = tuna.plugins.run ( "Barycenter algorithm" ) ( data_can = raw )
+    >>> noise = tuna.plugins.run ( "Noise detector" ) ( data = raw, \
+                                                        wrapped = barycenter, \
+                                                        noise_mask_radius = 1, \
+                                                        noise_threshold = 1 )
+    >>> rings = tuna.plugins.run ( "Ring center finder" ) ( data = raw.array, \
+                                                            min_rings = 2 )
+    >>> borders = tuna.tools.phase_map.ring_border_detector ( barycenter, ( 219, 255 ), noise, rings ); borders.join ( )
     >>> borders.distances.array [ 0 ] [ 170 : 190 ]
     array([   0.        ,    0.        ,    0.        ,    0.        ,
               0.        ,  231.82699114,  231.82699114,  231.82699114,
@@ -17,6 +21,12 @@ Example::
             231.82699114,  231.82699114,  231.82699114,    0.        ,
               0.        ,    0.        ,    0.        ,    0.        ])
 """
+
+__version__ = "0.1.0"
+__changelog__ = {
+    "0.1.0" : { "Tuna" : "0.15.0", "Change" : "Refactored example to use new signatures for plugins 'Ring center finder', 'Noise detector'." }
+    }
+
 import logging
 from math import sqrt
 import numpy
@@ -50,8 +60,9 @@ class ring_border_detector ( threading.Thread ):
         Will set the log output to the specified level.
     """
     def __init__ ( self, data, center, noise, rings, log_level = logging.INFO ):
-        self.__version__ = '0.1.2'
+        self.__version__ = "0.1.3"
         self.changelog = {
+            "0.1.3" : "Tuna 0.15.0 : refactored example to use plugins.",
             "0.1.2" : "Tuna 0.14.0 : Updated docstrings to new style.",
             '0.1.1' : "Improved dosctrings for Sphinx documentation.",
             '0.1.0' : "Adapted to use find_ring."

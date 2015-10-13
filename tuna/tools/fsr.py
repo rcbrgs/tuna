@@ -6,26 +6,25 @@ Example usage::
 
     >>> import tuna
     >>> raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
-    >>> barycenter = tuna.tools.phase_map.barycenter_fast ( raw ); barycenter.join ( )
-    >>> noise_detector = tuna.tools.phase_map.noise_detector ( raw, barycenter.result, 1, 1 ); noise_detector.join ( )
-    >>> rings = tuna.tools.find_rings ( raw.array, min_rings = 2 )
-    >>> borders = tuna.tools.phase_map.ring_border_detector ( barycenter.result, ( 219, 255 ), noise_detector.noise, rings ); borders.join ( )
-    >>> fsr = tuna.tools.phase_map.fsr_mapper ( distances = borders.distances, wrapped = barycenter.result, center = ( 219, 255 ), concentric_rings = rings [ 'concentric_rings' ] ); fsr.join ( )
-    >>> fsr.distances [ 0 ] [ 150 : 200 ]
-    array([   0.        ,    0.        ,    0.        ,    0.        ,
-              0.        ,    0.        ,    0.        ,    0.        ,
-              0.        ,    0.        ,    0.        ,    0.        ,
-              0.        ,    0.        ,    0.        ,    0.        ,
-              0.        ,    0.        ,    0.        ,    0.        ,
-              0.        ,    0.        ,    0.        ,    0.        ,
-              0.        ,  231.82699114,  231.82699114,  231.82699114,
-            231.82699114,  231.82699114,  231.82699114,  231.82699114,
-            231.82699114,  231.82699114,  231.82699114,    0.        ,
-              0.        ,    0.        ,    0.        ,    0.        ,
-              0.        ,    0.        ,    0.        ,    0.        ,
-              0.        ,    0.        ,    0.        ,    0.        ,
-              0.        ,    0.        ])
+    >>> barycenter = tuna.plugins.run ( "Barycenter algorithm" ) ( raw )
+    >>> noise = tuna.plugins.run ( "Noise detector" ) ( data = raw, \
+                                                        wrapped = barycenter, \
+                                                        noise_threshold = 1, \
+                                                        noise_mask_radius = 1 )
+    >>> rings = tuna.plugins.run ( "Ring center finder" ) ( data = raw.array, min_rings = 2 )
+    >>> borders = tuna.tools.phase_map.ring_border_detector ( barycenter, ( 219, 255 ), noise, rings ); borders.join ( )
+    >>> fsr = tuna.plugins.run ( "FSR mapper" ) ( distances = borders.distances, wrapped = barycenter, center = ( 219, 255 ), concentric_rings = rings [ 'concentric_rings' ] )
+    >>> fsr.array [ 0 ] [ 150 : 200 ]
+    array([ 2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,
+            2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,
+            2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  1.,  1.,  1.,  1.,
+            1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.])
 """
+
+__version__ = "0.1.0"
+__changelog__ = {
+    "0.1.0" : { "Tuna" : "0.15.0", "Change" : "Refactored example to use new signature for 'Noise detector' and 'Ring center finder' plugins." }
+    }
 
 import logging
 from math import sqrt
@@ -34,7 +33,7 @@ import threading
 import time
 import tuna
 
-class fsr_mapper ( threading.Thread ):
+class fsr ( threading.Thread ):
     """
     Responsible for computing and storing a 2D array of integers with the number of FSRs from the axis until each pixel.
 
@@ -58,10 +57,11 @@ class fsr_mapper ( threading.Thread ):
     """
     def __init__ ( self, distances, wrapped, center, concentric_rings ):
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = '0.1.1'
+        self.__version__ = "0.1.2"
         self.changelog = {
+            "0.1.2" : "Tuna 0.15.0 : Refactored into a plugin.",
             "0.1.1" : "Tuna 0.14.0 : improved documentation.",
-            '0.1.0' : "First changeloged version."
+            "0.1.0" : "First changeloged version."
             }
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
@@ -206,3 +206,37 @@ class fsr_mapper ( threading.Thread ):
         self.log.debug ( "thicknesses = %s" % str ( thicknesses ) )
 
         return int ( max ( min ( thicknesses ) * 0.25, 20 ) )
+
+def fsr_mapper ( distances : tuna.io.can,
+                 wrapped : tuna.io.can,
+                 center : tuple,
+                 concentric_rings : dict ) -> tuna.io.can:
+    """
+    This function's goal is to conveniently compute a 2D array of integers with the number of FSRs from the axis until each pixel.
+
+    It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
+
+    Its constructor has the following signature:
+
+    Parameters:
+
+    * distances : can
+        Containing the map of border distances to the center.
+
+    * wrapped : can
+        Containing the wrapped phase map.
+
+    * center : tuple of 2 integers
+        Containing the column and row of the center.
+
+    * concentric_rings : dictionary
+        A structure describing the geometry of the concentric rings characteristic of a Fabry-Pérot interferogram.
+
+    Returns:
+
+    * tuna.io.can 
+        Containing the order map as calculated from the input.
+    """
+    mapper = fsr ( distances, wrapped, center, concentric_rings )
+    mapper.join ( )
+    return tuna.io.can ( array = mapper.fsr )

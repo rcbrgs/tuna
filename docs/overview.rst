@@ -3,7 +3,9 @@
 Overview and features
 =====================
 
-Tuna is a Python package containing several tools related to the reduction of data cubes produced by Fabry-Pérot interferometers. Tuna is a professionally written Python package, meant to be a future replacement for the plethora of "obscure" programs used in this field. To fulfill this role, Tuna must offer substantial advantages over the existing software. These are the features present in Tuna, and the corresponding problems we aim to solve with them:
+Tuna is a Python package containing several tools related to the reduction of data cubes produced by Fabry-Pérot interferometers. Tuna is a professionally written Python package, intended as a public "home" for the plethora of "obscure" programs used in this field. In other words, there are many reduction programs written by astrophysicists who work with this kind of data; and although many of the atomic tasks these programs perform could be shared in a common library, this does not always happen. We believe that a project centered around an open source library of tasks useful for data reduction of Fabry-Pérot interferographs could advance this state of affairs.
+
+To fulfill this role, Tuna must offer substantial advantages over the existing software. These are the features present in Tuna, and the corresponding problems we aim to solve with them:
 
 * Free software: scientific results must be reproducible and auditable. The use of proprietary software does not preclude either characteristic, but it hampers both.
 * Modularity: the specific computational tasks performed to process astrophysical images are in evolution, and therefore the ability to isolate and replace modules that become obsolete is an imperative.
@@ -30,17 +32,10 @@ Tuna version |version| has the following capabilities:
 * it reads and writes FITS files, and
 * it reads ADHOC ADA, AD2, AD3 and ADT files.
 
-Renato Borges produced a 15 minutes video to highlight the features in this version of Tuna, available at `youtube <https://www.youtube.com/watch?v=Z4adUESjiMs>`_.
+* a :ref:`plugin_label` system to facilitate extensions.
 
-Planned features
-----------------
-
-The two major features planned for the next version of Tuna are:
-
-* finishing the first draft of documentation, and
-
-* begin to develop a :ref:`plugin_label` to facilitate extensions.
-
+Renato Borges produced a 15 minutes video to highlight the features in version 0.12.0 of Tuna, available at `youtube <https://www.youtube.com/watch?v=Z4adUESjiMs>`_.
+  
 History and supporters
 ----------------------
 

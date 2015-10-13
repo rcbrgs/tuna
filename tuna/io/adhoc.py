@@ -65,7 +65,7 @@ class adhoc ( file_reader ):
         super ( adhoc, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
-        self.__version__ = '0.2.0'
+        self.__version__ = "0.2.0"
         self.changelog = {
             '0.2.0' : "Tuna 0.14.0 : improved docstrings.",
             '0.1.2' : "Documentation: module, class and function docstrings.", 
@@ -215,7 +215,7 @@ class adhoc ( file_reader ):
             self.log.debug ( "%s" % str ( e ) )
             raise
     
-        self.__array[numpy.where ( numpy_data == -3.1E38 )] = numpy.nan
+        self.__array [ numpy.where ( numpy_data == -3.1E38 ) ] = numpy.nan
         self.__adhoc_trailer = numpy_data['trailer']
 
         self.log.info ( "Successfully read adhoc 2d object from file %s." % str ( self.__file_name ) )

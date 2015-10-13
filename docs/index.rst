@@ -18,10 +18,10 @@ Getting started
    examples
    developers_guide
 
-Subpackages
------------
+Modules and namespaces
+----------------------
 
-Tuna is organized hierarchically into subpackages, each containing several modules. The modules are not necessarily coupled with each other, but when they have similar scope, they should be on the same subpackage.
+Tuna is organized hierarchically into namespaces, each containing several modules. The namespaces don't have useful code in themselves, serving as organizers of the codebase. The modules contain most of Tuna's utilitarian code, and are written with the intent of being small and "to the point" files. As a rule of thumb, if a module is larger than a 100 lines of code, it probably should be split up.
 
 .. toctree::
    :maxdepth: 1
@@ -30,6 +30,7 @@ Tuna is organized hierarchically into subpackages, each containing several modul
    tuna_io
    tuna_log
    tuna_models
+   tuna_pipelines
    tuna_plugins
    tuna_repo
    tuna_test
@@ -60,4 +61,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

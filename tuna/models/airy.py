@@ -2,6 +2,9 @@
 This module's scope is the modeling and fitting of Airy functions to data.
 """
 
+__version__ = "0.1.0"
+__changelog__ = { "Tuna" : "0.15.0", "Change" : "Added wrapper function fit_airy" }
+
 import copy
 import logging
 import math
@@ -362,3 +365,53 @@ class airy_fitter ( threading.Thread ):
                                               self.shape_rows,
                                               self.wavelength ) )
         self.parameters = fit_parameters
+
+def fit_airy ( b_ratio : float,
+               center_col : float,
+               center_row : float,
+               data : numpy.ndarray,
+               finesse : float,
+               gap : float,
+               wavelength : float,
+               mpyfit_parinfo : list = [ ] ) -> ( dict, tuna.io.can ):
+    """
+    This method's goal is to conveniently fit the Airy function. It will use the given parameters as initial guesses. The fit will stop when the fitter converges.
+
+    It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
+
+    Arguments:
+
+    * b_ratio : float
+        The ratio between the pixel size and the camera focal length (b).
+
+    * center_col : float
+        The column for the center of the rings, in pixels.
+
+    * center_row : float
+        The row for the center of the rings, in pixels.
+
+    * data : numpy.ndarray
+        Contains the data to be fitted.
+
+    * finesse : float
+        (F).
+
+    * gap : float
+        The distance between the étalons, in microns (n e_i).
+    
+    * wavelength : float 
+        Wavelength in microns ( lambda_c ).
+
+    * mpyfit_parinfo : list : defaults to [ ]
+        List of parameters' boundaries, and whether they are fixed or not. Must respect mpyfit's specification.
+    """
+    fitter = airy_fitter ( b_ratio,
+                           center_col,
+                           center_row,
+                           data,
+                           finesse,
+                           gap,
+                           wavelength,
+                           mpyfit_parinfo )
+    fitter.join ( )
+    return ( fitter.parameters, fitter.fit )

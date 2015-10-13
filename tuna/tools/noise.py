@@ -6,14 +6,20 @@ Example::
 
     >>> import tuna
     >>> raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
-    >>> barycenter = tuna.tools.phase_map.barycenter_fast ( raw ); barycenter.join ( )
-    >>> noise = tuna.tools.phase_map.noise_detector ( raw = raw, \
-                                                      wrapped = barycenter.result, \
-                                                      noise_mask_radius = 1, \
-                                                      noise_threshold = 1 ); noise.join ( )
-    >>> noise.noise.array [ 500 : 511, 500 ]
+    >>> barycenter = tuna.plugins.run ( "Barycenter algorithm" ) ( data_can = raw )
+    >>> noise = tuna.plugins.run ( "Noise detector" ) ( raw = raw, \
+                                                        wrapped = barycenter.result, \
+                                                        noise_mask_radius = 1, \
+                                                        noise_threshold = 1 )
+    >>> noise.array [ 500 : 511, 500 ]
     array([ 1.,  0.,  1.,  1.,  0.,  1.,  1.,  1.,  1.,  1.,  1.])
 """
+
+__version__ = "0.1.0"
+__changelog__ = {
+    "0.1.0" : { "Tuna" : "0.15.0", "Change" : "Renamed 'raw' argument of detect_noise to 'data'." }
+    }
+
 import logging
 import math
 import numpy
@@ -46,14 +52,14 @@ class noise_detector ( threading.Thread ):
         Encoding the minimum value to be considered signal.
     """
     def __init__ ( self,
-                   raw : numpy.ndarray,
-                   wrapped : numpy.ndarray,
+                   raw : tuna.io.can,
+                   wrapped : tuna.io.can,
                    noise_mask_radius : int = 1,
                    noise_threshold : float = None ) -> None:
         super ( self.__class__, self ).__init__ ( )        
         self.__version__ = "0.1.7"
         self.changelog = {
-            "0.1.7" : "Tuna 0.15.0 : added annotations.",
+            "0.1.7" : "Tuna 0.15.0 : added annotations. Move to tuna.tools.",
             "0.1.6" : "Tuna 0.14.0 : updated documentation.",
             '0.1.5' : "Imroved docstrings for Sphinx.",
             '0.1.4' : "Added hook to update noise table on db.",
@@ -183,16 +189,16 @@ def position_is_valid_pixel_address ( position = ( int, int ), array = numpy.arr
         return True
     return False
 
-def detect_noise ( raw : numpy.ndarray,
-                   wrapped : numpy.ndarray,
+def detect_noise ( data : tuna.io.can,
+                   wrapped : tuna.io.can,
                    noise_mask_radius : int = 1,
                    noise_threshold : float = None ) -> tuna.io.can:
     """
     This function's goal is to conveniently return a numpy.ndarray containing the noise map calculated from the input parameters.
     """
-    detector = tuna.tools.phase_map.noise_detector ( raw = raw,
-                                                     wrapped = wrapped,
-                                                     noise_mask_radius = noise_mask_radius,
-                                                     noise_threshold = noise_threshold )
+    detector = noise_detector ( raw = data,
+                                wrapped = wrapped,
+                                noise_mask_radius = noise_mask_radius,
+                                noise_threshold = noise_threshold )
     detector.join ( )
     return detector.noise

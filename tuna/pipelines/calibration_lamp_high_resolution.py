@@ -6,7 +6,7 @@ Example::
 
     >>> import tuna
     >>> file_object = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
-    >>> reducer = tuna.tools.phase_map.high_resolution ( \
+    >>> reducer = tuna.pipelines.calibration_lamp_high_resolution.reducer ( \
             calibration_wavelength = 6598.953125, \
             finesse = 12, \
             free_spectral_range = 8.36522123894, \
@@ -15,7 +15,6 @@ Example::
             pixel_size = 9, \
             scanning_wavelength = 6616.89, \
             tuna_can = file_object, \
-            wrapped_algorithm = tuna.tools.phase_map.barycenter_fast, \
             channel_subset = [ 0, 1, 2, 5 ], \
             continuum_to_FSR_ratio = 0.125, \
             noise_mask_radius = 8, \
@@ -25,6 +24,12 @@ Example::
     >>> reducer.wavelength_calibrated.array [ 10 ] [ 10 ]
     103.18638370414156
 """
+
+__version__ = "0.1.0"
+__changelog__ = {
+    "0.1.0" : { "Tuna" : "0.15.0", "Change" : "Refactored to use detect_noise 'data' argument, to use 'overscan' plugin, 'Airy fit' plugin, 'FSR mapper' plugin." }
+    }
+
 import IPython
 import logging
 import math
@@ -34,7 +39,7 @@ import threading
 import time
 import tuna
 
-class high_resolution ( threading.Thread ):
+class reducer ( threading.Thread ):
     """
     Creates and stores an unwrapped phase map, taking as input a raw data cube.
 
@@ -81,9 +86,6 @@ class high_resolution ( threading.Thread ):
     * tuna_can : can
         The raw interferograph data. Must be a :ref:`tuna_io_can_label` object.
 
-    * wrapped_algorithm : reference to a function
-        The function to be called, to produce the wrapped phase map.
-
     * channel_subset : list of integers
         A list of the channels to be substituted by their fitted model's data.
 
@@ -100,6 +102,9 @@ class high_resolution ( threading.Thread ):
     
     * noise_threshold : float : None
         The minimal value for a pixel content to be marked as signal, instead of noise. If None, this value will be automatically computed.
+
+    * overscan_removal : dict : { }
+        A dictionary of elements that must be removed from the datacube.
 
     * plot_log : boolean : False
         Specifies whether to matplotlib plot the partial results (which will be always available as ndarrays).
@@ -122,21 +127,20 @@ class high_resolution ( threading.Thread ):
                    pixel_size,
                    scanning_wavelength,
                    tuna_can,
-                   wrapped_algorithm,
                    channel_subset = [ ],
                    continuum_to_FSR_ratio = 0.125,
                    dont_fit = False,
                    noise_mask_radius = 1,
                    noise_threshold = None,
+                   overscan_removal = { },
                    plot_log = False,
                    ring_minimal_percentile = None,
                    unwrapped_only = False,
                    verify_center = None ):
-
-        self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.INFO )
-        self.__version__ = "0.1.18"
+        super ( self.__class__, self ).__init__ ( )
+        self.__version__ = "0.1.19"
         self.changelog = {
+            "0.1.19" : "Tuna 0.15.0 : Moved to tuna.pipelines. Refactored to use plugins for noise, continuum, barycenter, ring center finder.",
             "0.1.18" : "Tuna 0.14.0 : updated documentation.",
             '0.1.17' : "Improved docstring for class.",
             '0.1.16' : "Adapted to use refined version of ring finder.",
@@ -157,7 +161,8 @@ class high_resolution ( threading.Thread ):
             '0.1.1' : "Using variables instead of harcoded values for inital b and gap values.",
             '0.1.0' : "Initial changelog."
             }
-        super ( high_resolution, self ).__init__ ( )
+        self.log = logging.getLogger ( __name__ )
+        self.log.setLevel ( logging.INFO )
 
         if not isinstance ( tuna_can, tuna.io.can ):
             self.log.info ( "array must be a numpy.ndarray or derivative object." )
@@ -170,7 +175,7 @@ class high_resolution ( threading.Thread ):
             self.log.warning ( "%s, aborting." % str ( e ) )
             return
         
-        self.log.info ( "Starting high_resolution pipeline." )
+        self.log.info ( "Starting {} pipeline.".format ( self.__module__ ) )
 
         """inputs:"""
         self.calibration_wavelength = calibration_wavelength
@@ -183,13 +188,13 @@ class high_resolution ( threading.Thread ):
         self.interference_reference_wavelength = interference_reference_wavelength
         self.noise_mask_radius = noise_mask_radius
         self.noise_threshold = noise_threshold
+        self.overscan_removal = overscan_removal
         self.pixel_size = pixel_size
         self.ring_minimal_percentile = ring_minimal_percentile
         self.scanning_wavelength = scanning_wavelength
         self.tuna_can = tuna_can
         self.unwrapped_only = unwrapped_only
         self.verify_center = verify_center
-        self.wrapped_algorithm = wrapped_algorithm
 
         """outputs:"""
         self.airy_fit = None
@@ -197,7 +202,6 @@ class high_resolution ( threading.Thread ):
         self.borders_to_center_distances = None
         self.continuum = None
         self.discontinuum = None
-        self.fsr_map = None
         self.noise = None
         self.order_map = None
         self.parabolic_fit = None
@@ -218,31 +222,30 @@ class high_resolution ( threading.Thread ):
         """
         :ref:`threading_label` method for starting execution.
         """
+
+        self.overscanned = tuna.plugins.run ( "Overscan" ) ( data = self.tuna_can,
+                                                             elements_to_remove = self.overscan_removal )
         
-        continuum_detector = tuna.tools.phase_map.continuum_detector ( self.tuna_can,
-                                                                       self.continuum_to_FSR_ratio )
-        continuum_detector.join ( )
-        self.continuum = continuum_detector.continuum
+        self.continuum = tuna.plugins.run ( "Continuum detector" ) ( self.overscanned,
+                                                                     self.continuum_to_FSR_ratio )
 
-        self.discontinuum = tuna.io.can ( array = numpy.ndarray ( shape = self.tuna_can.shape ) )
-        for plane in range ( self.tuna_can.planes ):
-            self.discontinuum.array [ plane, : , : ] = numpy.abs ( self.tuna_can.array [ plane, : , : ] - self.continuum.array )
+        # Discontinuum calculation
+        self.discontinuum = tuna.io.can ( array = numpy.ndarray ( shape = self.overscanned.shape ) )
+        for plane in range ( self.overscanned.planes ):
+            self.discontinuum.array [ plane, : , : ] = numpy.abs ( self.overscanned.array [ plane, : , : ] - self.continuum.array )
+        #
 
-        wrapped_producer = self.wrapped_algorithm ( self.discontinuum )
-        wrapped_producer.join ( )
+        self.wrapped_phase_map = tuna.plugins.run ( "Barycenter algorithm" ) ( data_can = self.discontinuum )
+        
+        self.noise = tuna.plugins.run ( "Noise detector" ) ( data = self.overscanned,
+                                                             wrapped = self.wrapped_phase_map, 
+                                                             noise_mask_radius = self.noise_mask_radius,
+                                                             noise_threshold = self.noise_threshold )
 
-        self.wrapped_phase_map = wrapped_producer.result
-        self.log.debug ( "self.wrapped_phase_map.array.shape = {}".format ( self.wrapped_phase_map.array.shape ) )
-
-        noise_detector = tuna.tools.phase_map.noise_detector ( self.tuna_can,
-                                                               self.wrapped_phase_map, 
-                                                               self.noise_mask_radius,
-                                                               self.noise_threshold )
-        noise_detector.join ( )
-        self.noise = noise_detector.noise
-
-        self.find_rings = tuna.tools.find_rings (
-            self.tuna_can.array, min_rings = 2, ipython = self.ipython, plot_log = self.plot_log )
+        self.find_rings = tuna.plugins.run ( "Ring center finder" ) ( data = self.overscanned.array,
+                                                                      min_rings = 2,
+                                                                      ipython = self.ipython,
+                                                                      plot_log = self.plot_log )
         center = self.find_rings [ 'concentric_rings' ] [ 0 ]
         self.rings_center = center
         
@@ -290,25 +293,23 @@ class high_resolution ( threading.Thread ):
             parbase = { 'fixed' : False }
             parinfo_initial.append ( parbase )
 
-            airy_fitter_0 = tuna.models.airy_fitter ( initial_b_ratio,
-                                                      center [ 0 ],
-                                                      center [ 1 ],
-                                                      self.tuna_can.array [ 0 ],
-                                                      self.finesse,
-                                                      initial_gap,
-                                                      self.calibration_wavelength,
-                                                      mpyfit_parinfo = parinfo_initial )
+            airy_fitter_0 = tuna.plugins.run ( "Airy fit" ) ( b_ratio = initial_b_ratio,
+                                                              center_col = center [ 0 ],
+                                                              center_row = center [ 1 ],
+                                                              data = self.overscanned.array [ 0 ],
+                                                              finesse = self.finesse,
+                                                              gap = initial_gap,
+                                                              wavelength = self.calibration_wavelength,
+                                                              mpyfit_parinfo = parinfo_initial )
 
-            airy_fitter_0.join ( )
-            self.log.debug ( "airy_fitter_0 joined" )
-            airy_fit = numpy.ndarray ( shape = self.tuna_can.shape )
-            airy_fit [ 0 ] = airy_fitter_0.fit.array
-            
-            b_ratio     = airy_fitter_0.parameters [ 0 ]
-            center_col  = airy_fitter_0.parameters [ 1 ]
-            center_row  = airy_fitter_0.parameters [ 2 ]
-            finesse     = airy_fitter_0.parameters [ 4 ]
-            initial_gap = airy_fitter_0.parameters [ 5 ]
+            airy_fit = numpy.ndarray ( shape = self.overscanned.shape )
+            airy_fit [ 0 ] = airy_fitter_0 [ 1 ].array
+
+            b_ratio     = airy_fitter_0 [ 0 ] [ 0 ]
+            center_col  = airy_fitter_0 [ 0 ] [ 1 ]
+            center_row  = airy_fitter_0 [ 0 ] [ 2 ]
+            finesse     = airy_fitter_0 [ 0 ] [ 4 ]
+            initial_gap = airy_fitter_0 [ 0 ] [ 5 ]
             
             parinfo = [ ]
             parbase = { 'fixed' : True }
@@ -327,23 +328,24 @@ class high_resolution ( threading.Thread ):
             parbase = { 'fixed' : False }
             parinfo.append ( parbase )
 
-            mid_plane = round ( self.tuna_can.shape [ 0 ] / 2 )
-            airy_fitter_1 = tuna.models.airy_fitter ( b_ratio,
-                                                      center_col,
-                                                      center_row,
-                                                      self.tuna_can.array [ mid_plane ],
-                                                      finesse,
-                                                      initial_gap,
-                                                      self.calibration_wavelength,
-                                                      mpyfit_parinfo = parinfo )
-            airy_fitter_1.join ( )
-            airy_fit [ 1 ] = airy_fitter_1.fit.array
+            mid_plane = round ( self.overscanned.shape [ 0 ] / 2 )
+
+            airy_fitter_1 = tuna.plugins.run ( "Airy fit" )  ( b_ratio = b_ratio,
+                                                               center_col = center_col,
+                                                               center_row = center_row,
+                                                               data = self.overscanned.array [ mid_plane ],
+                                                               finesse = finesse,
+                                                               gap = initial_gap,
+                                                               wavelength = self.calibration_wavelength,
+                                                               mpyfit_parinfo = parinfo )
             
-            channel_gap = ( airy_fitter_1.parameters [ 5 ] - airy_fitter_0.parameters [ 5 ] ) / mid_plane
+            airy_fit [ 1 ] = airy_fitter_1 [ 1 ].array
+            
+            channel_gap = ( airy_fitter_1 [ 0 ] [ 5 ] - airy_fitter_0 [ 0 ] [ 5 ] ) / mid_plane
             self.log.info ( "channel_gap = {} microns.".format ( channel_gap ) )
 
-            latest_gap = airy_fitter_0.parameters [ 5 ] + channel_gap
-            for plane in range ( 1, self.tuna_can.planes ):
+            latest_gap = airy_fitter_0 [ 0 ] [ 5 ] + channel_gap
+            for plane in range ( 1, self.overscanned.planes ):
                 parinfo = [ ]
                 parbase = { 'fixed' : True }
                 parinfo.append ( parbase )
@@ -370,22 +372,21 @@ class high_resolution ( threading.Thread ):
                 self.log.debug ( "Fitting Airy plane {}: gap at {:.5f}.".format (
                     plane, latest_gap ) )
                 
-                airy_fitter = tuna.models.airy_fitter ( b_ratio,
-                                                        center_col,
-                                                        center_row,
-                                                        self.tuna_can.array [ plane ],
-                                                        finesse,
-                                                        latest_gap + channel_gap,
-                                                        self.calibration_wavelength,
-                                                        mpyfit_parinfo = parinfo )
-                airy_fitter.join ( )
-                latest_gap = airy_fitter.parameters [ 5 ]
-                airy_fit [ plane ] = airy_fitter.fit.array
+                airy_fitter = tuna.plugins.run ( "Airy fit" ) ( b_ratio = b_ratio,
+                                                                center_col = center_col,
+                                                                center_row = center_row,
+                                                                data = self.overscanned.array [ plane ],
+                                                                finesse = finesse,
+                                                                gap = latest_gap + channel_gap,
+                                                                wavelength = self.calibration_wavelength,
+                                                                mpyfit_parinfo = parinfo )
+                latest_gap = airy_fitter [ 0 ] [ 5 ]
+                airy_fit [ plane ] = airy_fitter [ 1 ].array
                 self.log.debug ( "Plane {} fitted.".format ( plane ) ) 
-                
+
             self.airy_fit = tuna.io.can ( airy_fit )
             
-            airy_fit_residue = self.tuna_can.array - self.airy_fit.array
+            airy_fit_residue = self.overscanned.array - self.airy_fit.array
             self.airy_fit_residue = tuna.io.can ( array = airy_fit_residue )
             airy_pixels = airy_fit_residue.shape [ 0 ] * airy_fit_residue.shape [ 1 ] * airy_fit_residue.shape [ 2 ] 
             self.log.info ( "Airy <|residue|> = {:.1f} photons / pixel".format (
@@ -400,13 +401,10 @@ class high_resolution ( threading.Thread ):
         ring_border_detector.join ( )
         self.borders_to_center_distances = ring_border_detector.distances
 
-        fsr_mapper = tuna.tools.phase_map.fsr_mapper ( self.borders_to_center_distances,
-                                                       self.wrapped_phase_map,
-                                                       center,
-                                                       self.find_rings [ 'concentric_rings' ] )
-        fsr_mapper.join ( )
-        self.fsr_map = fsr_mapper.fsr
-        self.order_map = tuna.io.can ( array = self.fsr_map.astype ( dtype = numpy.float64 ) )
+        self.order_map = tuna.plugins.run ( "FSR mapper" ) ( distances = self.borders_to_center_distances,
+                                                             wrapped = self.wrapped_phase_map,
+                                                             center = center,
+                                                             concentric_rings = self.find_rings [ 'concentric_rings' ] )
 
         self.create_unwrapped_phase_map ( )
         if self.unwrapped_only == True:
@@ -417,21 +415,20 @@ class high_resolution ( threading.Thread ):
             parabolic_fitter = tuna.models.parabolic_fitter ( self.noise,
                                                               self.unwrapped_phase_map,
                                                               center )
-                                                              #self.rings_center [ 'probable_centers' ] )
 
         wavelength_calibrator = tuna.tools.wavelength.wavelength_calibrator ( self.unwrapped_phase_map,
                                                                               self.calibration_wavelength,
                                                                               self.free_spectral_range,
                                                                               self.interference_order,
                                                                               self.interference_reference_wavelength,
-                                                                              self.tuna_can.shape [ 0 ],
+                                                                              self.overscanned.shape [ 0 ],
                                                                               center,
                                                                               self.scanning_wavelength )
 
 
         if self.dont_fit == False:
-            substituted_channels = numpy.copy ( self.tuna_can.array )
-            for channel in range ( self.tuna_can.planes ):
+            substituted_channels = numpy.copy ( self.overscanned.array )
+            for channel in range ( self.overscanned.planes ):
                 if channel in self.channel_subset:
                     substituted_channels [ channel ] = numpy.copy ( self.airy_fit.array [ channel ] )
             self.substituted_channels = tuna.io.can ( array = substituted_channels )
@@ -489,6 +486,7 @@ class high_resolution ( threading.Thread ):
         This method relies on matplotlib and ipython being available, and renders the intermediary products of this pipeline as plots.
         """
         tuna.tools.plot ( self.tuna_can.array, "original", self.ipython )
+        tuna.tools.plot ( self.overscanned.array, "overscanned", self.ipython )
         tuna.tools.plot ( self.continuum.array, "continuum", self.ipython )
         tuna.tools.plot ( self.discontinuum.array, "discontinuum", self.ipython )
         tuna.tools.plot ( self.wrapped_phase_map.array, "wrapped_phase_map", self.ipython )
@@ -502,19 +500,19 @@ class high_resolution ( threading.Thread ):
         tuna.tools.plot ( self.substituted_channels.array, "substituted_channels", self.ipython )
         tuna.tools.plot ( self.wavelength_calibrated.array, "wavelength_calibrated", self.ipython )
         
-def profile_processing_history ( high_resolution, pixel ):
+def pixel_profiler ( reducer, pixel ):
     """
     This function's goal is to conveniently return a structure containing the data for a given "position" throughout the pipeline. Since objects can have 2 or 3 dimensions, the data structure returns either a value or a 1 dimensional array for each product.
 
     Parameters:
 
-    * high_resolution : reference to a pipeline object
+    * reducer : reference to a calibration_lamp_high_resolution object
         Should be set to the (already run) pipeline.
 
     * pixel : tuple of 2 integers
         Containing the values for column and row of the point to be investigated.
 
-    Returns a dictionary with 8 fields (each field corresponds to the result of a method of the high_resolution class):
+    Returns a dictionary with 8 fields (each field corresponds to the result of a method of the calibration_lamp_high_resolution class):
 
     * 'Original data' : numpy.ndarray
         Contains the spectrum for the input pixel.
@@ -543,13 +541,13 @@ def profile_processing_history ( high_resolution, pixel ):
     
     profile = { }
 
-    profile [ 0 ] = ( 'Original data', high_resolution.tuna_can.array [ :, pixel [ 0 ], pixel [ 1 ] ] )
-    profile [ 1 ] = ( 'Discontinuum', high_resolution.discontinuum.array [ :, pixel [ 0 ], pixel [ 1 ] ] )
-    profile [ 2 ] = ( 'Wrapped phase map', high_resolution.wrapped_phase_map.array [ pixel [ 0 ] ] [ pixel [ 1 ] ] )
-    profile [ 3 ] = ( 'Order map', high_resolution.order_map.array [ pixel [ 0 ] ] [ pixel [ 1 ] ] )
-    profile [ 4 ] = ( 'Unwrapped phase map', high_resolution.unwrapped_phase_map.array [ pixel [ 0 ] ] [ pixel [ 1 ] ] )
-    profile [ 5 ] = ( 'Parabolic fit', high_resolution.parabolic_fit.array [ pixel [ 0 ] ] [ pixel [ 1 ] ] )
-    profile [ 6 ] = ( 'Airy fit', high_resolution.airy_fit.array [ :, pixel [ 0 ], pixel [ 1 ] ] )
-    profile [ 7 ] = ( 'Wavelength', high_resolution.wavelength_calibrated.array [ pixel [ 0 ] ] [ pixel [ 1 ] ] )
+    profile [ 0 ] = ( 'Original data',       reducer.tuna_can.array              [ :, pixel [ 0 ], pixel [ 1 ] ] )
+    profile [ 1 ] = ( 'Discontinuum',        reducer.discontinuum.array          [ :, pixel [ 0 ], pixel [ 1 ] ] )
+    profile [ 2 ] = ( 'Wrapped phase map',   reducer.wrapped_phase_map.array     [ pixel [ 0 ] ] [ pixel [ 1 ] ] )
+    profile [ 3 ] = ( 'Order map',           reducer.order_map.array             [ pixel [ 0 ] ] [ pixel [ 1 ] ] )
+    profile [ 4 ] = ( 'Unwrapped phase map', reducer.unwrapped_phase_map.array   [ pixel [ 0 ] ] [ pixel [ 1 ] ] )
+    profile [ 5 ] = ( 'Parabolic fit',       reducer.parabolic_fit.array         [ pixel [ 0 ] ] [ pixel [ 1 ] ] )
+    profile [ 6 ] = ( 'Airy fit',            reducer.airy_fit.array              [ :, pixel [ 0 ], pixel [ 1 ] ] )
+    profile [ 7 ] = ( 'Wavelength',          reducer.wavelength_calibrated.array [ pixel [ 0 ] ] [ pixel [ 1 ] ] )
 
     return profile

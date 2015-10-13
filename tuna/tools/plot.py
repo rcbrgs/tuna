@@ -79,12 +79,12 @@ def plot ( data, title = "", ipython = None ):
 
 def plot_high_res ( high_res ):
     """
-    This function's goal is to plot the intermediary products of a tuna.tools.phase_map.high_res object.
+    This function's goal is to plot the intermediary products of a tuna.pipelines.calibration_lamp_high_resolution object.
 
     Parameters:
 
     * high_res : object
-        A reference to a :ref:`tuna_tools_phase_map_high_resolution_label` object.
+        A reference to a :ref:`tuna_pipelines_calibration_lamp_high_resolution_label` object.
     """
     
     ipython = IPython.get_ipython()

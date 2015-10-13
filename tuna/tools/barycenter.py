@@ -8,10 +8,15 @@ Example:
     >>> import tuna
     >>> import numpy
     >>> raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc_small.fits" )
-    >>> barycenter_detector_object = tuna.tools.phase_map.barycenter_detector ( raw ); barycenter_detector_object.join ( )
-    >>> barycenter_detector_object.result.shape
+    >>> barycenter = tuna.plugins.run ( "Barycenter algorithm" ) ( data_can = raw )
+    >>> barycenter.shape
     (10, 10)
 """
+
+__version__ = "0.1.0"
+changelog = {
+    "0.1.0" : ( "0.15.0", "Updated example to use plugins." )
+    }
 
 from astropy.modeling import models, fitting
 import logging
@@ -431,3 +436,40 @@ class barycenter_fast ( threading.Thread ):
         self.log.debug ( "i_right_shoulder = %d" % fwhh_dict['i_right_shoulder'] )
         self.log.debug ( "il_shoulder_indices = %s" % str ( fwhh_dict['il_shoulder_indices'] ) )
 
+def barycenter_geometry ( data_can : tuna.io.can ) -> tuna.io.can:
+    """
+    This function's goal is to conveniently return an array of the barycenter position for each pixel of the input.
+
+    Arguments:
+
+    * data_can : tuna.io.can
+        Should contain a 3D cube of raw Fabry-Pérot data.
+
+    Returns:
+
+    * tuna.io.can
+        Containing a 2D array of floats, where each point is the barycenter of the respective spectrum on the input data.
+    """
+
+    detector = barycenter_fast ( data = data_can )
+    detector.join ( )
+    return detector.result
+
+def barycenter_polynomial_fit ( data_can : tuna.io.can ) -> tuna.io.can:
+    """
+    This function's goal is to conveniently return an array of the barycenter position for each pixel of the input.
+
+    Arguments:
+
+    * data_can : tuna.io.can
+        Should contain a 3D cube of raw Fabry-Pérot data.
+
+    Returns:
+
+    * tuna.io.can
+        Containing a 2D array of floats, where each point is the barycenter of the respective spectrum on the input data.
+    """
+
+    detector = barycenter_detector ( data = data_can )
+    detector.join ( )
+    return detector.result

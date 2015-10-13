@@ -12,7 +12,7 @@ class unit_test_symmetry_center_finder ( unittest.TestCase ):
 
     def test_barycenter_creation ( self ):
         raw = tuna.io.read ( self.here + "/tuna/test/unit/unit_io/adhoc.ad3" )
-        barycenter_detector = tuna.tools.phase_map.barycenter_fast ( raw )
+        barycenter_detector = tuna.tools.barycenter.barycenter_fast ( raw )
         barycenter_detector.join ( )
         wrapped = barycenter_detector.result
         center = tuna.tools.phase_map.find_image_center_by_symmetry ( data = wrapped.array )

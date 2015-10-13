@@ -101,16 +101,14 @@ This run is a Neon lamp calibration, according to the notes.
 
 The values for the parameter in the calibration ( calibration_wavelength, free_spectral_range, interference_order, interference_reference_wavelength, pixel_size, and scanning_wavelength ) were obtained from the parameter file.
 
-The reduction was made using Tuna version 0.13.0. The code to reduce the image was::
+The reduction was made using Tuna version 0.15.0. The code to reduce the image was::
 
   import numpy
   import time
   import tuna
-  tuna.log.set_path ( "test.log" )
-  tuna.log.verbose ( "file", "DEBUG" )
-
-  # 1. Read channels raw data and combine them in a cube.
   
+  # 1. Read channels raw data and combine them in a cube.
+
   path = "/home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001"
   counter = 277
 
@@ -131,14 +129,20 @@ The reduction was made using Tuna version 0.13.0. The code to reduce the image w
   for key in channels_data.keys ( ):
       cube [ key ] = channels_data [ key ]
 
-  tuna.io.write ( array = cube, file_format = "fits", file_name = "run_001.fits" )
+  # This cube has more than 1 FSR recorded; therefore we only need the planes for 1 full FSR.
+  cube_1_fsr = cube [ 0 : 31 ]
+      
+  tuna.io.write ( array = cube_1_fsr, file_format = "fits", file_name = "run_001.fits" )
+
+  # 2. Configure plugins for this reduction.
+  tuna.plugins.registry ( "Overscan", tuna.tools.overscan.remove_elements )
 
   # 2. Reduce the raw cube.
 
   def reduce_calibration ( file_name ):
       file_object = tuna.io.read ( file_name )
       start = time.time ( )
-      reducer = tuna.tools.phase_map.high_resolution (
+      reducer = tuna.pipelines.calibration_lamp_high_resolution.reducer (
           calibration_wavelength = 6566.293265467686,
           finesse = 12,
           free_spectral_range = 10.886544844104602,
@@ -147,104 +151,39 @@ The reduction was made using Tuna version 0.13.0. The code to reduce the image w
           pixel_size = 19,
           scanning_wavelength = 6598.9529,
           tuna_can = file_object,
-          wrapped_algorithm = tuna.tools.phase_map.barycenter_fast,
           channel_subset = [ 0, 1, 2, 5 ],
           continuum_to_FSR_ratio = 0.125,
           noise_mask_radius = 8,
           dont_fit = False,
+          overscan_removal = { 2 : list ( range ( 16 ) ) + list ( range ( 527, 561 ) ) + list ( range ( 1072, 1088 ) ) },
           unwrapped_only = False,
           verify_center = None )
-      reducer.join ( )
-      print ( "Tuna took {:.1f}s to reduce.".format ( time.time ( ) - start ) )
-      reducer.plot ( )
-      return reducer
+  reducer.join ( )
+  print ( "Tuna took {:.1f}s to reduce.".format ( time.time ( ) - start ) )
+  reducer.plot ( )
+  return reducer
 
-  reduce_calibration ( "run_001.fits" )
+  pipeline_result = reduce_calibration ( "run_001.fits" )
   
 Output from ipython was::
 
-  $ ipython -i reduce_march.py
-  Log file set to test.log.
-  Handler <logging.FileHandler object at 0x7f1c6a588198> set to 10.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C001.278.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C002.279.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C003.280.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C004.281.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C005.282.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C006.283.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C007.284.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C008.285.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C009.286.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C010.287.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C011.288.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C012.289.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C013.290.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C014.291.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C015.292.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C016.293.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C017.294.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C018.295.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C019.296.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C020.297.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C021.298.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C022.299.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C023.300.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C024.301.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C025.302.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C026.303.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C027.304.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C028.305.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C029.306.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C030.307.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C031.308.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C032.309.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C033.310.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C034.311.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C035.312.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C036.313.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C037.314.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C038.315.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C039.316.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C040.317.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C041.318.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C042.319.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C043.320.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C044.321.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C045.322.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C046.323.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C047.324.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C048.325.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C049.326.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C050.327.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C051.328.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C052.329.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C053.330.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C054.331.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C055.332.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C056.333.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C057.334.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C058.335.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C059.336.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C060.337.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C061.338.fits opened as a FITS file.
-  File /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C062.339.fits opened as a FITS file.
+  $ ipython -i ~/example_Dor30_SOAR.py
   FITS file written at run_001.fits.
-  File run_001.fits opened as a FITS file.
-  Starting high_resolution pipeline.
+  Plugin for "Overscan" set to tuna.tools.overscan.remove_elements.
+  Starting tuna.pipelines.calibration_lamp_high_resolution pipeline.
   Continuum array created.
   Barycenter done.
-  Noise map created with lower_value = 32303.0.
+  Noise map created with lower_value = 128880.0.
   len ( pixel_set_intersections ) == 0, falling back to whole pixel_set
-  averaged_concentric_rings = ((581.01540534534183, 193.74709530984046), [805.09911885266331, 126.53724509388509], [0, 1])
-  sorted_radii = ['126.54', '805.10']
-  b_ratio = 7.230716e-05
+  averaged_concentric_rings = ((581.67385168909686, 161.02864583854762), [805.08615077802199, 126.54220326235794], [0, 1])
+  sorted_radii = ['126.54', '805.09']
   inital_gap = 1.99e+06 microns
-  channel_gap = -16.689003952606132 microns.
-  Airy <|residue|> = 1098.4 photons / pixel
+  channel_gap = -2.2923780482622886 microns.
+  Airy <|residue|> = 2304.3 photons / pixel
   Phase map unwrapped.
   Wavelength calibration done.
   Parabolic model fitted.
-  Tuna took 1911.7s to reduce.
+  Tuna took 1542.8s to reduce.
 
 The plots produced in the run were the following:
   
@@ -261,3 +200,4 @@ The plots produced in the run were the following:
 .. image:: images/example_Dor30_SOAR_11.png
 .. image:: images/example_Dor30_SOAR_12.png
 .. image:: images/example_Dor30_SOAR_13.png
+.. image:: images/example_Dor30_SOAR_14.png

@@ -5,6 +5,7 @@ Tuna is free software, licensed under the GPL Version 3.
 
 It is hosted on a `github repo <https://github.com/rcbrgs/tuna.git>`_.
 
+In order to have your contribution accepted into Tuna, some style and technological rules must be followed. These are specified below.
 
 Code style
 ----------
