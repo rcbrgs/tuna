@@ -1,6 +1,6 @@
 barycenter
 ==========
 
-.. automodule:: tuna.tools.phase_map.barycenter
+.. automodule:: tuna.tools.barycenter
    :members:
       
