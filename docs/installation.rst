@@ -92,6 +92,10 @@ This is a step-by-step guide to installing Tuna in Fedora 21. It uses Python 3 a
 
      (vtuna)vtuna $ pip install -U pip
 
+#. (Debian and derivatives) Numpy requires some packages to be installed::
+
+     $ sudo aptitude install python3-dev
+
 #. Install NumPy, which is currently not well-behaved in PyPI (and so must be installed separatedly)::
 
      (vtuna)vtuna $ pip install numpy

@@ -101,90 +101,137 @@ This run is a Neon lamp calibration, according to the notes.
 
 The values for the parameter in the calibration ( calibration_wavelength, free_spectral_range, interference_order, interference_reference_wavelength, pixel_size, and scanning_wavelength ) were obtained from the parameter file.
 
-The reduction was made using Tuna version 0.15.0. The code to reduce the image was::
+The reduction was made using Tuna version 0.16.0. The code to reduce the image was::
 
-  import numpy
-  import time
-  import tuna
-  
-  # 1. Read channels raw data and combine them in a cube.
+    import numpy
+    import time
+    import tuna
+    
+    tuna.log.set_path ( "/home/nix/example_Dor30_SOAR.log" )
+    tuna.log.verbose ( "file", "DEBUG" )
+    tuna.log.verbose ( "console", "INFO" )
 
-  path = "/home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001"
-  counter = 277
+    # 1. Create a dictionary with the file names associated with each channel
+    
+    path = "/home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001"
+    counter = 277
+    channels_files = { }
+    for channel_index in range ( 62 ):
+        file_index = channel_index + 1
+	file_name = path + "/fp_sami_C0{:02d}".format ( file_index ) + "." + str ( counter + file_index ) + ".fits"
+	channels_files [ channel_index ] = file_name
 
-  channels_files = { }
-  for channel_index in range ( 62 ):
-      file_index = channel_index + 1
-      file_name = path + "/fp_sami_C0{:02d}".format ( file_index ) + "." + str ( counter + file_index ) + ".fits"
-      channels_files [ channel_index ] = file_name
+    # 2. Reduce the raw cube.
 
-  channels_data = { }
-  for key in channels_files.keys ( ):
-      can = tuna.io.read ( channels_files [ key ] )
-      channels_data [ key ] = can.array
+    def reduce_calibration ( file_names_per_channel ):
+        start = time.time ( )
+	reducer = tuna.pipelines.soar_sami_calibration_lamp.reducer (
+	    calibration_wavelength = 6566.293265467686,
+	    file_names_per_channel = file_names_per_channel,
+	    finesse = 12,
+	    free_spectral_range = 10.886544844104602,
+	    interference_order = 606.156773751181,
+	    interference_reference_wavelength = 6598.9529,
+	    min_rings = 2,
+	    pixel_size = 19,
+	    scanning_wavelength = 6598.9529,
+	    channel_subset = [ ],
+	    continuum_to_FSR_ratio = 0.125,
+	    noise_mask_radius = 8,
+	    dont_fit = False,
+	    unwrapped_only = False,
+	    verify_center = None )
+	reducer.join ( )
+	print ( "Tuna took {:.1f}s to reduce.".format ( time.time ( ) - start ) )
+	reducer.plot ( )
+	return reducer
 
-  cube = numpy.ndarray ( shape = ( 62,
-                         channels_data [ 0 ].shape [ 0 ],
-                         channels_data [ 0 ].shape [ 1 ] ) )
-  for key in channels_data.keys ( ):
-      cube [ key ] = channels_data [ key ]
-
-  # This cube has more than 1 FSR recorded; therefore we only need the planes for 1 full FSR.
-  cube_1_fsr = cube [ 0 : 31 ]
-      
-  tuna.io.write ( array = cube_1_fsr, file_format = "fits", file_name = "run_001.fits" )
-
-  # 2. Configure plugins for this reduction.
-  tuna.plugins.registry ( "Overscan", tuna.tools.overscan.remove_elements )
-
-  # 2. Reduce the raw cube.
-
-  def reduce_calibration ( file_name ):
-      file_object = tuna.io.read ( file_name )
-      start = time.time ( )
-      reducer = tuna.pipelines.calibration_lamp_high_resolution.reducer (
-          calibration_wavelength = 6566.293265467686,
-          finesse = 12,
-          free_spectral_range = 10.886544844104602,
-          interference_order = 606.156773751181,
-          interference_reference_wavelength = 6598.9529,
-          pixel_size = 19,
-          scanning_wavelength = 6598.9529,
-          tuna_can = file_object,
-          channel_subset = [ 0, 1, 2, 5 ],
-          continuum_to_FSR_ratio = 0.125,
-          noise_mask_radius = 8,
-          dont_fit = False,
-          overscan_removal = { 2 : list ( range ( 16 ) ) + list ( range ( 527, 561 ) ) + list ( range ( 1072, 1088 ) ) },
-          unwrapped_only = False,
-          verify_center = None )
-  reducer.join ( )
-  print ( "Tuna took {:.1f}s to reduce.".format ( time.time ( ) - start ) )
-  reducer.plot ( )
-  return reducer
-
-  pipeline_result = reduce_calibration ( "run_001.fits" )
+    pipeline_result = reduce_calibration ( channels_files )
   
 Output from ipython was::
 
-  $ ipython -i ~/example_Dor30_SOAR.py
-  FITS file written at run_001.fits.
-  Plugin for "Overscan" set to tuna.tools.overscan.remove_elements.
-  Starting tuna.pipelines.calibration_lamp_high_resolution pipeline.
+  Log file set to /home/nix/example_Dor30_SOAR.log.
+  Handler <logging.FileHandler object at 0x7fb9200128d0> set to 10.
+  Handler <logging.StreamHandler object at 0x7fb91c6a26d8> set to 20.
+  Starting tuna.pipelines.soar_sami_calibration_lamp pipeline.
+  Data from 'SOAR' observatory, 'SOAR telescope' telescope, 'SAM' instrument.
+  Processing channel 0 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C001.278.fits.
+  Processing channel 1 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C002.279.fits.
+  Processing channel 2 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C003.280.fits.
+  Processing channel 3 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C004.281.fits.
+  Processing channel 4 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C005.282.fits.
+  Processing channel 5 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C006.283.fits.
+  Processing channel 6 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C007.284.fits.
+  Processing channel 7 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C008.285.fits.
+  Processing channel 8 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C009.286.fits.
+  Processing channel 9 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C010.287.fits.
+  Processing channel 10 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C011.288.fits.
+  Processing channel 11 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C012.289.fits.
+  Processing channel 12 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C013.290.fits.
+  Processing channel 13 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C014.291.fits.
+  Processing channel 14 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C015.292.fits.
+  Processing channel 15 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C016.293.fits.
+  Processing channel 16 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C017.294.fits.
+  Processing channel 17 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C018.295.fits.
+  Processing channel 18 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C019.296.fits.
+  Processing channel 19 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C020.297.fits.
+  Processing channel 20 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C02[71/8823]s.
+  Processing channel 21 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C022.299.fits.
+  Processing channel 22 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C023.300.fits.
+  Processing channel 23 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C024.301.fits.
+  Processing channel 24 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C025.302.fits.
+  Processing channel 25 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C026.303.fits.
+  Processing channel 26 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C027.304.fits.
+  Processing channel 27 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C028.305.fits.
+  Processing channel 28 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C029.306.fits.
+  Processing channel 29 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C030.307.fits.
+  Processing channel 30 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C031.308.fits.
+  Processing channel 31 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C032.309.fits.
+  Processing channel 32 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C033.310.fits.
+  Processing channel 33 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C034.311.fits.
+  Processing channel 34 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C035.312.fits.
+  Processing channel 35 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C036.313.fits.
+  Processing channel 36 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C037.314.fits.
+  Processing channel 37 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C038.315.fits.
+  Processing channel 38 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C039.316.fits.
+  Processing channel 39 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C040.317.fits.
+  Processing channel 40 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C041.318.fits.
+  Processing channel 41 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C042.319.fits.
+  Processing channel 42 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C043.320.fits.
+  Processing channel 43 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C044.321.fits.
+  Processing channel 44 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C045.322.fits.
+  Processing channel 45 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C046.323.fits.
+  Processing channel 46 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C047.324.fits.
+  Processing channel 47 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C048.325.fits.
+  Processing channel 48 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C049.326.fits.
+  Processing channel 49 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C050.327.fits.
+  Processing channel 50 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C051.328.fits.
+  Processing channel 51 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C052.329.fits.
+  Processing channel 52 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C053.330.fits.
+  Processing channel 53 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C054.331.fits.
+  Processing channel 54 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C055.332.fits.
+  Processing channel 55 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C056.333.fits.
+  Processing channel 56 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C057.334.fits.
+  Processing channel 57 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C058.335.fits.
+  Processing channel 58 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C059.336.fits.
+  Processing channel 59 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C060.337.fits.
+  Processing channel 60 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C061.338.fits.
+  Processing channel 61 from raw file /home/nix/fpdata_2015-09-11_Bruno_Quint_run_de_março/raw/001/fp_sami_C062.339.fits.
   Continuum array created.
   Barycenter done.
-  Noise map created with lower_value = 128880.0.
+  Noise map created with lower_value = 128204.70999999999.
   len ( pixel_set_intersections ) == 0, falling back to whole pixel_set
-  averaged_concentric_rings = ((581.67385168909686, 161.02864583854762), [805.08615077802199, 126.54220326235794], [0, 1])
-  sorted_radii = ['126.54', '805.09']
+  averaged_concentric_rings = ((577.9250117243655, 165.60940932914605), [795.78839923110331, 126.57113826578056], [0, 1
+  ])
+  sorted_radii = ['126.57', '795.79']
   inital_gap = 1.99e+06 microns
-  channel_gap = -2.2923780482622886 microns.
-  Airy <|residue|> = 2304.3 photons / pixel
+  channel_gap = -2.2900057500078073 microns.
+  Airy <|residue|> = 2301.0 photons / pixel
   Phase map unwrapped.
   Wavelength calibration done.
   Parabolic model fitted.
-  Tuna took 1542.8s to reduce.
-
+  Tuna took 1224.9s to reduce. 
+  
 The plots produced in the run were the following:
   
 .. image:: images/example_Dor30_SOAR_1.png

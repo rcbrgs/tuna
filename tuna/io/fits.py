@@ -3,6 +3,10 @@ This module's scope covers operations related to the FITS file format.
 
 As much as possible, operations are deferred to astropy.io.fits.
 """
+__version__ = "0.1.0"
+__changelog__ = {
+    "0.1.0" : { "Tuna" : "0.16.0", "Change" : "Added debug messages during metadata parsing. Fixed metdata not reading entries from multiple HDU lists." }
+    }
 
 import astropy.io.fits as astrofits
 import copy
@@ -54,13 +58,7 @@ class fits ( file_reader ):
                    metadata = { },
                    photons = None ):
         super ( fits, self ).__init__ ( )
-        self.__version__ = "0.1.1"
-        self.changelog = {
-            "0.1.1" : "Tuna 0.14.0 : improved docstrings.",
-            "0.1.0" : "Tuna 0.13.0 : handling None data sections from astrofits.open. Improved documentation"
-            }
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.INFO )
 
         self.__file_name = file_name
         self.__array = array
@@ -168,11 +166,21 @@ class fits ( file_reader ):
             else:
                 self.log.debug ( "Assigned data section of first HDU as the image ndarray." )
                 self.log.debug ( "self.__array.ndim == %d" % self.__array.ndim )
+                
             metadata = { }
-            for key in hdu_list [ 0 ].header.keys ( ):
-                metadata_value   = hdu_list [ 0 ].header [ key ]
-                metadata_comment = hdu_list [ 0 ].header.comments [ key ]
-                self.__metadata [ key ] = ( metadata_value, metadata_comment )
+            for entry in possible_arrays:
+                self.log.debug ( "Processing header for hdu_list [ {} ].".format ( entry ) )
+                for key in hdu_list [ entry ].header.keys ( ):
+                    metadata_value   = hdu_list [ entry ].header [ key ]
+                    metadata_comment = hdu_list [ entry ].header.comments [ key ]
+                    if key in list ( self.__metadata.keys ( ) ):
+                        if ( metadata_value, metadata_comment ) == self.__metadata [ key ]:
+                            self.log.debug ( "Ignoring duplicated metadata entry with key {}.".format ( key ) )
+                            continue
+                        else:
+                            self.log.warning ( "Replacing metadata {} : ( {}, {} ) with new entry ( {}, {} ).".format ( key, self.__metadata [ key ] [ 0 ], self.__metadata [ key ] [ 1 ], metadata_value, metadata_comment ) )
+                    self.__metadata [ key ] = ( metadata_value, metadata_comment )
+                    self.log.debug ( "{}: value = {}, comment = {}.".format ( key, metadata_value, metadata_comment ) )
                 
             self._is_readable = True
         except OSError as e:

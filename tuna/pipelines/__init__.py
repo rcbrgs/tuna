@@ -7,3 +7,4 @@ A pipeline can be written using direct references to the tools within the librar
 """
 
 import tuna.pipelines.calibration_lamp_high_resolution
+import tuna.pipelines.soar_sami_calibration_lamp

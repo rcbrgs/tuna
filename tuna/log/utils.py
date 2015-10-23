@@ -1,6 +1,10 @@
 """
 This module's scope covers interactions with the logging facilities.
 """
+__version__ = "0.1.0"
+__changelog__ = {
+    "0.1.0" : { "Tuna" : "0.16.0", "Change" : "Fixed setting verbosity on the console would also set it on the file. Added defaults to verbose() parameters, and an 'all' option to the handler_type parameter." }
+    }
 
 import logging
 import sys
@@ -101,16 +105,16 @@ def set_path ( file_name ):
 
     log.info ( "Log file set to %s." % file_name )
 
-def verbose ( handler_type, verbosity ):
+def verbose ( handler_type = "all", verbosity = "WARNING" ):
     """
     This method's goal is to set the specified logging handler type to the specified verbosity.
 
     Parameters:
 
-    * handler_type : string
-        can be either "console" or "file".
+    * handler_type : string : "all"
+        Can be either "all", "console" or "file".
 
-    * verbosity : string
+    * verbosity : string : "WARNING"
         Must be the name of a level from the logging module, such as "DEBUG" or "INFO".
     """
     try:
@@ -119,14 +123,24 @@ def verbose ( handler_type, verbosity ):
         print ( "Unrecognized logging level." )
         return
 
+    if handler_type == "all":
+        for handler in tuna._log_handlers:
+            handler.setLevel ( level )
+            print ( "Handler {} set to {}.".format ( handler, level ) )
+        return
+            
     if handler_type == "console":
         for handler in tuna._log_handlers:
             if isinstance ( handler, logging.StreamHandler ):
+                if isinstance ( handler, logging.FileHandler ):
+                    continue
                 handler.setLevel ( level )
                 print ( "Handler {} set to {}.".format ( handler, level ) )
+        return
     
     if handler_type == "file":
         for handler in tuna._log_handlers:
             if isinstance ( handler, logging.FileHandler ):
                 handler.setLevel ( level )
                 print ( "Handler {} set to {}.".format ( handler, level ) )
+        return

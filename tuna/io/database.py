@@ -1,8 +1,9 @@
 """
 This module's scope covers database operations.
 """
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __changelog__ = {
+    "0.1.1" : { "Tuna" : "0.16.0", "Change" : "Clean up of changelogs / versions on individual classes/methods. Made message about lack of MySQL a debug message." },
     "0.1.0" : { "Tuna" : "0.15.3", "Change" : "Made message about lack of SQL server during select less spammy." }
     }
 
@@ -24,24 +25,8 @@ class database ( threading.Thread ):
     """
     def __init__ ( self ):
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = "0.1.12"
-        self.changelog = {
-            '0.1.12' : "Tuna 0.13.0: Updated documentation to new style.",
-            '0.1.11' : "Added docstrings.",
-            '0.1.10' : "Added a connection check before selecting a record.",
-            '0.1.9' : "Added cursor.close calls in several points.",
-            '0.1.8' : "Added a traceback print in exception handler for select_record.",
-            '0.1.7' : "Added a lockable queue and diverted functions to enqueue requests.",
-            '0.1.6' : "Tweaked exception handling during update to be more  resilient to error.",
-            '0.1.5' : "Added table noise.",
-            '0.1.4' : "Wrapped values in single quotes for insert.",
-            '0.1.3' : "Better logging during insert.",
-            '0.1.2' : "Added type info to dataset table.",
-            '0.1.1' : "Refactored to use table definitions from a single variable.",
-            '0.1.0' : "Initial version."
-        }
         self.log = logging.getLogger ( __name__ )
-        self.log_level = logging.INFO
+
         self.daemon = True
         self.shutdown = False
 
@@ -75,8 +60,7 @@ class database ( threading.Thread ):
             self.open_mysql_connection ( )
             # Check again.
             if not self.check_mysql_connection ( ):
-                self.log.error ( "Could not open MySQL connection, aborting." )
-                #self.stop ( )
+                self.log.debug ( "Could not open MySQL connection, aborting use of database." )
                 return
 
         # Check config is good.
@@ -96,8 +80,6 @@ class database ( threading.Thread ):
             if not self.connection:
                 self.log.warning ( "Connection became None during runtime." )
                 #self.stop ( )
-
-            self.log.setLevel ( self.log_level )
 
             self.dequeue ( )
 
@@ -147,7 +129,7 @@ class database ( threading.Thread ):
                                                 charset     = 'utf8mb4',
                                                 cursorclass = pymysql.cursors.DictCursor )
         except Exception as e:
-            self.log.error ( "Exception during MySQL connection open: {}.".format ( e ) )
+            self.log.debug ( "Exception during MySQL connection open: {}.".format ( e ) )
             self.connection = None
         self.log.debug ( "MySQL connection opened." )
 

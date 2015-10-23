@@ -7,8 +7,9 @@ Example::
     raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
     tuna.tools.plot ( raw )
 """
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __changelog__ = {
+    "0.1.1" : { "Tuna" : "0.16.0", "Change" : "Added parameter for colormap in plot." },
     "0.1.0" : { "Tuna" : "0.15.3", "Change" : "Added check for ipython reference after its creation and abort plot when reference is None." }
     }
 
@@ -36,7 +37,7 @@ def log ( message ):
     if debug:
         print ( message )
 
-def plot ( data, title = "", ipython = None ):
+def plot ( data, cmap = "Greys", title = "", ipython = None ):
     """
     This function's goal is to plot a numpy ndarray argument.
     Will plot a mosaic if data is 3D, a simple plot if 2D.
@@ -44,6 +45,9 @@ def plot ( data, title = "", ipython = None ):
     Parameters:
 
     * data : numpy.ndarray
+
+    * cmap : str : "Greys"
+        The colormap to be passed to matplotlib.
 
     * title : string
 
@@ -68,7 +72,7 @@ def plot ( data, title = "", ipython = None ):
         figure.suptitle ( title )
         
         for plane in range ( data.shape [ 0 ] ):
-            image = axes.flat [ plane ] .imshow ( data [ plane ], cmap = 'Greys' )
+            image = axes.flat [ plane ] .imshow ( data [ plane ], cmap = cmap )
 
         figure.subplots_adjust( right = 0.8 )
         
@@ -79,8 +83,8 @@ def plot ( data, title = "", ipython = None ):
 
     if len ( data.shape ) == 2:
         fig = plt.figure ( )
-        plt.imshow ( data, cmap='Greys')
-        plt.colorbar ( orientation="horizontal" )
+        plt.imshow ( data, cmap = cmap )
+        plt.colorbar ( orientation = "horizontal" )
         plt.title ( title )
 
 def plot_high_res ( high_res ):

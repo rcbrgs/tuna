@@ -1,43 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-This module's scope are the operations required to reduce data from a high resolution spectrograph.
-
-Example::
-
-    >>> import tuna
-    >>> file_object = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
-    >>> reducer = tuna.pipelines.calibration_lamp_high_resolution.reducer ( \
-            calibration_wavelength = 6598.953125, \
-            finesse = 12, \
-            free_spectral_range = 8.36522123894, \
-            interference_order = 791, \
-            interference_reference_wavelength = 6562.7797852, \
-            pixel_size = 9, \
-            scanning_wavelength = 6616.89, \
-            tuna_can = file_object, \
-            channel_subset = [ 0, 1, 2, 5 ], \
-            continuum_to_FSR_ratio = 0.125, \
-            min_rings = 2, \
-            noise_mask_radius = 8, \
-            dont_fit = False, \
-            unwrapped_only = False, \
-            verify_center = None ); reducer.join ( )
-    >>> reducer.wavelength_calibrated.array [ 10 ] [ 10 ]
-    103.18638370414156
+This module's scope is the reduction of data from a calibration lamp using SOAR's SAMI instrument.
 """
 
-__version__ = "0.1.2"
+__version__ = "0.1.0"
 __changelog__ = {
-    "0.1.2" : { "Tuna" : "0.16.0", "Change" : "Added min_rings parameter for user to specify how many rings per plane are expected in the data cube. Defaults to 1. Refactored to only use keyworded parameters." },
-    "0.1.1" : { "Tuna" : "0.15.3", "Change" : "Changed the name of the plots, to be more descriptive." },
-    "0.1.0" : { "Tuna" : "0.15.0", "Change" : "Refactored to use detect_noise 'data' argument, to use 'overscan' plugin, 'Airy fit' plugin, 'FSR mapper' plugin." }
+    "0.1.0" : { "Tuna" : "0.16.0", "Change" : "Initial commit." }
     }
 
+import astropy.io.fits
 import IPython
 import logging
 import math
 import numpy
 import random
+import re
 import threading
 import time
 import tuna
@@ -48,8 +25,11 @@ class reducer ( threading.Thread ):
 
     It inherits from the :ref:`threading_label`.Thread class, and it auto-starts its thread execution. Clients are expected to use its .join ( ) method before using its results.
 
+    The overscan removal used here was written by Bruno Quint in 2015.
+
     Intermediary products are:
 
+    - overscanned (the original data, after overscan removal)
     - continuum
     - discontinuum
     - wrapped_phase_map
@@ -77,6 +57,16 @@ class reducer ( threading.Thread ):
     * dont_fit : bool : False
         Specifies whether to fit models to the data.
 
+    * file_names_per_channel : dict : { }
+        This dictionary allows the user to specify the file name associated with each channel of the instrument. For example::
+        
+        >>> file_names_per_channel = { 0 : "/data/fp_data_01.fits", \
+                                       1 : "/data/fp_data_02.fits", \
+                                       2 : "/data/fp_data_03.fits", \
+                                       3 : "/data/fp_data_04.fits" }
+
+        Please notice that the indexes must begin in 0 and not "skip" any channel.
+
     * finesse : float : 1
         Containing the value of the Finesse for this spectrographer.
 
@@ -97,9 +87,6 @@ class reducer ( threading.Thread ):
     
     * noise_threshold : float : None
         The minimal value for a pixel content to be marked as signal, instead of noise. If None, this value will be automatically computed.
-
-    * overscan_removal : dict : { }
-        A dictionary of elements that must be removed from the datacube.
 
     * parameter_file : str : ""
         The path for a text file containing the values for the other parameters needed for this pipeline. The format must be:
@@ -131,6 +118,7 @@ class reducer ( threading.Thread ):
                    channel_subset = [ ],
                    continuum_to_FSR_ratio = 0.125,
                    dont_fit = False,
+                   file_names_per_channel : dict = { },
                    finesse : float = 1,
                    free_spectral_range : float = 1,
                    interference_order : int = 1,
@@ -138,52 +126,15 @@ class reducer ( threading.Thread ):
                    min_rings = 1,
                    noise_mask_radius = 1,
                    noise_threshold = None,
-                   overscan_removal = { },
                    parameter_file : str = "",
                    pixel_size : float = 1,
                    plot_log = False,
                    ring_minimal_percentile = None,
                    scanning_wavelength : float = 0,
-                   tuna_can : tuna.io.can = None,
                    unwrapped_only = False,
                    verify_center = None ):
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = "0.1.19"
-        self.changelog = {
-            "0.1.19" : "Tuna 0.15.0 : Moved to tuna.pipelines. Refactored to use plugins for noise, continuum, barycenter, ring center finder.",
-            "0.1.18" : "Tuna 0.14.0 : updated documentation.",
-            '0.1.17' : "Improved docstring for class.",
-            '0.1.16' : "Adapted to use refined version of ring finder.",
-            '0.1.15' : "Fixed gap 'pulsating' by making gap change monotonic, and using 1st gap fit as seed for plane reconstruction.",
-            '0.1.14' : "Fixed gap limits logic for negative channel gap",
-            '0.1.13' : "Since the plane gap is calculated, use it to get limits for per-plane airy fit.",
-            '0.1.12' : "Adapting pipeline to new ring_find.",
-            '0.1.11' : "Adapted sorted_rings to use new ring_find result.",
-            '0.1.10' : "Added a plot() function as convenience to plot all subresults.",
-            '0.1.9' : "Improved auto Airy by letting intensity and continuum be free.",
-            '0.1.8' : "Improved auto Airy fit by priming fitter with channel gap values.",
-            '0.1.7' : "Changed method for airy fit to fit separately each plane.",
-            '0.1.6' : "Added support for ring_minimal_percentile.",
-            '0.1.5' : "Added support for noise threshold parameter.",
-            '0.1.4' : "Reverted to simpler method of fitting first 2 planes; works beautifully.",
-            '0.1.3' : "Made default less verbose.",
-            '0.1.2' : "Refactored to use new ring center finder.",
-            '0.1.1' : "Using variables instead of harcoded values for inital b and gap values.",
-            '0.1.0' : "Initial changelog."
-            }
         self.log = logging.getLogger ( __name__ )
-        self.log.setLevel ( logging.INFO )
-
-        if not isinstance ( tuna_can, tuna.io.can ):
-            self.log.info ( "array must be a numpy.ndarray or derivative object." )
-            return
-        try:
-            if tuna_can.ndim != 3:
-                self.log.warning ( "Image does not have 3 dimensions, aborting." )
-                return
-        except AttributeError as e:
-            self.log.warning ( "%s, aborting." % str ( e ) )
-            return
         
         self.log.info ( "Starting {} pipeline.".format ( self.__module__ ) )
 
@@ -192,6 +143,7 @@ class reducer ( threading.Thread ):
         self.channel_subset = channel_subset
         self.continuum_to_FSR_ratio = continuum_to_FSR_ratio
         self.dont_fit = dont_fit
+        self.file_names_per_channel = file_names_per_channel
         self.finesse = finesse
         self.free_spectral_range = free_spectral_range
         self.interference_order = interference_order
@@ -199,12 +151,10 @@ class reducer ( threading.Thread ):
         self.min_rings = min_rings
         self.noise_mask_radius = noise_mask_radius
         self.noise_threshold = noise_threshold
-        self.overscan_removal = overscan_removal
         self.pixel_size = pixel_size
         self.plot_log = plot_log
         self.ring_minimal_percentile = ring_minimal_percentile
         self.scanning_wavelength = scanning_wavelength
-        self.tuna_can = tuna_can
         self.unwrapped_only = unwrapped_only
         self.verify_center = verify_center
 
@@ -237,8 +187,106 @@ class reducer ( threading.Thread ):
         :ref:`threading_label` method for starting execution.
         """
 
-        self.overscanned = tuna.plugins.run ( "Overscan" ) ( data = self.tuna_can,
-                                                             elements_to_remove = self.overscan_removal )
+        first_channel_hdu = astropy.io.fits.open ( self.file_names_per_channel [ 0 ] )
+        # Validation
+        observatory = first_channel_hdu [ 0 ].header [ "OBSERVAT" ]
+        telescope   = first_channel_hdu [ 0 ].header [ "TELESCOP" ]
+        instrument  = first_channel_hdu [ 0 ].header [ "INSTRUME" ]
+        self.log.info ( "Data from '{}' observatory, '{}' telescope, '{}' instrument.".format (
+            observatory, telescope, instrument ) )
+        if ( observatory, telescope, instrument ) != ( "SOAR", "SOAR telescope", "SAM" ):
+            self.log.warning ( "Metadata not consistent with pipeline!" )
+
+        # Obtain geometry
+        number_of_channels = len ( list ( self.file_names_per_channel.keys ( ) ) )
+        self.log.debug ( "Raw data has {} channels.".format ( number_of_channels ) )
+
+        ccd_rows, ccd_cols = self.parse_header_ranges (
+            header_ranges = first_channel_hdu [ 1 ].header [ "CCDSIZE" ] )
+        ccd_size = ( ccd_cols [ 1 ], ccd_rows [ 1 ] )
+        self.log.debug ( "CCD size = {}.".format ( ccd_size ) )
+
+        number_of_extensions_per_channel = int ( first_channel_hdu [ 0 ].header [ "NEXTEND" ] )
+        panel_axis = int ( math.sqrt ( number_of_extensions_per_channel ) )
+        self.log.debug ( "Each channel file has {} FITS extensions.".format ( number_of_extensions_per_channel ) )
+
+        #trimmed_size = ccd_size
+        panel_geometry = { }
+        current_panel = 1
+        cols_per_binning = int ( int ( ccd_cols [ 1 ] ) / panel_axis )
+        rows_per_binning = int ( int ( ccd_rows [ 1 ] ) / panel_axis )
+        for panel_col in range ( panel_axis ):
+            for panel_row in range ( panel_axis ):
+                panel_geometry [ current_panel ] = (
+                    ( cols_per_binning * panel_col,
+                      cols_per_binning * ( panel_col + 1 ) - 1 ),
+                    ( rows_per_binning * panel_row,
+                      rows_per_binning * ( panel_row + 1 ) - 1 ) )
+                current_panel += 1
+        for panel in range ( 1, number_of_extensions_per_channel + 1 ):
+            self.log.debug ( "Geometry for extension {}: {}.".format ( panel, panel_geometry [ panel ] ) )
+
+        # Create empty array for cube
+        cube = numpy.zeros ( shape = ( number_of_channels,
+                                       ccd_size [ 0 ],
+                                       ccd_size [ 1 ] ) )
+        
+        # For each channel file:
+        for channel in self.file_names_per_channel.keys ( ):
+            self.log.info ( "Processing channel {} from raw file {}.".format (
+                channel, self.file_names_per_channel [ channel ] ) )
+            channel_hdu = astropy.io.fits.open ( self.file_names_per_channel [ channel ] )
+
+            # For each panel in the file:
+            for panel in range ( 1, number_of_extensions_per_channel + 1 ):
+                # Obtain the trimmed and overscan (bias) data
+                self.log.debug ( "Processing panel {}.".format ( panel ) )
+                self.log.debug ( "channel_hdu [ {} ].data.shape = {}.".format (
+                    panel, channel_hdu [ panel ].data.shape ) )
+                trimsec = channel_hdu [ panel ].header [ 'TRIMSEC' ]
+                biassec = channel_hdu [ panel ].header [ 'BIASSEC' ]
+                trim_rows, trim_cols = self.parse_header_ranges ( header_ranges = trimsec )
+                bias_rows, bias_cols = self.parse_header_ranges ( header_ranges = biassec )
+                self.log.debug ( "trim = ({}, {})".format ( trim_cols, trim_rows ) )
+                self.log.debug ( "bias = ({}, {})".format ( bias_cols, bias_rows ) )
+                trim_data = channel_hdu [ panel ].data [ trim_cols [ 0 ] - 1 : trim_cols [ 1 ] - 1,
+                                                         trim_rows [ 0 ] - 1 : trim_rows [ 1 ] - 1 ]
+                #self.log.debug ( "trim_data = {}.".format ( trim_data ) )
+                # fit and remove overscan
+                bias_data = channel_hdu [ panel ].data [ bias_cols [ 0 ] - 1 : bias_cols [ 1 ] - 1,
+                                                         bias_rows [ 0 ] - 1 : bias_rows [ 1 ] - 1 ]
+                #self.log.debug ( "bias_data = {}".format ( bias_data ) )
+                bias_median = numpy.median ( bias_data, axis = 1 )
+                #self.log.debug ( "bias_median = {}".format ( bias_median ) )
+                col_indexes = numpy.arange ( bias_median.size ) + 1
+                #self.log.debug ( "col_indexes = {}".format ( col_indexes ) )
+                bias_fit_parameters = numpy.polyfit ( col_indexes, bias_median, 4 )
+                bias_fit = numpy.polyval ( bias_fit_parameters, col_indexes )
+                bias_fit = bias_fit.reshape ( ( bias_fit.size, 1 ) )
+                bias_fit = numpy.repeat ( bias_fit, trim_data.shape [ 1 ], axis = 1 )
+                debiased_data = trim_data - bias_fit
+                #self.log.debug ( "debiased_data = {}.".format ( debiased_data ) )
+                
+                # Add trimmed data to cube
+                cube [ channel,
+                       panel_geometry [ panel ] [ 0 ] [ 0 ] : panel_geometry [ panel ] [ 0 ] [ 1 ],
+                       panel_geometry [ panel ] [ 1 ] [ 0 ] : panel_geometry [ panel ] [ 1 ] [ 1 ] ] = trim_data
+
+        # move bad lines and columns to the "border" of the cube
+        bad_cols = cube [ :,
+                          ccd_size [ 0 ] / 2 - 1 : ccd_size [ 0 ] / 2 + 1,
+                          : ]
+        cube [ :, ccd_size [ 0 ] / 2 - 1 : - 2, : ] = cube [ :, ccd_size [ 0 ] / 2 + 1 :, : ]
+        cube [ :, - 2 :, : ] = bad_cols
+        bad_lines = cube [ :,
+                           :,
+                          ccd_size [ 1 ] / 2 - 1 : ccd_size [ 1 ] / 2 + 1 ]
+        cube [ :, :, ccd_size [ 1 ] / 2 - 1 : - 2 ] = cube [ :, :, ccd_size [ 1 ] / 2 + 1 : ]
+        cube [ :, :, - 2 : ] = bad_lines                           
+                
+        self.overscanned = tuna.io.can ( array = cube )
+
+        self.colapsed = tuna.io.can ( array = numpy.sum ( self.overscanned.array, 0 ) )
         
         self.continuum = tuna.plugins.run ( "Continuum detector" ) ( self.overscanned,
                                                                      self.continuum_to_FSR_ratio )
@@ -248,7 +296,7 @@ class reducer ( threading.Thread ):
         for plane in range ( self.overscanned.planes ):
             self.discontinuum.array [ plane, : , : ] = numpy.abs ( self.overscanned.array [ plane, : , : ] - self.continuum.array )
         #
-
+        
         self.wrapped_phase_map = tuna.plugins.run ( "Barycenter algorithm" ) ( data_can = self.discontinuum )
         
         self.noise = tuna.plugins.run ( "Noise detector" ) ( data = self.overscanned,
@@ -488,34 +536,83 @@ class reducer ( threading.Thread ):
 
         self.log.debug ( "create_unwrapped_phase_map() took %ds." % ( time.time ( ) - start ) )
 
+    def parse_header_ranges ( self,
+                              header_ranges : str ) -> tuple:
+        """
+        This method's goal is to parse a range, given as a string with the format '[xxxxx:yyyyyy,wwwww:zzzzz]', where the number of digits is variable, into a tuple of integers corresponding to these values.
+        """
+        matcher = re.compile ( r"\[([\d]+):([\d]+),([\d]+):([\d]+)\]" )
+        matches = matcher.search ( header_ranges ).groups ( )
+        return ( ( int ( matches [ 0 ] ), int ( matches [ 1 ] ) ),
+                 ( int ( matches [ 2 ] ), int ( matches [ 3 ] ) ) )
+        
+    def plot ( self ):
+        """
+        This method relies on matplotlib and ipython being available, and renders the intermediary products of this pipeline as plots.
+        """
+        tuna.tools.plot ( self.overscanned.array,
+                          cmap = "spectral",
+                          title = "Data with overscan removed",
+                          ipython = self.ipython )
+        tuna.tools.plot ( self.colapsed.array,
+                          cmap = "spectral",
+                          title = "Overscanned data colapsed on the spectral dimension",
+                          ipython = self.ipython )
+        tuna.tools.plot ( self.continuum.array,
+                          cmap = "spectral",
+                          title = "Continuum map",
+                          ipython = self.ipython )
+        tuna.tools.plot ( self.discontinuum.array,
+                          cmap = "spectral",
+                          title = "Discontinuum map (original data minus its continuum)",
+                          ipython = self.ipython )
+        tuna.tools.plot ( self.wrapped_phase_map.array,
+                          cmap = "spectral",
+                          title = "Wrapped phase map (barycenter map)",
+                          ipython = self.ipython )
+        tuna.tools.plot ( self.noise.array,
+                          title = "Noise",
+                          ipython = self.ipython )
+        tuna.tools.plot ( self.borders_to_center_distances.array,
+                          title = "Borders to center distances",
+                          ipython = self.ipython )
+        tuna.tools.plot ( self.order_map.array,
+                          title = "Order map",
+                          ipython = self.ipython )
+        tuna.tools.plot ( self.unwrapped_phase_map.array,
+                          cmap = "spectral",
+                          title = "Unwrapped phase map",
+                          ipython = self.ipython )
+        if self.parabolic_fit is not None:
+            tuna.tools.plot ( self.parabolic_fit.array,
+                              cmap = "spectral",
+                              title = "Parabolic fit",
+                              ipython = self.ipython )
+        if self.airy_fit is not None:
+            tuna.tools.plot ( self.airy_fit.array,
+                              cmap = "spectral",
+                              title = "Airy fit",
+                              ipython = self.ipython )
+        if self.airy_fit_residue is not None:
+            tuna.tools.plot ( self.airy_fit_residue.array,
+                              cmap = "spectral",
+                              title = "Airy fit residue",
+                              ipython = self.ipython )
+        tuna.tools.plot ( self.substituted_channels.array,
+                          cmap = "spectral",
+                          title = "Synthetic cube, with Airy fit substituted channels",
+                          ipython = self.ipython )
+        tuna.tools.plot ( self.wavelength_calibrated.array,
+                          cmap = "spectral",
+                          title = "Wavelength calibrated phase map",
+                          ipython = self.ipython )
+        
     def verify_parabolic_model ( self ):
         """
         Since the parabolic model fits a second-degree equation in two variables to the data, which we expect to have a circular symmetry, the coefficients for each second-degree element in the fitted equation should be "close". This can be quantified as the ratio between these coefficients, which this method prints on the log.
         """
         self.log.debug ( "Ratio between 2nd degree coefficients is: %f" % ( self.parabolic_model [ 'x2y0' ] / 
                                                                             self.parabolic_model [ 'x0y2' ] ) )
-        
-    def plot ( self ):
-        """
-        This method relies on matplotlib and ipython being available, and renders the intermediary products of this pipeline as plots.
-        """
-        tuna.tools.plot ( self.tuna_can.array, "Original data", self.ipython )
-        tuna.tools.plot ( self.overscanned.array, "Data with overscan removed", self.ipython )
-        tuna.tools.plot ( self.continuum.array, "Continuum map", self.ipython )
-        tuna.tools.plot ( self.discontinuum.array, "Discontinuum map (original data minus its continuum)", self.ipython )
-        tuna.tools.plot ( self.wrapped_phase_map.array, "Wrapped phase map (barycenter map)", self.ipython )
-        tuna.tools.plot ( self.noise.array, "Noise", self.ipython )
-        tuna.tools.plot ( self.borders_to_center_distances.array, "Borders to center distances", self.ipython )
-        tuna.tools.plot ( self.order_map.array, "Order map", self.ipython )
-        tuna.tools.plot ( self.unwrapped_phase_map.array, "Unwrapped phase map", self.ipython )
-        if self.parabolic_fit is not None:
-            tuna.tools.plot ( self.parabolic_fit.array, "Parabolic fit", self.ipython )
-        if self.airy_fit is not None:
-            tuna.tools.plot ( self.airy_fit.array, "Airy fit", self.ipython )
-        if self.airy_fit_residue is not None:
-            tuna.tools.plot ( self.airy_fit_residue.array, "Airy fit residue", self.ipython )
-        tuna.tools.plot ( self.substituted_channels.array, "Synthetic cube, with Airy fit substituted channels", self.ipython )
-        tuna.tools.plot ( self.wavelength_calibrated.array, "Wavelength calibrated phase map", self.ipython )
         
 def pixel_profiler ( reducer, pixel ):
     """

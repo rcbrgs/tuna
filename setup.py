@@ -21,7 +21,7 @@ with open ( path.join ( here, 'README.md'), encoding='utf-8') as f:
 
 api_version = 0
 feature_version = 15
-bug_version = 3
+bug_version = 4
     
 setup (
     name='tuna',
