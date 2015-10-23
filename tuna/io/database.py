@@ -1,6 +1,10 @@
 """
 This module's scope covers database operations.
 """
+__version__ = "0.1.0"
+__changelog__ = {
+    "0.1.0" : { "Tuna" : "0.15.3", "Change" : "Made message about lack of SQL server during select less spammy." }
+    }
 
 import logging
 import pymysql
@@ -283,7 +287,7 @@ class database ( threading.Thread ):
         self.log.debug ( "sql = '{}'.".format ( sql ) )
 
         if not self.check_mysql_connection ( ):
-            self.log.error ( "No SQL connection during select, aborting." )
+            self.log.debug ( "No SQL connection during select, aborting." )
             return None, False
         
         try:

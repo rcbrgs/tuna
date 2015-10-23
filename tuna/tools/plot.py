@@ -7,6 +7,10 @@ Example::
     raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc.ad3" )
     tuna.tools.plot ( raw )
 """
+__version__ = "0.1.0"
+__changelog__ = {
+    "0.1.0" : { "Tuna" : "0.15.3", "Change" : "Added check for ipython reference after its creation and abort plot when reference is None." }
+    }
 
 import IPython
 import math
@@ -48,6 +52,8 @@ def plot ( data, title = "", ipython = None ):
     """
     if not ipython:
         ipython = IPython.get_ipython()
+        if ipython == None:
+            log ( "Could not get ipython reference, aborting plot." )
         ipython.magic ( "matplotlib qt" )
 
     if len ( data.shape ) == 3:

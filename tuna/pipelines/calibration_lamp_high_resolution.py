@@ -25,8 +25,9 @@ Example::
     103.18638370414156
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __changelog__ = {
+    "0.1.1" : { "Tuna" : "0.15.3", "Change" : "Changed the name of the plots, to be more descriptive." },
     "0.1.0" : { "Tuna" : "0.15.0", "Change" : "Refactored to use detect_noise 'data' argument, to use 'overscan' plugin, 'Airy fit' plugin, 'FSR mapper' plugin." }
     }
 
@@ -485,20 +486,20 @@ class reducer ( threading.Thread ):
         """
         This method relies on matplotlib and ipython being available, and renders the intermediary products of this pipeline as plots.
         """
-        tuna.tools.plot ( self.tuna_can.array, "original", self.ipython )
-        tuna.tools.plot ( self.overscanned.array, "overscanned", self.ipython )
-        tuna.tools.plot ( self.continuum.array, "continuum", self.ipython )
-        tuna.tools.plot ( self.discontinuum.array, "discontinuum", self.ipython )
-        tuna.tools.plot ( self.wrapped_phase_map.array, "wrapped_phase_map", self.ipython )
-        tuna.tools.plot ( self.noise.array, "noise", self.ipython )
-        tuna.tools.plot ( self.borders_to_center_distances.array, "borders_to_center_distances", self.ipython )
-        tuna.tools.plot ( self.order_map.array, "order_map", self.ipython )
-        tuna.tools.plot ( self.unwrapped_phase_map.array, "unwrapped_phase_map", self.ipython )
-        tuna.tools.plot ( self.parabolic_fit.array, "parabolic_fit", self.ipython )
-        tuna.tools.plot ( self.airy_fit.array, "airy_fit", self.ipython )
-        tuna.tools.plot ( self.airy_fit_residue.array, "airy_fit_residue", self.ipython )
-        tuna.tools.plot ( self.substituted_channels.array, "substituted_channels", self.ipython )
-        tuna.tools.plot ( self.wavelength_calibrated.array, "wavelength_calibrated", self.ipython )
+        tuna.tools.plot ( self.tuna_can.array, "Original data", self.ipython )
+        tuna.tools.plot ( self.overscanned.array, "Data with overscan removed", self.ipython )
+        tuna.tools.plot ( self.continuum.array, "Continuum map", self.ipython )
+        tuna.tools.plot ( self.discontinuum.array, "Discontinuum map (original data minus its continuum)", self.ipython )
+        tuna.tools.plot ( self.wrapped_phase_map.array, "Wrapped phase map (barycenter map)", self.ipython )
+        tuna.tools.plot ( self.noise.array, "Noise", self.ipython )
+        tuna.tools.plot ( self.borders_to_center_distances.array, "Borders to center distances", self.ipython )
+        tuna.tools.plot ( self.order_map.array, "Order map", self.ipython )
+        tuna.tools.plot ( self.unwrapped_phase_map.array, "Unwrapped phase map", self.ipython )
+        tuna.tools.plot ( self.parabolic_fit.array, "Parabolic fit", self.ipython )
+        tuna.tools.plot ( self.airy_fit.array, "Airy fit", self.ipython )
+        tuna.tools.plot ( self.airy_fit_residue.array, "Airy fit residue", self.ipython )
+        tuna.tools.plot ( self.substituted_channels.array, "Synthetic cube, with Airy fit substituted channels", self.ipython )
+        tuna.tools.plot ( self.wavelength_calibrated.array, "Wavelength calibrated phase map", self.ipython )
         
 def pixel_profiler ( reducer, pixel ):
     """
