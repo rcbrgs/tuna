@@ -4,3 +4,4 @@ numpy
 pyfits
 pymysql
 pyzmq
+sympy
