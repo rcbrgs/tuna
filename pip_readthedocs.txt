@@ -1,4 +1,5 @@
 astropy
+ipython
 numpy
 pyfits
 pymysql
