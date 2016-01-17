@@ -8,7 +8,10 @@ __changelog__ = { "Tuna" : "0.15.0", "Change" : "Added wrapper function fit_airy
 import copy
 import logging
 import math
-import mpyfit
+try:
+    import mpyfit
+except ImportError as e:
+    print ( "Could not import mpyfit. Exception: {}".format ( e ) )
 import numpy
 import threading
 import time
