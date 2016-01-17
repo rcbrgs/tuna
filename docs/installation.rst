@@ -5,11 +5,11 @@ Tuna is built as a Python package, and to have it working in your system, you ne
 
 - The code for Tuna in a directory inside one of the locations listed in your environment's $PYTHONPATH.
    
-- The following third-party Python modules must be installed:
+- The third-party Python modules that are used by Tuna must be installed.
 
 - Optionally, if a MySQL server is installed, Tuna will use it to store cross-references between its numpy arrays' hashes.
 
-In the current version, Tuna is not yet part of PyPI, but this should be corrected very soon. Therefore, the installation procedure consists of cloning the repository and using the setup.py script directly. Also, we have not been able to generalize the directory name for the installation; you *must* clone the repository in a directory named "tuna".
+In the current version, Tuna is not yet part of PyPI, but this should be corrected in the future. Therefore, the installation procedure consists of cloning the repository and using the setup.py script directly. Also, we have not been able to generalize the directory name for the installation; you *must* clone the repository in a directory named "tuna".
 
 Dependencies
 ------------
@@ -61,18 +61,12 @@ Also, packages installed by downloading the code from github (such as Mpyfit), w
 Python versions
 ---------------
 
-Tuna is compatible with Python 2 and Python 3, but it is developed under Python 3, and if eventually we have to choose between remaining compatible with Python 2 or including an incompatible feature, we will choose the feature. Therefore, we highly recommend that Tuna be installed and ran using Python 3.
-
-*Caveats using Python 2*:
-
-- Matplotlib will throw a warning when started, about pyside not being a valid backend. This warning can be ignored.
-- IPython will throw a warning when started, about its kernel module name being deprecated. This warning can be ignored.
-- Before installing Tuna, it is necessary to update setuptools, otherwise PySide may not install.
+Tuna is only compatible with Python 3. 
 
 Linux installation - with virtualenv
 ------------------------------------
 
-This is a step-by-step guide to installing Tuna in Fedora 21. It uses Python 3 and virtual environments. We install in the directory ~/vtuna, so if you install in another directory, please adjust your commands accordingly.
+This is a step-by-step guide to installing Tuna. It uses Python 3 and virtual environments. We install in the directory ~/vtuna, so if you install in another directory, please adjust your commands accordingly.
 
 #. Create the virtual environment that will contain Tuna (this must be run in a directory where you have read, write and execute permissions)::
 
@@ -92,7 +86,7 @@ This is a step-by-step guide to installing Tuna in Fedora 21. It uses Python 3 a
 
      (vtuna)vtuna $ pip install -U pip
 
-#. (Debian and derivatives) Numpy requires some packages to be installed::
+#. (*Debian* and derivatives only) Numpy requires some packages to be installed::
 
      $ sudo aptitude install python3-dev
 
@@ -100,13 +94,21 @@ This is a step-by-step guide to installing Tuna in Fedora 21. It uses Python 3 a
 
      (vtuna)vtuna $ pip install numpy
 
-#. (Only required for Python 2) update setuptools::
-
-     (vtuna)vtuna $ pip install -U setuptools
-
 #. Install PySide, which is currently not well supported by readthedocs.org (and therefore must be installed separatedly)::
 
-     (vtuna)vtuna $ pip install PySide
+   (vtuna)vtuna $ pip install PySide
+
+   * In case the installation of PySide fails, you might need the cmake or qmake (or both) to be installed. In Fedora, the following packages must be installed::
+  
+       (vtuna)vtuna $ sudo yum install cmake qt-devel
+
+#. Install some of the other libraries required by Tuna::
+
+   (vtuna)vtuna $ pip install -r tuna/pip_packages.txt
+
+   * In case the installation of SciPy fails because your system lack lapack or blas, you must install those. On Fedora, the command to install the right packages is::
+
+       (vtuna)vtuna $ sudo yum install openblas-devel lapack-devel 
      
 #. Install the package::
 

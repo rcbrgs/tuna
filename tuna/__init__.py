@@ -49,6 +49,7 @@ changelog = {
     '0.10.1'  : "Refactored the logging facility to have more stdout information, and at the same time save info to log file if specified."
     }
 
+
 import logging
 import sys
 

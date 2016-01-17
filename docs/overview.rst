@@ -32,7 +32,7 @@ Tuna version |version| has the following capabilities:
 * it reads and writes FITS files, and
 * it reads ADHOC ADA, AD2, AD3 and ADT files.
 
-* a :ref:`plugin_label` system to facilitate extensions.
+* a :ref:`tuna_plugins_label` system to facilitate extensions.
 
 Renato Borges produced a 15 minutes video to highlight the features in version 0.12.0 of Tuna, available at `youtube <https://www.youtube.com/watch?v=Z4adUESjiMs>`_.
   
