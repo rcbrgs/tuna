@@ -105,7 +105,7 @@ setup (
         'psutil',
         'pyfits', 
         'pymysql',
-        'PySide',
+        #'PySide',
         'pyzmq',
         'scipy',
         'sympy',
