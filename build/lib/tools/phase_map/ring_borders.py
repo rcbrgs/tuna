@@ -104,8 +104,7 @@ class ring_border_detector ( threading.Thread ):
         """
         self.borders = numpy.zeros ( shape = self.data.shape )
         for index in self.rings [ 'concentric_rings' ] [ 2 ]:
-            #self.borders += self.rings [ 'ring_fit' ] [ index ]
-            self.borders += self.rings [ 'ring_pixel_sets' ] [ index ] [ 0 ]
+            self.borders += self.rings [ 'ring_fit' ] [ index ]
             
     def map_distances_onto_borders ( self ):
         """
@@ -129,3 +128,29 @@ class ring_border_detector ( threading.Thread ):
                     nearest_distance = entry_distance
                     nearest_ring = entry
                 self.borders [ col ] [ row ] = radii [ nearest_ring ]
+        
+    def detect_discontinuities_old ( self ):
+        """
+        From an unwrapped map and a noise map, create a map where pixels have 1 if they are noisy or have neighbours with a channel more distant than the channel distance threshold, 0 otherwise.
+        """
+        self.log.debug ( "Producing ring borders map." )
+        ring_borders_map = numpy.zeros ( shape = self.data.array.shape )
+        max_x = self.data.array.shape [ 0 ]
+        max_y = self.data.array.shape [ 1 ]
+        max_channel = numpy.amax ( self.data.array )
+        threshold = max_channel / 2
+        for x in range ( max_x ):
+            for y in range ( max_y ):
+                if self.noise.array [ x ] [ y ] == 1:
+                    ring_borders_map [ x ] [ y ] = 1
+                    continue
+                neighbours = tuna.tools.get_pixel_neighbours ( ( x, y ), ring_borders_map )
+                for neighbour in neighbours:
+                    if self.noise.array [ neighbour [ 0 ] ] [ neighbour [ 1 ] ] == 0:
+                        distance = self.data.array [ x ] [ y ] - \
+                                   self.data.array [ neighbour [ 0 ] ] [ neighbour [ 1 ] ]
+                        if distance > threshold:
+                            ring_borders_map [ x ] [ y ] = 1
+                            break
+
+        self.discontinuities = ring_borders_map

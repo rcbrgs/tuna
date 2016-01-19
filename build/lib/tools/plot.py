@@ -105,7 +105,7 @@ def plot_high_res ( high_res ):
     plot ( high_res.noise.array, title = "noise", ipython = ipython )
     ring_counter = 0
     for ring in high_res.find_rings [ 'ring_pixel_sets' ]:
-        plot ( ring [ 0 ], title = "ring {}".format ( ring_counter ), ipython = ipython )
+        plot ( ring, title = "ring {}".format ( ring_counter ), ipython = ipython )
         ring_counter += 1
     plot ( high_res.borders_to_center_distances.array, title = "borders to center distances", ipython = ipython )
     plot ( high_res.order_map.array, title = "order map", ipython = ipython )
@@ -116,7 +116,6 @@ def plot_high_res ( high_res ):
     if high_res.airy_fit:
         plot ( high_res.airy_fit.array, title = "airy fit", ipython = ipython )
         plot ( high_res.airy_fit_residue.array, title = "airy fit residue", ipython = ipython )
-    if high_res.substituted_channels != None:
-        plot ( high_res.substituted_channels.array, title = "substituted channels", ipython = ipython )
+    plot ( high_res.substituted_channels.array, title = "substituted channels", ipython = ipython )
     plot ( high_res.wavelength_calibrated.array, title = "wavelength calibrated", ipython = ipython )
 
