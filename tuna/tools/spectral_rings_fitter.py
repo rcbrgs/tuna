@@ -13,11 +13,6 @@ Example::
     [(218.56306556317449, 256.97877557329144, 231.82699113784105, [0]), (219.14654183804043, 254.87497666726719, 110.1292761603854, [1]), (190.48575616356123, 248.81898301262672, 338.64377512691351, [2, 3])]
 """
 
-__version__ = "0.1.0"
-__changelog__ = {
-    "0.1.0" : { "Tuna" : "0.15.0", "Change" : "Refactored to use 'data' argument of 'Ring center finder' plugin." }
-    }
-
 import copy
 import IPython
 import logging
@@ -50,14 +45,6 @@ class rings_finder ( object ):
     def __init__ ( self, array, plane, ipython, plot_log ):
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.DEBUG )
-        self.__version__ = '0.2.4'
-        self.changelog = {
-            "0.2.4" : "Tuna 0.15.0 : refactored into a plugin.",
-            "0.2.3" : "Tuna 0.14.0 : updated documentation to new style.",
-            '0.2.2' : "Added aggregation of concentric rings into a return structure.",
-            '0.2.1' : "Added ridge_thickness to the fitted circles, improving fits' speed and precision.",
-            '0.2.0' : "Added function to remove lumped sets from result. Added behaviour for exhaustive search for plane containing two rings."
-        }
         self.plot_log = plot_log
         self.ipython = ipython
         if self.plot_log:
@@ -94,6 +81,10 @@ class rings_finder ( object ):
         self.aggregate_concentric_rings ( )
         concentric_time = time.time ( )
         self.log.debug ( "rings_finder finished. segment() {:.1f}s, separate_rings() {:.1f}s, fit_circles() {:.1f}s, aggregate_fits() {:.1f}s, aggregate_concentric_rings() {:.1f}s..".format ( segment_time - start_time, separate_time - segment_time, fit_time - separate_time, aggregate_time - fit_time, concentric_time - aggregate_time ) )
+        try:
+            self.log.info ( "Concentric rings structure: {}".format ( self.result [ "concentric_rings" ] ) )
+        except:
+            pass
         
     def segment ( self ):
         """
@@ -294,9 +285,12 @@ class rings_finder ( object ):
         Each spectrograph should have a single result of this kind, which is generated here and stored in self.concentric_rings.
         """
 
+        if "rings" not in list ( self.result.keys ( ) ):
+            return
+        
         self.log.debug ( "self.result [ 'rings' ] = {}".format ( self.result [ 'rings' ] ) )
         distance_threshold = min ( self.result [ 'ring_fit' ] [ 0 ].shape [ 0 ],
-                                   self.result [ 'ring_fit' ] [ 0 ].shape [ 1 ] ) * 0.1
+                                   self.result [ 'ring_fit' ] [ 0 ].shape [ 1 ] ) * 0.01
 
         concentric_rings = [ ]
         for structure in self.result [ 'rings' ]:
@@ -347,7 +341,7 @@ class rings_finder ( object ):
         averaged_row /= averaged_num
         averaged_concentric_rings = ( ( averaged_col, averaged_row ), radii, sets )
         
-        self.log.info ( "averaged_concentric_rings = {}".format ( averaged_concentric_rings ) )
+        self.log.debug ( "averaged_concentric_rings = {}".format ( averaged_concentric_rings ) )
         self.result [ 'concentric_rings' ] = averaged_concentric_rings
  
     def construct_ring_center ( self, pixel_set ):
@@ -466,7 +460,10 @@ class rings_finder ( object ):
             point_A = sympy.Point ( col, 0 )
             point_B = sympy.Point ( col, pixel_set.shape [ 1 ] - 1 )
             col_line = sympy.Line ( point_A, point_B )
-            intersection = line.intersection ( col_line ) [ 0 ]
+            try:
+                intersection = line.intersection ( col_line ) [ 0 ]
+            except:
+                continue
             if intersection == None:
                 continue
             if isinstance ( intersection, sympy.Point ):
@@ -490,7 +487,7 @@ class rings_finder ( object ):
             if pixel_set [ intersection [ 0 ] ] [ intersection [ 1 ] ] == 1:
                 pixel_set_intersections.append ( intersection )
         if len ( pixel_set_intersections ) == 0:
-            self.log.error ( "len ( pixel_set_intersections ) == 0, falling back to whole pixel_set" )
+            self.log.debug ( "len ( pixel_set_intersections ) == 0, falling back to whole pixel_set" )
             for col in range ( pixel_set.shape [ 0 ] ):
                 for row in range ( pixel_set.shape [ 1 ] ):
                     if pixel_set [ col ] [ row ] == 1:
@@ -547,7 +544,7 @@ class rings_finder ( object ):
             old_pixels = copy.copy ( pixels )
             pixels = [ ]
             for count in range ( 5000 ):
-                index = random.randint ( 0, len ( old_pixels ) )
+                index = random.randint ( 0, len ( old_pixels ) - 1 )
                 pixels.append ( old_pixels [ index ] )
             self.log.debug ( "pixels list downgraded to {} pixels.".format ( len ( pixels ) ) )
         
@@ -884,11 +881,6 @@ def find_rings ( data : numpy.ndarray,
         * 'construction' : a list of numpy arrays containing the geometric construction that led to the estimated center and radius used in the fit.
         * 'pixel_set' : a list of numpy arrays containing the segmented pixel sets corresponding to each identified ring.
     """
-    __version__ = "0.1.0"
-    __changelog__ = {
-        "0.1.0" : { "Tuna" : "0.15.0", "Change" : "Changed name of input variable to data." }
-        }
-    
     log = logging.getLogger ( __name__ )
     
     if isinstance ( data, tuna.io.can ):
@@ -900,26 +892,53 @@ def find_rings ( data : numpy.ndarray,
     if plane != None:
         finder = rings_finder ( effective_array, plane, ipython, plot_log )
         finder.execute ( )
-        return finder.result
-
-    # no plane was specified
+        if 'concentric_rings' in list ( finder.result.keys ( ) ):
+            log.info ( "Fitted rings to plane {}.".format ( plane ) )
+            return finder.result
+        log.info ( "Could not find rings in plane {}, searching the whole cube.".format ( plane ) )
+        list_of_planes = list ( range ( plane + 1, effective_array.shape [ 0 ] ) )
+        list_of_planes += list ( range ( plane ) )
+    else:
+        # no plane was specified
+        list_of_planes = range ( effective_array.shape [ 0 ] )
+    
     best_so_far = None
-    for effective_plane in range ( effective_array.shape [ 0 ] ):
+    for effective_plane in list_of_planes:
+        log.info ( "Searching for concentric rings in plane {}.".format ( effective_plane ) )
         finder = rings_finder ( effective_array, effective_plane, ipython, plot_log )
         finder.execute ( )
         if 'concentric_rings' not in list ( finder.result.keys ( ) ):
-            self.log.warning ( "No concentric rings on plane {}.".format ( effective_plane ) )
+            log.warning ( "No concentric rings on plane {}.".format ( effective_plane ) )
             continue
         log.debug ( "concentric_rings [ 1 ] = {}".format ( finder.result [ 'concentric_rings' ] [ 1 ] ) )
         if len ( finder.result [ 'concentric_rings' ] [ 1 ] ) >= min_rings:
-            return finder.result
-        elif best_so_far == None:
+            # check if pixel_sets are large
+            percentage_pixels_in_ring = 0
+            for pixel_set in finder.result [ "ring_pixel_sets" ]:
+                percentage_pixels_in_ring += numpy.sum ( pixel_set [ 0 ] )
+            percentage_pixels_in_ring /= ( data.shape [ 0 ] * data.shape [ 1 ] )
+            percentage_pixels_in_ring *= 100
+            log.info ( "Ring structure obtained from plane where borders occupy {}% of the array.".format ( int ( percentage_pixels_in_ring ) ) )
+            if percentage_pixels_in_ring > 10:
+                return finder.result
+        if best_so_far == None:
             best_so_far = finder.result
-        elif len ( finder.result [ 'concentric_rings' ] [ 1 ] ) > len ( best_so_far [ 'concentric_rings' ] [ 1 ] ):
-            best_so_far = finder.result
+            log.info ( "Ring structure in plane {} is the best so far ({} rings).".format ( effective_plane, len ( finder.result [ "concentric_rings" ] [ 1 ] ) ) )
+        else:
+            if len ( finder.result [ 'concentric_rings' ] [ 1 ] ) > len ( best_so_far [ 'concentric_rings' ] [ 1 ] ):
+                best_so_far = finder.result
+                log.info ( "Ring structure in plane {} is the best so far ({} rings).".format ( effective_plane, len ( finder.result [ "concentric_rings" ] [ 1 ] ) ) )
+            else:
+                if len ( finder.result [ "concentric_rings" ] [ 1 ] ) > 1 and len ( best_so_far [ "concentric_rings" ] [ 1 ] ) > 1:
+                    best_distance = tuna.tools.calculate_distance ( best_so_far [ "concentric_rings" ] [ 0 ], best_so_far [ "concentric_rings" ] [ 1 ] )
+                    this_distance = tuna.tools.calculate_distance ( finder.result [ "concentric_rings" ] [ 0 ], finder.result [ "concentric_rings" ] [ 1 ] )
+                    log.info ( "Distance between first 2 centers: {}.".format ( this_distance ) )
+                    if this_distance < best_distance:
+                        best_so_far = finder.result
+                        log.info ( "Ring structure in plane {} is the best so far ({} rings).".format ( effective_plane, len ( finder.result [ "concentric_rings" ] [ 1 ] ) ) )
 
-    self.log.warning ( "Could not find a plane with two rings on the cube!" )
+    log.warning ( "Could not find a plane with two rings on the cube!" )
 
     if best_so_far != None:
-        self.log.warning ( "Returning single ring result." )
+        log.warning ( "Returning single ring result." )
     return best_so_far

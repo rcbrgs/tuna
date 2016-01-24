@@ -3,11 +3,6 @@
 This module's scope is the reduction of data from a calibration lamp using SOAR's SAMI instrument.
 """
 
-__version__ = "0.1.0"
-__changelog__ = {
-    "0.1.0" : { "Tuna" : "0.16.0", "Change" : "Initial commit." }
-    }
-
 import astropy.io.fits
 import IPython
 import logging
@@ -114,6 +109,7 @@ class reducer ( threading.Thread ):
         If not None, the center calculated by the pipeline will be validated against the input value.
     """
     def __init__ ( self,
+                   best_ring_plane = None,
                    calibration_wavelength : float = 0,
                    channel_subset = [ ],
                    continuum_to_FSR_ratio = 0.125,
@@ -139,6 +135,7 @@ class reducer ( threading.Thread ):
         self.log.info ( "Starting {} pipeline.".format ( self.__module__ ) )
 
         """inputs:"""
+        self.best_ring_plane = best_ring_plane
         self.calibration_wavelength = calibration_wavelength
         self.channel_subset = channel_subset
         self.continuum_to_FSR_ratio = continuum_to_FSR_ratio
@@ -307,6 +304,7 @@ class reducer ( threading.Thread ):
         self.find_rings = tuna.plugins.run ( "Ring center finder" ) ( data = self.overscanned.array,
                                                                       min_rings = self.min_rings,
                                                                       ipython = self.ipython,
+                                                                      plane = self.best_ring_plane,
                                                                       plot_log = self.plot_log )
         center = self.find_rings [ 'concentric_rings' ] [ 0 ]
         self.rings_center = center
