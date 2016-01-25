@@ -16,6 +16,8 @@ The reduction was made using Tuna version 0.16.4. The code to reduce the image w
     file_object = tuna.io.read ( file_name )
     start = time.time ( )
     reducer = tuna.pipelines.calibration_lamp_high_resolution.reducer (
+      min_rings = 3,
+      best_ring_plane = 10,
       calibration_wavelength = 6598.953125,
       finesse = 12,
       free_spectral_range = 8.36522123894,
