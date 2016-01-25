@@ -21,8 +21,6 @@ And the following modules:
    tuna_tools_continuum
    tuna_tools_estimate_b_ratio
    tuna_tools_find_lowest_nonnull_percentile
-   tuna_tools_find_rings
-   tuna_tools_find_rings_2d
    tuna_tools_fsr
    tuna_tools_geometry
    tuna_tools_get_connected_points
@@ -31,3 +29,4 @@ And the following modules:
    tuna_tools_hash_functions
    tuna_tools_noise
    tuna_tools_plot
+   tuna_tools_spectral_rings_fitter

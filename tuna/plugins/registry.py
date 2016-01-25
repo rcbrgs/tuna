@@ -20,7 +20,7 @@ This is how to list the plugins currently registered in Tuna::
   * "Noise detector" : tuna.tools.noise.detect_noise
   * "Overscan" : tuna.tools.overscan.no_overscan
   * "Parabola fit" : tuna.models.parabola.parabolic_fitter
-  * "Ring center finder" : tuna.tools.find_rings.find_rings
+  * "Ring center finder" : tuna.tools.spectral_rings_fitter.find_rings
 
 And how to list the parameters and return types for a given plugin::
 
@@ -70,7 +70,7 @@ A worked-out example follows::
   * "Noise detector" : my_super_complicated_noise_function
   * "Overscan" : tuna.tools.overscan.no_overscan
   * "Parabola fit" : tuna.models.parabola.parabolic_fitter
-  * "Ring center finder" : tuna.tools.find_rings.find_rings
+  * "Ring center finder" : tuna.tools.spectral_rings_fitter.find_rings
   >>> tuna.plugins.registry ( "Noise detector" )
   def my_super_complicated_noise_function ( data : tuna.io.can.can, noise_mask_radius : int, noise_threshold : float, wrapped : tuna.io.can.can ) -> tuna.io.can.can
 
@@ -95,14 +95,9 @@ Finally, if you want to add a plugin that has no signature yet, the syntax is id
   * "Noise detector" : my_super_complicated_noise_function
   * "Overscan" : tuna.tools.overscan.no_overscan
   * "Parabola fit" : tuna.models.parabola.parabolic_fitter
-  * "Ring center finder" : tuna.tools.find_rings.find_rings
+  * "Ring center finder" : tuna.tools.spectral_rings_fitter.find_rings
   * "Something new" : my_super_complicated_noise_function
 """
-
-__version__ = "0.1.0"
-__changelog__ = {
-    "0.1.0" : { "Tuna" : "0.15.0", "Change" : "Added plugin 'Overscan' with default tuna.tools.overscan.no_overscan. Refactored examples to account for Overscan plugin, airy fit plugin." }
-    }
 
 import tuna
 
@@ -117,7 +112,7 @@ __registry = {
     "Noise detector" : tuna.tools.noise.detect_noise,
     "Overscan" : tuna.tools.overscan.no_overscan,
     "Parabola fit" : tuna.models.parabola.parabolic_fitter,
-    "Ring center finder" : tuna.tools.find_rings
+    "Ring center finder" : tuna.tools.spectral_rings_fitter,
     }
 
 def get_full_module_path ( reference : object ) -> str:

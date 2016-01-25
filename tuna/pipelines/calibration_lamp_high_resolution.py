@@ -23,15 +23,8 @@ Example::
             unwrapped_only = False, \
             verify_center = None ); reducer.join ( )
     >>> reducer.wavelength_calibrated.array [ 10 ] [ 10 ]
-    103.18638370414156
+    31.187012437244345
 """
-
-__version__ = "0.1.2"
-__changelog__ = {
-    "0.1.2" : { "Tuna" : "0.16.0", "Change" : "Added min_rings parameter for user to specify how many rings per plane are expected in the data cube. Defaults to 1. Refactored to only use keyworded parameters." },
-    "0.1.1" : { "Tuna" : "0.15.3", "Change" : "Changed the name of the plots, to be more descriptive." },
-    "0.1.0" : { "Tuna" : "0.15.0", "Change" : "Refactored to use detect_noise 'data' argument, to use 'overscan' plugin, 'Airy fit' plugin, 'FSR mapper' plugin." }
-    }
 
 import IPython
 import logging
@@ -64,6 +57,9 @@ class reducer ( threading.Thread ):
     - wavelength_calibrated
 
     Its constructor parameters are:
+
+    * best_ring_plane : integer : 0
+        This optional parameter, when specified, will limit the search for the ring structure to the specified plane. Note that the first plane on a cube has index 0.
 
     * calibration_wavelength : float : 0
         Encodes the magnitude of the calibration wavelength, in Angstroms.
@@ -127,6 +123,7 @@ class reducer ( threading.Thread ):
         If not None, the center calculated by the pipeline will be validated against the input value.
     """
     def __init__ ( self,
+                   best_ring_plane : int = None,
                    calibration_wavelength : float = 0,
                    channel_subset = [ ],
                    continuum_to_FSR_ratio = 0.125,
@@ -148,29 +145,6 @@ class reducer ( threading.Thread ):
                    unwrapped_only = False,
                    verify_center = None ):
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = "0.1.19"
-        self.changelog = {
-            "0.1.19" : "Tuna 0.15.0 : Moved to tuna.pipelines. Refactored to use plugins for noise, continuum, barycenter, ring center finder.",
-            "0.1.18" : "Tuna 0.14.0 : updated documentation.",
-            '0.1.17' : "Improved docstring for class.",
-            '0.1.16' : "Adapted to use refined version of ring finder.",
-            '0.1.15' : "Fixed gap 'pulsating' by making gap change monotonic, and using 1st gap fit as seed for plane reconstruction.",
-            '0.1.14' : "Fixed gap limits logic for negative channel gap",
-            '0.1.13' : "Since the plane gap is calculated, use it to get limits for per-plane airy fit.",
-            '0.1.12' : "Adapting pipeline to new ring_find.",
-            '0.1.11' : "Adapted sorted_rings to use new ring_find result.",
-            '0.1.10' : "Added a plot() function as convenience to plot all subresults.",
-            '0.1.9' : "Improved auto Airy by letting intensity and continuum be free.",
-            '0.1.8' : "Improved auto Airy fit by priming fitter with channel gap values.",
-            '0.1.7' : "Changed method for airy fit to fit separately each plane.",
-            '0.1.6' : "Added support for ring_minimal_percentile.",
-            '0.1.5' : "Added support for noise threshold parameter.",
-            '0.1.4' : "Reverted to simpler method of fitting first 2 planes; works beautifully.",
-            '0.1.3' : "Made default less verbose.",
-            '0.1.2' : "Refactored to use new ring center finder.",
-            '0.1.1' : "Using variables instead of harcoded values for inital b and gap values.",
-            '0.1.0' : "Initial changelog."
-            }
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
 
@@ -184,10 +158,15 @@ class reducer ( threading.Thread ):
         except AttributeError as e:
             self.log.warning ( "%s, aborting." % str ( e ) )
             return
+
+        self.ipython = IPython.get_ipython ( )
+        if self.ipython != None:
+            self.ipython.magic ( "matplotlib qt" )
         
         self.log.info ( "Starting {} pipeline.".format ( self.__module__ ) )
-
+        
         """inputs:"""
+        self.best_ring_plane = best_ring_plane
         self.calibration_wavelength = calibration_wavelength
         self.channel_subset = channel_subset
         self.continuum_to_FSR_ratio = continuum_to_FSR_ratio
@@ -227,9 +206,6 @@ class reducer ( threading.Thread ):
         self.wavelength_calibrated = None
         self.wrapped_phase_map = None
 
-        self.ipython = IPython.get_ipython ( )
-        if self.ipython != None:
-            self.ipython.magic ( "matplotlib qt" )
         self.start ( )
         
     def run ( self ):
@@ -243,11 +219,9 @@ class reducer ( threading.Thread ):
         self.continuum = tuna.plugins.run ( "Continuum detector" ) ( self.overscanned,
                                                                      self.continuum_to_FSR_ratio )
 
-        # Discontinuum calculation
         self.discontinuum = tuna.io.can ( array = numpy.ndarray ( shape = self.overscanned.shape ) )
         for plane in range ( self.overscanned.planes ):
             self.discontinuum.array [ plane, : , : ] = numpy.abs ( self.overscanned.array [ plane, : , : ] - self.continuum.array )
-        #
 
         self.wrapped_phase_map = tuna.plugins.run ( "Barycenter algorithm" ) ( data_can = self.discontinuum )
         
@@ -256,9 +230,10 @@ class reducer ( threading.Thread ):
                                                              noise_mask_radius = self.noise_mask_radius,
                                                              noise_threshold = self.noise_threshold )
 
-        self.find_rings = tuna.plugins.run ( "Ring center finder" ) ( data = self.overscanned.array,
-                                                                      min_rings = self.min_rings,
+        self.find_rings = tuna.plugins.run ( "Ring center finder" ) ( plane = self.best_ring_plane,
+                                                                      data = self.overscanned.array,
                                                                       ipython = self.ipython,
+                                                                      min_rings = self.min_rings,
                                                                       plot_log = self.plot_log )
         center = self.find_rings [ 'concentric_rings' ] [ 0 ]
         self.rings_center = center
@@ -494,29 +469,7 @@ class reducer ( threading.Thread ):
         """
         self.log.debug ( "Ratio between 2nd degree coefficients is: %f" % ( self.parabolic_model [ 'x2y0' ] / 
                                                                             self.parabolic_model [ 'x0y2' ] ) )
-        
-    def plot ( self ):
-        """
-        This method relies on matplotlib and ipython being available, and renders the intermediary products of this pipeline as plots.
-        """
-        tuna.tools.plot ( self.tuna_can.array, "Original data", self.ipython )
-        tuna.tools.plot ( self.overscanned.array, "Data with overscan removed", self.ipython )
-        tuna.tools.plot ( self.continuum.array, "Continuum map", self.ipython )
-        tuna.tools.plot ( self.discontinuum.array, "Discontinuum map (original data minus its continuum)", self.ipython )
-        tuna.tools.plot ( self.wrapped_phase_map.array, "Wrapped phase map (barycenter map)", self.ipython )
-        tuna.tools.plot ( self.noise.array, "Noise", self.ipython )
-        tuna.tools.plot ( self.borders_to_center_distances.array, "Borders to center distances", self.ipython )
-        tuna.tools.plot ( self.order_map.array, "Order map", self.ipython )
-        tuna.tools.plot ( self.unwrapped_phase_map.array, "Unwrapped phase map", self.ipython )
-        if self.parabolic_fit is not None:
-            tuna.tools.plot ( self.parabolic_fit.array, "Parabolic fit", self.ipython )
-        if self.airy_fit is not None:
-            tuna.tools.plot ( self.airy_fit.array, "Airy fit", self.ipython )
-        if self.airy_fit_residue is not None:
-            tuna.tools.plot ( self.airy_fit_residue.array, "Airy fit residue", self.ipython )
-        tuna.tools.plot ( self.substituted_channels.array, "Synthetic cube, with Airy fit substituted channels", self.ipython )
-        tuna.tools.plot ( self.wavelength_calibrated.array, "Wavelength calibrated phase map", self.ipython )
-        
+                
 def pixel_profiler ( reducer, pixel ):
     """
     This function's goal is to conveniently return a structure containing the data for a given "position" throughout the pipeline. Since objects can have 2 or 3 dimensions, the data structure returns either a value or a 1 dimensional array for each product.

@@ -7,10 +7,10 @@ Example:
 
     >>> import tuna
     >>> import numpy
-    >>> raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc_small.fits" )
+    >>> raw = tuna.io.read ( "tuna/test/unit/unit_io/adhoc_3_planes.fits" )
     >>> barycenter = tuna.plugins.run ( "Barycenter algorithm" ) ( data_can = raw )
     >>> barycenter.shape
-    (10, 10)
+    (512, 512)
 """
 
 __version__ = "0.1.0"

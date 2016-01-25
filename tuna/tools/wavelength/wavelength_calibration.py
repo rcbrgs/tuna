@@ -58,7 +58,7 @@ class wavelength_calibrator ( threading.Thread ):
         Corresponds to the number of planes in the original data cube.
 
     * rings_center : dictionary
-        A structure equivalent to the one produced by :ref:`tuna_tools_find_rings_2d_label`.
+        A structure equivalent to the one produced by :ref:`tuna_tools_spectral_rings_fitter_label`.
 
     * scanning_wavelength : float
         The value in Angstroms of the wavelength scanned.
@@ -73,12 +73,6 @@ class wavelength_calibrator ( threading.Thread ):
                    rings_center,
                    scanning_wavelength ):
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = '0.1.2'
-        self.changelog = {
-            "0.1.2" : "Tuna 0.14.0 : updated documentation to new style.",
-            '0.1.1' : "Improved docstrings for Sphinx documentation.",
-            '0.1.0' : "First changelog version."
-            }
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
 

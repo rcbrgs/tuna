@@ -15,16 +15,11 @@ Example usage::
     >>> borders = tuna.tools.phase_map.ring_border_detector ( barycenter, ( 219, 255 ), noise, rings ); borders.join ( )
     >>> fsr = tuna.plugins.run ( "FSR mapper" ) ( distances = borders.distances, wrapped = barycenter, center = ( 219, 255 ), concentric_rings = rings [ 'concentric_rings' ] )
     >>> fsr.array [ 0 ] [ 150 : 200 ]
-    array([ 2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,
-            2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,
-            2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  1.,  1.,  1.,  1.,
+    array([ 1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,
+            1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,
+            1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,
             1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.])
 """
-
-__version__ = "0.1.0"
-__changelog__ = {
-    "0.1.0" : { "Tuna" : "0.15.0", "Change" : "Refactored example to use new signature for 'Noise detector' and 'Ring center finder' plugins." }
-    }
 
 import logging
 from math import sqrt
@@ -57,12 +52,6 @@ class fsr ( threading.Thread ):
     """
     def __init__ ( self, distances, wrapped, center, concentric_rings ):
         super ( self.__class__, self ).__init__ ( )
-        self.__version__ = "0.1.2"
-        self.changelog = {
-            "0.1.2" : "Tuna 0.15.0 : Refactored into a plugin.",
-            "0.1.1" : "Tuna 0.14.0 : improved documentation.",
-            "0.1.0" : "First changeloged version."
-            }
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
 
@@ -84,128 +73,63 @@ class fsr ( threading.Thread ):
         """
         start = time.time ( )
 
-        #self.create_fsr_map ( )
-        self.create_fsr_map_from_rings ( )
+        self.create_fsr_from_radii ( )
 
         self.log.debug ( "create_fsr_map() took %ds." % ( time.time ( ) - start ) )
 
-    def create_fsr_map_from_rings ( self ):
+    def create_fsr_from_radii ( self ):
         """
-        Using the ring map and the wrapped phase map, this method will create a numpy.ndarray with the same dimensions as these inputs, where each pixel will have an integer value corresponding to how many times the spectrum has been "wrapped" at that pixel. 
+        Supposing the borders map and the concentric rings center are available, this method will generate a list of typical distances from border to center, and create a order map using this list. 
         """
-        thickness = 10
-        half_channels = numpy.max ( self.wrapped ) / 2
-        max_order = len ( self.concentric_rings [ 1 ] )
-        sorted_radii = sorted ( self.concentric_rings [ 1 ] )
-        sorted_radii.append ( float ( 'inf' ) )
-        self.fsr = numpy.ndarray ( shape = self.wrapped.shape )
-        for col in range ( self.wrapped.shape [ 0 ] ):
-            for row in range ( self.wrapped.shape [ 1 ] ):
-                order = None
-                distance = tuna.tools.calculate_distance ( ( col, row ), self.concentric_rings [ 0 ] )
-                # treat "border pixels"
-                for radius_index in range ( len ( sorted_radii ) ):
-                    border_distance = abs ( distance - sorted_radii [ radius_index ] )
-                    if border_distance <= thickness:
-                        if self.wrapped [ col ] [ row ] > half_channels:
-                            order = radius_index
+        center = self.concentric_rings [ 0 ]
+        self.log.debug ( "self.distances.shape == {}".format ( self.distances.shape ) )
+        cols = self.distances.shape [ 0 ]
+        rows = self.distances.shape [ 1 ]
+        distances_list = [ ]
+        for element in numpy.unique ( self.distances ):
+            distances_list.append ( element )
+        distances_list.remove ( 0 )
+        self.log.debug ( "distances_list == {}".format ( distances_list ) )
+        target_number = len ( self.concentric_rings [ 1 ] )
+        filtered_distances = [ ]
+        threshold = max ( distances_list )
+        while ( len ( filtered_distances ) < target_number ):
+            filtered_distances = [ ]
+            threshold -= 1
+            for entry in distances_list:
+                contained = False
+                for filtered in filtered_distances:
+                    if filtered - threshold < float ( entry ) < filtered + threshold:
+                        contained = True
+                if not contained:
+                    filtered_distances.append ( float ( entry ) )
+            self.log.debug ( "threshold == {}, filtered_distances == {}".format ( threshold, filtered_distances ) )
+            
+        sorted_distances = sorted ( filtered_distances )
+        self.log.info ( "sorted_distances == {}".format ( sorted_distances ) )
+        
+        self.fsr = numpy.zeros ( shape = self.distances.shape )
+        for col in range ( cols ):
+            for row in range ( rows ):
+                distance = tuna.tools.calculate_distance ( center, ( col, row ) )
+                for entry in range ( len ( sorted_distances ) ):
+                    if entry == 0:
+                        low_limit = sorted_distances [ entry ] * 0.9
+                    else:
+                        low_limit = sorted_distances [ entry ] - ( sorted_distances [ entry ] - sorted_distances [ entry - 1 ] ) / 4
+                    if entry == len ( sorted_distances ) - 1:
+                        high_limit = sorted_distances [ entry ] * 1.1
+                    else:
+                        high_limit = sorted_distances [ entry ] + ( sorted_distances [ entry + 1 ] - sorted_distances [ entry ] ) / 4
+                    if distance >= high_limit:
+                        self.fsr [ col ] [ row ] = entry + 1
+                    if low_limit < distance < high_limit:
+                        if self.wrapped [ col ] [ row ] < numpy.amax ( self.wrapped ) / 2:
+                            self.fsr [ col ] [ row ] = entry + 1
+                            break
                         else:
-                            order = radius_index + 1
-                        break
-                if order != None:
-                    self.fsr [ col ] [ row ] = order
-                    continue
-
-                # treat "band pixels"
-                order = max_order
-                for radius_index in range ( len ( sorted_radii ) ):
-                    if distance < sorted_radii [ radius_index ]:
-                        self.fsr [ col ] [ row ] = radius_index
-                        break
-                    
-    def create_fsr_map ( self ):
-        """
-        FSR distance array creation method.
-        """
-        ring_thickness_threshold = self.estimate_ring_thickness ( )
-        self.log.debug ( "ring_thickness_threshold = %f" % ring_thickness_threshold )
-        # find how many rings are there
-        rings = [ ]
-        self.log.debug ( "fsr array 0% created." )
-        last_percentage_logged = 0
-        for row in range ( self.max_rows ):
-            percentage = 10 * int ( row / self.max_rows * 10 )
-            if percentage > last_percentage_logged:
-                last_percentage_logged = percentage
-                self.log.debug ( "fsr array %d%% created." % percentage )
-            for col in range ( self.max_cols ):
-                if self.distances [ row ] [ col ] > 0:
-                    possible_new_ring = True
-                    for ring in rings:
-                        if ( ( self.distances [ row ] [ col ] < ring + ring_thickness_threshold ) and
-                             ( self.distances [ row ] [ col ] > ring - ring_thickness_threshold ) ):
-                            possible_new_ring = False
-                    if possible_new_ring:
-                        rings.append ( self.distances [ row ] [ col ] )
-        self.log.info ( "fsr array created." )
-
-        # order rings by distance
-        ordered_rings = sorted ( rings )
-
-        # attribute FSR by verifying ring-relative "position"
-        median_channel = int ( numpy.amax ( self.wrapped ) / 2 )
-        fsr = numpy.ndarray ( shape = self.distances.shape, dtype = numpy.int8 )
-        for row in range ( self.max_rows ):
-            for col in range ( self.max_cols ):
-                fsr_result = len ( ordered_rings )
-                distance = sqrt ( ( self.center [ 0 ] - row ) ** 2 +
-                                  ( self.center [ 1 ] - col ) ** 2 )
-                for fsr_range in range ( len ( ordered_rings ) ):
-                    if ( distance <= ordered_rings [ fsr_range ] + ring_thickness_threshold ):
-                        fsr_result = fsr_range
-                        if ( distance >= ordered_rings [ fsr_range ] - ring_thickness_threshold ):
-                            if self.wrapped [ row ] [ col ] < median_channel:
-                                fsr_result = fsr_range + 1
-                        break
-                fsr [ row ] [ col ] = fsr_result
-
-        self.fsr = fsr
-
-    def estimate_ring_thickness ( self ):
-        """
-        Attempts to guess the "thickness" of a ring, that is, how far apart the concentric rings are.
-        """
-        distances = numpy.unique ( self.distances.astype ( numpy.int16 ) )
-        self.log.debug ( "distances = %s" % str ( distances ) )
-
-        distances_sequences = [ ]
-        ranges = [ ]
-        for col in range ( distances.shape [ 0 ] ):
-            this_distance = distances [ col ]
-            if this_distance != 0:
-                if distances_sequences == [ ]:
-                    distances_sequences.append ( this_distance )
-                    continue
-                last_distance = distances_sequences [ -1 ]
-                if ( this_distance == last_distance + 1 ):
-                    distances_sequences.append ( this_distance )
-                    continue
-                else:
-                    ranges.append ( distances_sequences )
-                    distances_sequences = [ this_distance ]
-        if distances_sequences not in ranges:
-            ranges.append ( distances_sequences )
-        self.log.debug ( "ranges = %s" % str ( ranges ) )
-
-        if ranges == [ [ ] ]:
-            return 0
-
-        thicknesses = [ ranges [ 0 ] [ 0 ] ]
-        for thickness in range ( 1, len ( ranges ) ):
-            thicknesses.append ( ranges [ thickness ] [ 0 ] - ranges [ thickness - 1 ] [ -1 ] )
-        self.log.debug ( "thicknesses = %s" % str ( thicknesses ) )
-
-        return int ( max ( min ( thicknesses ) * 0.25, 20 ) )
+                            self.fsr [ col ] [ row ] = entry
+                            break
 
 def fsr_mapper ( distances : tuna.io.can,
                  wrapped : tuna.io.can,
