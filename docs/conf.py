@@ -20,6 +20,7 @@ import shlex
 sys.path.append ( "/home/docs/checkouts/readthedocs.org/user_builds/tuna/checkouts/next" )
 sys.path.append ( "/home/docs/checkouts/readthedocs.org/user_builds/tuna/checkouts/master" )
 sys.path.append ( "/home/docs/checkouts/readthedocs.org/user_builds/tuna/envs/master" )
+sys.path.append ( "/home/docs/checkouts/readthedocs.org/user_builds/tuna/envs/latest" )
 sys.path.append ( os.path.expanduser ( "~" ) + "/vtuna/" )
 
 #import tuna
