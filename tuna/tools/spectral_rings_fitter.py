@@ -17,7 +17,10 @@ import copy
 import IPython
 import logging
 import math
-import mpyfit
+try:
+    import mpyfit
+except ImportError:
+    print ( "Could not import mpyfit. Please install this library before running Tuna." )
 import numpy
 import random
 import sympy
