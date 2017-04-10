@@ -1,6 +1,6 @@
 astropy
 ipython
-matplotlib
+matplotlib<2.0.0
 psutil
 pyfits
 pymysql
