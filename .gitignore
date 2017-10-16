@@ -1,0 +1,11 @@
+.coverage
+.sonar
+__pycache__
+*.log
+*.pyc
+*#
+*~
+nose.log
+tuna.egg-info
+build/
+dist/
