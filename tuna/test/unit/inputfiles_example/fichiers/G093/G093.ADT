@@ -1,0 +1,3275 @@
+ADHOCw Photon Counting     Version 02/11/2004    PhB
+Observation G093
+01/28/11	20:14:16
+Identification = ngc772
+Interferometer = Unknown
+Filter = 81
+3D Object
+X and Y dimensions : 00512 00512
+Number of channels = 0036
+TV source = IPCS
+Exposure time per channel = 00010 seconds
+Scanning wavelength=  6616.895 A
+Queensgate constant=   9.21
+Perot-Fabry scanning
+CS100 interface = parallel
+Scanning mode = see-saw (increasing chnls for odd cycles, decreas. for even)
+IPCS type = 
+IPCS frames per second = 100
+MATROX driver = 
+Data format = 4 bytes (X and Y coordinates)
+File names = G093cckk.ADA
+MIL errors = normal (no extended windows)
+Data files path = C:\\G093
+-----------------------------------------------------------------------------
+Notes :
+- flux must be corrected from the nb of frames in each channel
+- user comment lines below begin with ###
+- alarm lines below begin with !!!
+=============================================================================
+
+==>  Beginning channel=0000 at 20:14:16
+Was acquired at 20:14:16: ch=0000  cy=0001 QGval=-359  ph=00000000  fr=00000
+Cumulated exp=00:00:00  phot=000000000000 efficiency=100 %  disk=    0.000 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 20:14:16
+Was acquired at 20:14:26: ch=0001  cy=0001 QGval=-359  ph=00005775  fr=01000
+Cumulated exp=00:00:10  phot=000000005775 efficiency=100 %  disk=    0.006 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 20:14:26
+Was acquired at 20:14:37: ch=0002  cy=0001 QGval=-339  ph=00005977  fr=01000
+Cumulated exp=00:00:20  phot=000000011752 efficiency=100 %  disk=    0.011 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 20:14:37
+Was acquired at 20:14:47: ch=0003  cy=0001 QGval=-319  ph=00005832  fr=01000
+Cumulated exp=00:00:30  phot=000000017584 efficiency=100 %  disk=    0.017 Mb
+THT=01550v  shutter= undef  Ope01550  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 20:14:47
+Was acquired at 20:14:58: ch=0004  cy=0001 QGval=-299  ph=00005879  fr=01000
+Cumulated exp=00:00:40  phot=000000023463 efficiency=100 %  disk=    0.022 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 20:14:58
+Was acquired at 20:15:08: ch=0005  cy=0001 QGval=-279  ph=00005829  fr=01000
+Cumulated exp=00:00:50  phot=000000029292 efficiency=100 %  disk=    0.028 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 20:15:08
+Was acquired at 20:15:18: ch=0006  cy=0001 QGval=-259  ph=00005741  fr=01000
+Cumulated exp=00:01:00  phot=000000035033 efficiency=100 %  disk=    0.033 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 20:15:18
+Was acquired at 20:15:29: ch=0007  cy=0001 QGval=-239  ph=00006034  fr=01000
+Cumulated exp=00:01:10  phot=000000041067 efficiency=100 %  disk=    0.039 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 20:15:29
+Was acquired at 20:15:39: ch=0008  cy=0001 QGval=-219  ph=00005830  fr=01000
+Cumulated exp=00:01:20  phot=000000046897 efficiency=100 %  disk=    0.045 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 20:15:39
+Was acquired at 20:15:50: ch=0009  cy=0001 QGval=-199  ph=00005828  fr=01000
+Cumulated exp=00:01:30  phot=000000052725 efficiency=100 %  disk=    0.050 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 20:15:50
+Was acquired at 20:16:00: ch=0010  cy=0001 QGval=-179  ph=00005771  fr=01000
+Cumulated exp=00:01:40  phot=000000058496 efficiency=100 %  disk=    0.056 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 20:16:00
+Was acquired at 20:16:11: ch=0011  cy=0001 QGval=-159  ph=00005894  fr=01000
+Cumulated exp=00:01:50  phot=000000064390 efficiency=100 %  disk=    0.061 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 20:16:11
+Was acquired at 20:16:21: ch=0012  cy=0001 QGval=-139  ph=00005711  fr=01000
+Cumulated exp=00:02:00  phot=000000070101 efficiency=100 %  disk=    0.067 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 20:16:21
+Was acquired at 20:16:32: ch=0013  cy=0001 QGval=-119  ph=00005808  fr=01000
+Cumulated exp=00:02:10  phot=000000075909 efficiency=100 %  disk=    0.072 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 20:16:32
+Was acquired at 20:16:42: ch=0014  cy=0001 QGval=-099  ph=00006053  fr=01000
+Cumulated exp=00:02:20  phot=000000081962 efficiency=100 %  disk=    0.078 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 20:16:42
+Was acquired at 20:16:53: ch=0015  cy=0001 QGval=-079  ph=00005575  fr=01000
+Cumulated exp=00:02:30  phot=000000087537 efficiency=100 %  disk=    0.083 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 20:16:53
+Was acquired at 20:17:03: ch=0016  cy=0001 QGval=-059  ph=00005972  fr=01000
+Cumulated exp=00:02:40  phot=000000093509 efficiency=100 %  disk=    0.089 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 20:17:03
+Was acquired at 20:17:13: ch=0017  cy=0001 QGval=-039  ph=00005944  fr=01000
+Cumulated exp=00:02:50  phot=000000099453 efficiency=100 %  disk=    0.095 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 20:17:13
+Was acquired at 20:17:24: ch=0018  cy=0001 QGval=-019  ph=00006649  fr=01000
+Cumulated exp=00:03:00  phot=000000106102 efficiency=100 %  disk=    0.101 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 20:17:24
+Was acquired at 20:17:34: ch=0019  cy=0001 QGval=0000  ph=00006065  fr=01000
+Cumulated exp=00:03:10  phot=000000112167 efficiency=100 %  disk=    0.107 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 20:17:34
+Was acquired at 20:17:45: ch=0020  cy=0001 QGval=0019  ph=00006255  fr=01000
+Cumulated exp=00:03:20  phot=000000118422 efficiency=100 %  disk=    0.113 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 20:17:45
+Was acquired at 20:17:56: ch=0021  cy=0001 QGval=0039  ph=00005976  fr=01000
+Cumulated exp=00:03:30  phot=000000124398 efficiency=100 %  disk=    0.119 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 20:17:56
+Was acquired at 20:18:06: ch=0022  cy=0001 QGval=0059  ph=00006119  fr=01000
+Cumulated exp=00:03:40  phot=000000130517 efficiency=100 %  disk=    0.124 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 20:18:06
+Was acquired at 20:18:16: ch=0023  cy=0001 QGval=0079  ph=00006344  fr=01000
+Cumulated exp=00:03:50  phot=000000136861 efficiency=100 %  disk=    0.131 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 20:18:16
+Was acquired at 20:18:27: ch=0024  cy=0001 QGval=0099  ph=00006064  fr=01000
+Cumulated exp=00:04:00  phot=000000142925 efficiency=100 %  disk=    0.136 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 20:18:27
+Was acquired at 20:18:37: ch=0025  cy=0001 QGval=0119  ph=00005989  fr=01000
+Cumulated exp=00:04:10  phot=000000148914 efficiency=100 %  disk=    0.142 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 20:18:37
+Was acquired at 20:18:48: ch=0026  cy=0001 QGval=0139  ph=00005827  fr=01000
+Cumulated exp=00:04:20  phot=000000154741 efficiency=100 %  disk=    0.148 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 20:18:48
+Was acquired at 20:18:58: ch=0027  cy=0001 QGval=0159  ph=00005828  fr=01000
+Cumulated exp=00:04:30  phot=000000160569 efficiency=100 %  disk=    0.153 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 20:18:58
+Was acquired at 20:19:09: ch=0028  cy=0001 QGval=0179  ph=00005896  fr=01000
+Cumulated exp=00:04:40  phot=000000166465 efficiency=100 %  disk=    0.159 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 20:19:09
+Was acquired at 20:19:19: ch=0029  cy=0001 QGval=0199  ph=00005818  fr=01000
+Cumulated exp=00:04:50  phot=000000172283 efficiency=100 %  disk=    0.164 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 20:19:19
+Was acquired at 20:19:30: ch=0030  cy=0001 QGval=0219  ph=00005868  fr=01000
+Cumulated exp=00:05:00  phot=000000178151 efficiency=100 %  disk=    0.170 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 20:19:30
+Was acquired at 20:19:40: ch=0031  cy=0001 QGval=0239  ph=00005887  fr=01000
+Cumulated exp=00:05:10  phot=000000184038 efficiency=100 %  disk=    0.176 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 20:19:40
+Was acquired at 20:19:51: ch=0032  cy=0001 QGval=0259  ph=00005806  fr=01000
+Cumulated exp=00:05:20  phot=000000189844 efficiency=100 %  disk=    0.181 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 20:19:51
+Was acquired at 20:20:01: ch=0033  cy=0001 QGval=0279  ph=00005884  fr=01000
+Cumulated exp=00:05:30  phot=000000195728 efficiency=100 %  disk=    0.187 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 20:20:01
+Was acquired at 20:20:11: ch=0034  cy=0001 QGval=0299  ph=00005861  fr=01000
+Cumulated exp=00:05:40  phot=000000201589 efficiency=100 %  disk=    0.192 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 20:20:11
+Was acquired at 20:20:22: ch=0035  cy=0001 QGval=0319  ph=00005910  fr=01000
+Cumulated exp=00:05:50  phot=000000207499 efficiency=100 %  disk=    0.198 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 20:20:22
+Was acquired at 20:20:32: ch=0036  cy=0001 QGval=0339  ph=00005776  fr=01000
+Cumulated exp=00:06:00  phot=000000213275 efficiency=100 %  disk=    0.203 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 20:20:32
+Was acquired at 20:20:43: ch=0036  cy=0002 QGval=0339  ph=00005679  fr=01000
+Cumulated exp=00:06:10  phot=000000218954 efficiency=100 %  disk=    0.209 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 20:20:43
+Was acquired at 20:20:53: ch=0035  cy=0002 QGval=0319  ph=00005740  fr=01000
+Cumulated exp=00:06:20  phot=000000224694 efficiency=100 %  disk=    0.214 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 20:20:53
+Was acquired at 20:21:04: ch=0034  cy=0002 QGval=0299  ph=00005599  fr=01000
+Cumulated exp=00:06:30  phot=000000230293 efficiency=100 %  disk=    0.220 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 20:21:04
+Was acquired at 20:21:14: ch=0033  cy=0002 QGval=0279  ph=00005681  fr=01000
+Cumulated exp=00:06:40  phot=000000235974 efficiency=100 %  disk=    0.225 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 20:21:14
+Was acquired at 20:21:25: ch=0032  cy=0002 QGval=0259  ph=00005700  fr=01000
+Cumulated exp=00:06:50  phot=000000241674 efficiency=100 %  disk=    0.230 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 20:21:25
+Was acquired at 20:21:35: ch=0031  cy=0002 QGval=0239  ph=00005727  fr=01000
+Cumulated exp=00:07:00  phot=000000247401 efficiency=100 %  disk=    0.236 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 20:21:35
+Was acquired at 20:21:46: ch=0030  cy=0002 QGval=0219  ph=00005833  fr=01000
+Cumulated exp=00:07:10  phot=000000253234 efficiency=100 %  disk=    0.242 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 20:21:46
+Was acquired at 20:21:56: ch=0029  cy=0002 QGval=0199  ph=00005837  fr=01000
+Cumulated exp=00:07:20  phot=000000259071 efficiency=100 %  disk=    0.247 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 20:21:56
+Was acquired at 20:22:06: ch=0028  cy=0002 QGval=0179  ph=00005872  fr=01000
+Cumulated exp=00:07:30  phot=000000264943 efficiency=100 %  disk=    0.253 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 20:22:06
+Was acquired at 20:22:17: ch=0027  cy=0002 QGval=0159  ph=00005977  fr=01000
+Cumulated exp=00:07:40  phot=000000270920 efficiency=100 %  disk=    0.258 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 20:22:17
+Was acquired at 20:22:27: ch=0026  cy=0002 QGval=0139  ph=00005751  fr=01000
+Cumulated exp=00:07:50  phot=000000276671 efficiency=100 %  disk=    0.264 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 20:22:27
+Was acquired at 20:22:38: ch=0025  cy=0002 QGval=0119  ph=00006039  fr=01000
+Cumulated exp=00:08:00  phot=000000282710 efficiency=100 %  disk=    0.270 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 20:22:38
+Was acquired at 20:22:48: ch=0024  cy=0002 QGval=0099  ph=00005917  fr=01000
+Cumulated exp=00:08:10  phot=000000288627 efficiency=100 %  disk=    0.275 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 20:22:48
+Was acquired at 20:22:59: ch=0023  cy=0002 QGval=0079  ph=00006206  fr=01000
+Cumulated exp=00:08:20  phot=000000294833 efficiency=100 %  disk=    0.281 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 20:22:59
+Was acquired at 20:23:09: ch=0022  cy=0002 QGval=0059  ph=00006170  fr=01000
+Cumulated exp=00:08:30  phot=000000301003 efficiency=100 %  disk=    0.287 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 20:23:09
+Was acquired at 20:23:20: ch=0021  cy=0002 QGval=0039  ph=00006064  fr=01000
+Cumulated exp=00:08:40  phot=000000307067 efficiency=100 %  disk=    0.293 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 20:23:20
+Was acquired at 20:23:30: ch=0020  cy=0002 QGval=0019  ph=00005875  fr=01000
+Cumulated exp=00:08:50  phot=000000312942 efficiency=100 %  disk=    0.298 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 20:23:30
+Was acquired at 20:23:40: ch=0019  cy=0002 QGval=0000  ph=00005795  fr=01000
+Cumulated exp=00:09:00  phot=000000318737 efficiency=100 %  disk=    0.304 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 20:23:40
+Was acquired at 20:23:51: ch=0018  cy=0002 QGval=-019  ph=00005602  fr=01000
+Cumulated exp=00:09:10  phot=000000324339 efficiency=100 %  disk=    0.309 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 20:23:51
+Was acquired at 20:24:01: ch=0017  cy=0002 QGval=-039  ph=00005810  fr=01000
+Cumulated exp=00:09:20  phot=000000330149 efficiency=100 %  disk=    0.315 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 20:24:01
+Was acquired at 20:24:12: ch=0016  cy=0002 QGval=-059  ph=00005914  fr=01000
+Cumulated exp=00:09:30  phot=000000336063 efficiency=100 %  disk=    0.320 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 20:24:12
+Was acquired at 20:24:22: ch=0015  cy=0002 QGval=-079  ph=00005715  fr=01000
+Cumulated exp=00:09:40  phot=000000341778 efficiency=100 %  disk=    0.326 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 20:24:22
+Was acquired at 20:24:33: ch=0014  cy=0002 QGval=-099  ph=00005701  fr=01000
+Cumulated exp=00:09:50  phot=000000347479 efficiency=100 %  disk=    0.331 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 20:24:33
+Was acquired at 20:24:43: ch=0013  cy=0002 QGval=-119  ph=00005784  fr=01000
+Cumulated exp=00:10:00  phot=000000353263 efficiency=100 %  disk=    0.337 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 20:24:43
+Was acquired at 20:24:54: ch=0012  cy=0002 QGval=-139  ph=00005719  fr=01000
+Cumulated exp=00:10:10  phot=000000358982 efficiency=100 %  disk=    0.342 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 20:24:54
+Was acquired at 20:25:04: ch=0011  cy=0002 QGval=-159  ph=00005820  fr=01000
+Cumulated exp=00:10:20  phot=000000364802 efficiency=100 %  disk=    0.348 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 20:25:04
+Was acquired at 20:25:15: ch=0010  cy=0002 QGval=-179  ph=00005622  fr=01000
+Cumulated exp=00:10:30  phot=000000370424 efficiency=100 %  disk=    0.353 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 20:25:15
+Was acquired at 20:25:25: ch=0009  cy=0002 QGval=-199  ph=00005727  fr=01000
+Cumulated exp=00:10:40  phot=000000376151 efficiency=100 %  disk=    0.359 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 20:25:25
+Was acquired at 20:25:35: ch=0008  cy=0002 QGval=-219  ph=00005495  fr=01000
+Cumulated exp=00:10:50  phot=000000381646 efficiency=100 %  disk=    0.364 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 20:25:35
+Was acquired at 20:25:46: ch=0007  cy=0002 QGval=-239  ph=00005652  fr=01000
+Cumulated exp=00:11:00  phot=000000387298 efficiency=100 %  disk=    0.369 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 20:25:46
+Was acquired at 20:25:56: ch=0006  cy=0002 QGval=-259  ph=00005978  fr=01000
+Cumulated exp=00:11:10  phot=000000393276 efficiency=100 %  disk=    0.375 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 20:25:56
+Was acquired at 20:26:07: ch=0005  cy=0002 QGval=-279  ph=00005904  fr=01000
+Cumulated exp=00:11:20  phot=000000399180 efficiency=100 %  disk=    0.381 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 20:26:07
+Was acquired at 20:26:17: ch=0004  cy=0002 QGval=-299  ph=00005632  fr=01000
+Cumulated exp=00:11:30  phot=000000404812 efficiency=100 %  disk=    0.386 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 20:26:17
+Was acquired at 20:26:28: ch=0003  cy=0002 QGval=-319  ph=00005658  fr=01000
+Cumulated exp=00:11:40  phot=000000410470 efficiency=100 %  disk=    0.391 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 20:26:28
+Was acquired at 20:26:38: ch=0002  cy=0002 QGval=-339  ph=00005562  fr=01000
+Cumulated exp=00:11:50  phot=000000416032 efficiency=100 %  disk=    0.397 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 20:26:38
+Was acquired at 20:26:48: ch=0001  cy=0002 QGval=-359  ph=00005458  fr=01000
+Cumulated exp=00:12:00  phot=000000421490 efficiency=100 %  disk=    0.402 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 20:26:48
+Was acquired at 20:26:59: ch=0001  cy=0003 QGval=-359  ph=00005844  fr=01000
+Cumulated exp=00:12:10  phot=000000427334 efficiency=100 %  disk=    0.408 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 20:26:59
+Was acquired at 20:27:09: ch=0002  cy=0003 QGval=-339  ph=00005681  fr=01000
+Cumulated exp=00:12:20  phot=000000433015 efficiency=100 %  disk=    0.413 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 20:27:09
+Was acquired at 20:27:20: ch=0003  cy=0003 QGval=-319  ph=00005488  fr=01000
+Cumulated exp=00:12:30  phot=000000438503 efficiency=100 %  disk=    0.418 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 20:27:20
+Was acquired at 20:27:30: ch=0004  cy=0003 QGval=-299  ph=00005662  fr=01000
+Cumulated exp=00:12:40  phot=000000444165 efficiency=100 %  disk=    0.424 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 20:27:30
+Was acquired at 20:27:41: ch=0005  cy=0003 QGval=-279  ph=00005682  fr=01000
+Cumulated exp=00:12:50  phot=000000449847 efficiency=100 %  disk=    0.429 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 20:27:41
+Was acquired at 20:27:51: ch=0006  cy=0003 QGval=-259  ph=00005611  fr=01000
+Cumulated exp=00:13:00  phot=000000455458 efficiency=100 %  disk=    0.434 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 20:27:51
+Was acquired at 20:28:02: ch=0007  cy=0003 QGval=-239  ph=00005536  fr=01000
+Cumulated exp=00:13:10  phot=000000460994 efficiency=100 %  disk=    0.440 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 20:28:02
+Was acquired at 20:28:12: ch=0008  cy=0003 QGval=-219  ph=00005534  fr=01000
+Cumulated exp=00:13:20  phot=000000466528 efficiency=100 %  disk=    0.445 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 20:28:12
+Was acquired at 20:28:22: ch=0009  cy=0003 QGval=-199  ph=00005685  fr=01000
+Cumulated exp=00:13:30  phot=000000472213 efficiency=100 %  disk=    0.450 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 20:28:22
+Was acquired at 20:28:33: ch=0010  cy=0003 QGval=-179  ph=00005703  fr=01000
+Cumulated exp=00:13:40  phot=000000477916 efficiency=100 %  disk=    0.456 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 20:28:33
+Was acquired at 20:28:43: ch=0011  cy=0003 QGval=-159  ph=00005720  fr=01000
+Cumulated exp=00:13:50  phot=000000483636 efficiency=100 %  disk=    0.461 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 20:28:43
+Was acquired at 20:28:54: ch=0012  cy=0003 QGval=-139  ph=00005430  fr=01000
+Cumulated exp=00:14:00  phot=000000489066 efficiency=100 %  disk=    0.466 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 20:28:54
+Was acquired at 20:29:04: ch=0013  cy=0003 QGval=-119  ph=00005474  fr=01000
+Cumulated exp=00:14:10  phot=000000494540 efficiency=100 %  disk=    0.472 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 20:29:04
+Was acquired at 20:29:15: ch=0014  cy=0003 QGval=-099  ph=00005692  fr=01000
+Cumulated exp=00:14:20  phot=000000500232 efficiency=100 %  disk=    0.477 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 20:29:15
+Was acquired at 20:29:25: ch=0015  cy=0003 QGval=-079  ph=00005792  fr=01000
+Cumulated exp=00:14:30  phot=000000506024 efficiency=100 %  disk=    0.483 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 20:29:25
+Was acquired at 20:29:36: ch=0016  cy=0003 QGval=-059  ph=00005488  fr=01000
+Cumulated exp=00:14:40  phot=000000511512 efficiency=100 %  disk=    0.488 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 20:29:36
+Was acquired at 20:29:46: ch=0017  cy=0003 QGval=-039  ph=00005488  fr=01000
+Cumulated exp=00:14:50  phot=000000517000 efficiency=100 %  disk=    0.493 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 20:29:46
+Was acquired at 20:29:56: ch=0018  cy=0003 QGval=-019  ph=00005605  fr=01000
+Cumulated exp=00:15:00  phot=000000522605 efficiency=100 %  disk=    0.498 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 20:29:56
+Was acquired at 20:30:07: ch=0019  cy=0003 QGval=0000  ph=00005643  fr=01000
+Cumulated exp=00:15:10  phot=000000528248 efficiency=100 %  disk=    0.504 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 20:30:07
+Was acquired at 20:30:17: ch=0020  cy=0003 QGval=0019  ph=00005533  fr=01000
+Cumulated exp=00:15:20  phot=000000533781 efficiency=100 %  disk=    0.509 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 20:30:17
+Was acquired at 20:30:28: ch=0021  cy=0003 QGval=0039  ph=00005609  fr=01000
+Cumulated exp=00:15:30  phot=000000539390 efficiency=100 %  disk=    0.514 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 20:30:28
+Was acquired at 20:30:38: ch=0022  cy=0003 QGval=0059  ph=00005836  fr=01000
+Cumulated exp=00:15:40  phot=000000545226 efficiency=100 %  disk=    0.520 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 20:30:38
+Was acquired at 20:30:49: ch=0023  cy=0003 QGval=0079  ph=00005512  fr=01000
+Cumulated exp=00:15:50  phot=000000550738 efficiency=100 %  disk=    0.525 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 20:30:49
+Was acquired at 20:30:59: ch=0024  cy=0003 QGval=0099  ph=00005629  fr=01000
+Cumulated exp=00:16:00  phot=000000556367 efficiency=100 %  disk=    0.531 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 20:30:59
+Was acquired at 20:31:10: ch=0025  cy=0003 QGval=0119  ph=00005602  fr=01000
+Cumulated exp=00:16:10  phot=000000561969 efficiency=100 %  disk=    0.536 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 20:31:10
+Was acquired at 20:31:20: ch=0026  cy=0003 QGval=0139  ph=00005393  fr=01000
+Cumulated exp=00:16:20  phot=000000567362 efficiency=100 %  disk=    0.541 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 20:31:20
+Was acquired at 20:31:30: ch=0027  cy=0003 QGval=0159  ph=00005398  fr=01000
+Cumulated exp=00:16:30  phot=000000572760 efficiency=100 %  disk=    0.546 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 20:31:30
+Was acquired at 20:31:41: ch=0028  cy=0003 QGval=0179  ph=00005611  fr=01000
+Cumulated exp=00:16:40  phot=000000578371 efficiency=100 %  disk=    0.552 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 20:31:41
+Was acquired at 20:31:51: ch=0029  cy=0003 QGval=0199  ph=00005399  fr=01000
+Cumulated exp=00:16:50  phot=000000583770 efficiency=100 %  disk=    0.557 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 20:31:51
+Was acquired at 20:32:02: ch=0030  cy=0003 QGval=0219  ph=00005572  fr=01000
+Cumulated exp=00:17:00  phot=000000589342 efficiency=100 %  disk=    0.562 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 20:32:02
+Was acquired at 20:32:12: ch=0031  cy=0003 QGval=0239  ph=00005714  fr=01000
+Cumulated exp=00:17:10  phot=000000595056 efficiency=100 %  disk=    0.567 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 20:32:12
+Was acquired at 20:32:23: ch=0032  cy=0003 QGval=0259  ph=00005740  fr=01000
+Cumulated exp=00:17:20  phot=000000600796 efficiency=100 %  disk=    0.573 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 20:32:23
+Was acquired at 20:32:33: ch=0033  cy=0003 QGval=0279  ph=00005666  fr=01000
+Cumulated exp=00:17:30  phot=000000606462 efficiency=100 %  disk=    0.578 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 20:32:33
+Was acquired at 20:32:44: ch=0034  cy=0003 QGval=0299  ph=00006280  fr=01000
+Cumulated exp=00:17:40  phot=000000612742 efficiency=100 %  disk=    0.584 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 20:32:44
+Was acquired at 20:32:54: ch=0035  cy=0003 QGval=0319  ph=00005776  fr=01000
+Cumulated exp=00:17:50  phot=000000618518 efficiency=100 %  disk=    0.590 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 20:32:54
+Was acquired at 20:33:05: ch=0036  cy=0003 QGval=0339  ph=00005466  fr=01000
+Cumulated exp=00:18:00  phot=000000623984 efficiency=100 %  disk=    0.595 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 20:33:05
+Was acquired at 20:33:15: ch=0036  cy=0004 QGval=0339  ph=00005704  fr=01000
+Cumulated exp=00:18:10  phot=000000629688 efficiency=100 %  disk=    0.601 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 20:33:15
+Was acquired at 20:33:25: ch=0035  cy=0004 QGval=0319  ph=00005727  fr=01000
+Cumulated exp=00:18:20  phot=000000635415 efficiency=100 %  disk=    0.606 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 20:33:25
+Was acquired at 20:33:36: ch=0034  cy=0004 QGval=0299  ph=00006028  fr=01000
+Cumulated exp=00:18:30  phot=000000641443 efficiency=100 %  disk=    0.612 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 20:33:36
+Was acquired at 20:33:47: ch=0033  cy=0004 QGval=0279  ph=00005715  fr=01000
+Cumulated exp=00:18:40  phot=000000647158 efficiency=100 %  disk=    0.617 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 20:33:47
+Was acquired at 20:33:57: ch=0032  cy=0004 QGval=0259  ph=00005665  fr=01000
+Cumulated exp=00:18:50  phot=000000652823 efficiency=100 %  disk=    0.623 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 20:33:57
+Was acquired at 20:34:08: ch=0031  cy=0004 QGval=0239  ph=00005761  fr=01000
+Cumulated exp=00:19:00  phot=000000658584 efficiency=100 %  disk=    0.628 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 20:34:08
+Was acquired at 20:34:18: ch=0030  cy=0004 QGval=0219  ph=00005885  fr=01000
+Cumulated exp=00:19:10  phot=000000664469 efficiency=100 %  disk=    0.634 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 20:34:18
+Was acquired at 20:34:28: ch=0029  cy=0004 QGval=0199  ph=00005991  fr=01000
+Cumulated exp=00:19:20  phot=000000670460 efficiency=100 %  disk=    0.639 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 20:34:28
+Was acquired at 20:34:39: ch=0028  cy=0004 QGval=0179  ph=00005961  fr=01000
+Cumulated exp=00:19:30  phot=000000676421 efficiency=100 %  disk=    0.645 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 20:34:39
+Was acquired at 20:34:49: ch=0027  cy=0004 QGval=0159  ph=00005723  fr=01000
+Cumulated exp=00:19:40  phot=000000682144 efficiency=100 %  disk=    0.651 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 20:34:49
+Was acquired at 20:35:00: ch=0026  cy=0004 QGval=0139  ph=00006171  fr=01000
+Cumulated exp=00:19:50  phot=000000688315 efficiency=100 %  disk=    0.656 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 20:35:00
+Was acquired at 20:35:11: ch=0025  cy=0004 QGval=0119  ph=00006081  fr=01000
+Cumulated exp=00:20:00  phot=000000694396 efficiency=100 %  disk=    0.662 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 20:35:11
+Was acquired at 20:35:21: ch=0024  cy=0004 QGval=0099  ph=00006146  fr=01000
+Cumulated exp=00:20:10  phot=000000700542 efficiency=100 %  disk=    0.668 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 20:35:21
+Was acquired at 20:35:32: ch=0023  cy=0004 QGval=0079  ph=00006077  fr=01000
+Cumulated exp=00:20:20  phot=000000706619 efficiency=100 %  disk=    0.674 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 20:35:32
+Was acquired at 20:35:42: ch=0022  cy=0004 QGval=0059  ph=00006239  fr=01000
+Cumulated exp=00:20:30  phot=000000712858 efficiency=100 %  disk=    0.680 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 20:35:42
+Was acquired at 20:35:53: ch=0021  cy=0004 QGval=0039  ph=00006263  fr=01000
+Cumulated exp=00:20:40  phot=000000719121 efficiency=100 %  disk=    0.686 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 20:35:53
+Was acquired at 20:36:04: ch=0020  cy=0004 QGval=0019  ph=00006129  fr=01000
+Cumulated exp=00:20:50  phot=000000725250 efficiency=100 %  disk=    0.692 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 20:36:04
+Was acquired at 20:36:14: ch=0019  cy=0004 QGval=0000  ph=00005903  fr=01000
+Cumulated exp=00:21:00  phot=000000731153 efficiency=100 %  disk=    0.697 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 20:36:14
+Was acquired at 20:36:25: ch=0018  cy=0004 QGval=-019  ph=00005934  fr=01000
+Cumulated exp=00:21:10  phot=000000737087 efficiency=100 %  disk=    0.703 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 20:36:25
+Was acquired at 20:36:35: ch=0017  cy=0004 QGval=-039  ph=00005911  fr=01000
+Cumulated exp=00:21:20  phot=000000742998 efficiency=100 %  disk=    0.709 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 20:36:35
+Was acquired at 20:36:45: ch=0016  cy=0004 QGval=-059  ph=00005744  fr=01000
+Cumulated exp=00:21:30  phot=000000748742 efficiency=100 %  disk=    0.714 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 20:36:45
+Was acquired at 20:36:56: ch=0015  cy=0004 QGval=-079  ph=00005801  fr=01000
+Cumulated exp=00:21:40  phot=000000754543 efficiency=100 %  disk=    0.720 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 20:36:56
+Was acquired at 20:37:06: ch=0014  cy=0004 QGval=-099  ph=00005895  fr=01000
+Cumulated exp=00:21:50  phot=000000760438 efficiency=100 %  disk=    0.725 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 20:37:06
+Was acquired at 20:37:17: ch=0013  cy=0004 QGval=-119  ph=00005883  fr=01000
+Cumulated exp=00:22:00  phot=000000766321 efficiency=100 %  disk=    0.731 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 20:37:17
+Was acquired at 20:37:27: ch=0012  cy=0004 QGval=-139  ph=00005763  fr=01000
+Cumulated exp=00:22:10  phot=000000772084 efficiency=100 %  disk=    0.736 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 20:37:27
+Was acquired at 20:37:38: ch=0011  cy=0004 QGval=-159  ph=00005702  fr=01000
+Cumulated exp=00:22:20  phot=000000777786 efficiency=100 %  disk=    0.742 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 20:37:38
+Was acquired at 20:37:48: ch=0010  cy=0004 QGval=-179  ph=00005905  fr=01000
+Cumulated exp=00:22:30  phot=000000783691 efficiency=100 %  disk=    0.747 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 20:37:48
+Was acquired at 20:37:58: ch=0009  cy=0004 QGval=-199  ph=00005660  fr=01000
+Cumulated exp=00:22:40  phot=000000789351 efficiency=100 %  disk=    0.753 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 20:37:58
+Was acquired at 20:38:09: ch=0008  cy=0004 QGval=-219  ph=00005818  fr=01000
+Cumulated exp=00:22:50  phot=000000795169 efficiency=100 %  disk=    0.758 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 20:38:09
+Was acquired at 20:38:19: ch=0007  cy=0004 QGval=-239  ph=00006030  fr=01000
+Cumulated exp=00:23:00  phot=000000801199 efficiency=100 %  disk=    0.764 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 20:38:19
+Was acquired at 20:38:30: ch=0006  cy=0004 QGval=-259  ph=00005816  fr=01000
+Cumulated exp=00:23:10  phot=000000807015 efficiency=100 %  disk=    0.770 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 20:38:30
+Was acquired at 20:38:40: ch=0005  cy=0004 QGval=-279  ph=00005952  fr=01000
+Cumulated exp=00:23:20  phot=000000812967 efficiency=100 %  disk=    0.775 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 20:38:40
+Was acquired at 20:38:51: ch=0004  cy=0004 QGval=-299  ph=00005912  fr=01000
+Cumulated exp=00:23:30  phot=000000818879 efficiency=100 %  disk=    0.781 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 20:38:51
+Was acquired at 20:39:01: ch=0003  cy=0004 QGval=-319  ph=00005711  fr=01000
+Cumulated exp=00:23:40  phot=000000824590 efficiency=100 %  disk=    0.786 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 20:39:01
+Was acquired at 20:39:11: ch=0002  cy=0004 QGval=-339  ph=00005734  fr=01000
+Cumulated exp=00:23:50  phot=000000830324 efficiency=100 %  disk=    0.792 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 20:39:11
+Was acquired at 20:39:22: ch=0001  cy=0004 QGval=-359  ph=00005749  fr=01000
+Cumulated exp=00:24:00  phot=000000836073 efficiency=100 %  disk=    0.797 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 20:39:22
+Was acquired at 20:39:32: ch=0001  cy=0005 QGval=-359  ph=00005667  fr=01000
+Cumulated exp=00:24:10  phot=000000841740 efficiency=100 %  disk=    0.803 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 20:39:32
+Was acquired at 20:39:43: ch=0002  cy=0005 QGval=-339  ph=00005903  fr=01000
+Cumulated exp=00:24:20  phot=000000847643 efficiency=100 %  disk=    0.808 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 20:39:43
+Was acquired at 20:39:53: ch=0003  cy=0005 QGval=-319  ph=00005866  fr=01000
+Cumulated exp=00:24:30  phot=000000853509 efficiency=100 %  disk=    0.814 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 20:39:53
+Was acquired at 20:40:04: ch=0004  cy=0005 QGval=-299  ph=00005957  fr=01000
+Cumulated exp=00:24:40  phot=000000859466 efficiency=100 %  disk=    0.820 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 20:40:04
+Was acquired at 20:40:14: ch=0005  cy=0005 QGval=-279  ph=00006076  fr=01000
+Cumulated exp=00:24:50  phot=000000865542 efficiency=100 %  disk=    0.825 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 20:40:14
+Was acquired at 20:40:25: ch=0006  cy=0005 QGval=-259  ph=00005773  fr=01000
+Cumulated exp=00:25:00  phot=000000871315 efficiency=100 %  disk=    0.831 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 20:40:25
+Was acquired at 20:40:35: ch=0007  cy=0005 QGval=-239  ph=00005929  fr=01000
+Cumulated exp=00:25:10  phot=000000877244 efficiency=100 %  disk=    0.837 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 20:40:35
+Was acquired at 20:40:45: ch=0008  cy=0005 QGval=-219  ph=00005872  fr=01000
+Cumulated exp=00:25:20  phot=000000883116 efficiency=100 %  disk=    0.842 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 20:40:45
+Was acquired at 20:40:56: ch=0009  cy=0005 QGval=-199  ph=00005561  fr=01000
+Cumulated exp=00:25:30  phot=000000888677 efficiency=100 %  disk=    0.848 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 20:40:56
+Was acquired at 20:41:07: ch=0010  cy=0005 QGval=-179  ph=00005557  fr=01000
+Cumulated exp=00:25:40  phot=000000894234 efficiency=100 %  disk=    0.853 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 20:41:07
+Was acquired at 20:41:17: ch=0011  cy=0005 QGval=-159  ph=00005786  fr=01000
+Cumulated exp=00:25:50  phot=000000900020 efficiency=100 %  disk=    0.858 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 20:41:17
+Was acquired at 20:41:28: ch=0012  cy=0005 QGval=-139  ph=00005978  fr=01000
+Cumulated exp=00:26:00  phot=000000905998 efficiency=100 %  disk=    0.864 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 20:41:28
+Was acquired at 20:41:38: ch=0013  cy=0005 QGval=-119  ph=00005870  fr=01000
+Cumulated exp=00:26:10  phot=000000911868 efficiency=100 %  disk=    0.870 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 20:41:38
+Was acquired at 20:41:49: ch=0014  cy=0005 QGval=-099  ph=00005479  fr=01000
+Cumulated exp=00:26:20  phot=000000917347 efficiency=100 %  disk=    0.875 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 20:41:49
+Was acquired at 20:41:59: ch=0015  cy=0005 QGval=-079  ph=00005598  fr=01000
+Cumulated exp=00:26:30  phot=000000922945 efficiency=100 %  disk=    0.880 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 20:41:59
+Was acquired at 20:42:09: ch=0016  cy=0005 QGval=-059  ph=00005817  fr=01000
+Cumulated exp=00:26:40  phot=000000928762 efficiency=100 %  disk=    0.886 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 20:42:09
+Was acquired at 20:42:20: ch=0017  cy=0005 QGval=-039  ph=00005928  fr=01000
+Cumulated exp=00:26:50  phot=000000934690 efficiency=100 %  disk=    0.891 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 20:42:20
+Was acquired at 20:42:30: ch=0018  cy=0005 QGval=-019  ph=00005728  fr=01000
+Cumulated exp=00:27:00  phot=000000940418 efficiency=100 %  disk=    0.897 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 20:42:30
+Was acquired at 20:42:41: ch=0019  cy=0005 QGval=0000  ph=00005890  fr=01000
+Cumulated exp=00:27:10  phot=000000946308 efficiency=100 %  disk=    0.902 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 20:42:41
+Was acquired at 20:42:51: ch=0020  cy=0005 QGval=0019  ph=00006020  fr=01000
+Cumulated exp=00:27:20  phot=000000952328 efficiency=100 %  disk=    0.908 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 20:42:51
+Was acquired at 20:43:02: ch=0021  cy=0005 QGval=0039  ph=00005929  fr=01000
+Cumulated exp=00:27:30  phot=000000958257 efficiency=100 %  disk=    0.914 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 20:43:02
+Was acquired at 20:43:12: ch=0022  cy=0005 QGval=0059  ph=00006160  fr=01000
+Cumulated exp=00:27:40  phot=000000964417 efficiency=100 %  disk=    0.920 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 20:43:12
+Was acquired at 20:43:23: ch=0023  cy=0005 QGval=0079  ph=00006107  fr=01000
+Cumulated exp=00:27:50  phot=000000970524 efficiency=100 %  disk=    0.926 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 20:43:23
+Was acquired at 20:43:33: ch=0024  cy=0005 QGval=0099  ph=00006028  fr=01000
+Cumulated exp=00:28:00  phot=000000976552 efficiency=100 %  disk=    0.931 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 20:43:33
+Was acquired at 20:43:44: ch=0025  cy=0005 QGval=0119  ph=00006118  fr=01000
+Cumulated exp=00:28:10  phot=000000982670 efficiency=100 %  disk=    0.937 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 20:43:44
+Was acquired at 20:43:54: ch=0026  cy=0005 QGval=0139  ph=00005831  fr=01000
+Cumulated exp=00:28:20  phot=000000988501 efficiency=100 %  disk=    0.943 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 20:43:54
+Was acquired at 20:44:04: ch=0027  cy=0005 QGval=0159  ph=00005959  fr=01000
+Cumulated exp=00:28:30  phot=000000994460 efficiency=100 %  disk=    0.948 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 20:44:04
+Was acquired at 20:44:15: ch=0028  cy=0005 QGval=0179  ph=00005911  fr=01000
+Cumulated exp=00:28:40  phot=000001000371 efficiency=100 %  disk=    0.954 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 20:44:15
+Was acquired at 20:44:25: ch=0029  cy=0005 QGval=0199  ph=00005847  fr=01000
+Cumulated exp=00:28:50  phot=000001006218 efficiency=100 %  disk=    0.960 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 20:44:25
+Was acquired at 20:44:36: ch=0030  cy=0005 QGval=0219  ph=00005783  fr=01000
+Cumulated exp=00:29:00  phot=000001012001 efficiency=100 %  disk=    0.965 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 20:44:36
+Was acquired at 20:44:46: ch=0031  cy=0005 QGval=0239  ph=00005674  fr=01000
+Cumulated exp=00:29:10  phot=000001017675 efficiency=100 %  disk=    0.971 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 20:44:46
+Was acquired at 20:44:57: ch=0032  cy=0005 QGval=0259  ph=00005809  fr=01000
+Cumulated exp=00:29:20  phot=000001023484 efficiency=100 %  disk=    0.976 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 20:44:57
+Was acquired at 20:45:07: ch=0033  cy=0005 QGval=0279  ph=00005748  fr=01000
+Cumulated exp=00:29:30  phot=000001029232 efficiency=100 %  disk=    0.982 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 20:45:07
+Was acquired at 20:45:17: ch=0034  cy=0005 QGval=0299  ph=00005841  fr=01000
+Cumulated exp=00:29:40  phot=000001035073 efficiency=100 %  disk=    0.987 Mb
+THT=01546v  shutter= undef  Ope01546  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 20:45:17
+Was acquired at 20:45:28: ch=0035  cy=0005 QGval=0319  ph=00005808  fr=01000
+Cumulated exp=00:29:50  phot=000001040881 efficiency=100 %  disk=    0.993 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 20:45:28
+Was acquired at 20:45:38: ch=0036  cy=0005 QGval=0339  ph=00005851  fr=01000
+Cumulated exp=00:30:00  phot=000001046732 efficiency=100 %  disk=    0.998 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 20:45:38
+Was acquired at 20:45:49: ch=0036  cy=0006 QGval=0339  ph=00005792  fr=01000
+Cumulated exp=00:30:10  phot=000001052524 efficiency=100 %  disk=    1.004 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 20:45:49
+Was acquired at 20:45:59: ch=0035  cy=0006 QGval=0319  ph=00006089  fr=01000
+Cumulated exp=00:30:20  phot=000001058613 efficiency=100 %  disk=    1.010 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 20:45:59
+Was acquired at 20:46:10: ch=0034  cy=0006 QGval=0299  ph=00005989  fr=01000
+Cumulated exp=00:30:30  phot=000001064602 efficiency=100 %  disk=    1.015 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 20:46:10
+Was acquired at 20:46:20: ch=0033  cy=0006 QGval=0279  ph=00006055  fr=01000
+Cumulated exp=00:30:40  phot=000001070657 efficiency=100 %  disk=    1.021 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 20:46:20
+Was acquired at 20:46:31: ch=0032  cy=0006 QGval=0259  ph=00005794  fr=01000
+Cumulated exp=00:30:50  phot=000001076451 efficiency=100 %  disk=    1.027 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 20:46:31
+Was acquired at 20:46:41: ch=0031  cy=0006 QGval=0239  ph=00005746  fr=01000
+Cumulated exp=00:31:00  phot=000001082197 efficiency=100 %  disk=    1.032 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 20:46:41
+Was acquired at 20:46:52: ch=0030  cy=0006 QGval=0219  ph=00005831  fr=01000
+Cumulated exp=00:31:10  phot=000001088028 efficiency=100 %  disk=    1.038 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 20:46:52
+Was acquired at 20:47:02: ch=0029  cy=0006 QGval=0199  ph=00005870  fr=01000
+Cumulated exp=00:31:20  phot=000001093898 efficiency=100 %  disk=    1.043 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 20:47:02
+Was acquired at 20:47:12: ch=0028  cy=0006 QGval=0179  ph=00006375  fr=01000
+Cumulated exp=00:31:30  phot=000001100273 efficiency=100 %  disk=    1.049 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 20:47:12
+Was acquired at 20:47:23: ch=0027  cy=0006 QGval=0159  ph=00006514  fr=01000
+Cumulated exp=00:31:40  phot=000001106787 efficiency=100 %  disk=    1.056 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 20:47:23
+Was acquired at 20:47:33: ch=0026  cy=0006 QGval=0139  ph=00006093  fr=01000
+Cumulated exp=00:31:50  phot=000001112880 efficiency=100 %  disk=    1.061 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 20:47:33
+Was acquired at 20:47:44: ch=0025  cy=0006 QGval=0119  ph=00006182  fr=01000
+Cumulated exp=00:32:00  phot=000001119062 efficiency=100 %  disk=    1.067 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 20:47:44
+Was acquired at 20:47:54: ch=0024  cy=0006 QGval=0099  ph=00005888  fr=01000
+Cumulated exp=00:32:10  phot=000001124950 efficiency=100 %  disk=    1.073 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 20:47:54
+Was acquired at 20:48:05: ch=0023  cy=0006 QGval=0079  ph=00006061  fr=01000
+Cumulated exp=00:32:20  phot=000001131011 efficiency=100 %  disk=    1.079 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 20:48:05
+Was acquired at 20:48:15: ch=0022  cy=0006 QGval=0059  ph=00005761  fr=01000
+Cumulated exp=00:32:30  phot=000001136772 efficiency=100 %  disk=    1.084 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 20:48:15
+Was acquired at 20:48:25: ch=0021  cy=0006 QGval=0039  ph=00005983  fr=01000
+Cumulated exp=00:32:40  phot=000001142755 efficiency=100 %  disk=    1.090 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 20:48:25
+Was acquired at 20:48:36: ch=0020  cy=0006 QGval=0019  ph=00005981  fr=01000
+Cumulated exp=00:32:50  phot=000001148736 efficiency=100 %  disk=    1.096 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 20:48:36
+Was acquired at 20:48:46: ch=0019  cy=0006 QGval=0000  ph=00006066  fr=01000
+Cumulated exp=00:33:00  phot=000001154802 efficiency=100 %  disk=    1.101 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 20:48:46
+Was acquired at 20:48:57: ch=0018  cy=0006 QGval=-019  ph=00005780  fr=01000
+Cumulated exp=00:33:10  phot=000001160582 efficiency=100 %  disk=    1.107 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 20:48:57
+Was acquired at 20:49:07: ch=0017  cy=0006 QGval=-039  ph=00006113  fr=01000
+Cumulated exp=00:33:20  phot=000001166695 efficiency=100 %  disk=    1.113 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 20:49:07
+Was acquired at 20:49:18: ch=0016  cy=0006 QGval=-059  ph=00006055  fr=01000
+Cumulated exp=00:33:30  phot=000001172750 efficiency=100 %  disk=    1.118 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 20:49:18
+Was acquired at 20:49:28: ch=0015  cy=0006 QGval=-079  ph=00005829  fr=01000
+Cumulated exp=00:33:40  phot=000001178579 efficiency=100 %  disk=    1.124 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 20:49:28
+Was acquired at 20:49:39: ch=0014  cy=0006 QGval=-099  ph=00005985  fr=01000
+Cumulated exp=00:33:50  phot=000001184564 efficiency=100 %  disk=    1.130 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 20:49:39
+Was acquired at 20:49:49: ch=0013  cy=0006 QGval=-119  ph=00005800  fr=01000
+Cumulated exp=00:34:00  phot=000001190364 efficiency=100 %  disk=    1.135 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 20:49:49
+Was acquired at 20:49:59: ch=0012  cy=0006 QGval=-139  ph=00005789  fr=01000
+Cumulated exp=00:34:10  phot=000001196153 efficiency=100 %  disk=    1.141 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 20:49:59
+Was acquired at 20:50:10: ch=0011  cy=0006 QGval=-159  ph=00005613  fr=01000
+Cumulated exp=00:34:20  phot=000001201766 efficiency=100 %  disk=    1.146 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 20:50:10
+Was acquired at 20:50:21: ch=0010  cy=0006 QGval=-179  ph=00005709  fr=01000
+Cumulated exp=00:34:30  phot=000001207475 efficiency=100 %  disk=    1.152 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 20:50:21
+Was acquired at 20:50:31: ch=0009  cy=0006 QGval=-199  ph=00005837  fr=01000
+Cumulated exp=00:34:40  phot=000001213312 efficiency=100 %  disk=    1.157 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 20:50:31
+Was acquired at 20:50:41: ch=0008  cy=0006 QGval=-219  ph=00005571  fr=01000
+Cumulated exp=00:34:50  phot=000001218883 efficiency=100 %  disk=    1.162 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 20:50:41
+Was acquired at 20:50:52: ch=0007  cy=0006 QGval=-239  ph=00005704  fr=01000
+Cumulated exp=00:35:00  phot=000001224587 efficiency=100 %  disk=    1.168 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 20:50:52
+Was acquired at 20:51:02: ch=0006  cy=0006 QGval=-259  ph=00005871  fr=01000
+Cumulated exp=00:35:10  phot=000001230458 efficiency=100 %  disk=    1.173 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 20:51:02
+Was acquired at 20:51:13: ch=0005  cy=0006 QGval=-279  ph=00005902  fr=01000
+Cumulated exp=00:35:20  phot=000001236360 efficiency=100 %  disk=    1.179 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 20:51:13
+Was acquired at 20:51:23: ch=0004  cy=0006 QGval=-299  ph=00005702  fr=01000
+Cumulated exp=00:35:30  phot=000001242062 efficiency=100 %  disk=    1.185 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 20:51:23
+Was acquired at 20:51:34: ch=0003  cy=0006 QGval=-319  ph=00005825  fr=01000
+Cumulated exp=00:35:40  phot=000001247887 efficiency=100 %  disk=    1.190 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 20:51:34
+Was acquired at 20:51:44: ch=0002  cy=0006 QGval=-339  ph=00005805  fr=01000
+Cumulated exp=00:35:50  phot=000001253692 efficiency=100 %  disk=    1.196 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 20:51:44
+Was acquired at 20:51:55: ch=0001  cy=0006 QGval=-359  ph=00005667  fr=01000
+Cumulated exp=00:36:00  phot=000001259359 efficiency=100 %  disk=    1.201 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 20:51:55
+Was acquired at 20:52:05: ch=0001  cy=0007 QGval=-359  ph=00005644  fr=01000
+Cumulated exp=00:36:10  phot=000001265003 efficiency=100 %  disk=    1.206 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 20:52:05
+Was acquired at 20:52:15: ch=0002  cy=0007 QGval=-339  ph=00005967  fr=01000
+Cumulated exp=00:36:20  phot=000001270970 efficiency=100 %  disk=    1.212 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 20:52:15
+Was acquired at 20:52:26: ch=0003  cy=0007 QGval=-319  ph=00005924  fr=01000
+Cumulated exp=00:36:30  phot=000001276894 efficiency=100 %  disk=    1.218 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 20:52:26
+Was acquired at 20:52:36: ch=0004  cy=0007 QGval=-299  ph=00005867  fr=01000
+Cumulated exp=00:36:40  phot=000001282761 efficiency=100 %  disk=    1.223 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 20:52:36
+Was acquired at 20:52:47: ch=0005  cy=0007 QGval=-279  ph=00005791  fr=01000
+Cumulated exp=00:36:50  phot=000001288552 efficiency=100 %  disk=    1.229 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 20:52:47
+Was acquired at 20:52:57: ch=0006  cy=0007 QGval=-259  ph=00005970  fr=01000
+Cumulated exp=00:37:00  phot=000001294522 efficiency=100 %  disk=    1.235 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 20:52:57
+Was acquired at 20:53:08: ch=0007  cy=0007 QGval=-239  ph=00005955  fr=01000
+Cumulated exp=00:37:10  phot=000001300477 efficiency=100 %  disk=    1.240 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 20:53:08
+Was acquired at 20:53:18: ch=0008  cy=0007 QGval=-219  ph=00005653  fr=01000
+Cumulated exp=00:37:20  phot=000001306130 efficiency=100 %  disk=    1.246 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 20:53:18
+Was acquired at 20:53:29: ch=0009  cy=0007 QGval=-199  ph=00005880  fr=01000
+Cumulated exp=00:37:30  phot=000001312010 efficiency=100 %  disk=    1.251 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 20:53:29
+Was acquired at 20:53:39: ch=0010  cy=0007 QGval=-179  ph=00005869  fr=01000
+Cumulated exp=00:37:40  phot=000001317879 efficiency=100 %  disk=    1.257 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 20:53:39
+Was acquired at 20:53:49: ch=0011  cy=0007 QGval=-159  ph=00005874  fr=01000
+Cumulated exp=00:37:50  phot=000001323753 efficiency=100 %  disk=    1.262 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 20:53:49
+Was acquired at 20:54:00: ch=0012  cy=0007 QGval=-139  ph=00005760  fr=01000
+Cumulated exp=00:38:00  phot=000001329513 efficiency=100 %  disk=    1.268 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 20:54:00
+Was acquired at 20:54:10: ch=0013  cy=0007 QGval=-119  ph=00005747  fr=01000
+Cumulated exp=00:38:10  phot=000001335260 efficiency=100 %  disk=    1.273 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 20:54:10
+Was acquired at 20:54:21: ch=0014  cy=0007 QGval=-099  ph=00005693  fr=01000
+Cumulated exp=00:38:20  phot=000001340953 efficiency=100 %  disk=    1.279 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 20:54:21
+Was acquired at 20:54:31: ch=0015  cy=0007 QGval=-079  ph=00005867  fr=01000
+Cumulated exp=00:38:30  phot=000001346820 efficiency=100 %  disk=    1.284 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 20:54:31
+Was acquired at 20:54:42: ch=0016  cy=0007 QGval=-059  ph=00006178  fr=01000
+Cumulated exp=00:38:40  phot=000001352998 efficiency=100 %  disk=    1.290 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 20:54:42
+Was acquired at 20:54:52: ch=0017  cy=0007 QGval=-039  ph=00005969  fr=01000
+Cumulated exp=00:38:50  phot=000001358967 efficiency=100 %  disk=    1.296 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 20:54:52
+Was acquired at 20:55:03: ch=0018  cy=0007 QGval=-019  ph=00005983  fr=01000
+Cumulated exp=00:39:00  phot=000001364950 efficiency=100 %  disk=    1.302 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 20:55:03
+Was acquired at 20:55:13: ch=0019  cy=0007 QGval=0000  ph=00006000  fr=01000
+Cumulated exp=00:39:10  phot=000001370950 efficiency=100 %  disk=    1.307 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 20:55:13
+Was acquired at 20:55:24: ch=0020  cy=0007 QGval=0019  ph=00006170  fr=01000
+Cumulated exp=00:39:20  phot=000001377120 efficiency=100 %  disk=    1.313 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 20:55:24
+Was acquired at 20:55:34: ch=0021  cy=0007 QGval=0039  ph=00006118  fr=01000
+Cumulated exp=00:39:30  phot=000001383238 efficiency=100 %  disk=    1.319 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 20:55:34
+Was acquired at 20:55:45: ch=0022  cy=0007 QGval=0059  ph=00006001  fr=01000
+Cumulated exp=00:39:40  phot=000001389239 efficiency=100 %  disk=    1.325 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 20:55:45
+Was acquired at 20:55:55: ch=0023  cy=0007 QGval=0079  ph=00006038  fr=01000
+Cumulated exp=00:39:50  phot=000001395277 efficiency=100 %  disk=    1.331 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 20:55:55
+Was acquired at 20:56:06: ch=0024  cy=0007 QGval=0099  ph=00005949  fr=01000
+Cumulated exp=00:40:00  phot=000001401226 efficiency=100 %  disk=    1.336 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 20:56:06
+Was acquired at 20:56:16: ch=0025  cy=0007 QGval=0119  ph=00005954  fr=01000
+Cumulated exp=00:40:10  phot=000001407180 efficiency=100 %  disk=    1.342 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 20:56:16
+Was acquired at 20:56:26: ch=0026  cy=0007 QGval=0139  ph=00006049  fr=01000
+Cumulated exp=00:40:20  phot=000001413229 efficiency=100 %  disk=    1.348 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 20:56:26
+Was acquired at 20:56:37: ch=0027  cy=0007 QGval=0159  ph=00005825  fr=01000
+Cumulated exp=00:40:30  phot=000001419054 efficiency=100 %  disk=    1.353 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 20:56:37
+Was acquired at 20:56:47: ch=0028  cy=0007 QGval=0179  ph=00005831  fr=01000
+Cumulated exp=00:40:40  phot=000001424885 efficiency=100 %  disk=    1.359 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 20:56:47
+Was acquired at 20:56:58: ch=0029  cy=0007 QGval=0199  ph=00006449  fr=01000
+Cumulated exp=00:40:50  phot=000001431334 efficiency=100 %  disk=    1.365 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 20:56:58
+Was acquired at 20:57:08: ch=0030  cy=0007 QGval=0219  ph=00005950  fr=01000
+Cumulated exp=00:41:00  phot=000001437284 efficiency=100 %  disk=    1.371 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 20:57:08
+Was acquired at 20:57:19: ch=0031  cy=0007 QGval=0239  ph=00005832  fr=01000
+Cumulated exp=00:41:10  phot=000001443116 efficiency=100 %  disk=    1.376 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 20:57:19
+Was acquired at 20:57:29: ch=0032  cy=0007 QGval=0259  ph=00005780  fr=01000
+Cumulated exp=00:41:20  phot=000001448896 efficiency=100 %  disk=    1.382 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 20:57:29
+Was acquired at 20:57:40: ch=0033  cy=0007 QGval=0279  ph=00005844  fr=01000
+Cumulated exp=00:41:30  phot=000001454740 efficiency=100 %  disk=    1.387 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 20:57:40
+Was acquired at 20:57:50: ch=0034  cy=0007 QGval=0299  ph=00005996  fr=01000
+Cumulated exp=00:41:40  phot=000001460736 efficiency=100 %  disk=    1.393 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 20:57:50
+Was acquired at 20:58:00: ch=0035  cy=0007 QGval=0319  ph=00005833  fr=01000
+Cumulated exp=00:41:50  phot=000001466569 efficiency=100 %  disk=    1.399 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 20:58:00
+Was acquired at 20:58:11: ch=0036  cy=0007 QGval=0339  ph=00005911  fr=01000
+Cumulated exp=00:42:00  phot=000001472480 efficiency=100 %  disk=    1.404 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 20:58:11
+Was acquired at 20:58:21: ch=0036  cy=0008 QGval=0339  ph=00005915  fr=01000
+Cumulated exp=00:42:10  phot=000001478395 efficiency=100 %  disk=    1.410 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 20:58:21
+Was acquired at 20:58:32: ch=0035  cy=0008 QGval=0319  ph=00005891  fr=01000
+Cumulated exp=00:42:20  phot=000001484286 efficiency=100 %  disk=    1.416 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 20:58:32
+Was acquired at 20:58:42: ch=0034  cy=0008 QGval=0299  ph=00005977  fr=01000
+Cumulated exp=00:42:30  phot=000001490263 efficiency=100 %  disk=    1.421 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 20:58:42
+Was acquired at 20:58:53: ch=0033  cy=0008 QGval=0279  ph=00005891  fr=01000
+Cumulated exp=00:42:40  phot=000001496154 efficiency=100 %  disk=    1.427 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 20:58:53
+Was acquired at 20:59:03: ch=0032  cy=0008 QGval=0259  ph=00006062  fr=01000
+Cumulated exp=00:42:50  phot=000001502216 efficiency=100 %  disk=    1.433 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 20:59:03
+Was acquired at 20:59:14: ch=0031  cy=0008 QGval=0239  ph=00006030  fr=01000
+Cumulated exp=00:43:00  phot=000001508246 efficiency=100 %  disk=    1.438 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 20:59:14
+Was acquired at 20:59:24: ch=0030  cy=0008 QGval=0219  ph=00006014  fr=01000
+Cumulated exp=00:43:10  phot=000001514260 efficiency=100 %  disk=    1.444 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 20:59:24
+Was acquired at 20:59:35: ch=0029  cy=0008 QGval=0199  ph=00005826  fr=01000
+Cumulated exp=00:43:20  phot=000001520086 efficiency=100 %  disk=    1.450 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 20:59:35
+Was acquired at 20:59:45: ch=0028  cy=0008 QGval=0179  ph=00006045  fr=01000
+Cumulated exp=00:43:30  phot=000001526131 efficiency=100 %  disk=    1.455 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 20:59:45
+Was acquired at 20:59:56: ch=0027  cy=0008 QGval=0159  ph=00006390  fr=01000
+Cumulated exp=00:43:40  phot=000001532521 efficiency=100 %  disk=    1.462 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 20:59:56
+Was acquired at 21:00:06: ch=0026  cy=0008 QGval=0139  ph=00005951  fr=01000
+Cumulated exp=00:43:50  phot=000001538472 efficiency=100 %  disk=    1.467 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 21:00:06
+Was acquired at 21:00:16: ch=0025  cy=0008 QGval=0119  ph=00006133  fr=01000
+Cumulated exp=00:44:00  phot=000001544605 efficiency=100 %  disk=    1.473 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 21:00:16
+Was acquired at 21:00:27: ch=0024  cy=0008 QGval=0099  ph=00007209  fr=01000
+Cumulated exp=00:44:10  phot=000001551814 efficiency=100 %  disk=    1.480 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 21:00:27
+Was acquired at 21:00:37: ch=0023  cy=0008 QGval=0079  ph=00006071  fr=01000
+Cumulated exp=00:44:20  phot=000001557885 efficiency=100 %  disk=    1.486 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 21:00:37
+Was acquired at 21:00:48: ch=0022  cy=0008 QGval=0059  ph=00006060  fr=01000
+Cumulated exp=00:44:30  phot=000001563945 efficiency=100 %  disk=    1.491 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 21:00:48
+Was acquired at 21:00:58: ch=0021  cy=0008 QGval=0039  ph=00005991  fr=01000
+Cumulated exp=00:44:40  phot=000001569936 efficiency=100 %  disk=    1.497 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 21:00:58
+Was acquired at 21:01:09: ch=0020  cy=0008 QGval=0019  ph=00005905  fr=01000
+Cumulated exp=00:44:50  phot=000001575841 efficiency=100 %  disk=    1.503 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 21:01:09
+Was acquired at 21:01:19: ch=0019  cy=0008 QGval=0000  ph=00005849  fr=01000
+Cumulated exp=00:45:00  phot=000001581690 efficiency=100 %  disk=    1.508 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 21:01:19
+Was acquired at 21:01:30: ch=0018  cy=0008 QGval=-019  ph=00005686  fr=01000
+Cumulated exp=00:45:10  phot=000001587376 efficiency=100 %  disk=    1.514 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 21:01:30
+Was acquired at 21:01:40: ch=0017  cy=0008 QGval=-039  ph=00005734  fr=01000
+Cumulated exp=00:45:20  phot=000001593110 efficiency=100 %  disk=    1.519 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 21:01:40
+Was acquired at 21:01:51: ch=0016  cy=0008 QGval=-059  ph=00005856  fr=01000
+Cumulated exp=00:45:30  phot=000001598966 efficiency=100 %  disk=    1.525 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 21:01:51
+Was acquired at 21:02:01: ch=0015  cy=0008 QGval=-079  ph=00006398  fr=01000
+Cumulated exp=00:45:40  phot=000001605364 efficiency=100 %  disk=    1.531 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 21:02:01
+Was acquired at 21:02:11: ch=0014  cy=0008 QGval=-099  ph=00006470  fr=01000
+Cumulated exp=00:45:50  phot=000001611834 efficiency=100 %  disk=    1.537 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 21:02:11
+Was acquired at 21:02:22: ch=0013  cy=0008 QGval=-119  ph=00006260  fr=01000
+Cumulated exp=00:46:00  phot=000001618094 efficiency=100 %  disk=    1.543 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 21:02:22
+Was acquired at 21:02:32: ch=0012  cy=0008 QGval=-139  ph=00005859  fr=01000
+Cumulated exp=00:46:10  phot=000001623953 efficiency=100 %  disk=    1.549 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 21:02:32
+Was acquired at 21:02:43: ch=0011  cy=0008 QGval=-159  ph=00005847  fr=01000
+Cumulated exp=00:46:20  phot=000001629800 efficiency=100 %  disk=    1.554 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 21:02:43
+Was acquired at 21:02:53: ch=0010  cy=0008 QGval=-179  ph=00005695  fr=01000
+Cumulated exp=00:46:30  phot=000001635495 efficiency=100 %  disk=    1.560 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 21:02:53
+Was acquired at 21:03:04: ch=0009  cy=0008 QGval=-199  ph=00005710  fr=01000
+Cumulated exp=00:46:40  phot=000001641205 efficiency=100 %  disk=    1.565 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 21:03:04
+Was acquired at 21:03:14: ch=0008  cy=0008 QGval=-219  ph=00005930  fr=01000
+Cumulated exp=00:46:50  phot=000001647135 efficiency=100 %  disk=    1.571 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 21:03:14
+Was acquired at 21:03:25: ch=0007  cy=0008 QGval=-239  ph=00005983  fr=01000
+Cumulated exp=00:47:00  phot=000001653118 efficiency=100 %  disk=    1.577 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 21:03:25
+Was acquired at 21:03:35: ch=0006  cy=0008 QGval=-259  ph=00005549  fr=01000
+Cumulated exp=00:47:10  phot=000001658667 efficiency=100 %  disk=    1.582 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 21:03:35
+Was acquired at 21:03:45: ch=0005  cy=0008 QGval=-279  ph=00005767  fr=01000
+Cumulated exp=00:47:20  phot=000001664434 efficiency=100 %  disk=    1.587 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 21:03:45
+Was acquired at 21:03:56: ch=0004  cy=0008 QGval=-299  ph=00006090  fr=01000
+Cumulated exp=00:47:30  phot=000001670524 efficiency=100 %  disk=    1.593 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 21:03:56
+Was acquired at 21:04:06: ch=0003  cy=0008 QGval=-319  ph=00005903  fr=01000
+Cumulated exp=00:47:40  phot=000001676427 efficiency=100 %  disk=    1.599 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 21:04:06
+Was acquired at 21:04:17: ch=0002  cy=0008 QGval=-339  ph=00005783  fr=01000
+Cumulated exp=00:47:50  phot=000001682210 efficiency=100 %  disk=    1.604 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 21:04:17
+Was acquired at 21:04:27: ch=0001  cy=0008 QGval=-359  ph=00005699  fr=01000
+Cumulated exp=00:48:00  phot=000001687909 efficiency=100 %  disk=    1.610 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 21:04:27
+Was acquired at 21:04:38: ch=0001  cy=0009 QGval=-359  ph=00005698  fr=01000
+Cumulated exp=00:48:10  phot=000001693607 efficiency=100 %  disk=    1.615 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 21:04:38
+Was acquired at 21:04:48: ch=0002  cy=0009 QGval=-339  ph=00005762  fr=01000
+Cumulated exp=00:48:20  phot=000001699369 efficiency=100 %  disk=    1.621 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 21:04:48
+Was acquired at 21:04:58: ch=0003  cy=0009 QGval=-319  ph=00005624  fr=01000
+Cumulated exp=00:48:30  phot=000001704993 efficiency=100 %  disk=    1.626 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 21:04:58
+Was acquired at 21:05:09: ch=0004  cy=0009 QGval=-299  ph=00005826  fr=01000
+Cumulated exp=00:48:40  phot=000001710819 efficiency=100 %  disk=    1.632 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 21:05:09
+Was acquired at 21:05:19: ch=0005  cy=0009 QGval=-279  ph=00005886  fr=01000
+Cumulated exp=00:48:50  phot=000001716705 efficiency=100 %  disk=    1.637 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 21:05:19
+Was acquired at 21:05:30: ch=0006  cy=0009 QGval=-259  ph=00005763  fr=01000
+Cumulated exp=00:49:00  phot=000001722468 efficiency=100 %  disk=    1.643 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 21:05:30
+Was acquired at 21:05:40: ch=0007  cy=0009 QGval=-239  ph=00006208  fr=01000
+Cumulated exp=00:49:10  phot=000001728676 efficiency=100 %  disk=    1.649 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 21:05:40
+Was acquired at 21:05:51: ch=0008  cy=0009 QGval=-219  ph=00006259  fr=01000
+Cumulated exp=00:49:20  phot=000001734935 efficiency=100 %  disk=    1.655 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 21:05:51
+Was acquired at 21:06:01: ch=0009  cy=0009 QGval=-199  ph=00005611  fr=01000
+Cumulated exp=00:49:30  phot=000001740546 efficiency=100 %  disk=    1.660 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 21:06:01
+Was acquired at 21:06:12: ch=0010  cy=0009 QGval=-179  ph=00005647  fr=01000
+Cumulated exp=00:49:40  phot=000001746193 efficiency=100 %  disk=    1.665 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 21:06:12
+Was acquired at 21:06:22: ch=0011  cy=0009 QGval=-159  ph=00005978  fr=01000
+Cumulated exp=00:49:50  phot=000001752171 efficiency=100 %  disk=    1.671 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 21:06:22
+Was acquired at 21:06:32: ch=0012  cy=0009 QGval=-139  ph=00005793  fr=01000
+Cumulated exp=00:50:00  phot=000001757964 efficiency=100 %  disk=    1.677 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 21:06:32
+Was acquired at 21:06:43: ch=0013  cy=0009 QGval=-119  ph=00005667  fr=01000
+Cumulated exp=00:50:10  phot=000001763631 efficiency=100 %  disk=    1.682 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 21:06:43
+Was acquired at 21:06:53: ch=0014  cy=0009 QGval=-099  ph=00005842  fr=01000
+Cumulated exp=00:50:20  phot=000001769473 efficiency=100 %  disk=    1.688 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 21:06:53
+Was acquired at 21:07:04: ch=0015  cy=0009 QGval=-079  ph=00005761  fr=01000
+Cumulated exp=00:50:30  phot=000001775234 efficiency=100 %  disk=    1.693 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 21:07:04
+Was acquired at 21:07:14: ch=0016  cy=0009 QGval=-059  ph=00005925  fr=01000
+Cumulated exp=00:50:40  phot=000001781159 efficiency=100 %  disk=    1.699 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 21:07:14
+Was acquired at 21:07:25: ch=0017  cy=0009 QGval=-039  ph=00005581  fr=01000
+Cumulated exp=00:50:50  phot=000001786740 efficiency=100 %  disk=    1.704 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 21:07:25
+Was acquired at 21:07:35: ch=0018  cy=0009 QGval=-019  ph=00005684  fr=01000
+Cumulated exp=00:51:00  phot=000001792424 efficiency=100 %  disk=    1.709 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 21:07:35
+Was acquired at 21:07:46: ch=0019  cy=0009 QGval=0000  ph=00005863  fr=01000
+Cumulated exp=00:51:10  phot=000001798287 efficiency=100 %  disk=    1.715 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 21:07:46
+Was acquired at 21:07:56: ch=0020  cy=0009 QGval=0019  ph=00006087  fr=01000
+Cumulated exp=00:51:20  phot=000001804374 efficiency=100 %  disk=    1.721 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 21:07:56
+Was acquired at 21:08:06: ch=0021  cy=0009 QGval=0039  ph=00006279  fr=01000
+Cumulated exp=00:51:30  phot=000001810653 efficiency=100 %  disk=    1.727 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 21:08:06
+Was acquired at 21:08:17: ch=0022  cy=0009 QGval=0059  ph=00006143  fr=01000
+Cumulated exp=00:51:40  phot=000001816796 efficiency=100 %  disk=    1.733 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 21:08:17
+Was acquired at 21:08:27: ch=0023  cy=0009 QGval=0079  ph=00006327  fr=01000
+Cumulated exp=00:51:50  phot=000001823123 efficiency=100 %  disk=    1.739 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 21:08:27
+Was acquired at 21:08:38: ch=0024  cy=0009 QGval=0099  ph=00005995  fr=01000
+Cumulated exp=00:52:00  phot=000001829118 efficiency=100 %  disk=    1.744 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 21:08:38
+Was acquired at 21:08:48: ch=0025  cy=0009 QGval=0119  ph=00006286  fr=01000
+Cumulated exp=00:52:10  phot=000001835404 efficiency=100 %  disk=    1.750 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 21:08:48
+Was acquired at 21:08:59: ch=0026  cy=0009 QGval=0139  ph=00005959  fr=01000
+Cumulated exp=00:52:20  phot=000001841363 efficiency=100 %  disk=    1.756 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 21:08:59
+Was acquired at 21:09:09: ch=0027  cy=0009 QGval=0159  ph=00006111  fr=01000
+Cumulated exp=00:52:30  phot=000001847474 efficiency=100 %  disk=    1.762 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 21:09:09
+Was acquired at 21:09:19: ch=0028  cy=0009 QGval=0179  ph=00006156  fr=01000
+Cumulated exp=00:52:40  phot=000001853630 efficiency=100 %  disk=    1.768 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 21:09:19
+Was acquired at 21:09:30: ch=0029  cy=0009 QGval=0199  ph=00005934  fr=01000
+Cumulated exp=00:52:50  phot=000001859564 efficiency=100 %  disk=    1.773 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 21:09:30
+Was acquired at 21:09:40: ch=0030  cy=0009 QGval=0219  ph=00006213  fr=01000
+Cumulated exp=00:53:00  phot=000001865777 efficiency=100 %  disk=    1.779 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 21:09:40
+Was acquired at 21:09:51: ch=0031  cy=0009 QGval=0239  ph=00006218  fr=01000
+Cumulated exp=00:53:10  phot=000001871995 efficiency=100 %  disk=    1.785 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 21:09:51
+Was acquired at 21:10:01: ch=0032  cy=0009 QGval=0259  ph=00005859  fr=01000
+Cumulated exp=00:53:20  phot=000001877854 efficiency=100 %  disk=    1.791 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 21:10:01
+Was acquired at 21:10:12: ch=0033  cy=0009 QGval=0279  ph=00006183  fr=01000
+Cumulated exp=00:53:30  phot=000001884037 efficiency=100 %  disk=    1.797 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 21:10:12
+Was acquired at 21:10:22: ch=0034  cy=0009 QGval=0299  ph=00006219  fr=01000
+Cumulated exp=00:53:40  phot=000001890256 efficiency=100 %  disk=    1.803 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 21:10:22
+Was acquired at 21:10:33: ch=0035  cy=0009 QGval=0319  ph=00006279  fr=01000
+Cumulated exp=00:53:50  phot=000001896535 efficiency=100 %  disk=    1.809 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 21:10:33
+Was acquired at 21:10:43: ch=0036  cy=0009 QGval=0339  ph=00006283  fr=01000
+Cumulated exp=00:54:00  phot=000001902818 efficiency=100 %  disk=    1.815 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 21:10:43
+Was acquired at 21:10:53: ch=0036  cy=0010 QGval=0339  ph=00005956  fr=01000
+Cumulated exp=00:54:10  phot=000001908774 efficiency=100 %  disk=    1.820 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 21:10:53
+Was acquired at 21:11:04: ch=0035  cy=0010 QGval=0319  ph=00006058  fr=01000
+Cumulated exp=00:54:20  phot=000001914832 efficiency=100 %  disk=    1.826 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 21:11:04
+Was acquired at 21:11:14: ch=0034  cy=0010 QGval=0299  ph=00006305  fr=01000
+Cumulated exp=00:54:30  phot=000001921137 efficiency=100 %  disk=    1.832 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 21:11:14
+Was acquired at 21:11:25: ch=0033  cy=0010 QGval=0279  ph=00005907  fr=01000
+Cumulated exp=00:54:40  phot=000001927044 efficiency=100 %  disk=    1.838 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 21:11:25
+Was acquired at 21:11:35: ch=0032  cy=0010 QGval=0259  ph=00006121  fr=01000
+Cumulated exp=00:54:50  phot=000001933165 efficiency=100 %  disk=    1.844 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 21:11:35
+Was acquired at 21:11:46: ch=0031  cy=0010 QGval=0239  ph=00006167  fr=01000
+Cumulated exp=00:55:00  phot=000001939332 efficiency=100 %  disk=    1.849 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 21:11:46
+Was acquired at 21:11:56: ch=0030  cy=0010 QGval=0219  ph=00005961  fr=01000
+Cumulated exp=00:55:10  phot=000001945293 efficiency=100 %  disk=    1.855 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 21:11:56
+Was acquired at 21:12:07: ch=0029  cy=0010 QGval=0199  ph=00006014  fr=01000
+Cumulated exp=00:55:20  phot=000001951307 efficiency=100 %  disk=    1.861 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 21:12:07
+Was acquired at 21:12:17: ch=0028  cy=0010 QGval=0179  ph=00006563  fr=01000
+Cumulated exp=00:55:30  phot=000001957870 efficiency=100 %  disk=    1.867 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 21:12:17
+Was acquired at 21:12:28: ch=0027  cy=0010 QGval=0159  ph=00006887  fr=01000
+Cumulated exp=00:55:40  phot=000001964757 efficiency=100 %  disk=    1.874 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 21:12:28
+Was acquired at 21:12:38: ch=0026  cy=0010 QGval=0139  ph=00007721  fr=01000
+Cumulated exp=00:55:50  phot=000001972478 efficiency=100 %  disk=    1.881 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 21:12:38
+Was acquired at 21:12:49: ch=0025  cy=0010 QGval=0119  ph=00006454  fr=01000
+Cumulated exp=00:56:00  phot=000001978932 efficiency=100 %  disk=    1.887 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 21:12:49
+Was acquired at 21:12:59: ch=0024  cy=0010 QGval=0099  ph=00006111  fr=01000
+Cumulated exp=00:56:10  phot=000001985043 efficiency=100 %  disk=    1.893 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 21:12:59
+Was acquired at 21:13:10: ch=0023  cy=0010 QGval=0079  ph=00006093  fr=01000
+Cumulated exp=00:56:20  phot=000001991136 efficiency=100 %  disk=    1.899 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 21:13:10
+Was acquired at 21:13:20: ch=0022  cy=0010 QGval=0059  ph=00006308  fr=01000
+Cumulated exp=00:56:30  phot=000001997444 efficiency=100 %  disk=    1.905 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 21:13:20
+Was acquired at 21:13:30: ch=0021  cy=0010 QGval=0039  ph=00005956  fr=01000
+Cumulated exp=00:56:40  phot=000002003400 efficiency=100 %  disk=    1.911 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 21:13:30
+Was acquired at 21:13:41: ch=0020  cy=0010 QGval=0019  ph=00005970  fr=01000
+Cumulated exp=00:56:50  phot=000002009370 efficiency=100 %  disk=    1.916 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 21:13:41
+Was acquired at 21:13:51: ch=0019  cy=0010 QGval=0000  ph=00006019  fr=01000
+Cumulated exp=00:57:00  phot=000002015389 efficiency=100 %  disk=    1.922 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 21:13:51
+Was acquired at 21:14:02: ch=0018  cy=0010 QGval=-019  ph=00005995  fr=01000
+Cumulated exp=00:57:10  phot=000002021384 efficiency=100 %  disk=    1.928 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 21:14:02
+Was acquired at 21:14:12: ch=0017  cy=0010 QGval=-039  ph=00006053  fr=01000
+Cumulated exp=00:57:20  phot=000002027437 efficiency=100 %  disk=    1.934 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 21:14:12
+Was acquired at 21:14:23: ch=0016  cy=0010 QGval=-059  ph=00005946  fr=01000
+Cumulated exp=00:57:30  phot=000002033383 efficiency=100 %  disk=    1.939 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 21:14:23
+Was acquired at 21:14:33: ch=0015  cy=0010 QGval=-079  ph=00006286  fr=01000
+Cumulated exp=00:57:40  phot=000002039669 efficiency=100 %  disk=    1.945 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 21:14:33
+Was acquired at 21:14:44: ch=0014  cy=0010 QGval=-099  ph=00007300  fr=01000
+Cumulated exp=00:57:50  phot=000002046969 efficiency=100 %  disk=    1.952 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 21:14:44
+Was acquired at 21:14:54: ch=0013  cy=0010 QGval=-119  ph=00006588  fr=01000
+Cumulated exp=00:58:00  phot=000002053557 efficiency=100 %  disk=    1.958 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 21:14:54
+Was acquired at 21:15:04: ch=0012  cy=0010 QGval=-139  ph=00006959  fr=01000
+Cumulated exp=00:58:10  phot=000002060516 efficiency=100 %  disk=    1.965 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 21:15:04
+Was acquired at 21:15:15: ch=0011  cy=0010 QGval=-159  ph=00007846  fr=01000
+Cumulated exp=00:58:20  phot=000002068362 efficiency=100 %  disk=    1.973 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 21:15:15
+Was acquired at 21:15:25: ch=0010  cy=0010 QGval=-179  ph=00006426  fr=01000
+Cumulated exp=00:58:30  phot=000002074788 efficiency=100 %  disk=    1.979 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 21:15:25
+Was acquired at 21:15:36: ch=0009  cy=0010 QGval=-199  ph=00006605  fr=01000
+Cumulated exp=00:58:40  phot=000002081393 efficiency=100 %  disk=    1.985 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 21:15:36
+Was acquired at 21:15:46: ch=0008  cy=0010 QGval=-219  ph=00006396  fr=01000
+Cumulated exp=00:58:50  phot=000002087789 efficiency=100 %  disk=    1.991 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 21:15:46
+Was acquired at 21:15:57: ch=0007  cy=0010 QGval=-239  ph=00005923  fr=01000
+Cumulated exp=00:59:00  phot=000002093712 efficiency=100 %  disk=    1.997 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 21:15:57
+Was acquired at 21:16:07: ch=0006  cy=0010 QGval=-259  ph=00006107  fr=01000
+Cumulated exp=00:59:10  phot=000002099819 efficiency=100 %  disk=    2.003 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 21:16:07
+Was acquired at 21:16:18: ch=0005  cy=0010 QGval=-279  ph=00005866  fr=01000
+Cumulated exp=00:59:20  phot=000002105685 efficiency=100 %  disk=    2.008 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 21:16:18
+Was acquired at 21:16:28: ch=0004  cy=0010 QGval=-299  ph=00005886  fr=01000
+Cumulated exp=00:59:30  phot=000002111571 efficiency=100 %  disk=    2.014 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 21:16:28
+Was acquired at 21:16:38: ch=0003  cy=0010 QGval=-319  ph=00005876  fr=01000
+Cumulated exp=00:59:40  phot=000002117447 efficiency=100 %  disk=    2.019 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 21:16:38
+Was acquired at 21:16:49: ch=0002  cy=0010 QGval=-339  ph=00005668  fr=01000
+Cumulated exp=00:59:50  phot=000002123115 efficiency=100 %  disk=    2.025 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 21:16:49
+Was acquired at 21:16:59: ch=0001  cy=0010 QGval=-359  ph=00005841  fr=01000
+Cumulated exp=01:00:00  phot=000002128956 efficiency=100 %  disk=    2.030 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 21:16:59
+Was acquired at 21:17:10: ch=0001  cy=0011 QGval=-359  ph=00005909  fr=01000
+Cumulated exp=01:00:10  phot=000002134865 efficiency=100 %  disk=    2.036 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 21:17:10
+Was acquired at 21:17:20: ch=0002  cy=0011 QGval=-339  ph=00005939  fr=01000
+Cumulated exp=01:00:20  phot=000002140804 efficiency=100 %  disk=    2.042 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 21:17:20
+Was acquired at 21:17:31: ch=0003  cy=0011 QGval=-319  ph=00006098  fr=01000
+Cumulated exp=01:00:30  phot=000002146902 efficiency=100 %  disk=    2.047 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 21:17:31
+Was acquired at 21:17:41: ch=0004  cy=0011 QGval=-299  ph=00006144  fr=01000
+Cumulated exp=01:00:40  phot=000002153046 efficiency=100 %  disk=    2.053 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 21:17:41
+Was acquired at 21:17:52: ch=0005  cy=0011 QGval=-279  ph=00006398  fr=01000
+Cumulated exp=01:00:50  phot=000002159444 efficiency=100 %  disk=    2.059 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 21:17:52
+Was acquired at 21:18:02: ch=0006  cy=0011 QGval=-259  ph=00006382  fr=01000
+Cumulated exp=01:01:00  phot=000002165826 efficiency=100 %  disk=    2.065 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 21:18:02
+Was acquired at 21:18:12: ch=0007  cy=0011 QGval=-239  ph=00006836  fr=01000
+Cumulated exp=01:01:10  phot=000002172662 efficiency=100 %  disk=    2.072 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 21:18:12
+Was acquired at 21:18:23: ch=0008  cy=0011 QGval=-219  ph=00006801  fr=01000
+Cumulated exp=01:01:20  phot=000002179463 efficiency=100 %  disk=    2.078 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 21:18:23
+Was acquired at 21:18:33: ch=0009  cy=0011 QGval=-199  ph=00006265  fr=01000
+Cumulated exp=01:01:30  phot=000002185728 efficiency=100 %  disk=    2.084 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 21:18:33
+Was acquired at 21:18:44: ch=0010  cy=0011 QGval=-179  ph=00006012  fr=01000
+Cumulated exp=01:01:40  phot=000002191740 efficiency=100 %  disk=    2.090 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 21:18:44
+Was acquired at 21:18:54: ch=0011  cy=0011 QGval=-159  ph=00006134  fr=01000
+Cumulated exp=01:01:50  phot=000002197874 efficiency=100 %  disk=    2.096 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 21:18:54
+Was acquired at 21:19:05: ch=0012  cy=0011 QGval=-139  ph=00006204  fr=01000
+Cumulated exp=01:02:00  phot=000002204078 efficiency=100 %  disk=    2.102 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 21:19:05
+Was acquired at 21:19:15: ch=0013  cy=0011 QGval=-119  ph=00006528  fr=01000
+Cumulated exp=01:02:10  phot=000002210606 efficiency=100 %  disk=    2.108 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 21:19:15
+Was acquired at 21:19:25: ch=0014  cy=0011 QGval=-099  ph=00007037  fr=01000
+Cumulated exp=01:02:20  phot=000002217643 efficiency=100 %  disk=    2.115 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 21:19:25
+Was acquired at 21:19:36: ch=0015  cy=0011 QGval=-079  ph=00006956  fr=01000
+Cumulated exp=01:02:30  phot=000002224599 efficiency=100 %  disk=    2.122 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 21:19:36
+Was acquired at 21:19:46: ch=0016  cy=0011 QGval=-059  ph=00007430  fr=01000
+Cumulated exp=01:02:40  phot=000002232029 efficiency=100 %  disk=    2.129 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 21:19:46
+Was acquired at 21:19:57: ch=0017  cy=0011 QGval=-039  ph=00007355  fr=01000
+Cumulated exp=01:02:50  phot=000002239384 efficiency=100 %  disk=    2.136 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 21:19:57
+Was acquired at 21:20:07: ch=0018  cy=0011 QGval=-019  ph=00006986  fr=01000
+Cumulated exp=01:03:00  phot=000002246370 efficiency=100 %  disk=    2.142 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 21:20:07
+Was acquired at 21:20:18: ch=0019  cy=0011 QGval=0000  ph=00006917  fr=01000
+Cumulated exp=01:03:10  phot=000002253287 efficiency=100 %  disk=    2.149 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 21:20:18
+Was acquired at 21:20:28: ch=0020  cy=0011 QGval=0019  ph=00006880  fr=01000
+Cumulated exp=01:03:20  phot=000002260167 efficiency=100 %  disk=    2.155 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 21:20:28
+Was acquired at 21:20:39: ch=0021  cy=0011 QGval=0039  ph=00007186  fr=01000
+Cumulated exp=01:03:30  phot=000002267353 efficiency=100 %  disk=    2.162 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 21:20:39
+Was acquired at 21:20:49: ch=0022  cy=0011 QGval=0059  ph=00006791  fr=01000
+Cumulated exp=01:03:40  phot=000002274144 efficiency=100 %  disk=    2.169 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 21:20:49
+Was acquired at 21:20:59: ch=0023  cy=0011 QGval=0079  ph=00006470  fr=01000
+Cumulated exp=01:03:50  phot=000002280614 efficiency=100 %  disk=    2.175 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 21:20:59
+Was acquired at 21:21:10: ch=0024  cy=0011 QGval=0099  ph=00006534  fr=01000
+Cumulated exp=01:04:00  phot=000002287148 efficiency=100 %  disk=    2.181 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 21:21:10
+Was acquired at 21:21:20: ch=0025  cy=0011 QGval=0119  ph=00006214  fr=01000
+Cumulated exp=01:04:10  phot=000002293362 efficiency=100 %  disk=    2.187 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 21:21:20
+Was acquired at 21:21:31: ch=0026  cy=0011 QGval=0139  ph=00005880  fr=01000
+Cumulated exp=01:04:20  phot=000002299242 efficiency=100 %  disk=    2.193 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 21:21:31
+Was acquired at 21:21:41: ch=0027  cy=0011 QGval=0159  ph=00006080  fr=01000
+Cumulated exp=01:04:30  phot=000002305322 efficiency=100 %  disk=    2.199 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 21:21:41
+Was acquired at 21:21:52: ch=0028  cy=0011 QGval=0179  ph=00007302  fr=01000
+Cumulated exp=01:04:40  phot=000002312624 efficiency=100 %  disk=    2.205 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 21:21:52
+Was acquired at 21:22:02: ch=0029  cy=0011 QGval=0199  ph=00006988  fr=01000
+Cumulated exp=01:04:50  phot=000002319612 efficiency=100 %  disk=    2.212 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 21:22:02
+Was acquired at 21:22:12: ch=0030  cy=0011 QGval=0219  ph=00006621  fr=01000
+Cumulated exp=01:05:00  phot=000002326233 efficiency=100 %  disk=    2.218 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 21:22:12
+Was acquired at 21:22:23: ch=0031  cy=0011 QGval=0239  ph=00006158  fr=01000
+Cumulated exp=01:05:10  phot=000002332391 efficiency=100 %  disk=    2.224 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 21:22:23
+Was acquired at 21:22:33: ch=0032  cy=0011 QGval=0259  ph=00006601  fr=01000
+Cumulated exp=01:05:20  phot=000002338992 efficiency=100 %  disk=    2.231 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 21:22:33
+Was acquired at 21:22:44: ch=0033  cy=0011 QGval=0279  ph=00007136  fr=01000
+Cumulated exp=01:05:30  phot=000002346128 efficiency=100 %  disk=    2.237 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 21:22:44
+Was acquired at 21:22:54: ch=0034  cy=0011 QGval=0299  ph=00006916  fr=01000
+Cumulated exp=01:05:40  phot=000002353044 efficiency=100 %  disk=    2.244 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 21:22:54
+Was acquired at 21:23:05: ch=0035  cy=0011 QGval=0319  ph=00005978  fr=01000
+Cumulated exp=01:05:50  phot=000002359022 efficiency=100 %  disk=    2.250 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 21:23:05
+Was acquired at 21:23:15: ch=0036  cy=0011 QGval=0339  ph=00006057  fr=01000
+Cumulated exp=01:06:00  phot=000002365079 efficiency=100 %  disk=    2.256 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 21:23:15
+Was acquired at 21:23:26: ch=0036  cy=0012 QGval=0339  ph=00006078  fr=01000
+Cumulated exp=01:06:10  phot=000002371157 efficiency=100 %  disk=    2.261 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 21:23:26
+Was acquired at 21:23:36: ch=0035  cy=0012 QGval=0319  ph=00005832  fr=01000
+Cumulated exp=01:06:20  phot=000002376989 efficiency=100 %  disk=    2.267 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 21:23:36
+Was acquired at 21:23:46: ch=0034  cy=0012 QGval=0299  ph=00006195  fr=01000
+Cumulated exp=01:06:30  phot=000002383184 efficiency=100 %  disk=    2.273 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 21:23:46
+Was acquired at 21:23:57: ch=0033  cy=0012 QGval=0279  ph=00005872  fr=01000
+Cumulated exp=01:06:40  phot=000002389056 efficiency=100 %  disk=    2.278 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 21:23:57
+Was acquired at 21:24:07: ch=0032  cy=0012 QGval=0259  ph=00005904  fr=01000
+Cumulated exp=01:06:50  phot=000002394960 efficiency=100 %  disk=    2.284 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 21:24:07
+Was acquired at 21:24:18: ch=0031  cy=0012 QGval=0239  ph=00005662  fr=01000
+Cumulated exp=01:07:00  phot=000002400622 efficiency=100 %  disk=    2.289 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 21:24:18
+Was acquired at 21:24:28: ch=0030  cy=0012 QGval=0219  ph=00006038  fr=01000
+Cumulated exp=01:07:10  phot=000002406660 efficiency=100 %  disk=    2.295 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 21:24:28
+Was acquired at 21:24:39: ch=0029  cy=0012 QGval=0199  ph=00006588  fr=01000
+Cumulated exp=01:07:20  phot=000002413248 efficiency=100 %  disk=    2.301 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 21:24:39
+Was acquired at 21:24:49: ch=0028  cy=0012 QGval=0179  ph=00006258  fr=01000
+Cumulated exp=01:07:30  phot=000002419506 efficiency=100 %  disk=    2.307 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 21:24:49
+Was acquired at 21:25:00: ch=0027  cy=0012 QGval=0159  ph=00006356  fr=01000
+Cumulated exp=01:07:40  phot=000002425862 efficiency=100 %  disk=    2.313 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 21:25:00
+Was acquired at 21:25:10: ch=0026  cy=0012 QGval=0139  ph=00007218  fr=01000
+Cumulated exp=01:07:50  phot=000002433080 efficiency=100 %  disk=    2.320 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 21:25:10
+Was acquired at 21:25:21: ch=0025  cy=0012 QGval=0119  ph=00007838  fr=01000
+Cumulated exp=01:08:00  phot=000002440918 efficiency=100 %  disk=    2.328 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 21:25:21
+Was acquired at 21:25:31: ch=0024  cy=0012 QGval=0099  ph=00008031  fr=01000
+Cumulated exp=01:08:10  phot=000002448949 efficiency=100 %  disk=    2.335 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 21:25:31
+Was acquired at 21:25:41: ch=0023  cy=0012 QGval=0079  ph=00007792  fr=01000
+Cumulated exp=01:08:20  phot=000002456741 efficiency=100 %  disk=    2.343 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 21:25:41
+Was acquired at 21:25:52: ch=0022  cy=0012 QGval=0059  ph=00007064  fr=01000
+Cumulated exp=01:08:30  phot=000002463805 efficiency=100 %  disk=    2.350 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 21:25:52
+Was acquired at 21:26:02: ch=0021  cy=0012 QGval=0039  ph=00006470  fr=01000
+Cumulated exp=01:08:40  phot=000002470275 efficiency=100 %  disk=    2.356 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 21:26:02
+Was acquired at 21:26:13: ch=0020  cy=0012 QGval=0019  ph=00006058  fr=01000
+Cumulated exp=01:08:50  phot=000002476333 efficiency=100 %  disk=    2.362 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 21:26:13
+Was acquired at 21:26:23: ch=0019  cy=0012 QGval=0000  ph=00006075  fr=01000
+Cumulated exp=01:09:00  phot=000002482408 efficiency=100 %  disk=    2.367 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 21:26:23
+Was acquired at 21:26:34: ch=0018  cy=0012 QGval=-019  ph=00006131  fr=01000
+Cumulated exp=01:09:10  phot=000002488539 efficiency=100 %  disk=    2.373 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 21:26:34
+Was acquired at 21:26:44: ch=0017  cy=0012 QGval=-039  ph=00006222  fr=01000
+Cumulated exp=01:09:20  phot=000002494761 efficiency=100 %  disk=    2.379 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 21:26:44
+Was acquired at 21:26:55: ch=0016  cy=0012 QGval=-059  ph=00006058  fr=01000
+Cumulated exp=01:09:30  phot=000002500819 efficiency=100 %  disk=    2.385 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 21:26:55
+Was acquired at 21:27:05: ch=0015  cy=0012 QGval=-079  ph=00005968  fr=01000
+Cumulated exp=01:09:40  phot=000002506787 efficiency=100 %  disk=    2.391 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 21:27:05
+Was acquired at 21:27:15: ch=0014  cy=0012 QGval=-099  ph=00005963  fr=01000
+Cumulated exp=01:09:50  phot=000002512750 efficiency=100 %  disk=    2.396 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 21:27:15
+Was acquired at 21:27:26: ch=0013  cy=0012 QGval=-119  ph=00006094  fr=01000
+Cumulated exp=01:10:00  phot=000002518844 efficiency=100 %  disk=    2.402 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 21:27:26
+Was acquired at 21:27:36: ch=0012  cy=0012 QGval=-139  ph=00006065  fr=01000
+Cumulated exp=01:10:10  phot=000002524909 efficiency=100 %  disk=    2.408 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 21:27:36
+Was acquired at 21:27:47: ch=0011  cy=0012 QGval=-159  ph=00005826  fr=01000
+Cumulated exp=01:10:20  phot=000002530735 efficiency=100 %  disk=    2.413 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 21:27:47
+Was acquired at 21:27:57: ch=0010  cy=0012 QGval=-179  ph=00006027  fr=01000
+Cumulated exp=01:10:30  phot=000002536762 efficiency=100 %  disk=    2.419 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 21:27:57
+Was acquired at 21:28:08: ch=0009  cy=0012 QGval=-199  ph=00005971  fr=01000
+Cumulated exp=01:10:40  phot=000002542733 efficiency=100 %  disk=    2.425 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 21:28:08
+Was acquired at 21:28:18: ch=0008  cy=0012 QGval=-219  ph=00005841  fr=01000
+Cumulated exp=01:10:50  phot=000002548574 efficiency=100 %  disk=    2.431 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 21:28:18
+Was acquired at 21:28:28: ch=0007  cy=0012 QGval=-239  ph=00005750  fr=01000
+Cumulated exp=01:11:00  phot=000002554324 efficiency=100 %  disk=    2.436 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 21:28:28
+Was acquired at 21:28:39: ch=0006  cy=0012 QGval=-259  ph=00005941  fr=01000
+Cumulated exp=01:11:10  phot=000002560265 efficiency=100 %  disk=    2.442 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 21:28:39
+Was acquired at 21:28:49: ch=0005  cy=0012 QGval=-279  ph=00005756  fr=01000
+Cumulated exp=01:11:20  phot=000002566021 efficiency=100 %  disk=    2.447 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 21:28:49
+Was acquired at 21:29:00: ch=0004  cy=0012 QGval=-299  ph=00006241  fr=01000
+Cumulated exp=01:11:30  phot=000002572262 efficiency=100 %  disk=    2.453 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 21:29:00
+Was acquired at 21:29:10: ch=0003  cy=0012 QGval=-319  ph=00006625  fr=01000
+Cumulated exp=01:11:40  phot=000002578887 efficiency=100 %  disk=    2.459 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 21:29:10
+Was acquired at 21:29:21: ch=0002  cy=0012 QGval=-339  ph=00006426  fr=01000
+Cumulated exp=01:11:50  phot=000002585313 efficiency=100 %  disk=    2.466 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 21:29:21
+Was acquired at 21:29:31: ch=0001  cy=0012 QGval=-359  ph=00006133  fr=01000
+Cumulated exp=01:12:00  phot=000002591446 efficiency=100 %  disk=    2.471 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 21:29:31
+Was acquired at 21:29:42: ch=0001  cy=0013 QGval=-359  ph=00005912  fr=01000
+Cumulated exp=01:12:10  phot=000002597358 efficiency=100 %  disk=    2.477 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 21:29:42
+Was acquired at 21:29:52: ch=0002  cy=0013 QGval=-339  ph=00006003  fr=01000
+Cumulated exp=01:12:20  phot=000002603361 efficiency=100 %  disk=    2.483 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 21:29:52
+Was acquired at 21:30:02: ch=0003  cy=0013 QGval=-319  ph=00005819  fr=01000
+Cumulated exp=01:12:30  phot=000002609180 efficiency=100 %  disk=    2.488 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 21:30:02
+Was acquired at 21:30:13: ch=0004  cy=0013 QGval=-299  ph=00006063  fr=01000
+Cumulated exp=01:12:40  phot=000002615243 efficiency=100 %  disk=    2.494 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 21:30:13
+Was acquired at 21:30:23: ch=0005  cy=0013 QGval=-279  ph=00005603  fr=01000
+Cumulated exp=01:12:50  phot=000002620846 efficiency=100 %  disk=    2.499 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 21:30:23
+Was acquired at 21:30:34: ch=0006  cy=0013 QGval=-259  ph=00005872  fr=01000
+Cumulated exp=01:13:00  phot=000002626718 efficiency=100 %  disk=    2.505 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 21:30:34
+Was acquired at 21:30:44: ch=0007  cy=0013 QGval=-239  ph=00005810  fr=01000
+Cumulated exp=01:13:10  phot=000002632528 efficiency=100 %  disk=    2.511 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 21:30:44
+Was acquired at 21:30:55: ch=0008  cy=0013 QGval=-219  ph=00005920  fr=01000
+Cumulated exp=01:13:20  phot=000002638448 efficiency=100 %  disk=    2.516 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 21:30:55
+Was acquired at 21:31:05: ch=0009  cy=0013 QGval=-199  ph=00005927  fr=01000
+Cumulated exp=01:13:30  phot=000002644375 efficiency=100 %  disk=    2.522 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 21:31:05
+Was acquired at 21:31:15: ch=0010  cy=0013 QGval=-179  ph=00005823  fr=01000
+Cumulated exp=01:13:40  phot=000002650198 efficiency=100 %  disk=    2.527 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 21:31:15
+Was acquired at 21:31:26: ch=0011  cy=0013 QGval=-159  ph=00005875  fr=01000
+Cumulated exp=01:13:50  phot=000002656073 efficiency=100 %  disk=    2.533 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 21:31:26
+Was acquired at 21:31:36: ch=0012  cy=0013 QGval=-139  ph=00005872  fr=01000
+Cumulated exp=01:14:00  phot=000002661945 efficiency=100 %  disk=    2.539 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 21:31:36
+Was acquired at 21:31:47: ch=0013  cy=0013 QGval=-119  ph=00005730  fr=01000
+Cumulated exp=01:14:10  phot=000002667675 efficiency=100 %  disk=    2.544 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 21:31:47
+Was acquired at 21:31:57: ch=0014  cy=0013 QGval=-099  ph=00005742  fr=01000
+Cumulated exp=01:14:20  phot=000002673417 efficiency=100 %  disk=    2.550 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 21:31:57
+Was acquired at 21:32:08: ch=0015  cy=0013 QGval=-079  ph=00005943  fr=01000
+Cumulated exp=01:14:30  phot=000002679360 efficiency=100 %  disk=    2.555 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 21:32:08
+Was acquired at 21:32:18: ch=0016  cy=0013 QGval=-059  ph=00006018  fr=01000
+Cumulated exp=01:14:40  phot=000002685378 efficiency=100 %  disk=    2.561 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 21:32:18
+Was acquired at 21:32:29: ch=0017  cy=0013 QGval=-039  ph=00006038  fr=01000
+Cumulated exp=01:14:50  phot=000002691416 efficiency=100 %  disk=    2.567 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 21:32:29
+Was acquired at 21:32:39: ch=0018  cy=0013 QGval=-019  ph=00006121  fr=01000
+Cumulated exp=01:15:00  phot=000002697537 efficiency=100 %  disk=    2.573 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 21:32:39
+Was acquired at 21:32:49: ch=0019  cy=0013 QGval=0000  ph=00006027  fr=01000
+Cumulated exp=01:15:10  phot=000002703564 efficiency=100 %  disk=    2.578 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 21:32:49
+Was acquired at 21:33:00: ch=0020  cy=0013 QGval=0019  ph=00006067  fr=01000
+Cumulated exp=01:15:20  phot=000002709631 efficiency=100 %  disk=    2.584 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 21:33:00
+Was acquired at 21:33:10: ch=0021  cy=0013 QGval=0039  ph=00006018  fr=01000
+Cumulated exp=01:15:30  phot=000002715649 efficiency=100 %  disk=    2.590 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 21:33:10
+Was acquired at 21:33:21: ch=0022  cy=0013 QGval=0059  ph=00006127  fr=01000
+Cumulated exp=01:15:40  phot=000002721776 efficiency=100 %  disk=    2.596 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 21:33:21
+Was acquired at 21:33:31: ch=0023  cy=0013 QGval=0079  ph=00006050  fr=01000
+Cumulated exp=01:15:50  phot=000002727826 efficiency=100 %  disk=    2.601 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 21:33:31
+Was acquired at 21:33:42: ch=0024  cy=0013 QGval=0099  ph=00006680  fr=01000
+Cumulated exp=01:16:00  phot=000002734506 efficiency=100 %  disk=    2.608 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 21:33:42
+Was acquired at 21:33:52: ch=0025  cy=0013 QGval=0119  ph=00006099  fr=01000
+Cumulated exp=01:16:10  phot=000002740605 efficiency=100 %  disk=    2.614 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 21:33:52
+Was acquired at 21:34:03: ch=0026  cy=0013 QGval=0139  ph=00006034  fr=01000
+Cumulated exp=01:16:20  phot=000002746639 efficiency=100 %  disk=    2.619 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 21:34:03
+Was acquired at 21:34:13: ch=0027  cy=0013 QGval=0159  ph=00006868  fr=01000
+Cumulated exp=01:16:30  phot=000002753507 efficiency=100 %  disk=    2.626 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 21:34:13
+Was acquired at 21:34:23: ch=0028  cy=0013 QGval=0179  ph=00006064  fr=01000
+Cumulated exp=01:16:40  phot=000002759571 efficiency=100 %  disk=    2.632 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 21:34:23
+Was acquired at 21:34:34: ch=0029  cy=0013 QGval=0199  ph=00006733  fr=01000
+Cumulated exp=01:16:50  phot=000002766304 efficiency=100 %  disk=    2.638 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 21:34:34
+Was acquired at 21:34:44: ch=0030  cy=0013 QGval=0219  ph=00006525  fr=01000
+Cumulated exp=01:17:00  phot=000002772829 efficiency=100 %  disk=    2.644 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 21:34:44
+Was acquired at 21:34:55: ch=0031  cy=0013 QGval=0239  ph=00006033  fr=01000
+Cumulated exp=01:17:10  phot=000002778862 efficiency=100 %  disk=    2.650 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 21:34:55
+Was acquired at 21:35:05: ch=0032  cy=0013 QGval=0259  ph=00005742  fr=01000
+Cumulated exp=01:17:20  phot=000002784604 efficiency=100 %  disk=    2.656 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 21:35:05
+Was acquired at 21:35:16: ch=0033  cy=0013 QGval=0279  ph=00006255  fr=01000
+Cumulated exp=01:17:30  phot=000002790859 efficiency=100 %  disk=    2.662 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 21:35:16
+Was acquired at 21:35:26: ch=0034  cy=0013 QGval=0299  ph=00006202  fr=01000
+Cumulated exp=01:17:40  phot=000002797061 efficiency=100 %  disk=    2.667 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 21:35:26
+Was acquired at 21:35:36: ch=0035  cy=0013 QGval=0319  ph=00006129  fr=01000
+Cumulated exp=01:17:50  phot=000002803190 efficiency=100 %  disk=    2.673 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 21:35:36
+Was acquired at 21:35:47: ch=0036  cy=0013 QGval=0339  ph=00006072  fr=01000
+Cumulated exp=01:18:00  phot=000002809262 efficiency=100 %  disk=    2.679 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 21:35:47
+Was acquired at 21:35:57: ch=0036  cy=0014 QGval=0339  ph=00005722  fr=01000
+Cumulated exp=01:18:10  phot=000002814984 efficiency=100 %  disk=    2.685 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 21:35:57
+Was acquired at 21:36:08: ch=0035  cy=0014 QGval=0319  ph=00005943  fr=01000
+Cumulated exp=01:18:20  phot=000002820927 efficiency=100 %  disk=    2.690 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 21:36:08
+Was acquired at 21:36:18: ch=0034  cy=0014 QGval=0299  ph=00005881  fr=01000
+Cumulated exp=01:18:30  phot=000002826808 efficiency=100 %  disk=    2.696 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 21:36:18
+Was acquired at 21:36:29: ch=0033  cy=0014 QGval=0279  ph=00005695  fr=01000
+Cumulated exp=01:18:40  phot=000002832503 efficiency=100 %  disk=    2.701 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 21:36:29
+Was acquired at 21:36:39: ch=0032  cy=0014 QGval=0259  ph=00005944  fr=01000
+Cumulated exp=01:18:50  phot=000002838447 efficiency=100 %  disk=    2.707 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 21:36:39
+Was acquired at 21:36:49: ch=0031  cy=0014 QGval=0239  ph=00005904  fr=01000
+Cumulated exp=01:19:00  phot=000002844351 efficiency=100 %  disk=    2.713 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 21:36:49
+Was acquired at 21:37:00: ch=0030  cy=0014 QGval=0219  ph=00006245  fr=01000
+Cumulated exp=01:19:10  phot=000002850596 efficiency=100 %  disk=    2.719 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 21:37:00
+Was acquired at 21:37:10: ch=0029  cy=0014 QGval=0199  ph=00006048  fr=01000
+Cumulated exp=01:19:20  phot=000002856644 efficiency=100 %  disk=    2.724 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 21:37:10
+Was acquired at 21:37:21: ch=0028  cy=0014 QGval=0179  ph=00006564  fr=01000
+Cumulated exp=01:19:30  phot=000002863208 efficiency=100 %  disk=    2.731 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 21:37:21
+Was acquired at 21:37:31: ch=0027  cy=0014 QGval=0159  ph=00006434  fr=01000
+Cumulated exp=01:19:40  phot=000002869642 efficiency=100 %  disk=    2.737 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 21:37:31
+Was acquired at 21:37:42: ch=0026  cy=0014 QGval=0139  ph=00006830  fr=01000
+Cumulated exp=01:19:50  phot=000002876472 efficiency=100 %  disk=    2.743 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 21:37:42
+Was acquired at 21:37:52: ch=0025  cy=0014 QGval=0119  ph=00006068  fr=01000
+Cumulated exp=01:20:00  phot=000002882540 efficiency=100 %  disk=    2.749 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 21:37:52
+Was acquired at 21:38:03: ch=0024  cy=0014 QGval=0099  ph=00006058  fr=01000
+Cumulated exp=01:20:10  phot=000002888598 efficiency=100 %  disk=    2.755 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 21:38:03
+Was acquired at 21:38:13: ch=0023  cy=0014 QGval=0079  ph=00005988  fr=01000
+Cumulated exp=01:20:20  phot=000002894586 efficiency=100 %  disk=    2.760 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 21:38:13
+Was acquired at 21:38:23: ch=0022  cy=0014 QGval=0059  ph=00006130  fr=01000
+Cumulated exp=01:20:30  phot=000002900716 efficiency=100 %  disk=    2.766 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 21:38:23
+Was acquired at 21:38:34: ch=0021  cy=0014 QGval=0039  ph=00005919  fr=01000
+Cumulated exp=01:20:40  phot=000002906635 efficiency=100 %  disk=    2.772 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 21:38:34
+Was acquired at 21:38:44: ch=0020  cy=0014 QGval=0019  ph=00005986  fr=01000
+Cumulated exp=01:20:50  phot=000002912621 efficiency=100 %  disk=    2.778 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 21:38:44
+Was acquired at 21:38:55: ch=0019  cy=0014 QGval=0000  ph=00006070  fr=01000
+Cumulated exp=01:21:00  phot=000002918691 efficiency=100 %  disk=    2.783 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 21:38:55
+Was acquired at 21:39:05: ch=0018  cy=0014 QGval=-019  ph=00006196  fr=01000
+Cumulated exp=01:21:10  phot=000002924887 efficiency=100 %  disk=    2.789 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 21:39:05
+Was acquired at 21:39:16: ch=0017  cy=0014 QGval=-039  ph=00005977  fr=01000
+Cumulated exp=01:21:20  phot=000002930864 efficiency=100 %  disk=    2.795 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 21:39:16
+Was acquired at 21:39:26: ch=0016  cy=0014 QGval=-059  ph=00006095  fr=01000
+Cumulated exp=01:21:30  phot=000002936959 efficiency=100 %  disk=    2.801 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 21:39:26
+Was acquired at 21:39:37: ch=0015  cy=0014 QGval=-079  ph=00006008  fr=01000
+Cumulated exp=01:21:40  phot=000002942967 efficiency=100 %  disk=    2.807 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 21:39:37
+Was acquired at 21:39:47: ch=0014  cy=0014 QGval=-099  ph=00005902  fr=01000
+Cumulated exp=01:21:50  phot=000002948869 efficiency=100 %  disk=    2.812 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 21:39:47
+Was acquired at 21:39:57: ch=0013  cy=0014 QGval=-119  ph=00006038  fr=01000
+Cumulated exp=01:22:00  phot=000002954907 efficiency=100 %  disk=    2.818 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 21:39:57
+Was acquired at 21:40:08: ch=0012  cy=0014 QGval=-139  ph=00005733  fr=01000
+Cumulated exp=01:22:10  phot=000002960640 efficiency=100 %  disk=    2.823 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 21:40:08
+Was acquired at 21:40:18: ch=0011  cy=0014 QGval=-159  ph=00006044  fr=01000
+Cumulated exp=01:22:20  phot=000002966684 efficiency=100 %  disk=    2.829 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 21:40:18
+Was acquired at 21:40:29: ch=0010  cy=0014 QGval=-179  ph=00005682  fr=01000
+Cumulated exp=01:22:30  phot=000002972366 efficiency=100 %  disk=    2.835 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 21:40:29
+Was acquired at 21:40:39: ch=0009  cy=0014 QGval=-199  ph=00005695  fr=01000
+Cumulated exp=01:22:40  phot=000002978061 efficiency=100 %  disk=    2.840 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 21:40:39
+Was acquired at 21:40:50: ch=0008  cy=0014 QGval=-219  ph=00005755  fr=01000
+Cumulated exp=01:22:50  phot=000002983816 efficiency=100 %  disk=    2.846 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 21:40:50
+Was acquired at 21:41:00: ch=0007  cy=0014 QGval=-239  ph=00005801  fr=01000
+Cumulated exp=01:23:00  phot=000002989617 efficiency=100 %  disk=    2.851 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 21:41:00
+Was acquired at 21:41:11: ch=0006  cy=0014 QGval=-259  ph=00005826  fr=01000
+Cumulated exp=01:23:10  phot=000002995443 efficiency=100 %  disk=    2.857 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 21:41:11
+Was acquired at 21:41:21: ch=0005  cy=0014 QGval=-279  ph=00006015  fr=01000
+Cumulated exp=01:23:20  phot=000003001458 efficiency=100 %  disk=    2.862 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 21:41:21
+Was acquired at 21:41:31: ch=0004  cy=0014 QGval=-299  ph=00005818  fr=01000
+Cumulated exp=01:23:30  phot=000003007276 efficiency=100 %  disk=    2.868 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 21:41:31
+Was acquired at 21:41:42: ch=0003  cy=0014 QGval=-319  ph=00005741  fr=01000
+Cumulated exp=01:23:40  phot=000003013017 efficiency=100 %  disk=    2.873 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 21:41:42
+Was acquired at 21:41:52: ch=0002  cy=0014 QGval=-339  ph=00005688  fr=01000
+Cumulated exp=01:23:50  phot=000003018705 efficiency=100 %  disk=    2.879 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 21:41:52
+Was acquired at 21:42:03: ch=0001  cy=0014 QGval=-359  ph=00005922  fr=01000
+Cumulated exp=01:24:00  phot=000003024627 efficiency=100 %  disk=    2.885 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 21:42:03
+Was acquired at 21:42:13: ch=0001  cy=0015 QGval=-359  ph=00005971  fr=01000
+Cumulated exp=01:24:10  phot=000003030598 efficiency=100 %  disk=    2.890 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 21:42:13
+Was acquired at 21:42:24: ch=0002  cy=0015 QGval=-339  ph=00005678  fr=01000
+Cumulated exp=01:24:20  phot=000003036276 efficiency=100 %  disk=    2.896 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 21:42:24
+Was acquired at 21:42:34: ch=0003  cy=0015 QGval=-319  ph=00005548  fr=01000
+Cumulated exp=01:24:30  phot=000003041824 efficiency=100 %  disk=    2.901 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 21:42:34
+Was acquired at 21:42:45: ch=0004  cy=0015 QGval=-299  ph=00005494  fr=01000
+Cumulated exp=01:24:40  phot=000003047318 efficiency=100 %  disk=    2.906 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 21:42:45
+Was acquired at 21:42:55: ch=0005  cy=0015 QGval=-279  ph=00005841  fr=01000
+Cumulated exp=01:24:50  phot=000003053159 efficiency=100 %  disk=    2.912 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 21:42:55
+Was acquired at 21:43:05: ch=0006  cy=0015 QGval=-259  ph=00005760  fr=01000
+Cumulated exp=01:25:00  phot=000003058919 efficiency=100 %  disk=    2.917 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 21:43:05
+Was acquired at 21:43:16: ch=0007  cy=0015 QGval=-239  ph=00005876  fr=01000
+Cumulated exp=01:25:10  phot=000003064795 efficiency=100 %  disk=    2.923 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 21:43:16
+Was acquired at 21:43:26: ch=0008  cy=0015 QGval=-219  ph=00005709  fr=01000
+Cumulated exp=01:25:20  phot=000003070504 efficiency=100 %  disk=    2.928 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 21:43:26
+Was acquired at 21:43:37: ch=0009  cy=0015 QGval=-199  ph=00006086  fr=01000
+Cumulated exp=01:25:30  phot=000003076590 efficiency=100 %  disk=    2.934 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 21:43:37
+Was acquired at 21:43:47: ch=0010  cy=0015 QGval=-179  ph=00005927  fr=01000
+Cumulated exp=01:25:40  phot=000003082517 efficiency=100 %  disk=    2.940 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 21:43:47
+Was acquired at 21:43:58: ch=0011  cy=0015 QGval=-159  ph=00005662  fr=01000
+Cumulated exp=01:25:50  phot=000003088179 efficiency=100 %  disk=    2.945 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 21:43:58
+Was acquired at 21:44:08: ch=0012  cy=0015 QGval=-139  ph=00005905  fr=01000
+Cumulated exp=01:26:00  phot=000003094084 efficiency=100 %  disk=    2.951 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 21:44:08
+Was acquired at 21:44:18: ch=0013  cy=0015 QGval=-119  ph=00005676  fr=01000
+Cumulated exp=01:26:10  phot=000003099760 efficiency=100 %  disk=    2.956 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 21:44:18
+Was acquired at 21:44:29: ch=0014  cy=0015 QGval=-099  ph=00006108  fr=01000
+Cumulated exp=01:26:20  phot=000003105868 efficiency=100 %  disk=    2.962 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 21:44:29
+Was acquired at 21:44:39: ch=0015  cy=0015 QGval=-079  ph=00005753  fr=01000
+Cumulated exp=01:26:30  phot=000003111621 efficiency=100 %  disk=    2.967 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 21:44:39
+Was acquired at 21:44:50: ch=0016  cy=0015 QGval=-059  ph=00005787  fr=01000
+Cumulated exp=01:26:40  phot=000003117408 efficiency=100 %  disk=    2.973 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 21:44:50
+Was acquired at 21:45:00: ch=0017  cy=0015 QGval=-039  ph=00005913  fr=01000
+Cumulated exp=01:26:50  phot=000003123321 efficiency=100 %  disk=    2.979 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 21:45:00
+Was acquired at 21:45:11: ch=0018  cy=0015 QGval=-019  ph=00005807  fr=01000
+Cumulated exp=01:27:00  phot=000003129128 efficiency=100 %  disk=    2.984 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 21:45:11
+Was acquired at 21:45:21: ch=0019  cy=0015 QGval=0000  ph=00005884  fr=01000
+Cumulated exp=01:27:10  phot=000003135012 efficiency=100 %  disk=    2.990 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 21:45:21
+Was acquired at 21:45:31: ch=0020  cy=0015 QGval=0019  ph=00005974  fr=01000
+Cumulated exp=01:27:20  phot=000003140986 efficiency=100 %  disk=    2.995 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 21:45:31
+Was acquired at 21:45:42: ch=0021  cy=0015 QGval=0039  ph=00006118  fr=01000
+Cumulated exp=01:27:30  phot=000003147104 efficiency=100 %  disk=    3.001 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 21:45:42
+Was acquired at 21:45:52: ch=0022  cy=0015 QGval=0059  ph=00006181  fr=01000
+Cumulated exp=01:27:40  phot=000003153285 efficiency=100 %  disk=    3.007 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 21:45:52
+Was acquired at 21:46:03: ch=0023  cy=0015 QGval=0079  ph=00005799  fr=01000
+Cumulated exp=01:27:50  phot=000003159084 efficiency=100 %  disk=    3.013 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 21:46:03
+Was acquired at 21:46:13: ch=0024  cy=0015 QGval=0099  ph=00006183  fr=01000
+Cumulated exp=01:28:00  phot=000003165267 efficiency=100 %  disk=    3.019 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 21:46:13
+Was acquired at 21:46:24: ch=0025  cy=0015 QGval=0119  ph=00006212  fr=01000
+Cumulated exp=01:28:10  phot=000003171479 efficiency=100 %  disk=    3.025 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 21:46:24
+Was acquired at 21:46:34: ch=0026  cy=0015 QGval=0139  ph=00006096  fr=01000
+Cumulated exp=01:28:20  phot=000003177575 efficiency=100 %  disk=    3.030 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 21:46:34
+Was acquired at 21:46:45: ch=0027  cy=0015 QGval=0159  ph=00005983  fr=01000
+Cumulated exp=01:28:30  phot=000003183558 efficiency=100 %  disk=    3.036 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 21:46:45
+Was acquired at 21:46:55: ch=0028  cy=0015 QGval=0179  ph=00005749  fr=01000
+Cumulated exp=01:28:40  phot=000003189307 efficiency=100 %  disk=    3.042 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 21:46:55
+Was acquired at 21:47:05: ch=0029  cy=0015 QGval=0199  ph=00006155  fr=01000
+Cumulated exp=01:28:50  phot=000003195462 efficiency=100 %  disk=    3.047 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 21:47:05
+Was acquired at 21:47:16: ch=0030  cy=0015 QGval=0219  ph=00006009  fr=01000
+Cumulated exp=01:29:00  phot=000003201471 efficiency=100 %  disk=    3.053 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 21:47:16
+Was acquired at 21:47:26: ch=0031  cy=0015 QGval=0239  ph=00005858  fr=01000
+Cumulated exp=01:29:10  phot=000003207329 efficiency=100 %  disk=    3.059 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 21:47:26
+Was acquired at 21:47:37: ch=0032  cy=0015 QGval=0259  ph=00005737  fr=01000
+Cumulated exp=01:29:20  phot=000003213066 efficiency=100 %  disk=    3.064 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 21:47:37
+Was acquired at 21:47:47: ch=0033  cy=0015 QGval=0279  ph=00005892  fr=01000
+Cumulated exp=01:29:30  phot=000003218958 efficiency=100 %  disk=    3.070 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 21:47:47
+Was acquired at 21:47:58: ch=0034  cy=0015 QGval=0299  ph=00005865  fr=01000
+Cumulated exp=01:29:40  phot=000003224823 efficiency=100 %  disk=    3.075 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 21:47:58
+Was acquired at 21:48:08: ch=0035  cy=0015 QGval=0319  ph=00005927  fr=01000
+Cumulated exp=01:29:50  phot=000003230750 efficiency=100 %  disk=    3.081 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 21:48:08
+Was acquired at 21:48:19: ch=0036  cy=0015 QGval=0339  ph=00005737  fr=01000
+Cumulated exp=01:30:00  phot=000003236487 efficiency=100 %  disk=    3.087 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 21:48:19
+Was acquired at 21:48:29: ch=0036  cy=0016 QGval=0339  ph=00005753  fr=01000
+Cumulated exp=01:30:10  phot=000003242240 efficiency=100 %  disk=    3.092 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 21:48:29
+Was acquired at 21:48:39: ch=0035  cy=0016 QGval=0319  ph=00006223  fr=01000
+Cumulated exp=01:30:20  phot=000003248463 efficiency=100 %  disk=    3.098 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 21:48:39
+Was acquired at 21:48:50: ch=0034  cy=0016 QGval=0299  ph=00005983  fr=01000
+Cumulated exp=01:30:30  phot=000003254446 efficiency=100 %  disk=    3.104 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 21:48:50
+Was acquired at 21:49:00: ch=0033  cy=0016 QGval=0279  ph=00005933  fr=01000
+Cumulated exp=01:30:40  phot=000003260379 efficiency=100 %  disk=    3.109 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 21:49:00
+Was acquired at 21:49:11: ch=0032  cy=0016 QGval=0259  ph=00005994  fr=01000
+Cumulated exp=01:30:50  phot=000003266373 efficiency=100 %  disk=    3.115 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 21:49:11
+Was acquired at 21:49:21: ch=0031  cy=0016 QGval=0239  ph=00006095  fr=01000
+Cumulated exp=01:31:00  phot=000003272468 efficiency=100 %  disk=    3.121 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 21:49:21
+Was acquired at 21:49:32: ch=0030  cy=0016 QGval=0219  ph=00006035  fr=01000
+Cumulated exp=01:31:10  phot=000003278503 efficiency=100 %  disk=    3.127 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 21:49:32
+Was acquired at 21:49:42: ch=0029  cy=0016 QGval=0199  ph=00005897  fr=01000
+Cumulated exp=01:31:20  phot=000003284400 efficiency=100 %  disk=    3.132 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 21:49:42
+Was acquired at 21:49:53: ch=0028  cy=0016 QGval=0179  ph=00006011  fr=01000
+Cumulated exp=01:31:30  phot=000003290411 efficiency=100 %  disk=    3.138 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 21:49:53
+Was acquired at 21:50:03: ch=0027  cy=0016 QGval=0159  ph=00005908  fr=01000
+Cumulated exp=01:31:40  phot=000003296319 efficiency=100 %  disk=    3.144 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 21:50:03
+Was acquired at 21:50:13: ch=0026  cy=0016 QGval=0139  ph=00006147  fr=01000
+Cumulated exp=01:31:50  phot=000003302466 efficiency=100 %  disk=    3.149 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 21:50:13
+Was acquired at 21:50:24: ch=0025  cy=0016 QGval=0119  ph=00006035  fr=01000
+Cumulated exp=01:32:00  phot=000003308501 efficiency=100 %  disk=    3.155 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 21:50:24
+Was acquired at 21:50:34: ch=0024  cy=0016 QGval=0099  ph=00006059  fr=01000
+Cumulated exp=01:32:10  phot=000003314560 efficiency=100 %  disk=    3.161 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 21:50:34
+Was acquired at 21:50:45: ch=0023  cy=0016 QGval=0079  ph=00006400  fr=01000
+Cumulated exp=01:32:20  phot=000003320960 efficiency=100 %  disk=    3.167 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 21:50:45
+Was acquired at 21:50:55: ch=0022  cy=0016 QGval=0059  ph=00006096  fr=01000
+Cumulated exp=01:32:30  phot=000003327056 efficiency=100 %  disk=    3.173 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 21:50:55
+Was acquired at 21:51:06: ch=0021  cy=0016 QGval=0039  ph=00006125  fr=01000
+Cumulated exp=01:32:40  phot=000003333181 efficiency=100 %  disk=    3.179 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 21:51:06
+Was acquired at 21:51:16: ch=0020  cy=0016 QGval=0019  ph=00006007  fr=01000
+Cumulated exp=01:32:50  phot=000003339188 efficiency=100 %  disk=    3.184 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 21:51:16
+Was acquired at 21:51:27: ch=0019  cy=0016 QGval=0000  ph=00006294  fr=01000
+Cumulated exp=01:33:00  phot=000003345482 efficiency=100 %  disk=    3.191 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 21:51:27
+Was acquired at 21:51:37: ch=0018  cy=0016 QGval=-019  ph=00006247  fr=01000
+Cumulated exp=01:33:10  phot=000003351729 efficiency=100 %  disk=    3.196 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 21:51:37
+Was acquired at 21:51:47: ch=0017  cy=0016 QGval=-039  ph=00005923  fr=01000
+Cumulated exp=01:33:20  phot=000003357652 efficiency=100 %  disk=    3.202 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 21:51:47
+Was acquired at 21:51:58: ch=0016  cy=0016 QGval=-059  ph=00005966  fr=01000
+Cumulated exp=01:33:30  phot=000003363618 efficiency=100 %  disk=    3.208 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 21:51:58
+Was acquired at 21:52:08: ch=0015  cy=0016 QGval=-079  ph=00005746  fr=01000
+Cumulated exp=01:33:40  phot=000003369364 efficiency=100 %  disk=    3.213 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 21:52:08
+Was acquired at 21:52:19: ch=0014  cy=0016 QGval=-099  ph=00005822  fr=01000
+Cumulated exp=01:33:50  phot=000003375186 efficiency=100 %  disk=    3.219 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 21:52:19
+Was acquired at 21:52:29: ch=0013  cy=0016 QGval=-119  ph=00005864  fr=01000
+Cumulated exp=01:34:00  phot=000003381050 efficiency=100 %  disk=    3.224 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 21:52:29
+Was acquired at 21:52:40: ch=0012  cy=0016 QGval=-139  ph=00006074  fr=01000
+Cumulated exp=01:34:10  phot=000003387124 efficiency=100 %  disk=    3.230 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 21:52:40
+Was acquired at 21:52:50: ch=0011  cy=0016 QGval=-159  ph=00006066  fr=01000
+Cumulated exp=01:34:20  phot=000003393190 efficiency=100 %  disk=    3.236 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 21:52:50
+Was acquired at 21:53:00: ch=0010  cy=0016 QGval=-179  ph=00005893  fr=01000
+Cumulated exp=01:34:30  phot=000003399083 efficiency=100 %  disk=    3.242 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 21:53:00
+Was acquired at 21:53:11: ch=0009  cy=0016 QGval=-199  ph=00006017  fr=01000
+Cumulated exp=01:34:40  phot=000003405100 efficiency=100 %  disk=    3.247 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 21:53:11
+Was acquired at 21:53:21: ch=0008  cy=0016 QGval=-219  ph=00005871  fr=01000
+Cumulated exp=01:34:50  phot=000003410971 efficiency=100 %  disk=    3.253 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 21:53:21
+Was acquired at 21:53:32: ch=0007  cy=0016 QGval=-239  ph=00005994  fr=01000
+Cumulated exp=01:35:00  phot=000003416965 efficiency=100 %  disk=    3.259 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 21:53:32
+Was acquired at 21:53:42: ch=0006  cy=0016 QGval=-259  ph=00005873  fr=01000
+Cumulated exp=01:35:10  phot=000003422838 efficiency=100 %  disk=    3.264 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 21:53:42
+Was acquired at 21:53:53: ch=0005  cy=0016 QGval=-279  ph=00005680  fr=01000
+Cumulated exp=01:35:20  phot=000003428518 efficiency=100 %  disk=    3.270 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 21:53:53
+Was acquired at 21:54:03: ch=0004  cy=0016 QGval=-299  ph=00005595  fr=01000
+Cumulated exp=01:35:30  phot=000003434113 efficiency=100 %  disk=    3.275 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 21:54:03
+Was acquired at 21:54:13: ch=0003  cy=0016 QGval=-319  ph=00006023  fr=01000
+Cumulated exp=01:35:40  phot=000003440136 efficiency=100 %  disk=    3.281 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 21:54:13
+Was acquired at 21:54:24: ch=0002  cy=0016 QGval=-339  ph=00005790  fr=01000
+Cumulated exp=01:35:50  phot=000003445926 efficiency=100 %  disk=    3.286 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 21:54:24
+Was acquired at 21:54:34: ch=0001  cy=0016 QGval=-359  ph=00005922  fr=01000
+Cumulated exp=01:36:00  phot=000003451848 efficiency=100 %  disk=    3.292 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 21:54:34
+Was acquired at 21:54:45: ch=0001  cy=0017 QGval=-359  ph=00006030  fr=01000
+Cumulated exp=01:36:10  phot=000003457878 efficiency=100 %  disk=    3.298 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 21:54:45
+Was acquired at 21:54:55: ch=0002  cy=0017 QGval=-339  ph=00005927  fr=01000
+Cumulated exp=01:36:20  phot=000003463805 efficiency=100 %  disk=    3.303 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 21:54:55
+Was acquired at 21:55:06: ch=0003  cy=0017 QGval=-319  ph=00005978  fr=01000
+Cumulated exp=01:36:30  phot=000003469783 efficiency=100 %  disk=    3.309 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 21:55:06
+Was acquired at 21:55:16: ch=0004  cy=0017 QGval=-299  ph=00005743  fr=01000
+Cumulated exp=01:36:40  phot=000003475526 efficiency=100 %  disk=    3.315 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 21:55:16
+Was acquired at 21:55:27: ch=0005  cy=0017 QGval=-279  ph=00005866  fr=01000
+Cumulated exp=01:36:50  phot=000003481392 efficiency=100 %  disk=    3.320 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 21:55:27
+Was acquired at 21:55:37: ch=0006  cy=0017 QGval=-259  ph=00005925  fr=01000
+Cumulated exp=01:37:00  phot=000003487317 efficiency=100 %  disk=    3.326 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 21:55:37
+Was acquired at 21:55:47: ch=0007  cy=0017 QGval=-239  ph=00006098  fr=01000
+Cumulated exp=01:37:10  phot=000003493415 efficiency=100 %  disk=    3.332 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 21:55:47
+Was acquired at 21:55:58: ch=0008  cy=0017 QGval=-219  ph=00005727  fr=01000
+Cumulated exp=01:37:20  phot=000003499142 efficiency=100 %  disk=    3.337 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 21:55:58
+Was acquired at 21:56:08: ch=0009  cy=0017 QGval=-199  ph=00005757  fr=01000
+Cumulated exp=01:37:30  phot=000003504899 efficiency=100 %  disk=    3.343 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 21:56:08
+Was acquired at 21:56:19: ch=0010  cy=0017 QGval=-179  ph=00005859  fr=01000
+Cumulated exp=01:37:40  phot=000003510758 efficiency=100 %  disk=    3.348 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 21:56:19
+Was acquired at 21:56:29: ch=0011  cy=0017 QGval=-159  ph=00005720  fr=01000
+Cumulated exp=01:37:50  phot=000003516478 efficiency=100 %  disk=    3.354 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 21:56:29
+Was acquired at 21:56:40: ch=0012  cy=0017 QGval=-139  ph=00005861  fr=01000
+Cumulated exp=01:38:00  phot=000003522339 efficiency=100 %  disk=    3.359 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 21:56:40
+Was acquired at 21:56:50: ch=0013  cy=0017 QGval=-119  ph=00005672  fr=01000
+Cumulated exp=01:38:10  phot=000003528011 efficiency=100 %  disk=    3.365 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 21:56:50
+Was acquired at 21:57:00: ch=0014  cy=0017 QGval=-099  ph=00006012  fr=01000
+Cumulated exp=01:38:20  phot=000003534023 efficiency=100 %  disk=    3.370 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 21:57:00
+Was acquired at 21:57:11: ch=0015  cy=0017 QGval=-079  ph=00005819  fr=01000
+Cumulated exp=01:38:30  phot=000003539842 efficiency=100 %  disk=    3.376 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 21:57:11
+Was acquired at 21:57:21: ch=0016  cy=0017 QGval=-059  ph=00005956  fr=01000
+Cumulated exp=01:38:40  phot=000003545798 efficiency=100 %  disk=    3.382 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 21:57:21
+Was acquired at 21:57:32: ch=0017  cy=0017 QGval=-039  ph=00005970  fr=01000
+Cumulated exp=01:38:50  phot=000003551768 efficiency=100 %  disk=    3.387 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 21:57:32
+Was acquired at 21:57:42: ch=0018  cy=0017 QGval=-019  ph=00005867  fr=01000
+Cumulated exp=01:39:00  phot=000003557635 efficiency=100 %  disk=    3.393 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 21:57:42
+Was acquired at 21:57:53: ch=0019  cy=0017 QGval=0000  ph=00006060  fr=01000
+Cumulated exp=01:39:10  phot=000003563695 efficiency=100 %  disk=    3.399 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 21:57:53
+Was acquired at 21:58:03: ch=0020  cy=0017 QGval=0019  ph=00005895  fr=01000
+Cumulated exp=01:39:20  phot=000003569590 efficiency=100 %  disk=    3.404 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 21:58:03
+Was acquired at 21:58:13: ch=0021  cy=0017 QGval=0039  ph=00006156  fr=01000
+Cumulated exp=01:39:30  phot=000003575746 efficiency=100 %  disk=    3.410 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 21:58:13
+Was acquired at 21:58:24: ch=0022  cy=0017 QGval=0059  ph=00006096  fr=01000
+Cumulated exp=01:39:40  phot=000003581842 efficiency=100 %  disk=    3.416 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 21:58:24
+Was acquired at 21:58:34: ch=0023  cy=0017 QGval=0079  ph=00006105  fr=01000
+Cumulated exp=01:39:50  phot=000003587947 efficiency=100 %  disk=    3.422 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 21:58:34
+Was acquired at 21:58:45: ch=0024  cy=0017 QGval=0099  ph=00006029  fr=01000
+Cumulated exp=01:40:00  phot=000003593976 efficiency=100 %  disk=    3.427 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 21:58:45
+Was acquired at 21:58:55: ch=0025  cy=0017 QGval=0119  ph=00005945  fr=01000
+Cumulated exp=01:40:10  phot=000003599921 efficiency=100 %  disk=    3.433 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 21:58:55
+Was acquired at 21:59:06: ch=0026  cy=0017 QGval=0139  ph=00006388  fr=01000
+Cumulated exp=01:40:20  phot=000003606309 efficiency=100 %  disk=    3.439 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 21:59:06
+Was acquired at 21:59:16: ch=0027  cy=0017 QGval=0159  ph=00005943  fr=01000
+Cumulated exp=01:40:30  phot=000003612252 efficiency=100 %  disk=    3.445 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 21:59:16
+Was acquired at 21:59:27: ch=0028  cy=0017 QGval=0179  ph=00005911  fr=01000
+Cumulated exp=01:40:40  phot=000003618163 efficiency=100 %  disk=    3.451 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 21:59:27
+Was acquired at 21:59:37: ch=0029  cy=0017 QGval=0199  ph=00006202  fr=01000
+Cumulated exp=01:40:50  phot=000003624365 efficiency=100 %  disk=    3.456 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 21:59:37
+Was acquired at 21:59:47: ch=0030  cy=0017 QGval=0219  ph=00006139  fr=01000
+Cumulated exp=01:41:00  phot=000003630504 efficiency=100 %  disk=    3.462 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 21:59:47
+Was acquired at 21:59:58: ch=0031  cy=0017 QGval=0239  ph=00006099  fr=01000
+Cumulated exp=01:41:10  phot=000003636603 efficiency=100 %  disk=    3.468 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 21:59:58
+Was acquired at 22:00:08: ch=0032  cy=0017 QGval=0259  ph=00005840  fr=01000
+Cumulated exp=01:41:20  phot=000003642443 efficiency=100 %  disk=    3.474 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 22:00:08
+Was acquired at 22:00:19: ch=0033  cy=0017 QGval=0279  ph=00005863  fr=01000
+Cumulated exp=01:41:30  phot=000003648306 efficiency=100 %  disk=    3.479 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 22:00:19
+Was acquired at 22:00:29: ch=0034  cy=0017 QGval=0299  ph=00005876  fr=01000
+Cumulated exp=01:41:40  phot=000003654182 efficiency=100 %  disk=    3.485 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 22:00:29
+Was acquired at 22:00:40: ch=0035  cy=0017 QGval=0319  ph=00005704  fr=01000
+Cumulated exp=01:41:50  phot=000003659886 efficiency=100 %  disk=    3.490 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 22:00:40
+Was acquired at 22:00:50: ch=0036  cy=0017 QGval=0339  ph=00005908  fr=01000
+Cumulated exp=01:42:00  phot=000003665794 efficiency=100 %  disk=    3.496 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0036 at 22:00:50
+Was acquired at 22:01:01: ch=0036  cy=0018 QGval=0339  ph=00006168  fr=01000
+Cumulated exp=01:42:10  phot=000003671962 efficiency=100 %  disk=    3.502 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0035 at 22:01:01
+Was acquired at 22:01:11: ch=0035  cy=0018 QGval=0319  ph=00005853  fr=01000
+Cumulated exp=01:42:20  phot=000003677815 efficiency=100 %  disk=    3.507 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0034 at 22:01:11
+Was acquired at 22:01:21: ch=0034  cy=0018 QGval=0299  ph=00005788  fr=01000
+Cumulated exp=01:42:30  phot=000003683603 efficiency=100 %  disk=    3.513 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0033 at 22:01:21
+Was acquired at 22:01:32: ch=0033  cy=0018 QGval=0279  ph=00005995  fr=01000
+Cumulated exp=01:42:40  phot=000003689598 efficiency=100 %  disk=    3.519 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0032 at 22:01:32
+Was acquired at 22:01:42: ch=0032  cy=0018 QGval=0259  ph=00005827  fr=01000
+Cumulated exp=01:42:50  phot=000003695425 efficiency=100 %  disk=    3.524 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0031 at 22:01:42
+Was acquired at 22:01:53: ch=0031  cy=0018 QGval=0239  ph=00006686  fr=01000
+Cumulated exp=01:43:00  phot=000003702111 efficiency=100 %  disk=    3.531 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0030 at 22:01:53
+Was acquired at 22:02:03: ch=0030  cy=0018 QGval=0219  ph=00006074  fr=01000
+Cumulated exp=01:43:10  phot=000003708185 efficiency=100 %  disk=    3.536 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0029 at 22:02:03
+Was acquired at 22:02:14: ch=0029  cy=0018 QGval=0199  ph=00005984  fr=01000
+Cumulated exp=01:43:20  phot=000003714169 efficiency=100 %  disk=    3.542 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0028 at 22:02:14
+Was acquired at 22:02:24: ch=0028  cy=0018 QGval=0179  ph=00006069  fr=01000
+Cumulated exp=01:43:30  phot=000003720238 efficiency=100 %  disk=    3.548 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0027 at 22:02:24
+Was acquired at 22:02:35: ch=0027  cy=0018 QGval=0159  ph=00006204  fr=01000
+Cumulated exp=01:43:40  phot=000003726442 efficiency=100 %  disk=    3.554 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0026 at 22:02:35
+Was acquired at 22:02:45: ch=0026  cy=0018 QGval=0139  ph=00006204  fr=01000
+Cumulated exp=01:43:50  phot=000003732646 efficiency=100 %  disk=    3.560 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0025 at 22:02:45
+Was acquired at 22:02:55: ch=0025  cy=0018 QGval=0119  ph=00006039  fr=01000
+Cumulated exp=01:44:00  phot=000003738685 efficiency=100 %  disk=    3.565 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0024 at 22:02:55
+Was acquired at 22:03:06: ch=0024  cy=0018 QGval=0099  ph=00006108  fr=01000
+Cumulated exp=01:44:10  phot=000003744793 efficiency=100 %  disk=    3.571 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0023 at 22:03:06
+Was acquired at 22:03:16: ch=0023  cy=0018 QGval=0079  ph=00005968  fr=01000
+Cumulated exp=01:44:20  phot=000003750761 efficiency=100 %  disk=    3.577 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0022 at 22:03:16
+Was acquired at 22:03:27: ch=0022  cy=0018 QGval=0059  ph=00006375  fr=01000
+Cumulated exp=01:44:30  phot=000003757136 efficiency=100 %  disk=    3.583 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0021 at 22:03:27
+Was acquired at 22:03:37: ch=0021  cy=0018 QGval=0039  ph=00006322  fr=01000
+Cumulated exp=01:44:40  phot=000003763458 efficiency=100 %  disk=    3.589 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0020 at 22:03:37
+Was acquired at 22:03:48: ch=0020  cy=0018 QGval=0019  ph=00006093  fr=01000
+Cumulated exp=01:44:50  phot=000003769551 efficiency=100 %  disk=    3.595 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0019 at 22:03:48
+Was acquired at 22:03:58: ch=0019  cy=0018 QGval=0000  ph=00006095  fr=01000
+Cumulated exp=01:45:00  phot=000003775646 efficiency=100 %  disk=    3.601 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0018 at 22:03:58
+Was acquired at 22:04:09: ch=0018  cy=0018 QGval=-019  ph=00006064  fr=01000
+Cumulated exp=01:45:10  phot=000003781710 efficiency=100 %  disk=    3.607 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0017 at 22:04:09
+Was acquired at 22:04:19: ch=0017  cy=0018 QGval=-039  ph=00006085  fr=01000
+Cumulated exp=01:45:20  phot=000003787795 efficiency=100 %  disk=    3.612 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0016 at 22:04:19
+Was acquired at 22:04:30: ch=0016  cy=0018 QGval=-059  ph=00006080  fr=01000
+Cumulated exp=01:45:30  phot=000003793875 efficiency=100 %  disk=    3.618 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0015 at 22:04:30
+Was acquired at 22:04:40: ch=0015  cy=0018 QGval=-079  ph=00006187  fr=01000
+Cumulated exp=01:45:40  phot=000003800062 efficiency=100 %  disk=    3.624 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0014 at 22:04:40
+Was acquired at 22:04:50: ch=0014  cy=0018 QGval=-099  ph=00006257  fr=01000
+Cumulated exp=01:45:50  phot=000003806319 efficiency=100 %  disk=    3.630 Mb
+THT=01547v  shutter= undef  Ope01547  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0013 at 22:04:50
+Was acquired at 22:05:01: ch=0013  cy=0018 QGval=-119  ph=00005831  fr=01000
+Cumulated exp=01:46:00  phot=000003812150 efficiency=100 %  disk=    3.636 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0012 at 22:05:01
+Was acquired at 22:05:11: ch=0012  cy=0018 QGval=-139  ph=00006265  fr=01000
+Cumulated exp=01:46:10  phot=000003818415 efficiency=100 %  disk=    3.642 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0011 at 22:05:11
+Was acquired at 22:05:22: ch=0011  cy=0018 QGval=-159  ph=00006129  fr=01000
+Cumulated exp=01:46:20  phot=000003824544 efficiency=100 %  disk=    3.647 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0010 at 22:05:22
+Was acquired at 22:05:32: ch=0010  cy=0018 QGval=-179  ph=00005978  fr=01000
+Cumulated exp=01:46:30  phot=000003830522 efficiency=100 %  disk=    3.653 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0009 at 22:05:32
+Was acquired at 22:05:43: ch=0009  cy=0018 QGval=-199  ph=00006279  fr=01000
+Cumulated exp=01:46:40  phot=000003836801 efficiency=100 %  disk=    3.659 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0008 at 22:05:43
+Was acquired at 22:05:53: ch=0008  cy=0018 QGval=-219  ph=00006165  fr=01000
+Cumulated exp=01:46:50  phot=000003842966 efficiency=100 %  disk=    3.665 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0007 at 22:05:53
+Was acquired at 22:06:04: ch=0007  cy=0018 QGval=-239  ph=00006134  fr=01000
+Cumulated exp=01:47:00  phot=000003849100 efficiency=100 %  disk=    3.671 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0006 at 22:06:04
+Was acquired at 22:06:14: ch=0006  cy=0018 QGval=-259  ph=00005832  fr=01000
+Cumulated exp=01:47:10  phot=000003854932 efficiency=100 %  disk=    3.676 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0005 at 22:06:14
+Was acquired at 22:06:24: ch=0005  cy=0018 QGval=-279  ph=00006186  fr=01000
+Cumulated exp=01:47:20  phot=000003861118 efficiency=100 %  disk=    3.682 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0004 at 22:06:24
+Was acquired at 22:06:35: ch=0004  cy=0018 QGval=-299  ph=00006193  fr=01000
+Cumulated exp=01:47:30  phot=000003867311 efficiency=100 %  disk=    3.688 Mb
+THT=01549v  shutter= undef  Ope01549  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0003 at 22:06:35
+Was acquired at 22:06:45: ch=0003  cy=0018 QGval=-319  ph=00006124  fr=01000
+Cumulated exp=01:47:40  phot=000003873435 efficiency=100 %  disk=    3.694 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0002 at 22:06:45
+Was acquired at 22:06:56: ch=0002  cy=0018 QGval=-339  ph=00005665  fr=01000
+Cumulated exp=01:47:50  phot=000003879100 efficiency=100 %  disk=    3.699 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+
+==>  Beginning channel=0001 at 22:06:56
+Was acquired at 22:07:06: ch=0001  cy=0018 QGval=-359  ph=00005841  fr=01000
+Cumulated exp=01:48:00  phot=000003884941 efficiency=100 %  disk=    3.705 Mb
+THT=01548v  shutter= undef  Ope01548  discri=05 BlackLevel=005 Whitelevel=255
+

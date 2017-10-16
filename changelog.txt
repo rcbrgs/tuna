@@ -1,0 +1,67 @@
+Tuna 0.13.0:
+- Documentation: added a requirements file pip_readthedocs.txt.
+- Documentation: added paths to have the possible tuna dirs in readthedocs.
+- Documentation: Modified installation instructions to reflect new setuptool method.
+- Documentation: added mocks to docs/conf.py, wrote explanation about tuna namespaces and modules.
+- Documentation: added style guidelines for header docstrings of namespaces, modules, classes and functions/methods.
+- Documentation: updated tuna.console.backend docstrings.
+- Documentation: updated tuna.io to new style.
+- Documentation: updated tuna.io.adhoc to new style.
+- Documentation: updated tuna.io.adhoc_ada to new style.
+- Documentation: updated tuna.io.adhoc_ada to new style.
+- Documentation: updated tuna.io.can to new style.
+- Documentation: updated tuna.io.convenience to new style.
+- Documentation: updated the tuna.io.database to new style.
+- Documentation: added example run 001 of 30 Doradus SOAR dataset.
+- Documentation: updated README to have recent installation recipe.
+- Documentation: updated tuna.io.file_format to new style.
+- Documentation: updated tuna.io.convenience to new style.
+- Documentation: updated tuna.io.fits to new style.
+- git: Major restructuring. Moved code to a directory named tuna, to comply with setup.py 'packages' methodology.
+- io: FITS reader will now automatically detect "mosaicable" FITS composites, and extract data accordingly.
+- Packaging: Added external dependency on mpyfit.
+- Testing: Fixed new paths for sample files.
+- Testing: updated adhoc test to use newly protected version.
+- Visualization: hid the warning about PySide not being a valid matplotlib backend.
+
+Tuna v0.10:
+- Multithreaded pipeline (done).
+- Wavelength calibration works correctly.
+- Model fittings now use Astropy v1.0.2.
+- Removed datacube class.
+
+Tuna v0.9:
+- Multithreaded pipeline (partially done).
+- Fix FSR calculation on wavelength calibration (done, but check for possible sign inversion).
+- Refactor logging using Python logging module and standard practices for Python libraries.
+- Add function so the user can set the log file name.
+- Refactor metadata extraction from ADA files so that numeric values are treated as integers and floats.
+- Created tool to print a "history" of a pixel, as it goes through the pipeline.
+- Refactor out the datacube class, integrating its functionality in Tuna cans (mostly done).
+- Setup continuous integration with Travis and Coverall. 
+- Increased test coverage of Tuna from 17% to 35%.
+
+Tuna v0.8:
+- Multiple instantiation of tuna now works reliably.
+- Examples were refactored to exemplify tuna as a library.
+- Cans metadata are now a Python dictionary.
+- Arrays and metadata are directly accessible from the can object (no need for get_ functions).
+- Airy fit automated. Refactor Airy fit using astropy fitters / models.
+- Use Airy fit to replace suppressed data channels.
+- Photon tables refactored to allow simpler translations.
+- Wavelength now have only integers as valid values for a channel.
+
+Tuna 0.7:
+- Channel subset now interpolates values from neighbouring channels.
+- Converting from ADA files now produces a photon table that is written to a FITS table.
+- Airy function can now be fitted manually.
+- Simplified Tuna API.
+
+Tuna 0.6:
+- Added tool to flip cubes along a dimension.
+- Added tool to calculate difference between two cubes.
+- Added tool to find ring center using arc chord perpendiculars.
+- Renamed some modules to make them simpler and shorter.
+- Parabolic fit now also returns the equation coefficients.
+- Continuum now uses median instead of average.
+- Log messages are now parameterizable in levels (debug, info, warning, error, critical).
