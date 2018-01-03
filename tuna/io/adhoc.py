@@ -11,8 +11,6 @@ import logging
 import os
 import numpy
 import numpy as np
-import pyfits as pf
-from pyfits import Column
 import sys
 from time import sleep
 
@@ -99,16 +97,22 @@ class adhoc ( file_reader ):
                 self.log.error ( "File does not contain valid numpy array." )
                 self.__adhoc_type = None
                 return
-            self.__array_size = ( self.__file_object.tell ( ) - 256 ) / 4  
+            self.__array_size = ( self.__file_object.tell ( ) - 256 ) / 4
+            self.log.debug ( "__array_size = {}".format ( self.__array_size ) )
             self.__file_object.close ( )
 
+            if self.__array_size > int ( self.__array_size ):
+                self.log.warning ( "Array size is not an integer value!" )
+                self.__adhoc_type = None
+                return
+
             try: 
-                adhoc_file_type = numpy.dtype ( [ ( 'image_data', numpy.float32, self.__array_size ),
+                adhoc_file_type = numpy.dtype ( [ ( 'image_data', numpy.float32, int ( self.__array_size ) ),
                                                   ( 'trailer', 
                                                     [ ( 'number_of_dimensions', numpy.int32, 1 ),
                                                       ( 'parameters', numpy.int8, 252 ) ] ) ] )
             except ValueError as e:
-                self.log.error ( "ValueError: %s." % str ( e ) )
+                self.log.error ( "ValueError: %s" % str ( e ) )
                 self.log.warning ( "Impossible to guess adhoc type from file." )
                 self.__adhoc_type = None
                 return
@@ -168,37 +172,41 @@ class adhoc ( file_reader ):
         """
         self.log.debug ( tuna.log.function_header ( ) )
 
-        adhoc_2d_file_type = numpy.dtype ( [ ( 'data', np.float32, self.__array_size ), 
-                                             ( 'trailer', 
-                                               [ ( 'nbdim', np.int32 ), 
-                                                 ( 'id', np.int8, 8 ), 
-                                                 ( 'lx', np.int32 ), 
-                                                 ( 'ly', np.int32 ), 
-                                                 ( 'lz', np.int32 ), 
-                                                 ( 'scale', np.float32 ), 
-                                                 ( 'ix0', np.int32 ), 
-                                                 ( 'iy0', np.int32 ), 
-                                                 ( 'zoom', np.float32 ), 
-                                                 ( 'modevis', np.int32 ), 
-                                                 ( 'thrshld', np.float32 ), 
-                                                 ( 'step', np.float32 ), 
-                                                 ( 'nbiso', np.int32 ), 
-                                                 ( 'pal', np.int32 ), 
-                                                 ( 'cdelt1', np.float64 ), 
-                                                 ( 'cdelt2', np.float64 ), 
-                                                 ( 'crval1', np.float64 ), 
-                                                 ( 'crval2', np.float64 ), 
-                                                 ( 'crpix1', np.float32 ), 
-                                                 ( 'crpix2', np.float32 ), 
-                                                 ( 'crota2', np.float32 ), 
-                                                 ( 'equinox', np.float32 ), 
-                                                 ( 'x_mirror', np.int8 ), 
-                                                 ( 'y_mirror', np.int8 ), 
-                                                 ( 'was_compressed', np.int8 ), 
-                                                 ( 'none2', np.int8, 1 ), 
-                                                 ( 'none', np.int32, 4 ),
-                                                 ( 'comment', np.int8, 128 ) ] ) ] )
-        
+        try:
+            adhoc_2d_file_type = numpy.dtype ( [ ( 'data', np.float32, int ( self.__array_size ) ), 
+                                                 ( 'trailer', 
+                                                   [ ( 'nbdim', np.int32 ), 
+                                                     ( 'id', np.int8, 8 ), 
+                                                     ( 'lx', np.int32 ), 
+                                                     ( 'ly', np.int32 ), 
+                                                     ( 'lz', np.int32 ), 
+                                                     ( 'scale', np.float32 ), 
+                                                     ( 'ix0', np.int32 ), 
+                                                     ( 'iy0', np.int32 ), 
+                                                     ( 'zoom', np.float32 ), 
+                                                     ( 'modevis', np.int32 ), 
+                                                     ( 'thrshld', np.float32 ), 
+                                                     ( 'step', np.float32 ), 
+                                                     ( 'nbiso', np.int32 ), 
+                                                     ( 'pal', np.int32 ), 
+                                                     ( 'cdelt1', np.float64 ), 
+                                                     ( 'cdelt2', np.float64 ), 
+                                                     ( 'crval1', np.float64 ), 
+                                                     ( 'crval2', np.float64 ), 
+                                                     ( 'crpix1', np.float32 ), 
+                                                     ( 'crpix2', np.float32 ), 
+                                                     ( 'crota2', np.float32 ), 
+                                                     ( 'equinox', np.float32 ), 
+                                                     ( 'x_mirror', np.int8 ), 
+                                                     ( 'y_mirror', np.int8 ), 
+                                                     ( 'was_compressed', np.int8 ), 
+                                                     ( 'none2', np.int8, 1 ), 
+                                                     ( 'none', np.int32, 4 ),
+                                                     ( 'comment', np.int8, 128 ) ] ) ] )
+        except ValueError as e:
+            self.log.error ( "ValueError: {}".format ( e ) )
+            return
+            
         numpy_data = numpy.fromfile ( self.__file_name, dtype = adhoc_2d_file_type )
         
         if ( numpy_data['trailer']['lx'] >= 32768 ) |  ( numpy_data['trailer']['ly'] >= 32768 ):
@@ -209,10 +217,12 @@ class adhoc ( file_reader ):
             return
 
         try:
-            self.__array = numpy_data['data'][0].reshape ( numpy_data['trailer']['ly'], 
-                                                           numpy_data['trailer']['lx'] )
-        except ValueError as e:
-            self.log.debug ( "%s" % str ( e ) )
+            self.__array = numpy_data['data'][0].reshape ( numpy_data['trailer']['ly'][0], 
+                                                           numpy_data['trailer']['lx'][0] )
+        except Exception as e:
+            self.log.error ( "Exception: {}".format ( e ) )
+            self.log.warning ( "numpy_data['trailer']['ly'] = {}".format ( numpy_data['trailer']['ly'] ))
+            self.log.warning ( "numpy_data['trailer']['lx'] = {}".format ( numpy_data['trailer']['lx'] ))
             raise
     
         self.__array [ numpy.where ( numpy_data == -3.1E38 ) ] = numpy.nan
@@ -234,7 +244,7 @@ class adhoc ( file_reader ):
 
         data = self.__file_object
         data.seek ( 0, 2 )
-        sz = ( data.tell ( ) - 256 ) / 4
+        sz = int ( ( data.tell ( ) - 256 ) / 4 )
             
         dt = np.dtype ( [ ( 'data', np.float32, sz ),
                           ( 'trailer', 
@@ -281,9 +291,9 @@ class adhoc ( file_reader ):
             return
 
         if ad3['trailer']['nbdim'] == -3:  # nbdim ?
-            data = ad3['data'][0].reshape(ad3['trailer']['lz'], ad3['trailer']['ly'], ad3['trailer']['lx'])  #
+            data = ad3['data'][0].reshape(ad3['trailer']['lz'][0], ad3['trailer']['ly'][0], ad3['trailer']['lx'][0])  #
         else:
-            data = ad3['data'][0].reshape(ad3['trailer']['ly'], ad3['trailer']['lx'], ad3['trailer']['lz'])
+            data = ad3['data'][0].reshape(ad3['trailer']['ly'][0], ad3['trailer']['lx'][0], ad3['trailer']['lz'][0])
 
         if xyz & (ad3['trailer']['nbdim'] == 3):
             #return the data ordered in z, y, x
