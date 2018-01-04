@@ -3,8 +3,9 @@ This module's scope covers operations related to the FITS file format.
 
 As much as possible, operations are deferred to astropy.io.fits.
 """
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __changelog__ = {
+    "0.1.1" : { "Tuna" : "0.16.5", "Change" : "Fixed deprecated new_table usage on astropy.io.fits." },
     "0.1.0" : { "Tuna" : "0.16.0", "Change" : "Added debug messages during metadata parsing. Fixed metdata not reading entries from multiple HDU lists." }
     }
 
@@ -264,9 +265,7 @@ class fits ( file_reader ):
                                                          format = columns [ key ] [ 1 ] ) )
 
         fits_columns_definition = astrofits . ColDefs ( fits_columns )
-        # The new_table method will be deprecated, when it is, use the commented line below.
-        fits_table_hdu = astrofits . new_table ( fits_columns_definition )                
-        #fits_table_hdu = astrofits . BinTableHDU . from_columns ( fits_columns_definition )
+        fits_table_hdu = astrofits . BinTableHDU . from_columns ( fits_columns_definition )
         primary_hdu = astrofits.PrimaryHDU ( )
         hdu_list = astrofits.HDUList ( [ primary_hdu, fits_table_hdu ] )
         hdu_list.writeto ( "metadata_" + self.__file_name )

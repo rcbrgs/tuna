@@ -40,8 +40,9 @@ class ada ( file_reader ):
     def __init__ ( self, 
                    array = None, 
                    file_name = None ):
-        self.__version__ = "0.2.0"
+        self.__version__ = "0.2.1"
         self.__changelog = {
+            "0.2.1" : "Tuna 0.16.5 : fixed syntax for ndarrays creation, avoiding floats in shape.",
             "0.2.0" : "Tuna 0.14.0 : improved docstrings.",
             "0.1.1" : "Updated docstrings to new style documentation.",
             '0.1.0' : "Initial changelogged version."
@@ -183,7 +184,7 @@ class ada ( file_reader ):
         photon_positions = numpy.fromfile ( file_path, dtype = numpy.int16 )
         # We know the file is organized with y,x,y,x,y,x... 
         # So the file will have size / 2 photons.
-        photon_hits = photon_positions.reshape ( photon_positions.size / 2, 2 )
+        photon_hits = photon_positions.reshape ( int ( photon_positions.size / 2 ), 2 )
         for photon in range ( photon_hits.shape[0] ):
             x = photon_hits[photon][0]
             y = photon_hits[photon][1]

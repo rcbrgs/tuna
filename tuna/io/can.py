@@ -65,6 +65,7 @@ class can ( file_reader ):
         super ( can, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
+        #self.log.setLevel ( logging.DEBUG )
         self.__version__ = "0.1.5"
         self.changelog = {
             "0.1.5" : "Tuna 0.14.0 : improved docstrings.",
@@ -289,7 +290,7 @@ class can ( file_reader ):
 
     def update ( self ):
         """
-        This method's goal is to clears current metadata, and regenerate this information based on the current contents of the can's array and photon table.
+        This method's goal is to clear current metadata, and regenerate this information based on the current contents of the can's array and photon table.
         """
         self.log.debug ( tuna.log.function_header ( ) )
 

@@ -99,7 +99,7 @@ class adhoc ( file_reader ):
                 self.log.error ( "File does not contain valid numpy array." )
                 self.__adhoc_type = None
                 return
-            self.__array_size = ( self.__file_object.tell ( ) - 256 ) / 4  
+            self.__array_size = int ( ( self.__file_object.tell ( ) - 256 ) / 4 )
             self.__file_object.close ( )
 
             try: 
@@ -209,8 +209,8 @@ class adhoc ( file_reader ):
             return
 
         try:
-            self.__array = numpy_data['data'][0].reshape ( numpy_data['trailer']['ly'], 
-                                                           numpy_data['trailer']['lx'] )
+            self.__array = numpy_data['data'][0].reshape ( numpy_data['trailer']['ly'][0], 
+                                                           numpy_data['trailer']['lx'][0] )
         except ValueError as e:
             self.log.debug ( "%s" % str ( e ) )
             raise
@@ -234,7 +234,7 @@ class adhoc ( file_reader ):
 
         data = self.__file_object
         data.seek ( 0, 2 )
-        sz = ( data.tell ( ) - 256 ) / 4
+        sz = int ( ( data.tell ( ) - 256 ) / 4 )
             
         dt = np.dtype ( [ ( 'data', np.float32, sz ),
                           ( 'trailer', 
@@ -281,9 +281,9 @@ class adhoc ( file_reader ):
             return
 
         if ad3['trailer']['nbdim'] == -3:  # nbdim ?
-            data = ad3['data'][0].reshape(ad3['trailer']['lz'], ad3['trailer']['ly'], ad3['trailer']['lx'])  #
+            data = ad3['data'][0].reshape(ad3['trailer']['lz'][0], ad3['trailer']['ly'][0], ad3['trailer']['lx'][0])  #
         else:
-            data = ad3['data'][0].reshape(ad3['trailer']['ly'], ad3['trailer']['lx'], ad3['trailer']['lz'])
+            data = ad3['data'][0].reshape(ad3['trailer']['ly'][0], ad3['trailer']['lx'][0], ad3['trailer']['lz'][0])
 
         if xyz & (ad3['trailer']['nbdim'] == 3):
             #return the data ordered in z, y, x
