@@ -111,7 +111,7 @@ __registry = {
     "FSR mapper" : tuna.tools.fsr.fsr_mapper,
     "Noise detector" : tuna.tools.noise.detect_noise,
     "Overscan" : tuna.tools.overscan.no_overscan,
-    "Parabola fit" : tuna.models.parabola.parabolic_fitter,
+    "Parabola fit" : tuna.models.parabola.ParabolicFitter,
     "Ring center finder" : tuna.tools.spectral_rings_fitter,
     }
 
