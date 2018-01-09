@@ -13,7 +13,7 @@ class unit_test_io_adhoc_ada ( unittest.TestCase ):
         tuna.io.read ( self.here + "/tuna/test/unit/unit_io/fake_adhoc.ada" )
 
     def test_no_file_name ( self ):
-        ad = tuna.io.ada ( )
+        ad = tuna.io.Ada ( )
         ad.read ( )
 
     def test_nonexisting_file ( self ):

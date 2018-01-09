@@ -1,16 +1,16 @@
-"""
-This namespace contains: io operations, file formats, data storage and metadata.
+"""This namespace contains: io operations, file formats, data storage and 
+metadata.
 """
 
-from .adhoc           import adhoc
-from .adhoc_ada       import ada
-from .can             import can
+from .adhoc           import Adhoc
+from .adhoc_ada       import Ada
+from .can             import Can
 from .convenience     import ( read,
                                write )
-from .database        import database
-from .file_reader     import file_reader
-from .fits            import fits
-from .lock            import lock
-from .metadata_parser import ( metadata_parser, 
+from .database        import Database
+from .file_reader     import FileReader
+from .fits            import Fits
+from .lock            import Lock
+from .metadata_parser import ( MetadataParser, 
                                get_metadata )
 from tuna.io.system   import status

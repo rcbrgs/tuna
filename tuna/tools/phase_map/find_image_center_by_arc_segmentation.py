@@ -65,7 +65,7 @@ class arc_segmentation_center_finder ( threading.Thread ):
 
         self.log.debug ( "Trying to find_image_center_by_arc_segmentation()." )
 
-        if not isinstance ( self.wrapped, tuna.io.can ):
+        if not isinstance ( self.wrapped, tuna.io.can.Can ):
             self.log.error ( "Unexpected value for parameter." )
             return None
 

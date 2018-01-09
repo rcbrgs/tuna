@@ -19,7 +19,7 @@ class unit_test_io_adhoc ( unittest.TestCase ):
         tuna.io.read ( self.here + "/tuna/test/unit/unit_io/fake_adhoc.ad2" )
 
     def test_no_file_name ( self ):
-        ad = tuna.io.adhoc ( )
+        ad = tuna.io.Adhoc ( )
         ad.read ( )
 
     def test_nonexisting_file ( self ):
@@ -45,7 +45,7 @@ class unit_test_io_adhoc ( unittest.TestCase ):
         tuna.io.read ( self.here + "/tuna/test/unit/unit_io/adhoc.ad3" )
 
     def test_wrong_dimenson ( self ):
-        ad = tuna.io.adhoc ( file_name = self.here + "/tuna/test/unit/unit_io/adhoc.ad3" )
+        ad = tuna.io.Adhoc ( file_name = self.here + "/tuna/test/unit/unit_io/adhoc.ad3" )
         ad._discover_adhoc_type ( )
         self.assertRaises ( ValueError, ad._read_adhoc_2d )
 

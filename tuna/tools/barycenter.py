@@ -192,7 +192,7 @@ class barycenter_fast ( threading.Thread ):
 
         result = self.create_barycenter_using_peak ( )
         self.log.debug ( "result.shape = %s" % str ( result.shape ) )
-        self.result = tuna.io.can ( array = result )
+        self.result = tuna.io.can.Can ( array = result )
         self.log.debug ( "self.result.array.shape = %s" % str ( self.result.array.shape ) )
 
         self.log.debug ( "Barycenter detection took %ds." % ( time.time ( ) - start ) )
