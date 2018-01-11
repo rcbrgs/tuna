@@ -1,3 +1,2 @@
-"""
-This namespace aggregates modules related to remote storage.
+"""This namespace aggregates modules related to remote storage.
 """
