@@ -86,7 +86,7 @@ class noise_detector ( threading.Thread ):
         The execution creates a zero-filled numpy.ndarray, fills it with the noise values as detected by the method self.detect_signalless ( ) and then updates Tuna's database through the method self.refresh_database ( ).
         """
         noise_map = numpy.zeros ( shape = self.wrapped.array.shape, dtype = numpy.int16 )
-        self.noise = tuna.io.can ( noise_map )
+        self.noise = tuna.io.Can ( noise_map )
         self.detect_signalless ( self.noise_threshold )
         self.refresh_database ( )
 

@@ -886,7 +886,7 @@ def find_rings ( data : numpy.ndarray,
     """
     log = logging.getLogger ( __name__ )
     
-    if isinstance ( data, tuna.io.can ):
+    if isinstance ( data, tuna.io.can.Can ):
         effective_array = data.array
         log.debug ( "Using can's array as input." )
     else:

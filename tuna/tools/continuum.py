@@ -71,7 +71,7 @@ class detector ( threading.Thread ):
         
         self.log.info ( "Continuum array created." )
 
-        self.continuum = tuna.io.can ( array = continuum_array )
+        self.continuum = tuna.io.Can ( array = continuum_array )
 
         self.log.debug ( "detect_continuum() took %ds." % ( time.time ( ) - start ) )
 

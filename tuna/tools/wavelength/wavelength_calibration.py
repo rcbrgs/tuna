@@ -135,7 +135,7 @@ class wavelength_calibrator ( threading.Thread ):
         self.log.debug ( "self.unwrapped_phase_map.get_array().ndim == %d" % self.unwrapped_phase_map.ndim )
         self.log.debug ( "calibrated.ndim == %d" % calibrated.ndim )
 
-        self.calibrated = tuna.io.can ( array = calibrated )
+        self.calibrated = tuna.io.Can ( array = calibrated )
 
     def run ( self ):
         """
