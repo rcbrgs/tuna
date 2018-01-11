@@ -1,5 +1,4 @@
-"""
-This namespace aggregates modules that contain Tuna's pipelines.
+"""This namespace aggregates modules that contain Tuna's pipelines.
 
 The pipeline is a recipe for using the library's tools in a certain way, in order to obtain a desired result. It is expected that the individual tools can be replaced, as long as they result in scientifically equivalent outputs, given the same inputs.
 
