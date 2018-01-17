@@ -137,12 +137,12 @@ import tuna
 __registry = {
     "Airy fit": tuna.models.airy.fit_airy,
     "Apply wavelength calibration": tuna.tools.wavelength \
-    .wavelength_calibration.wavelength_calibrator,
+    .wavelength_calibration.WavelengthCalibrator,
     "B-ratio estimation": tuna.tools.estimate_b_ratio,
     "Barycenter algorithm": tuna.tools.barycenter_geometry,
     "Continuum detector": tuna.tools.continuum_detector,
     "Find the ring borders": tuna.tools.phase_map.ring_borders \
-    .ring_border_detector,
+    .RingBorderDetector,
     "FSR mapper": tuna.tools.fsr.fsr_mapper,
     "Noise detector": tuna.tools.noise.detect_noise,
     "Overscan": tuna.tools.overscan.no_overscan,

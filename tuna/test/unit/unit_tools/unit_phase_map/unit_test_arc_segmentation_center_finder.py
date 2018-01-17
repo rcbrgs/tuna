@@ -15,7 +15,7 @@ class unit_test_arc_segmentation_center_finder(unittest.TestCase):
             self.here + "/tuna/test/unit/unit_io/G094_03_wrapped_phase_map.fits")
         noise = tuna.io.read(
             self.here + "/tuna/test/unit/unit_io/G094_04_noise.fits")
-        center_finder = tuna.tools.phase_map.arc_segmentation_center_finder(
+        center_finder = tuna.tools.phase_map.ArcSegmentationCenterFinder(
             wrapped, noise)
         center_finder.join()
         

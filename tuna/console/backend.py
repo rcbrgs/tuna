@@ -11,7 +11,7 @@ import logging
 import sys
 import threading
 import tuna
-from tuna.zeromq.zmq_proxy import zmq_proxy
+from tuna.zeromq.zmq_proxy import ZMQProxy
 
 class Backend(object):
     """This class' responsability is to wrap calls for all necessary background 
@@ -64,7 +64,7 @@ class ZMQDaemon(threading.Thread):
     def __init__(self):
         super(ZMQDaemon, self ).__init__()
         self.log = logging.getLogger(__name__)
-        self.zmq_proxy_instance = zmq_proxy()
+        self.zmq_proxy_instance = ZMQProxy()
 
         self.daemon = True
 
