@@ -2,15 +2,20 @@
 """
 This module's scope covers operations related to ADHOC ADA files.
 """
-
+import os
 from .file_reader import file_reader
 
 import logging
 import numpy
+from numpy import shape
 from os import listdir
 from os.path import dirname, isfile, join
 import re
 import tuna
+import IPython
+import math
+import warnings
+import matplotlib.pyplot as plt
 
 class ada ( file_reader ):
     """
@@ -37,16 +42,16 @@ class ada ( file_reader ):
         raw.get_metadata ( )
     """
 
-    def __init__ ( self, 
-                   array = None, 
+    def __init__ ( self,
+                   array = None,
                    file_name = None ):
-        self.__version__ = "0.2.0"
+        self.__version__ = "0.3.0"
         self.__changelog = {
+            "0.3.0" : "add news functions + corrections.",
             "0.2.0" : "Tuna 0.14.0 : improved docstrings.",
             "0.1.1" : "Updated docstrings to new style documentation.",
             '0.1.0' : "Initial changelogged version."
             }
-        
         super ( ada, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
         self.log.setLevel ( logging.INFO )
@@ -55,6 +60,7 @@ class ada ( file_reader ):
         self.__array = array
         self.__metadata = { }
         self.__photons = { }
+        self.__file_path = dirname(file_name)
 
     def get_array ( self ):
         """
@@ -89,19 +95,34 @@ class ada ( file_reader ):
         """
         return self.__photons
 
-    def read ( self ):
+    def read(self, channel_test = 1):
         """
         This method's goal is to validate input and start the reading procedure.
         """
         self.log.debug ( tuna.log.function_header ( ) )
 
-        if self.__file_name != None:
-            if ( self.__file_name.lower ( ).startswith ( ".adt", -4 ) ):
-                self._read_adt ( )
-        else:
-            self.log.warning ( "File name %s does not have .ADT or .adt suffix, aborting." % ( self.__file_name ) )
+        if self.__file_name:
 
-    def _read_adt ( self ):
+            try:
+                self.__file_object = open ( self.__file_name, "r" )
+                self.__file_object.seek ( 0, os.SEEK_END )
+                if self.__file_object.tell ( ) < 256:
+                    self.log.error ( "File does not contain valid numpy array." )
+                    return
+                self.__file_object.close ( )
+
+            except OSError as e:
+                self.log.error ( "OSError: %s" % str ( e ) )
+                raise
+
+            if ( self.__file_name.lower ( ).startswith ( ".adt", -4 ) ):
+                #self._read_adt ( )
+                self._read_adt (channel_test= channel_test)
+            else:
+                self.log.warning ( "File name %s does not have .ADT or .adt suffix, aborting." % ( self.__file_name ) )
+                return
+
+    def _read_adt ( self,channel_test=1 ):
         """
         This method's goal is to read a file as an ADT file.
         """
@@ -109,7 +130,7 @@ class ada ( file_reader ):
 
         self.__file_path = dirname ( self.__file_name )
         self.log.debug ( "self.__file_path = %s." % ( self.__file_path ) )
-        
+
         self._read_adt_metadata ( )
 
         adt = open ( self.__file_name, "r" )
@@ -124,7 +145,7 @@ class ada ( file_reader ):
                                int ( dimensions_string.split ( " " )[1] ) ]
                 break
         self.log.debug ( "dimensions = %s." % ( dimensions ) )
-       
+
         data_files = 0
         adt.seek ( 0 )
         for line in adt:
@@ -143,7 +164,6 @@ class ada ( file_reader ):
         photon_files.sort ( )
         self.log.debug ( "len ( photon_files ) = %d." % ( len ( photon_files ) ) )
 
-        
         self.__array = numpy.zeros ( shape = ( number_of_channels,
                                                        dimensions[0], 
                                                        dimensions[1] ) )
@@ -157,9 +177,14 @@ class ada ( file_reader ):
                 self.log.info ( "Adding photon counts into numpy array: %3d" % ( percentage_done * 10 ) + '%')
                 last_printed = percentage_done
 
-            file_result = self._read_ada ( file_name = file_name_entry, channel = channel )
+            if channel_test == -1:
+                file_result = self._read_ada ( file_name = file_name_entry, channel = channel_test )
+            else:
+
+                file_result = self._read_ada ( file_name = file_name_entry, channel = channel )
+
             files_processed += 1
-                
+
     def _read_ada ( self, channel = -1, file_name = None ):
         """
         This method's goal is to read an ADHOC .ADA file containing photon counts.
@@ -175,19 +200,24 @@ class ada ( file_reader ):
             The file_name must represent a valid ADA file.
         """
         self.log.debug ( tuna.log.function_header ( ) )
-        
+
         if channel == -1:
             return
-        
+
         file_path = join ( self.__file_path, file_name )
+
         photon_positions = numpy.fromfile ( file_path, dtype = numpy.int16 )
-        # We know the file is organized with y,x,y,x,y,x... 
+
+        # We know the file is organized with y,x,y,x,y,x...
         # So the file will have size / 2 photons.
-        photon_hits = photon_positions.reshape ( photon_positions.size / 2, 2 )
+
+        photon_hits = photon_positions.reshape ( int(photon_positions.size / 2), 2 )
+
         for photon in range ( photon_hits.shape[0] ):
             x = photon_hits[photon][0]
             y = photon_hits[photon][1]
-            self.__array[channel][x][y] += 1                
+            self.__array[channel][x][y] += 1
+
             # photons table:
             s_key = str ( channel ) + ":" + str ( x ) + ":" + str ( y )
             if s_key not in self.__photons.keys ( ):
@@ -199,7 +229,7 @@ class ada ( file_reader ):
                 self.__photons [ s_key ] = photon
             else:
                 self.__photons [ s_key ] [ 'photons' ] += 1
-                
+
         #it seems that the first frame is duplicated
         #it would be nice to be able to display the creation of the image photon by photon
 
@@ -251,7 +281,7 @@ class ada ( file_reader ):
         cycle_parameters = { }
         adt.seek ( 0 )
         for line in adt:
-            if line.startswith ( "==>" ):                
+            if line.startswith ( "==>" ):
                 split_1 = line.split ( "==>  Beginning channel=" )
                 split_2 = split_1[1].split ( " at " )
                 acquisition_channel = split_2[0]
@@ -339,7 +369,7 @@ class ada ( file_reader ):
                     adt_parameters_dict["end time"]           = [ acquisition_end_time.strip ( ) ]
                     adt_parameters_dict["Queensgate value"]   = [ int ( acquisition_queensgate_value.strip ( ) ) ]
                     adt_parameters_dict["photon count"]       = [ int ( acquisition_photon_count.strip ( ) ) ]
-                    adt_parameters_dict["fr"]                 = [ int ( acquisition_fr.strip ( ) ) ] 
+                    adt_parameters_dict["fr"]                 = [ int ( acquisition_fr.strip ( ) ) ]
                     adt_parameters_dict["cumulated exposure"] = [ acquisition_cumulated_exposure.strip ( ) ]
                     adt_parameters_dict["cumulated photons"]  = [ int ( acquisition_cumulated_photons.strip ( ) ) ]
                     adt_parameters_dict["efficiency"]         = [ int ( acquisition_efficiency.strip ( ) ) ]

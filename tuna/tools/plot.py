@@ -37,7 +37,7 @@ def log ( message ):
     if debug:
         print ( message )
 
-def plot ( data, cmap = "Greys", title = "", ipython = None ):
+def plot ( data, cmap = "Reds", title = "", ipython = None ):
     """
     This function's goal is to plot a numpy ndarray argument.
     Will plot a mosaic if data is 3D, a simple plot if 2D.
@@ -46,7 +46,7 @@ def plot ( data, cmap = "Greys", title = "", ipython = None ):
 
     * data : numpy.ndarray
 
-    * cmap : str : "Greys"
+    * cmap : str : "Reds"
         The colormap to be passed to matplotlib.
 
     * title : string
@@ -60,8 +60,8 @@ def plot ( data, cmap = "Greys", title = "", ipython = None ):
             log ( "Could not get ipython reference, aborting plot." )
         ipython.magic ( "matplotlib qt" )
 
-    if len ( data.shape ) == 3:
-        subplots = data.shape [ 0 ]
+    if len ( self.get_array().shape ) == 3:
+        subplots=self.get_array().shape[0]
         log ( "subplots = {}".format ( subplots ) )
 
         dimensions = math.ceil ( math.sqrt ( subplots ) )
@@ -70,20 +70,24 @@ def plot ( data, cmap = "Greys", title = "", ipython = None ):
         figure, axes = plt.subplots ( dimensions, dimensions, sharex='col', sharey='row' )
 
         figure.suptitle ( title )
-        
+
         for plane in range ( data.shape [ 0 ] ):
-            image = axes.flat [ plane ] .imshow ( data [ plane ], cmap = cmap )
+            #image = axes.flat [ plane ] .imshow ( data [ plane ], cmap = cmap )
+            image = axes.flat [ plane ] .imshow ( self.get_array()[plane], cmap = cmap )
+            axes.flat[plane].set_title("Channel {}".format(plane))
 
         figure.subplots_adjust( right = 0.8 )
-        
+
         colorbar_axe = figure.add_axes ( [ 0.85, 0.15, 0.05, 0.7 ] )
         figure.colorbar ( image, cax=colorbar_axe )
-            
+
         return
 
-    if len ( data.shape ) == 2:
+    #if len ( data.shape ) == 2:
+    if len ( self.get_array().shape) == 2:    
         fig = plt.figure ( )
-        plt.imshow ( data, cmap = cmap )
+        #plt.imshow ( data, cmap = cmap )
+        plt.imshow ( self.get_array(), cmap = cmap )
         plt.colorbar ( orientation = "horizontal" )
         plt.title ( title )
 
@@ -96,7 +100,7 @@ def plot_high_res ( high_res ):
     * high_res : object
         A reference to a :ref:`tuna_pipelines_calibration_lamp_high_resolution_label` object.
     """
-    
+
     ipython = IPython.get_ipython()
     ipython.magic("matplotlib qt")
 

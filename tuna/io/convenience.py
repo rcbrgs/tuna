@@ -6,6 +6,8 @@ import logging
 
 from .can import can
 from .fits import fits
+from .adhoc import adhoc
+from .adhoc_ada import ada
 
 def read ( file_name ):
     """
@@ -51,9 +53,9 @@ def write ( array       = None,
 
     * array : numpy.ndarray
         The data to be saved in the file.
-    * file_format: string 
+    * file_format: string
         Specifies one of Tuna's known write formats (only "fits" is implemented so far).
-    * file_name: string 
+    * file_name: string
         Must contain a valid file path and name.
     * metadata: dictionary
         A structure containing the metadata to be saved as fits headers.

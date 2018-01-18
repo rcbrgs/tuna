@@ -17,6 +17,9 @@ import sys
 from tuna.io.file_reader import file_reader
 import tuna
 import warnings
+import IPython
+import math
+import matplotlib.pyplot as plt
 
 class fits ( file_reader ):
     """
@@ -28,7 +31,7 @@ class fits ( file_reader ):
 
     * array : numpy.ndarray : defaults to None
         Contains the data to be written to a file.
-    
+
     * file_name : string : defaults to None
         Contains the full location of a file to be read, or to be written to.
 
@@ -52,11 +55,11 @@ class fits ( file_reader ):
         fits_file.get_metadata ( )
     """
 
-    def __init__ ( self, 
-                   array = None, 
-                   file_name = None, 
+    def __init__ ( self,
+                   array = None,
+                   file_name = None,
                    metadata = { },
-                   photons = None ):
+                   photons = {} ):
         super ( fits, self ).__init__ ( )
         self.log = logging.getLogger ( __name__ )
 
@@ -64,6 +67,19 @@ class fits ( file_reader ):
         self.__array = array
         self.__metadata = metadata
         self.__photons = photons
+        self.__hdu_list_info=None
+
+    def get_file_name ( self ):
+        """
+        New function add by Julien Penguen  24/07/2017
+
+        This method's goal is to return the input filename.
+
+        Returns:
+
+        * self.__file_name : file_name
+        """
+        return self.__file_name
 
     def get_array ( self ):
         """
@@ -76,16 +92,41 @@ class fits ( file_reader ):
         """
         return self.__array
 
+    def get_hdu_list_info ( self ):
+        """
+        New function add by Julien Penguen  24/07/2017
+        This method's goal is to access the HDU lists.
+
+        Returns:
+
+        * self.__hdu_list_info
+            Contains the HDU lists informations.
+        """
+        return self.__hdu_list_info
+
     def get_metadata ( self ):
         """
+        New function add by Julien Penguen  12/09/2017
         This method's goal is to access the current metadata in this object.
 
         Returns:
 
         * self.__metadata : dictionary
             Contains the current metadata stored in this object.
-        """        
+        """
         return self.__metadata
+
+    def get_photons ( self ):
+        """
+        New function add by Julien Penguen  12/09/2017
+        This method's goal is to access the current array in this object.
+
+        Returns:
+
+        * self.__photons
+            Contains the current photons stored in this object's array.
+        """
+        return self.__photons
 
     def read ( self ):
         """
@@ -99,6 +140,7 @@ class fits ( file_reader ):
         if self.__file_name == None:
             self.log.debug ( "No file_name for FITS read." )
             self._is_readable = False
+            return 
 
         self.log.debug ( "Trying to read file %s as FITS file." % self.__file_name )
         try:
@@ -109,11 +151,12 @@ class fits ( file_reader ):
 
             # The file might have many HDU lists. If there are no arrays, then the file is invalid.
             hdu_info = hdu_list.info ( output = False )
+            self.__hdu_list_info=hdu_info
             self.log.debug ( "hdu_info = {}".format ( hdu_info ) )
             if len ( hdu_info ) == 1:
                 self.__array = hdu_list [ 0 ].data
                 found = True
-                
+
             invalid_flag = True
             for entry in hdu_info:
                 if entry [ 4 ] != ( ):
@@ -158,7 +201,7 @@ class fits ( file_reader ):
                         if cursor_row >= common_ndims [ 0 ] * multiplier:
                             cursor_row = 0
                             cursor_col += common_ndims [ 1 ]
-                
+
             if type ( self.__array ) == None:
                 if len ( possible_arrays ) > 1:
                     self.log.error ( "File has several distinct entries for data, and Tuna doesn't know how to parse it." )
@@ -166,7 +209,7 @@ class fits ( file_reader ):
             else:
                 self.log.debug ( "Assigned data section of first HDU as the image ndarray." )
                 self.log.debug ( "self.__array.ndim == %d" % self.__array.ndim )
-                
+
             metadata = { }
             for entry in possible_arrays:
                 self.log.debug ( "Processing header for hdu_list [ {} ].".format ( entry ) )
@@ -181,11 +224,50 @@ class fits ( file_reader ):
                             self.log.warning ( "Replacing metadata {} : ( {}, {} ) with new entry ( {}, {} ).".format ( key, self.__metadata [ key ] [ 0 ], self.__metadata [ key ] [ 1 ], metadata_value, metadata_comment ) )
                     self.__metadata [ key ] = ( metadata_value, metadata_comment )
                     self.log.debug ( "{}: value = {}, comment = {}.".format ( key, metadata_value, metadata_comment ) )
-                
+
             self._is_readable = True
         except OSError as e:
             self.log.error ( "OSError: %s." % e )
             self._is_readable = False
+
+        ###################
+        #case 2D data file#
+        ###################
+        if len(self.__array.shape) ==2:
+
+            for y in range(self.__array.shape[0]):
+                for x in range(self.__array.shape[1]):
+                    if (self.__array[y][x]).all() != 0:
+                    #print (data[channel][x][y])
+                        s_key = str ( x ) + ":" + str ( y )
+                        if s_key not in self.__photons.keys ( ):
+                            photon = { }
+                            photon [ 'x'       ] = x
+                            photon [ 'y'       ] = y
+                            photon [ 'photons' ] = self.__array[y][x]
+                            self.__photons [ s_key ] = photon
+
+        ###################
+        #case 3D data file#
+        ###################
+        if len(self.__array.shape) ==3:
+
+            for channel in range(self.__array.shape[0]):
+                for y in range(self.__array.shape[1]):
+                    for x in range(self.__array.shape[2]):
+                        if self.__array[channel][y][x] != 0:
+                        #print (data[channel][x][y])
+                            s_key = str ( channel ) + ":" + str ( x ) + ":" + str ( y )
+                            if s_key not in self.__photons.keys ( ):
+                                photon = { }
+                                photon [ 'channel' ] = channel
+                                photon [ 'x'       ] = x
+                                photon [ 'y'       ] = y
+                                photon [ 'photons' ] = self.__array[channel][y][x]
+                                self.__photons [ s_key ] = photon
+
+
+        self.log.info ( "Successfully photon recovery from file %s." % str ( self.__file_name ) )
 
     def write ( self, file_name = None ):
         """
@@ -219,7 +301,7 @@ class fits ( file_reader ):
                         fits_key = key
 
                     fits_key = fits_key.replace ( ' ', '_' )
-                    
+
                     self.log.debug ( "fits_key = %s" % fits_key )
                     self.log.debug ( "len ( value ) = %d" % len ( value ) )
                     self.log.debug ( "len ( comment ) = %d" % len ( comment ) )
@@ -250,7 +332,8 @@ class fits ( file_reader ):
 
         columns = { }
         for key in self.__metadata.keys ( ):
-            values = self.__metadata [ key ] [ 0 ]
+            values = int(self.__metadata [ key ] [ 0 ])
+
             distinct_values = set ( values )
             if ( len ( distinct_values ) > 2 ):
                 self.log.debug ( "More than 2 distinct values: %s." % str ( distinct_values ) )
@@ -259,13 +342,13 @@ class fits ( file_reader ):
 
         fits_columns = [ ]
         for key in columns.keys ( ):
-            fits_columns . append ( astrofits . Column ( name = key, 
-                                                         array  = columns [ key ] [ 0 ], 
+            fits_columns . append ( astrofits . Column ( name = key,
+                                                         array  = columns [ key ] [ 0 ],
                                                          format = columns [ key ] [ 1 ] ) )
 
         fits_columns_definition = astrofits . ColDefs ( fits_columns )
         # The new_table method will be deprecated, when it is, use the commented line below.
-        fits_table_hdu = astrofits . new_table ( fits_columns_definition )                
+        fits_table_hdu = astrofits . new_table ( fits_columns_definition )
         #fits_table_hdu = astrofits . BinTableHDU . from_columns ( fits_columns_definition )
         primary_hdu = astrofits.PrimaryHDU ( )
         hdu_list = astrofits.HDUList ( [ primary_hdu, fits_table_hdu ] )
@@ -294,17 +377,67 @@ class fits ( file_reader ):
             columns [ 'y' ]       [ 0 ] .append ( self.__photons [ entry ] [ 'y'       ] )
             columns [ 'photons' ] [ 0 ] .append ( self.__photons [ entry ] [ 'photons' ] )
 
-        
         fits_columns = [ ]
         for key in columns.keys ( ):
-            fits_columns . append ( astrofits . Column ( name = key, 
-                                                         array  = columns [ key ] [ 0 ], 
+            fits_columns . append ( astrofits . Column ( name = key,
+                                                         array  = columns [ key ] [ 0 ],
                                                          format = columns [ key ] [ 1 ] ) )
 
         fits_columns_definition = astrofits . ColDefs ( fits_columns )
         # The new_table method will be deprecated, when it is, use the commented line below.
-        fits_table_hdu = astrofits . new_table ( fits_columns_definition )                
+        fits_table_hdu = astrofits . new_table ( fits_columns_definition )
         #fits_table_hdu = astrofits . BinTableHDU . from_columns ( fits_columns_definition )
         primary_hdu = astrofits.PrimaryHDU ( )
         hdu_list = astrofits.HDUList ( [ primary_hdu, fits_table_hdu ] )
         hdu_list.writeto ( "photons_" + self.__file_name )
+
+    def plot ( self, cmap = "Reds", ipython = None ):
+        """
+        New function add by Julien Penguen  24/07/2017
+
+        This function's goal is to plot a numpy ndarray argument.
+        on  a mosaic .
+
+        Parameters:
+
+        * cmap : str : "Reds"
+            The colormap to be passed to matplotlib.
+
+        * title : string
+
+        * ipython : object
+            A reference to the running ipython environment.
+        """
+        if not ipython:
+            ipython = IPython.get_ipython()
+            if ipython == None:
+                print ( "Could not get ipython reference, aborting plot." )
+            ipython.magic ( "matplotlib qt" )
+
+        #subplots=self.get_array().shape[0]
+        #fig = plt.figure ( )
+        #plt.imshow(self.get_array(), cmap='gray')
+        #plt.colorbar()
+        #return
+
+        if  len(self.get_array().shape)  == 3:
+            subplots=self.get_array().shape[0]
+            print( "subplots = {}".format ( subplots ) )
+
+            dimensions = math.ceil ( math.sqrt ( subplots ) )
+            print( "should create mosaic of {} x {} slots.".format ( dimensions, dimensions ) )
+
+            figure, axes = plt.subplots ( dimensions, dimensions, sharex='col', sharey='row' )
+
+            figure.suptitle ( "{}".format(self.get_file_name()) )
+
+            for plane in range ( subplots):
+                image = axes.flat [ plane ] .imshow ( self.get_array()[plane] , cmap = cmap )
+                axes.flat[plane].set_title("Channel {}".format(plane))
+
+            figure.subplots_adjust( hspace=0.3, right = 0.8 )
+
+            colorbar_axe = figure.add_axes ( [ 0.85, 0.15, 0.05, 0.7 ] )
+            figure.colorbar ( image, cax=colorbar_axe )
+
+            return

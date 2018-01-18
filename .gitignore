@@ -4,6 +4,8 @@
 *.ad3
 *.AD3
 *.fits
+.sonar
+__pycache__
 *.log
 *.pyc
 *#

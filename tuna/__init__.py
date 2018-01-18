@@ -64,6 +64,9 @@ import tuna.tools
 import tuna.plugins
 import tuna.zeromq
 
+import tuna.generator
+from tuna.generator.adhocfile import *
+
 class daemons ( object ):
     """
     This class allows to create a wrapper object for the console.backend class.

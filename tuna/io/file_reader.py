@@ -3,6 +3,7 @@ This module's scope covers abstractions related to file format readers.
 """
 
 import logging
+import sys
 
 class file_reader ( object ):
     """

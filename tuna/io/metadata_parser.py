@@ -4,6 +4,7 @@ This module's scope covers the operations related to metadata.
 
 import logging
 import re
+import sys
 
 class metadata_parser ( object ):
     """
@@ -22,7 +23,7 @@ class metadata_parser ( object ):
         self.changelog = {
             "0.1.0" : "Tuna 0.14.0 : updated docstrings to new style.",
             }
-        
+
         self.log = logging.getLogger ( __name__ )
 
         self.__file_name = file_name
@@ -35,7 +36,7 @@ class metadata_parser ( object ):
         This method's goal is to access the parsed metadata.
 
         Returns:
-        
+
         * self.__results : dictionary
             Contains the metadata obtained from reading the input file.
         """
@@ -52,6 +53,7 @@ class metadata_parser ( object ):
             if ( self.__file_name.startswith ( ".ADT", -4 ) or
                  self.__file_name.startswith ( ".adt", -4 ) ):
                 self.read_adt_metadata ( )
+
         else:
             self.log ( "File name %s does not have .ADT or .adt suffix, aborting." % ( self.__file_name ) )
 

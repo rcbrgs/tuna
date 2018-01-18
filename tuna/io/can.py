@@ -196,7 +196,7 @@ class can ( file_reader ):
         record = None
         if records:
             record = records [ 0 ]
-            
+
         function = tuna.db.insert_record
         file_name = self.file_name
         file_type = self.file_type
@@ -237,6 +237,7 @@ class can ( file_reader ):
 
         self.log.info ( "file_name = %s" % self.file_name )
         self.log.info ( "shape = %s" % str ( self.shape ) )
+        self.log.info ( "file_type = %s" % str ( self.file_type ) )
         self.log.info ( "ndim = %d" % self.ndim )
         self.log.info ( "planes = %d" % self.planes )
         self.log.info ( "rows = %d" % self.rows )
@@ -264,7 +265,7 @@ class can ( file_reader ):
                 self.__d_photons = ada_object.get_photons ( )
                 self.file_type = "adt"
                 self.update ( )
-                
+
             elif ( self.file_name.startswith ( ".fits", -5 ) or
                    self.file_name.startswith ( ".FITS", -5 ) ):
                 fits_object = fits ( file_name = self.file_name )
@@ -324,3 +325,9 @@ class can ( file_reader ):
             self.log.warning ( "ndarray has either less than 2 or more than 3 dimensions." )
 
         self._database_refresh ( )
+
+    def help(self):
+        """
+        """
+        method_list = [func for func in dir(self) if callable(getattr(self, func)) and not func.startswith("__")]
+        return method_list
