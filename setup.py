@@ -12,13 +12,13 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-here = path.abspath ( path.dirname ( __file__ ) )
+here = path.abspath(path.dirname(__file__))
 
 from tuna.version import api, feature, bug
 
 # Get the long description from the relevant file
-with open ( path.join ( here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read ( )
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup (
     name='tuna',
@@ -26,7 +26,7 @@ setup (
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='{}.{}.{}'.format ( api, feature, bug ),
+    version='{}.{}.{}'.format(api, feature, bug),
     
     description='A Tunable Fabry-Pérot interferometry data reduction package.',
     long_description=long_description,
@@ -58,12 +58,7 @@ setup (
         
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        #'Programming Language :: Python :: 2',
-        #'Programming Language :: Python :: 2.6',
-        #'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
     ],
     
@@ -75,7 +70,7 @@ setup (
     # What does your project relate to?
     keywords='Astronomy Data-reduction Astrophysics Fabry-Pérot Interferometry',
 
-    package_dir = { '' : 'tuna' },
+    package_dir = {'': 'tuna'},
     
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
@@ -102,7 +97,6 @@ setup (
         'mpyfit',
         'numpy',
         'psutil',
-        'pyfits', 
         'pymysql',
         #'PySide',
         'pyzmq',
@@ -115,8 +109,8 @@ setup (
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'dev': [ 'sphinx' ],
-        'test': [ 'coverage' ],
+        'dev': ['sphinx'],
+        'test': ['coverage'],
     },
 
     # If there are data files included in your packages that need to be

@@ -3,44 +3,44 @@ import tuna
 import unittest
 import zmq
 
-class threaded_bus ( threading.Thread ):
-    def __init__ ( self ):
-        super ( threaded_bus, self ).__init__ ( )
-        self.zmq_bus_instance = tuna.zeromq.zmq_proxy ( )
+class ThreadedBus(threading.Thread):
+    def __init__(self):
+        super(self.__class__, self).__init__()
+        self.zmq_bus_instance = tuna.zeromq.ZMQProxy()
 
-    def close ( self ):
-        self.zmq_bus_instance.close ( )
+    def close(self):
+        self.zmq_bus_instance.close()
 
-    def run ( self ):
-        self.zmq_bus_instance.run ( )
+    def run(self):
+        self.zmq_bus_instance.run()
 
-class unit_test_zmq_client ( unittest.TestCase ):
+class unit_test_zmq_client(unittest.TestCase):
     @classmethod
-    def setUpClass ( self ):
+    def setUpClass(self):
         pass
 
     @classmethod
-    def tearDownClass ( self ):
+    def tearDownClass(self):
         pass
 
-    def test_zmq_bus_replies ( self ):
+    def test_zmq_bus_replies(self):
         return 
 
-        self.threaded_bus_instance = threaded_bus ( )
-        self.threaded_bus_instance.start ( )
+        self.threaded_bus_instance = ThreadedBus()
+        self.threaded_bus_instance.start()
 
-        client = tuna.zeromq.zmq_client ( )
-        answer = client.send ( "test" )
-        self.assertEqual ( answer, 'ACK' )
+        client = tuna.zeromq.ZMQClient()
+        answer = client.send("test")
+        self.assertEqual(answer, 'ACK')
         
-        self.threaded_bus_instance.close ( )
-        self.threaded_bus_instance.join ( )
+        self.threaded_bus_instance.close()
+        self.threaded_bus_instance.join()
         
-    def test_zmq_bus_requests ( self ):
+    def test_zmq_bus_requests(self):
         pass
 
-    def test_zmq_bus_forwards ( self ):
+    def test_zmq_bus_forwards(self):
         pass
 
 if __name__ == '__main__':
-    unittest.main ( )
+    unittest.main()

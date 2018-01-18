@@ -1,5 +1,4 @@
-"""
-This namespace aggregates modules related to logging.
+"""This namespace aggregates modules related to logging.
 """
 
 from .utils import ( function_header,
