@@ -26,9 +26,9 @@ import types
 
 from .file_reader import FileReader
 import tuna
-import IPython #new add by Julien Penguen 19/07/2017
-import math #new add by Julien Penguen 19/07/2017
-import warnings #new add by Julien Penguen 19/07/2017
+import IPython
+import math
+import warnings
 
 import matplotlib.pyplot as plt
 
@@ -86,20 +86,16 @@ class Adhoc(FileReader):
 
         self.__adhoc_type = adhoc_type
         self.__adhoc_trailer = adhoc_trailer
-        self.__adhoc_list_element = None #new add by Julien Penguen 20/07/2017
+        self.__adhoc_list_element = None
         self.__file_name = file_name
         self.__array = array
         self.__file_object = None
-        self.__array_size= None #new add by Julien Penguen 12/07/2017
+        self.__array_size= None
 
-        self.__photons = { } #new add by Julien Penguen 12/09/2017
+        self.__photons = {}
 
-
-    def get_file_name ( self ):
-        """
-        New function add by Julien Penguen  12/07/2017
-
-        This method's goal is to return the input filename.
+    def get_file_name(self):
+        """Return the input filename.
 
         Returns:
 
@@ -160,12 +156,8 @@ class Adhoc(FileReader):
                 return
             self.__adhoc_type = adhoc_file['trailer']['number_of_dimensions'][0]
 
-    def get_adhoc_type ( self ):
-        """
-
-        New function add by Julien Penguen  17/07/2017
-
-        This method's goal is to return the current value of the adhoc_type.
+    def get_adhoc_type(self):
+        """Return the current value of the adhoc_type.
 
         Returns:
 
@@ -173,19 +165,16 @@ class Adhoc(FileReader):
 
         """
         return self.__adhoc_type
-    def set_adhoc_type ( self,param ):
-        """
-
-        New function add by Julien Penguen  17/07/2017
-
-        This method's goal is to return the current value of the adhoc_type.
+    
+    def set_adhoc_type(self, param):
+        """Return the current value of the adhoc_type.
 
         Returns:
 
         * self.__adhoc_type : adhoc_file['trailer']['number_of_dimensions'][0]
 
         """
-        self.__adhoc_type=param
+        self.__adhoc_type = param
 
         return self.__adhoc_type
 
@@ -200,8 +189,7 @@ class Adhoc(FileReader):
         return self.__array
 
     def get_array_size ( self ):
-        """
-        This method's goal is to return the current value of the data array.
+        """Return the current value of the data array.
 
         Returns:
 
@@ -211,9 +199,7 @@ class Adhoc(FileReader):
         return self.__array_size
 
     def get_element_array ( self, x=None, y=None, z=None ):
-        """
-        This method's goal is to return the current value of the element in data
-        array.
+        """Return the current value of the element in data array.
 
         Returns:
 
@@ -356,7 +342,7 @@ class Adhoc(FileReader):
                 int(numpy_data['trailer']['lx']))
         except ValueError as e:
             self.log.debug("%s" % str(e))
-            return
+            raise e
 
         self.__array[numpy.where(numpy_data == -3.1E38)] = numpy.nan
         self.__adhoc_trailer = numpy_data['trailer']
