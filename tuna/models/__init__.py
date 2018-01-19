@@ -1,9 +1,8 @@
-"""
-This namespace aggregates modules related to modeling.
+"""This namespace aggregates modules related to modeling.
 """
 
 import astropy
-from .airy     import ( airy_fitter,
-                        airy_plane,
+from .airy     import ( AiryFitter,
+                        AiryPlane,
                         fit_airy )
-from .parabola import ( parabolic_fitter )
+from .parabola import ( ParabolicFitter )

@@ -1,6 +1,6 @@
-astropy
+astropy<=0.4.6
 ipython
-matplotlib
+matplotlib<2.0.0
 psutil
 pymysql
 pyzmq
