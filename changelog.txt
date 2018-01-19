@@ -1,3 +1,5 @@
+Tuna 0.17.0:
+- Added Julien Penguen's work on ADHOC io.
 Tuna 0.16.5:
 - Refactored all code to be PEP8 and PEP257 compliant.
 Tuna 0.13.0:
